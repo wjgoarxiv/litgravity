@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.1.0 — unreleased
+## 0.1.0 — 2026-10-22
 
-First build of LitGravity, the LitFamily member for Google's Antigravity CLI (probed on agy 1.4.3).
+First release of LitGravity, the LitFamily member for Google's Antigravity CLI (probed on agy 1.4.3).
 
 ### Plugin
 
