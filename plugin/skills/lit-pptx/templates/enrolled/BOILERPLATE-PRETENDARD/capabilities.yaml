@@ -1,0 +1,181 @@
+supported_layouts:
+  - cover
+  - content
+  - main
+  - summary
+  - closing
+
+supported_blocks:
+  cover: [title]
+  content: [title, body, image, notes, kpi-table, figure-caption, table-caption]
+  main: [title, body, main-box, kpi-table, image, figure-caption, table-caption]
+  summary: [title, summary-group, image, kpi-table, figure-caption, table-caption]
+  closing: [title]
+
+supported_body_items:
+  - bullet
+  - numbered
+  - section
+
+# Font roles map the boilerplate_professional.css type scale onto the engine.
+# char_spacing in pt (maps to PowerPoint character spacing). UPPERCASE label
+# roles take POSITIVE tracking, overriding the global -0.5 narrow default.
+font_roles:
+  cover_title:
+    font: "Pretendard"
+    size: 36
+    char_spacing: -1.0
+    line_spacing: 1.16
+    align: center
+    bold: true
+    color: "#3C3836"
+
+  cover_metadata:
+    font: "Pretendard"
+    size: 13
+    char_spacing: -0.5
+    line_spacing: 1.3
+    align: center
+    bold: false
+    color: "#6E6256"
+
+  cover_date:
+    font: "Pretendard"
+    size: 10
+    char_spacing: -0.5
+    line_spacing: 1.1
+    align: center
+    bold: false
+    color: "#6E6256"
+
+  section_title:
+    font: "Pretendard"
+    size: 24
+    char_spacing: -0.5
+    line_spacing: 1.12
+    align: left
+    bold: true
+    color: "#3C3836"
+
+  section_header:
+    font: "Pretendard"
+    size: 15
+    char_spacing: -0.5
+    line_spacing: 1.3
+    align: left
+    bold: true
+    color: "#3C3836"
+    space_after: 6
+    bullet_type: bullet
+    bullet_char: "•"
+    bullet_font: "Pretendard"
+    marL: 0.25
+    indent: -0.25
+
+  body_text:
+    font: "Pretendard"
+    size: 12
+    char_spacing: -0.5
+    line_spacing: 1.3
+    align: left
+    bold: false
+    color: "#3C3836"
+
+  body_text_toc:
+    font: "Pretendard"
+    size: 20
+    char_spacing: -0.5
+    line_spacing: 1.3
+    align: left
+    bold: false
+    color: "#3C3836"
+    space_after: 8
+
+  numbered_item:
+    font: "Pretendard"
+    size: 12
+    char_spacing: -0.5
+    line_spacing: 1.3
+    align: left
+    bold: false
+    color: "#3C3836"
+    space_after: 4
+    bullet_type: number
+    number_type: arabicParenBoth
+    marL: 0.5
+    indent: -0.3125
+
+  table_header:
+    font: "Pretendard"
+    size: 11
+    char_spacing: -0.5
+    align: left
+    bold: true
+    color: "#3C3836"
+    fill: "#FBFAF7"
+
+  table_data:
+    font: "Pretendard"
+    size: 11
+    char_spacing: -0.5
+    align: left
+    bold: false
+    color: "#3C3836"
+
+  closing_title:
+    font: "Pretendard"
+    size: 36
+    char_spacing: -1.0
+    line_spacing: 1.0
+    align: center
+    bold: true
+    color: "#3C3836"
+
+  disclaimer:
+    font: "Pretendard"
+    size: 8
+    char_spacing: -0.5
+    line_spacing: 1.3
+    align: left
+    bold: false
+    color: "#6E6256"
+
+  kpi_value:
+    font: "Pretendard"
+    size: 28
+    char_spacing: -0.7
+    align: left
+    bold: true
+    color: "#3C3836"
+
+  kpi_label:
+    font: "Pretendard"
+    size: 9
+    char_spacing: 0.4
+    align: left
+    bold: false
+    color: "#6E6256"
+
+  figure_caption:
+    font: "Pretendard"
+    size: 9
+    char_spacing: -0.5
+    line_spacing: 1.3
+    align: center
+    bold: false
+    color: "#3F6F5B"
+
+  table_caption:
+    font: "Pretendard"
+    size: 9
+    char_spacing: -0.5
+    line_spacing: 1.3
+    align: center
+    bold: false
+    color: "#3F6F5B"
+
+constraints:
+  max_columns_per_table: 6
+  max_ci_colors_per_slide: 2
+  body_text_stays_black: false
+  no_bold_on_bold_fonts: false

@@ -1,0 +1,23 @@
+{
+  "slug": "<slug>",
+  "objective": "<one outcome sentence, true for a user when done>",
+  "non_goals": [],
+  "criteria": [
+    {
+      "id": "c1",
+      "text": "<scenario with concrete inputs> on <real surface> yields <single binary observable>",
+      "status": "open",
+      "attempt": 1,
+      "model": "happy",
+      "channel": "shell",
+      "evidence": []
+    }
+  ],
+  "status": "active",
+  "conversation_id": "<conversation id from the activation note>",
+  "host_goal": { "state": "unavailable", "synced": null },
+  "steering": [],
+  "blockers": [],
+  "verdict": null,
+  "updated": "<UTC ISO-8601>"
+}

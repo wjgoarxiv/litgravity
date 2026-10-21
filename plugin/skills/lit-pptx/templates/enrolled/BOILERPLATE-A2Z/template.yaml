@@ -1,0 +1,45 @@
+name: BOILERPLATE-A2Z
+version: "1.0.0"
+label: "Boilerplate Professional (에이투지체 / A2Z)"
+description: "Generic professional/technical deck — 4:3 canvas, 에이투지체(A2Z) typography, white ground, dark charcoal structure, restrained accents. Same geometry as BOILERPLATE-PRETENDARD; equal-status font option."
+
+# 에이투지체 ships one family PER WEIGHT (e.g. '에이투지체 7 Bold'), so weight is
+# selected by family name, NOT bold:true. All font_roles set bold:false and pick
+# the right weight family. Korean family names used for CJK robustness.
+fonts:
+  title: "에이투지체 7 Bold"
+  body: "에이투지체 4 Regular"
+  light: "에이투지체 3 Light"
+
+dimensions:
+  width: 10
+  height: 7.5
+  unit: inches
+  format: 4:3
+
+palette:
+  ink: "#3C3836"
+  ink_muted: "#6E6256"
+  muted: "#928374"
+  line: "#CBC2B5"
+  paper: "#FFFFFF"
+  paper_warm: "#FBFAF7"
+  header_fill: "#FBFAF7"
+  accent_red: "#CC241D"
+  accent_green: "#98971A"
+  accent_green_2: "#689D6A"
+  accent_amber: "#D79921"
+  accent_yellow: "#FFC000"
+  accent_purple: "#B16286"
+  source_blue: "#3F6F5B"
+  metric: "#3C3836"
+
+decoration_assets: {}
+
+global_typography:
+  char_spacing: -0.5
+  bold_rule: "에이투지체 is per-weight family — NEVER set bold:true; pick the Bold family ('에이투지체 7 Bold')."
+  bullet_font: "에이투지체 4 Regular"
+  bullet_char: "•"
+  bullet_color: "3C3836"
+  section_accent: "3C3836"

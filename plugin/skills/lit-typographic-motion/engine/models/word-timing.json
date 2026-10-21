@@ -1,0 +1,198 @@
+{
+  "schema": "litgravity.motion-word-timing/v1",
+  "note": "Tier 3 (MO-A-20..22): opt-in with --word-timing, never from a bare lit. Models download only through `node <skill>/scripts/motion-runtime.mjs install --word-timing`, outside any sandboxed session, after the size and these pins are printed. A licence outside allowedLicenses fails closed. The aligner runtime (the Python environment that runs these models) is not part of this release, so a --word-timing render exits 14 until it ships.",
+  "allowedLicenses": [
+    "apache-2.0",
+    "mit",
+    "bsd-2-clause",
+    "bsd-3-clause"
+  ],
+  "deniedLicensePatterns": [
+    "nc",
+    "non-commercial",
+    "noncommercial"
+  ],
+  "neverVendored": [
+    "MMS_FA weights (CC-BY-NC)",
+    "madmom weights (CC-BY-NC-SA)",
+    "aubio (GPLv3)",
+    "essentia (AGPL)"
+  ],
+  "alignerRuntime": {
+    "status": "not-in-this-release"
+  },
+  "models": [
+    {
+      "id": "openai/whisper-small",
+      "revision": "973afd24965f72e36ca33b3055d56a652f456b4d",
+      "license": "apache-2.0",
+      "role": "transcription and word timestamps (multilingual, includes Korean)",
+      "files": [
+        {
+          "path": "added_tokens.json",
+          "bytes": 34604,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/added_tokens.json",
+          "gitBlobSha1": "e3d256c988462aa153dcabe2aa38b8e9b436c06f"
+        },
+        {
+          "path": "config.json",
+          "bytes": 1967,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/config.json",
+          "gitBlobSha1": "113bb3efe3a7396f2ea629eef12637bd8085238d"
+        },
+        {
+          "path": "generation_config.json",
+          "bytes": 3868,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/generation_config.json",
+          "gitBlobSha1": "d3823179a367fa912e3b911b3d2e71ab2a028290"
+        },
+        {
+          "path": "merges.txt",
+          "bytes": 493869,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/merges.txt",
+          "gitBlobSha1": "6038932a2a1f09a66991b1c2adae0d14066fa29e"
+        },
+        {
+          "path": "model.safetensors",
+          "bytes": 966995080,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/model.safetensors",
+          "sha256": "1d7734884874f1a1513ed9aa760a4f8e97aaa02fd6d93a3a85d27b2ae9ca596b"
+        },
+        {
+          "path": "normalizer.json",
+          "bytes": 52666,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/normalizer.json",
+          "gitBlobSha1": "dd6ae819ad738ac1a546e9f9282ef325c33b9ea0"
+        },
+        {
+          "path": "preprocessor_config.json",
+          "bytes": 184990,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/preprocessor_config.json",
+          "gitBlobSha1": "c2048dfa9fd94a052e62e908d2c4dfb18534b4d2"
+        },
+        {
+          "path": "special_tokens_map.json",
+          "bytes": 2194,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/special_tokens_map.json",
+          "gitBlobSha1": "bf69932dca4b3719b59fdd8f6cc1978109509f6c"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 2480466,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/tokenizer.json",
+          "gitBlobSha1": "1e95340ff836fad1b5932e800fb7b8c5e6d78a74"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "bytes": 282683,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/tokenizer_config.json",
+          "gitBlobSha1": "d13b786c04765fb1a06492b53587752cd67665ea"
+        },
+        {
+          "path": "vocab.json",
+          "bytes": 835550,
+          "url": "https://huggingface.co/openai/whisper-small/resolve/973afd24965f72e36ca33b3055d56a652f456b4d/vocab.json",
+          "gitBlobSha1": "d7016e21da8776c8a9d577d0f559600f09a240eb"
+        }
+      ],
+      "bytes": 971367937
+    },
+    {
+      "id": "kresnik/wav2vec2-large-xlsr-korean",
+      "revision": "629c9a3501c10ba128bf3fa1eebb12af3be03f61",
+      "license": "apache-2.0",
+      "role": "Korean forced alignment (CTC)",
+      "files": [
+        {
+          "path": "config.json",
+          "bytes": 2313,
+          "url": "https://huggingface.co/kresnik/wav2vec2-large-xlsr-korean/resolve/629c9a3501c10ba128bf3fa1eebb12af3be03f61/config.json",
+          "gitBlobSha1": "e3f64a39d0d0c11e6bf6e98fa20a30392e7af823"
+        },
+        {
+          "path": "model.safetensors",
+          "bytes": 1266747952,
+          "url": "https://huggingface.co/kresnik/wav2vec2-large-xlsr-korean/resolve/629c9a3501c10ba128bf3fa1eebb12af3be03f61/model.safetensors",
+          "sha256": "29be111b9247cfc2c72f125c1b1f50021ecfded8f0d947bbfb7e31dc7f0ddd07"
+        },
+        {
+          "path": "preprocessor_config.json",
+          "bytes": 214,
+          "url": "https://huggingface.co/kresnik/wav2vec2-large-xlsr-korean/resolve/629c9a3501c10ba128bf3fa1eebb12af3be03f61/preprocessor_config.json",
+          "gitBlobSha1": "73caa151574001d3d495fae897e1d38968249712"
+        },
+        {
+          "path": "special_tokens_map.config",
+          "bytes": 85,
+          "url": "https://huggingface.co/kresnik/wav2vec2-large-xlsr-korean/resolve/629c9a3501c10ba128bf3fa1eebb12af3be03f61/special_tokens_map.config",
+          "gitBlobSha1": "9abf71998c3e0de2f13c0fd73ed81477c9dae118"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "bytes": 161,
+          "url": "https://huggingface.co/kresnik/wav2vec2-large-xlsr-korean/resolve/629c9a3501c10ba128bf3fa1eebb12af3be03f61/tokenizer_config.json",
+          "gitBlobSha1": "ec5c17ae213d6892cdfe6b97422f86b517efa3a6"
+        },
+        {
+          "path": "vocab.json",
+          "bytes": 18163,
+          "url": "https://huggingface.co/kresnik/wav2vec2-large-xlsr-korean/resolve/629c9a3501c10ba128bf3fa1eebb12af3be03f61/vocab.json",
+          "gitBlobSha1": "f4d2a33e4cfff1c92bca9bbc4f0c5a4df1b459c8"
+        }
+      ],
+      "bytes": 1266768888
+    },
+    {
+      "id": "facebook/wav2vec2-base-960h",
+      "revision": "22aad52d435eb6dbaf354bdad9b0da84ce7d6156",
+      "license": "apache-2.0",
+      "role": "English forced alignment (CTC)",
+      "files": [
+        {
+          "path": "config.json",
+          "bytes": 1596,
+          "url": "https://huggingface.co/facebook/wav2vec2-base-960h/resolve/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/config.json",
+          "gitBlobSha1": "8ca9cc7496e145e37d09cec17d0c3bf9b8523c8e"
+        },
+        {
+          "path": "feature_extractor_config.json",
+          "bytes": 158,
+          "url": "https://huggingface.co/facebook/wav2vec2-base-960h/resolve/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/feature_extractor_config.json",
+          "gitBlobSha1": "52fdd74dc06f40033506e402269fbde5e7adc21d"
+        },
+        {
+          "path": "model.safetensors",
+          "bytes": 377607901,
+          "url": "https://huggingface.co/facebook/wav2vec2-base-960h/resolve/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/model.safetensors",
+          "sha256": "8aa76ab2243c81747a1f832954586bc566090c83a0ac167df6f31f0fa917d74a"
+        },
+        {
+          "path": "preprocessor_config.json",
+          "bytes": 159,
+          "url": "https://huggingface.co/facebook/wav2vec2-base-960h/resolve/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/preprocessor_config.json",
+          "gitBlobSha1": "3f24dc078fcba55ee1d417a413847ead40c093a3"
+        },
+        {
+          "path": "special_tokens_map.json",
+          "bytes": 85,
+          "url": "https://huggingface.co/facebook/wav2vec2-base-960h/resolve/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/special_tokens_map.json",
+          "gitBlobSha1": "25bc39604f72700b3b8e10bd69bb2f227157edd1"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "bytes": 163,
+          "url": "https://huggingface.co/facebook/wav2vec2-base-960h/resolve/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/tokenizer_config.json",
+          "gitBlobSha1": "978a15a96dbb2d23e2afbc70137cae6c5ce38c8d"
+        },
+        {
+          "path": "vocab.json",
+          "bytes": 291,
+          "url": "https://huggingface.co/facebook/wav2vec2-base-960h/resolve/22aad52d435eb6dbaf354bdad9b0da84ce7d6156/vocab.json",
+          "gitBlobSha1": "88181b954aa14df68be9b444b3c36585f3078c0a"
+        }
+      ],
+      "bytes": 377610353
+    }
+  ],
+  "totalBytes": 2615747178
+}

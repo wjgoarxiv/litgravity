@@ -1,0 +1,9 @@
+{
+  "name": "litgravity-diagram-runtime",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Pinned renderer for lit-diagram-drawer PNG export. Installed into the LitGravity runtime cache, never globally.",
+  "dependencies": {
+    "agent-browser": "0.38.1"
+  }
+}

@@ -1,0 +1,40 @@
+name: AZURE-PRO
+version: "1.0.0"
+label: "Azure Professional"
+description: "Flagship SOTA blue-and-white deck — 16:9 widescreen, Pretendard, geometric gradient accents, rounded tint cards, numbered chips, KPI cards. Pro-designer aesthetic."
+
+fonts:
+  title: "Pretendard"
+  body: "Pretendard"
+  light: "Pretendard"
+
+dimensions:
+  width: 13.333
+  height: 7.5
+  unit: inches
+  format: "16:9"
+
+palette:
+  ink: "#0E1B2C"
+  ink_muted: "#51607A"
+  primary: "#1D4ED8"
+  primary_deep: "#0B2E6F"
+  azure: "#3B82F6"
+  azure_soft: "#93C5FD"
+  tint: "#EEF4FF"
+  tint_2: "#DCE9FF"
+  line: "#D5DEEC"
+  paper: "#F6F9FE"
+  ground: "#FFFFFF"
+
+global_typography:
+  char_spacing: -0.3
+  bold_rule: "Pretendard is a weighted family — bold:true allowed."
+  bullet_font: "Pretendard"
+  bullet_char: "•"
+  bullet_color: "1D4ED8"
+  section_accent: "1D4ED8"
+
+# Read as a legacy pack: what this template can draw beyond plain text regions.
+pack:
+  capabilities: [rich-blocks, recolor, font-swap, mesh-background]

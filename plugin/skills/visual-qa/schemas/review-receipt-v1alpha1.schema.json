@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "litfamily.review-receipt/v1alpha1",
+  "title": "LitFamily Independent Review Receipt v1alpha1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id", "review_id", "fresh_context_id", "reviewer_capability",
+    "input_hashes", "reviewed_inventory", "confidence", "findings",
+    "independence_assertion", "peer_draft_received",
+    "implementer_context", "started_at", "ended_at", "timeout", "cancelled", "verdict"
+  ],
+  "properties": {
+    "schema_id": { "const": "litfamily.review-receipt/v1alpha1" },
+    "review_id": { "$ref": "#/$defs/id" },
+    "fresh_context_id": { "$ref": "#/$defs/id" },
+    "reviewer_capability": {
+      "$comment": "One-release alias: accept the old verifier id in saved receipts without rewriting their hashes; new receipts use lit-verifier.",
+      "enum": ["quality-reviewer", "lit-verifier", "oracle-verifier"]
+    },
+    "input_hashes": {
+      "type": "object", "additionalProperties": false,
+      "required": ["design_contract_hash", "source_hash", "capture_hash", "artifacts_hash"],
+      "properties": {
+        "design_contract_hash": { "$ref": "#/$defs/hash" },
+        "source_hash": { "$ref": "#/$defs/hash" },
+        "capture_hash": { "$ref": "#/$defs/hash" },
+        "artifacts_hash": { "$ref": "#/$defs/hash" }
+      }
+    },
+    "reviewed_inventory": {
+      "type": "array", "minItems": 1, "maxItems": 512, "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "confidence": { "enum": ["HIGH", "MEDIUM", "LOW"] },
+    "findings": {
+      "type": "array", "maxItems": 256,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "severity", "blocking", "message", "evidence_ids"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "severity": { "enum": ["P0", "P1", "P2", "P3"] },
+          "blocking": { "type": "boolean" },
+          "message": { "type": "string", "minLength": 1 },
+          "evidence_ids": {
+            "type": "array", "minItems": 1, "maxItems": 128, "uniqueItems": true,
+            "items": { "$ref": "#/$defs/id" }
+          }
+        }
+      }
+    },
+    "independence_assertion": { "type": "boolean" },
+    "peer_draft_received": { "type": "boolean" },
+    "implementer_context": { "type": "boolean" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "ended_at": { "type": "string", "format": "date-time" },
+    "timeout": { "type": "boolean" },
+    "cancelled": { "type": "boolean" },
+    "verdict": { "enum": ["PASS", "FAIL", "BLOCKED"] }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*:[a-z0-9][a-z0-9./-]*$" }
+  }
+}

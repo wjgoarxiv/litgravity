@@ -1,0 +1,312 @@
+{
+  "positive": {
+    "ko-bold-deliverable-label": "**출처:** 통계청 표 7",
+    "en-bold-deliverable-label": "**Evidence:** checked output and logs",
+    "ko-plain-meta-label": "출처: 통계청, 표 7.",
+    "en-plain-meta-label": "Source: annual report, table 4. 한국어 요약",
+    "ko-stacked-limitation-chain": "연구 전용 · 투자 조언 아님 · 실제 체결 및 수익성 미확인",
+    "en-stacked-limitation-chain": "Not independently verified · not a permit decision.",
+    "en-knowledge-cutoff": "As of my last update, the rule had not changed.",
+    "en-ai-self-disclaimer": "As an AI language model, I cannot access live market data.",
+    "en-hope-helps": "I hope this helps — 도움이 되길 바랍니다.",
+    "ko-chatbot-signoff": "도움이 되셨길 바랍니다.",
+    "ko-status-negation": "검증된 적이 없음",
+    "ko-mi-status": "미확인 항목은 담당자가 검토한다.",
+    "en-epistemic-negation": "The result was not independently verified by this team.",
+    "en-not-performed": "No remote validation was performed.",
+    "ko-plain-meta-label-warn": "증거 경계: supplied material only.",
+    "en-plain-caveat-label": "Caveat: not all features are implemented.",
+    "workflow-jargon": "The claim ledger maps this sentence to [C003] and [SRC001].",
+    "ko-workflow-jargon": "그림 영수증]을 내부 기록에 남겼다.",
+    "en-not-x-but-y": "Not a workaround, but a permanent fix.",
+    "ko-negation-contrast": "중요한 것은 속도가 아니라 입력 형식이다.",
+    "en-forced-triad": "The proposal is robust,\nintuitive, and scalable.",
+    "ko-forced-triad": "빠르고, 단순하고, 그리고 안전하다.",
+    "en-colon-reveal": "Key takeaway: the job took two days.",
+    "en-conclusion-opener": "In conclusion, the team will keep the current schedule.",
+    "en-throat-clearing": "It is worth noting that the sample contains 42 rows.",
+    "ko-chatbot-invitation": "궁금한 점이 있으시면 문의해 주세요.",
+    "en-lexical-tell": "The report delves into a multifaceted policy landscape.",
+    "ko-calque": "이번 조치는 현장에 새로운 지평을 열었다.",
+    "ko-double-passive": "문제가 화면에 보여지고 있다.",
+    "ko-light-verb": "가격 변화가 수요에 영향을 미치다.",
+    "en-em-dash-cluster": "The job took two days—one for review—and the result shipped Friday.",
+    "ko-decorative-bold": "**첫 번째 항목**과 **두 번째 항목**을 모두 강조했다.",
+    "code-narrating-comment": "// Now we parse the token.",
+    "code-ai-attribution": "Co-Authored-By: Gemini <noreply@example.com>",
+    "code-defensive-guard": "if (typeof value !== \"undefined\") { return value; }",
+    "ko-weasel-attribution": "전문가들에 따르면 수요가 늘어날 전망이다.",
+    "en-weasel-attribution": "Some analysts believe the price will rise.",
+    "en-stacked-hedges": "It could possibly affect the next release.",
+    "ko-stacked-hedges": "변화가 생길 가능성이 있을 수 있다.",
+    "en-closer-offer": "Is there anything else I need to know?",
+    "en-lets-dive": "Let's dive in and review the first result.",
+    "en-demo-self-disclaimer": "Demo synthesis: the architecture follows the showcase design.",
+    "ko-bracket-status-tag": "[미검증] 표 3의 추정치",
+    "en-bracket-status-tag": "[unverified] estimate in table 3",
+    "ko-standalone-scope-disclaimer": "허가 판단 결과 아님. 제공된 자료만으로는 대상 구역을 확정할 수 없다.",
+    "en-standalone-scope-disclaimer": "Based on the provided information, while specific details are limited and not widely documented.",
+    "ko-chatbot-opener": "물론입니다! 내용을 정리해 드릴게요.",
+    "en-chatbot-opener": "Certainly! Here is the overview.",
+    "en-testament": "The project stands as a testament to careful planning.",
+    "en-left-in-narration": "I've updated the file and saved it.",
+    "en-chatbot-closer": "Let me know if you would like another version.",
+    "ko-negative-pledge": "동일 조건의 독립 성능 비교로 쓰지 않음.",
+    "ko-negative-pledge-repeat": "측정값은 인과관계를 주장하지 않음.\n두 공정의 차이는 최종 결론이 아님.",
+    "en-negative-pledge": "This is not intended as a head-to-head benchmark."
+  },
+  "negative": {
+    "ko-bold-deliverable-label": "표 7의 출처는 각주 2에 적었다.",
+    "en-bold-deliverable-label": "The evidence appears in footnote 4.",
+    "ko-plain-meta-label": "통계청의 표 7을 각주 2에서 인용했다.",
+    "en-plain-meta-label": "The annual report is cited in note 4.",
+    "ko-stacked-limitation-chain": "계약 조건상 직접 확인하지 않은 항목은 보고서에서 뺀다.",
+    "en-stacked-limitation-chain": "The team did not make a permitting recommendation.",
+    "en-knowledge-cutoff": "The report records the rule as of 2020.",
+    "en-ai-self-disclaimer": "The model was trained on public market data through 2023.",
+    "en-hope-helps": "The final paragraph names the next review date.",
+    "ko-chatbot-signoff": "설명은 요청한 범위에 맞춰 마쳤다.",
+    "ko-status-negation": "외부 검증 결과를 보고서에 기록했다.",
+    "ko-mi-status": "담당자가 항목 확인을 마쳤다.",
+    "en-epistemic-negation": "The team verified the result independently.",
+    "en-not-performed": "The remote check ran on Tuesday.",
+    "ko-plain-meta-label-warn": "자료의 출처는 참고문헌에 정리했다.",
+    "en-plain-caveat-label": "The manual describes which features are implemented.",
+    "workflow-jargon": "The report lists three observations from the site visit.",
+    "ko-workflow-jargon": "그림 파일의 색상과 크기를 기록했다.",
+    "en-not-x-but-y": "The change replaces a workaround with a permanent fix.",
+    "ko-negation-contrast": "입력 형식이 처리 속도보다 중요하다.",
+    "en-forced-triad": "The proposal is robust and scalable.",
+    "ko-forced-triad": "속도와 안정성을 함께 확인했다.",
+    "en-colon-reveal": "The job took two days, including review.",
+    "en-conclusion-opener": "The team will keep the current schedule.",
+    "en-throat-clearing": "The sample contains 42 rows.",
+    "ko-chatbot-invitation": "문의는 고객센터에서 접수한다.",
+    "en-lexical-tell": "The repair crew dug through the topsoil.",
+    "ko-calque": "개편안은 신청 절차를 한 단계 줄였다.",
+    "ko-double-passive": "담당자가 화면에서 오류를 확인했다.",
+    "ko-light-verb": "가격이 수요를 바꿨다.",
+    "en-em-dash-cluster": "The job took two days—one for review.",
+    "ko-decorative-bold": "첫 번째 항목과 두 번째 항목을 설명했다.",
+    "code-narrating-comment": "// Validate the token signature before accepting it.",
+    "code-ai-attribution": "Reviewed-by: Woojin Go",
+    "code-defensive-guard": "if (value !== undefined) { return value; }",
+    "ko-weasel-attribution": "산업연구원은 수요가 늘어날 것으로 내다봤다.",
+    "en-weasel-attribution": "The central bank expects a slower rate of growth.",
+    "en-stacked-hedges": "It may affect the next release.",
+    "ko-stacked-hedges": "변화가 생길 수 있다.",
+    "en-closer-offer": "What remains in the report?",
+    "en-lets-dive": "The first result is a 12 percent reduction.",
+    "en-demo-self-disclaimer": "The demonstration ran on a local fixture.",
+    "ko-bracket-status-tag": "표 3의 추정치는 아직 검증하지 않았다.",
+    "en-bracket-status-tag": "Table 3 contains an estimate that has not been verified.",
+    "ko-standalone-scope-disclaimer": "관할 기관이 허가 여부를 심사한다.",
+    "en-standalone-scope-disclaimer": "The source lists the company founding date as 1994.",
+    "ko-chatbot-opener": "보고서는 신청 내용을 정리했다.",
+    "en-chatbot-opener": "The overview starts with the sample period.",
+    "en-testament": "The project used two review rounds.",
+    "en-left-in-narration": "The file contains the updated overview.",
+    "en-chatbot-closer": "The requested revision is attached.",
+    "ko-negative-pledge": "이 장비는 방폭 구역에서 사용하지 않습니다. 냉각수로 쓰지 않음.",
+    "ko-negative-pledge-repeat": "첨가제 B는 수율을 개선하지 않았다. 이 결과는 우연이 아니다.",
+    "en-negative-pledge": "This is not intended as a substitute for professional advice."
+  },
+  "contextCases": {
+    "plainSourceAttached": [
+      {
+        "name": "markdown-table",
+        "text": "| 지역 | 인구 |\n|---|---:|\n| 서울 | 940만 |\n\n출처: 통계청 KOSIS, 2024",
+        "clean": true
+      },
+      {
+        "name": "source-two-blank-lines",
+        "text": "| Region | Population |\n|---|---:|\n| Seoul | 9.4m |\n\n\nSource: U.S. Census Bureau, 2020",
+        "clean": false
+      },
+      {
+        "name": "image-caption",
+        "text": "![그림 6. 현미경 이미지](image.png)\n출처: 실험 기록, 2024",
+        "clean": true
+      },
+      {
+        "name": "figure-tag",
+        "text": "<figure>\n<img src=\"figure.png\" alt=\"Figure 2\">\n<figcaption>Source: lab notes, 2023</figcaption>\n</figure>\nSource: lab notes, 2023",
+        "clean": true
+      },
+      {
+        "name": "standalone-note-source",
+        "text": "※ 자료: 한국은행 경제통계시스템",
+        "clean": false
+      },
+      {
+        "name": "markdown-table-note-source",
+        "text": "| 지역 | 예산 |\n|---|---:|\n| 부산 | 30억 원 |\n\n※ 자료: 시 예산서, 2024",
+        "clean": true
+      },
+      {
+        "name": "source-preliminary-results-en",
+        "text": "![chart](chart.svg)\nSource: lab log; preliminary results",
+        "clean": false
+      },
+      {
+        "name": "source-results-may-change-en",
+        "text": "| Run | Status |\n|---|---|\n| 4 | complete |\nSource: lab log; results may change",
+        "clean": false
+      },
+      {
+        "name": "source-provisional-results-ko",
+        "text": "<figure>\n<img src=\"table.png\" alt=\"표 4\">\n출처: 보고서, 잠정치\n</figure>",
+        "clean": false
+      },
+      {
+        "name": "source-city-forecast-title",
+        "text": "| Region | Result |\n|---|---|\n| North | 12 |\nSource: City Forecast, 2024",
+        "clean": true
+      },
+      {
+        "name": "source-model-assumptions-title",
+        "text": "![model](model.svg)\nSource: Model Assumptions, 2024",
+        "clean": true
+      },
+      {
+        "name": "source-preliminary-report-title",
+        "text": "<figure>\n<img src=\"report.png\" alt=\"Figure 8\">\n</figure>\nSource: Preliminary Design Report, 2024",
+        "clean": true
+      },
+      {
+        "name": "source-office-city-forecast-title-date",
+        "text": "| District | Trips |\n|---|---:|\n| Central | 83 |\nSource: Planning Office, City Forecast, 2024",
+        "clean": true
+      },
+      {
+        "name": "source-team-model-assumptions-title-date",
+        "text": "![model](model.svg)\nSource: Model Team, Model Assumptions, 2024",
+        "clean": true
+      },
+      {
+        "name": "source-bureau-preliminary-design-title-date",
+        "text": "<figure>\n<img src=\"plan.png\" alt=\"Figure 9\">\n</figure>\nSource: Design Bureau, Preliminary Design Report, 2024",
+        "clean": true
+      },
+      {
+        "name": "source-not-realized-results-without-delimiter",
+        "text": "![chart](chart.svg)\nSource: lab log not realized results",
+        "clean": false
+      },
+      {
+        "name": "source-demo-synthesis-without-delimiter",
+        "text": "| Run | Value |\n|---|---:|\n| 2 | 17 |\nSource: lab log demo synthesis",
+        "clean": false
+      },
+      {
+        "name": "source-provisional-ko-without-delimiter",
+        "text": "<figure>\n<img src=\"table.png\" alt=\"표 5\">\n</figure>\n출처: 보고서 잠정치",
+        "clean": false
+      },
+      {
+        "name": "source-with-caveat-en",
+        "text": "| Run | Status |\n|---|---|\n| 4 | complete |\nSource: lab log; not realized results",
+        "clean": false
+      },
+      {
+        "name": "source-with-caveat-ko",
+        "text": "![사진](photo.png)\n출처: 시청 자료, demo synthesis",
+        "clean": false
+      },
+      {
+        "name": "source-alone-in-prose",
+        "text": "보고서는 자료를 검토했다.\n\nSource: annual report, table 4",
+        "clean": false
+      },
+      {
+        "name": "caption-source-one-blank",
+        "text": "Figure 3. Growth by year\n\nSource: annual report, table 4",
+        "clean": true
+      }
+    ],
+    "contrastThreshold": [
+      {
+        "name": "sentence-opening",
+        "text": "Not a cache issue, but an invalid key.",
+        "warn": true
+      },
+      {
+        "name": "single-natural-middle",
+        "text": "The change is not a workaround, but a permanent fix.",
+        "warn": false
+      },
+      {
+        "name": "two-middle-contrasts",
+        "text": "The cache is not stale, but expired. The lock is not permanent, but renewed per request.",
+        "warn": true
+      },
+      {
+        "name": "soft-wrapped-nonsentence-opening",
+        "text": "The change is\nnot a workaround, but a permanent fix.",
+        "warn": false
+      },
+      {
+        "name": "soft-wrapped-sentence-opening",
+        "text": "The summary is accurate.\nNot a cache issue, but an invalid key.",
+        "warn": true
+      },
+      {
+        "name": "repeated-middle-without-final-punctuation",
+        "text": "The cache is not stale, but expired. The lock is not permanent, but renewed per request",
+        "warn": true
+      },
+      {
+        "name": "sentence-opening-without-terminal-punctuation",
+        "text": "Not a cache issue, but an invalid key",
+        "warn": true
+      }
+    ],
+    "tierRegressions": [
+      { "name": "workflow-in-this-lane", "rule": "workflow-jargon", "text": "The work belongs in this lane.", "expect": "block" },
+      { "name": "workflow-fact-packet", "rule": "workflow-jargon", "text": "The fact packet contains five dates.", "expect": "block" },
+      { "name": "workflow-claim-ledger", "rule": "workflow-jargon", "text": "The claim ledger maps each paragraph.", "expect": "block" },
+      { "name": "workflow-claim-id", "rule": "workflow-jargon", "text": "The claim ID links the note to its source.", "expect": "block" },
+      { "name": "workflow-claim-identifier-clean", "rule": "workflow-jargon", "text": "The claim identifier is generated by the database.", "expect": "clean" },
+      { "name": "workflow-reclaim-identity-clean", "rule": "workflow-jargon", "text": "Reclaim identity after restart.", "expect": "clean" },
+      { "name": "workflow-c003", "rule": "workflow-jargon", "text": "Map the sentence to [C003].", "expect": "block" },
+      { "name": "workflow-src001", "rule": "workflow-jargon", "text": "Map the citation to [SRC001].", "expect": "block" },
+      { "name": "ko-workflow-picture-receipt", "rule": "ko-workflow-jargon", "text": "그림 영수증을 기록했다.", "expect": "block" },
+      { "name": "ko-workflow-receipt-bracket", "rule": "ko-workflow-jargon", "text": "캡처 영수증]을 남겼다.", "expect": "block" },
+      { "name": "ko-purchase-receipt", "rule": "ko-workflow-jargon", "text": "구매 영수증은 회계 장부에 보관한다.", "expect": "clean" },
+      { "name": "demo-synthesis", "rule": "en-demo-self-disclaimer", "text": "Demo synthesis: the page follows the sample layout.", "expect": "block" },
+      { "name": "demo-assumptions", "rule": "en-demo-self-disclaimer", "text": "Demonstration assumptions include a fixed exchange rate.", "expect": "block" },
+      { "name": "demo-recommendations", "rule": "en-demo-self-disclaimer", "text": "Demo recommendations list three actions.", "expect": "block" },
+      { "name": "ko-tag-unverified", "rule": "ko-bracket-status-tag", "text": "[미검증] 표 4의 추정치", "expect": "block" },
+      { "name": "ko-tag-evidence-based", "rule": "ko-bracket-status-tag", "text": "[증거 기반] 결과를 표기했다.", "expect": "block" },
+      { "name": "en-tag-unverified", "rule": "en-bracket-status-tag", "text": "[unverified] estimate in table 4", "expect": "block" },
+      { "name": "en-tag-evidence-based", "rule": "en-bracket-status-tag", "text": "[evidence-based] result summary", "expect": "block" },
+      { "name": "ko-permit-disclaimer", "rule": "ko-standalone-scope-disclaimer", "text": "허가 판단 결과 아님.", "expect": "block" },
+      { "name": "ko-approval-disclaimer", "rule": "ko-standalone-scope-disclaimer", "text": "승인 결과 아님.", "expect": "block" },
+      { "name": "ko-investment-disclaimer", "rule": "ko-standalone-scope-disclaimer", "text": "투자 판단 아님.", "expect": "block" },
+      { "name": "ko-provided-material-disclaimer", "rule": "ko-standalone-scope-disclaimer", "text": "제공된 자료만으로는 신청 대상을 정할 수 없다.", "expect": "block" },
+      { "name": "en-provided-information-disclaimer", "rule": "en-standalone-scope-disclaimer", "text": "Based on the provided information, the result is unclear.", "expect": "block" },
+      { "name": "en-limited-details-disclaimer", "rule": "en-standalone-scope-disclaimer", "text": "While specific details are limited, the source names the agency.", "expect": "block" },
+      { "name": "en-not-widely-documented-disclaimer", "rule": "en-standalone-scope-disclaimer", "text": "This process is not widely documented.", "expect": "block" },
+      { "name": "ko-opener-of-course", "rule": "ko-chatbot-opener", "text": "물론입니다!", "expect": "block" },
+      { "name": "ko-opener-acknowledgment", "rule": "ko-chatbot-opener", "text": "네, 알겠습니다.", "expect": "block" },
+      { "name": "ko-opener-good-question", "rule": "ko-chatbot-opener", "text": "좋은 질문입니다.", "expect": "block" },
+      { "name": "ko-opener-offer-casual", "rule": "ko-chatbot-opener", "text": "정리해 드릴게요.", "expect": "block" },
+      { "name": "ko-opener-offer-formal", "rule": "ko-chatbot-opener", "text": "검토해 드리겠습니다.", "expect": "block" },
+      { "name": "en-opener-certainly", "rule": "en-chatbot-opener", "text": "Certainly! Here is the overview.", "expect": "block" },
+      { "name": "en-opener-of-course", "rule": "en-chatbot-opener", "text": "Of course! Here is the overview.", "expect": "block" },
+      { "name": "en-opener-great-question", "rule": "en-chatbot-opener", "text": "Great question. Here is the overview.", "expect": "block" },
+      { "name": "en-opener-affirmation", "rule": "en-chatbot-opener", "text": "You're absolutely right. Here is the correction.", "expect": "block" },
+      { "name": "en-closer-let-me-know", "rule": "en-chatbot-closer", "text": "Let me know if you'd like a second version.", "expect": "block" },
+      { "name": "en-closer-would-you-like", "rule": "en-chatbot-closer", "text": "Would you like me to add the chart?", "expect": "block" },
+      { "name": "en-closer-natural-question", "rule": "en-closer-offer", "text": "Is there anything else I need to verify?", "expect": "warn" },
+      { "name": "en-lets-dive", "rule": "en-lets-dive", "text": "Let's dive in to the results.", "expect": "block" },
+      { "name": "en-lets-explore-natural", "rule": "en-lets-dive", "text": "Let's explore the records from 2021.", "expect": "clean" },
+      { "name": "en-testament", "rule": "en-testament", "text": "The project stands as a testament to planning.", "expect": "block" },
+      { "name": "en-testament-without-to", "rule": "en-testament", "text": "The record stands as a testament.", "expect": "block" },
+      { "name": "en-left-in-narration", "rule": "en-left-in-narration", "text": "I've updated the file and saved it.", "expect": "block" },
+      { "name": "ai-attribution-generated", "rule": "code-ai-attribution", "text": "Generated by AI assistant", "expect": "block" },
+      { "name": "ai-attribution-copilot", "rule": "code-ai-attribution", "text": "Co-Authored-By: GitHub Copilot <noreply@example.com>", "expect": "block" },
+      { "name": "ai-attribution-gemini", "rule": "code-ai-attribution", "text": "Generated with Gemini", "expect": "block" }
+    ]
+  }
+}

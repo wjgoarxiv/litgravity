@@ -1,0 +1,92 @@
+# Studio: a magazine spread. The 12-column grid is visible, titles live in a side rail or open a
+# page at large size, real numbers are set huge, splits are asymmetric, and a dark ochre accent
+# marks the one thing to look at. Wrong for dense data reviews: editorial white space starves tables.
+id: studio
+name: Studio
+version: "1.0.0"
+intent: "Editorial narratives on a visible grid with large numerals."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: Pretendard Bold
+faces-a2z:
+  display: A2Z Black
+  title: A2Z Medium
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: A2Z Black
+
+palette:
+  ground: "#FFFFFF"
+  surface: "#F2F2F0"
+  ink: "#141414"
+  ink-muted: "#525252"
+  line: "#D2D2CE"
+  accent: "#8A5A00"
+  accent-deep: "#4D3200"
+  accent-tint: "#F5ECD9"
+  field: "#141414"
+  on-field: "#FFFFFF"
+  positive: "#1E7A3F"
+  negative: "#B3261E"
+  series: ["#8A5A00", "#141414", "#525252", "#3B5F7F"]
+
+ramp: reading
+hero: false
+type-voice:
+  title-tracking: -1
+  display-tracking: -2
+
+density: 10
+variance: 8
+radius: 0
+edge: fill
+
+treatments: [side-rail, statement, top-plain-large, bottom-anchor, overlay]
+role-defaults:
+  content: side-rail
+  data: top-plain-large
+  data-takeaway: side-rail
+  sequence: side-rail
+  image: side-rail
+  statement: statement
+  reference: side-rail
+  definition: side-rail
+
+decoration: [column-hairlines, numeral, rail-fill, colour-field, caption-band]
+layout-families: [asymmetric-feature, big-number, image-split, image-full, photo-grid, text-two-column, chart-insight, kpi-row, timeline, comparison, statement]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  # The offset rail stood empty beside a quote (spec-v2 Amendments 8): the sentence takes two hairlines instead.
+  statement: rules
+  number: tint
+  closing: band
+covers: [cover-split-image, cover-rail, cover-numeral]
+sections: [section-numeral, section-rail]
+closings: [closing-contact-split, closing-summary-list]
+
+table:
+  header: none
+  header-ink: ink
+  rules: header-rule
+  banding: none
+  totals: bold
+chart:
+  gridlines: none
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: none
+
+fill-order: [change-family, step-up, anchor-visual, distribute]
+avoid:
+  - large numerals that are not real figures
+  - column hairlines through text
+  - two side-rail slides with the same split in a row
+  - centred body text

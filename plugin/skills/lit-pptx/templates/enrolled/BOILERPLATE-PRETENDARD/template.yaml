@@ -1,0 +1,44 @@
+name: BOILERPLATE-PRETENDARD
+version: "1.0.0"
+label: "Boilerplate Professional (Pretendard)"
+description: "Generic professional/technical deck — 4:3 canvas, Pretendard typography, white ground, dark charcoal structure, restrained Gruvbox-style accents. Brand-agnostic."
+
+# Default body font. Pretendard is a single family with real weights, so unlike
+# 에이투지체 (per-weight families) bold:true IS valid here.
+fonts:
+  title: "Pretendard"
+  body: "Pretendard"
+  light: "Pretendard"
+
+dimensions:
+  width: 10
+  height: 7.5
+  unit: inches
+  format: 4:3
+
+palette:
+  ink: "#3C3836"
+  ink_muted: "#6E6256"
+  muted: "#928374"
+  line: "#CBC2B5"
+  paper: "#FFFFFF"
+  paper_warm: "#FBFAF7"
+  header_fill: "#FBFAF7"
+  accent_red: "#CC241D"
+  accent_green: "#98971A"
+  accent_green_2: "#689D6A"
+  accent_amber: "#D79921"
+  accent_yellow: "#FFC000"
+  accent_purple: "#B16286"
+  source_blue: "#3F6F5B"
+  metric: "#3C3836"
+
+decoration_assets: {}
+
+global_typography:
+  char_spacing: -0.5            # PowerPoint "Narrow 0.5pt" (boilerplate default)
+  bold_rule: "Pretendard is a weighted family — bold:true is allowed (use sparingly for hierarchy)."
+  bullet_font: "Pretendard"
+  bullet_char: "•"
+  bullet_color: "3C3836"        # ink bullets (boilerplate uses ink, not a green accent)
+  section_accent: "3C3836"      # section-card / accent treatment uses ink hairlines

@@ -1,0 +1,38 @@
+{
+  "artifact_kind": "package_provenance_fixture",
+  "canonical_dataset": {
+    "byte_count": 1023482,
+    "record_count": 2277,
+    "schema_version": "litfamily.design-intelligence/v1",
+    "sha256": "a89011236a6ff14e12ec55fccbfab1bbd40ae34614cea5710c022121aa841bb8"
+  },
+  "import_manifest": {
+    "schema_version": "litfamily.source-import-manifest/v1",
+        "sha256": "9adf471d95aaf17e7866e1c7674cb1a101daae9abdab87c71c96a60f2a58e6fa",
+    "source_count": 34
+  },
+  "package_contract": {
+    "required_companions": [
+      "design-intelligence.json",
+      "LICENSE",
+      "PROVENANCE.json",
+      "THIRD-PARTY-NOTICE.txt"
+    ],
+    "required_test": "package listing and doctor must prove all four companions ship together"
+  },
+  "repair": {
+    "input_path": "src/ui-ux-pro-max/data/stacks/javafx.csv",
+    "input_sha256": "5545e331b2479eb431ca45203799ce1b0ab1e369045ab7735d5a9f85ec78f956",
+    "occurrences": 18,
+    "output_sha256": "cb424eee50fff9fb6f503ce9a2793177e6eafa6eb7d2ba68561fb3e1b7301ba0",
+    "rule": "backslash_quote_to_rfc4180_double_quote"
+  },
+  "schema_version": "litfamily.package-provenance-contract/v1",
+    "source": {
+        "commit": "1307d97a72e6c1cda572cb65471ae5ce82995218",
+        "immutable_url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/commit/1307d97a72e6c1cda572cb65471ae5ce82995218",
+        "license_sha256": "738f69dfa83db5c347c678fb9d90e560877059f0de93a327c39001bff92dc014",
+        "object_type": "commit",
+        "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill"
+  }
+}

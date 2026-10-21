@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8">
+<script src="/lit/loop-kit.js"></script>
+<style>html, body { margin: 0; width: 1200px; height: 600px; overflow: hidden; background: #111; }</style>
+<body><div id="dot" style="position:absolute;top:280px;width:36px;height:36px;background:#eee"></div>
+<script>
+// Places the dot with unseeded entropy on every frame, which a cover page must never do.
+window.renderFrame = () => { document.getElementById("dot").style.left = `${Math.random() * 1150}px`; };
+window.ready = true;
+</script>
+</body>

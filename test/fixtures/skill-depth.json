@@ -1,0 +1,275 @@
+{
+  "familyFloorBytes": 12000,
+  "bodyCapBytes": 24000,
+  "runtimes": [
+    "diagram",
+    "motion",
+    "office",
+    "readme",
+    "sciviz"
+  ],
+  "hostNameExempt": [
+    "skills/frontend-ui-ux/data/design-intelligence.json",
+    "skills/frontend-ui-ux/references/design/_INDEX.md",
+    "skills/frontend-ui-ux/references/design/clone-from-url.md",
+    "skills/frontend-ui-ux/references/design/image-to-code-skill.md",
+    "skills/frontend-ui-ux/references/design/ollama.md",
+    "skills/frontend-ui-ux/references/design/opencode.ai.md",
+    "skills/frontend-ui-ux/references/design/react-dev-tooling-skill.md",
+    "skills/frontend-ui-ux/references/design/taste-skill.md",
+    "skills/frontend-ui-ux/references/designpowers/vendor/skills/design-md/reference.md"
+  ],
+  "illustrativeRefs": [
+    "assets/title-dark.svg"
+  ],
+  "closureExempt": [
+    "skills/frontend-ui-ux/references/perfection/README.md",
+    "skills/frontend-ui-ux/references/perfection/react-perf-tooling.md",
+    "skills/readme-studio/templates/readme-cover-section.md"
+  ],
+  "skills": {
+    "autoconference": {
+      "minSkillBytes": 23100,
+      "minBodyBytes": 22900,
+      "minFiles": 29,
+      "minTotalBytes": 305600
+    },
+    "autoresearch": {
+      "minSkillBytes": 23300,
+      "minBodyBytes": 23100,
+      "minFiles": 32,
+      "minTotalBytes": 255800
+    },
+    "browser-drive": {
+      "minSkillBytes": 16000,
+      "minBodyBytes": 15900,
+      "minFiles": 9,
+      "minTotalBytes": 64300
+    },
+    "comment-checker": {
+      "minSkillBytes": 15200,
+      "minBodyBytes": 15000,
+      "minFiles": 2,
+      "minTotalBytes": 23000
+    },
+    "debugging": {
+      "minSkillBytes": 23000,
+      "minBodyBytes": 22900,
+      "minFiles": 19,
+      "minTotalBytes": 163200
+    },
+    "deep-interview": {
+      "minSkillBytes": 23500,
+      "minBodyBytes": 23300,
+      "minFiles": 8,
+      "minTotalBytes": 47900
+    },
+    "frontend-ui-ux": {
+      "minSkillBytes": 17200,
+      "minBodyBytes": 17000,
+      "minFiles": 225,
+      "minTotalBytes": 4195400
+    },
+    "lit-brainstorm": {
+      "minSkillBytes": 23500,
+      "minBodyBytes": 23300,
+      "minFiles": 13,
+      "minTotalBytes": 49400
+    },
+    "lit-burnoff": {
+      "minSkillBytes": 23700,
+      "minBodyBytes": 23400,
+      "minFiles": 5,
+      "minTotalBytes": 39500
+    },
+    "lit-burnoff-file": {
+      "minSkillBytes": 19800,
+      "minBodyBytes": 19600,
+      "minFiles": 3,
+      "minTotalBytes": 24800
+    },
+    "lit-code": {
+      "minSkillBytes": 23600,
+      "minBodyBytes": 23300,
+      "minFiles": 81,
+      "minTotalBytes": 845200
+    },
+    "lit-commit": {
+      "minSkillBytes": 15400,
+      "minBodyBytes": 15200,
+      "minFiles": 2,
+      "minTotalBytes": 25300
+    },
+    "lit-comprehend": {
+      "minSkillBytes": 23400,
+      "minBodyBytes": 23200,
+      "minFiles": 5,
+      "minTotalBytes": 73700
+    },
+    "lit-crucible": {
+      "minSkillBytes": 17400,
+      "minBodyBytes": 17200,
+      "minFiles": 4,
+      "minTotalBytes": 30000
+    },
+    "lit-diagram-drawer": {
+      "minSkillBytes": 23100,
+      "minBodyBytes": 22900,
+      "minFiles": 332,
+      "minTotalBytes": 3478800
+    },
+    "lit-docx": {
+      "minSkillBytes": 23500,
+      "minBodyBytes": 23300,
+      "minFiles": 61,
+      "minTotalBytes": 820500
+    },
+    "lit-handoff": {
+      "minSkillBytes": 19600,
+      "minBodyBytes": 19400,
+      "minFiles": 8,
+      "minTotalBytes": 64700
+    },
+    "lit-humanizer": {
+      "minSkillBytes": 23100,
+      "minBodyBytes": 22900,
+      "minFiles": 78,
+      "minTotalBytes": 446100
+    },
+    "lit-init": {
+      "minSkillBytes": 18700,
+      "minBodyBytes": 18500,
+      "minFiles": 4,
+      "minTotalBytes": 26400
+    },
+    "lit-loop": {
+      "minSkillBytes": 23300,
+      "minBodyBytes": 23200,
+      "minFiles": 3,
+      "minTotalBytes": 30100
+    },
+    "lit-plan": {
+      "minSkillBytes": 23600,
+      "minBodyBytes": 23400,
+      "minFiles": 10,
+      "minTotalBytes": 74100
+    },
+    "lit-pptx": {
+      "minSkillBytes": 23600,
+      "minBodyBytes": 23400,
+      "minFiles": 117,
+      "minTotalBytes": 6654200
+    },
+    "lit-recap": {
+      "minSkillBytes": 17000,
+      "minBodyBytes": 16800,
+      "minFiles": 4,
+      "minTotalBytes": 35500
+    },
+    "lit-scientific-visualization": {
+      "minSkillBytes": 19500,
+      "minBodyBytes": 19400,
+      "minFiles": 20,
+      "minTotalBytes": 160800
+    },
+    "lit-team": {
+      "minSkillBytes": 15500,
+      "minBodyBytes": 15300,
+      "minFiles": 7,
+      "minTotalBytes": 70400
+    },
+    "lit-typographic-motion": {
+      "minSkillBytes": 20300,
+      "minBodyBytes": 20200,
+      "minFiles": 132,
+      "minTotalBytes": 2502100
+    },
+    "litgoal": {
+      "minSkillBytes": 22900,
+      "minBodyBytes": 22700,
+      "minFiles": 5,
+      "minTotalBytes": 34600
+    },
+    "litresearch": {
+      "minSkillBytes": 23300,
+      "minBodyBytes": 23100,
+      "minFiles": 11,
+      "minTotalBytes": 82900
+    },
+    "litwork": {
+      "minSkillBytes": 23400,
+      "minBodyBytes": 23200,
+      "minFiles": 5,
+      "minTotalBytes": 46200
+    },
+    "lsp": {
+      "minSkillBytes": 21200,
+      "minBodyBytes": 21000,
+      "minFiles": 5,
+      "minTotalBytes": 59900
+    },
+    "lsp-setup": {
+      "minSkillBytes": 21600,
+      "minBodyBytes": 21400,
+      "minFiles": 24,
+      "minTotalBytes": 147600
+    },
+    "readme-studio": {
+      "minSkillBytes": 18200,
+      "minBodyBytes": 18000,
+      "minFiles": 24,
+      "minTotalBytes": 281400
+    },
+    "refactor": {
+      "minSkillBytes": 23300,
+      "minBodyBytes": 23100,
+      "minFiles": 6,
+      "minTotalBytes": 56600
+    },
+    "review-work": {
+      "minSkillBytes": 23400,
+      "minBodyBytes": 23200,
+      "minFiles": 14,
+      "minTotalBytes": 84800
+    },
+    "rules": {
+      "minSkillBytes": 18800,
+      "minBodyBytes": 18600,
+      "minFiles": 3,
+      "minTotalBytes": 25000
+    },
+    "start-work": {
+      "minSkillBytes": 23600,
+      "minBodyBytes": 23400,
+      "minFiles": 8,
+      "minTotalBytes": 60200
+    },
+    "structural-search": {
+      "minSkillBytes": 23000,
+      "minBodyBytes": 22800,
+      "minFiles": 4,
+      "minTotalBytes": 54800
+    },
+    "visual-qa": {
+      "minSkillBytes": 16100,
+      "minBodyBytes": 15900,
+      "minFiles": 35,
+      "minTotalBytes": 258300
+    },
+    "wikify": {
+      "minSkillBytes": 23000,
+      "minBodyBytes": 22900,
+      "minFiles": 22,
+      "minTotalBytes": 128400
+    }
+  },
+  "exemptionReasons": {
+    "skills/frontend-ui-ux/data/design-intelligence.json": "vendored third-party design dataset (verbatim, hash-pinned); its records name other coding agents as product examples",
+    "skills/frontend-ui-ux/references/design/": "vendored third-party design references (verbatim, hash-pinned); the listed files name other coding agents or their sites as the subject of the reference",
+    "skills/frontend-ui-ux/references/designpowers/vendor/skills/design-md/reference.md": "vendored third-party skill text (verbatim); it names another agent product in its own instructions",
+    "skills/frontend-ui-ux/references/perfection/README.md": "vendored third-party reference; it names scripts of the upstream project that this skill does not ship",
+    "skills/frontend-ui-ux/references/perfection/react-perf-tooling.md": "vendored third-party reference; it names scripts of the upstream project that this skill does not ship",
+    "skills/readme-studio/templates/readme-cover-section.md": "a template for the user's README: the assets/cover/* paths are files readme-studio writes into the user's project",
+    "assets/title-dark.svg": "an example output path in readme-studio/references/type-and-background.md: the user's project file, written by the skill"
+  }
+}

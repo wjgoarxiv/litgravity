@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/lit/fonts.css">
+<script src="/lit/stage-kit.js"></script>
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #101820; font-family: "Pretendard"; }
+  #line { position: absolute; left: 220px; top: 780px; margin: 0; color: #f4efe6; font-size: 80px; }
+  #panel { position: absolute; left: 220px; top: 220px; width: 640px; height: 320px; }
+</style>
+</head>
+<body>
+<div id="panel"></div>
+<h1 id="line">Lanterns drift home</h1>
+<script>
+  LitStage.text(document.getElementById("line"));
+  // A value from unseeded entropy, different in every Chrome process, painted into the frame.
+  const drawn = crypto.getRandomValues(new Uint32Array(1))[0];
+  LitStage.define({
+    width: 1920, height: 1080, fps: 30, duration: 4,
+    render() {
+      const panel = document.getElementById("panel");
+      panel.style.background = `hsl(${(drawn * 11) % 360} 75% 50%)`;
+      panel.textContent = String(drawn);
+    },
+  });
+</script>
+</body>
+</html>

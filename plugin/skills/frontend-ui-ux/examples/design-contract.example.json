@@ -1,0 +1,186 @@
+{
+  "schema_id": "litfamily.design-contract/v1beta2",
+  "contract_id": "contract:harbor-ledger/landing",
+  "source_hash": "0000000000000000000000000000000000000000000000000000000000000001",
+  "intent": {
+    "audiences": [
+      "Small-harbor accountants"
+    ],
+    "tasks": [
+      "Find this month's open invoices",
+      "Open a ledger entry"
+    ],
+    "qualities": [
+      "Calm",
+      "Dense but legible"
+    ],
+    "constraints": [
+      "No external fonts"
+    ],
+    "non_goals": [
+      "Payments"
+    ]
+  },
+  "direction": {
+    "name": "Quiet ledger",
+    "principles": [
+      "Numbers first",
+      "One accent for actions",
+      "Sentence-case labels"
+    ],
+    "token_strategy": "create",
+    "voice": "Plain and exact"
+  },
+  "taste": {
+    "variance": 3,
+    "motion": 2,
+    "density": 6
+  },
+  "inventory": {
+    "routes": [
+      {
+        "id": "route:home",
+        "path": "/",
+        "primary": true,
+        "auth_required": false
+      }
+    ],
+    "regions": [
+      {
+        "id": "region:home.main",
+        "route_id": "route:home",
+        "purpose": "Invoice list and open action"
+      }
+    ],
+    "components": [
+      {
+        "id": "component:open-ledger-button",
+        "region_id": "region:home.main",
+        "role": "Primary action that opens the ledger"
+      }
+    ],
+    "interactions": [
+      {
+        "id": "interaction:open-ledger",
+        "route_id": "route:home",
+        "critical": true,
+        "input_modes": [
+          "keyboard",
+          "pointer",
+          "touch"
+        ]
+      }
+    ],
+    "states": [
+      {
+        "id": "state:home.ready",
+        "route_id": "route:home",
+        "kind": "ready"
+      }
+    ],
+    "viewports": [
+      {
+        "id": "viewport:390",
+        "category": "compact",
+        "width_px": 390,
+        "height_px": 844
+      },
+      {
+        "id": "viewport:1440",
+        "category": "expanded",
+        "width_px": 1440,
+        "height_px": 900
+      }
+    ],
+    "references": [],
+    "authenticated_surfaces": []
+  },
+  "accessibility": {
+    "target": "WCAG 2.2 AA",
+    "keyboard": true,
+    "screen_reader": true,
+    "reduced_motion": true,
+    "forced_colors": true,
+    "zoom_percent": 200
+  },
+  "localization": {
+    "locales": [
+      "en",
+      "ko"
+    ],
+    "text_expansion_percent": 30,
+    "cjk_line_break_review": true,
+    "font_fallback_review": true,
+    "ime_review": false,
+    "rtl_review": false
+  },
+  "performance": {
+    "lcp_ms": 2500,
+    "cls": 0.1,
+    "inp_ms": 200,
+    "initial_js_kb": 60,
+    "initial_css_kb": 30
+  },
+  "evidence_policy": {
+    "independent_review_required": true,
+    "required_channels": [
+      "tests",
+      "browser",
+      "keyboard"
+    ],
+    "cleanup_required": true
+  },
+  "omissions": [],
+  "accepted_exceptions": [],
+  "lane": "new-build",
+  "tokens": [
+    {
+      "id": "token:color.accent",
+      "category": "color",
+      "value": "#0a5c3a",
+      "usage": "Primary action fill"
+    }
+  ],
+  "component_behaviors": [
+    {
+      "component_id": "component:open-ledger-button",
+      "state_ids": [
+        "state:home.ready"
+      ],
+      "interaction_ids": [
+        "interaction:open-ledger"
+      ],
+      "keyboard_behavior": "Enter and Space activate; focus ring is visible"
+    }
+  ],
+  "responsive_transformations": [
+    {
+      "route_id": "route:home",
+      "viewport_id": "viewport:390",
+      "behavior": "Single column; the button fills the row"
+    }
+  ],
+  "motion": {
+    "policy": "functional",
+    "reduced_motion_behavior": "Transitions drop to opacity only",
+    "transitions": [
+      {
+        "id": "transition:button.press",
+        "interaction_id": "interaction:open-ledger",
+        "duration_ms": 120,
+        "easing": "ease-out"
+      }
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "criterion:open-ledger",
+      "observable": "Activating the button opens the ledger view",
+      "verification": "browser",
+      "required": true,
+      "inventory_ids": [
+        "interaction:open-ledger"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/lit/fonts.css">
+<script src="/lit/stage-kit.js"></script>
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #101820; font-family: "Pretendard"; }
+  #tile { position: absolute; left: 0; top: 0; width: 200px; height: 200px; background: #e0a040; }
+  #turn { position: absolute; left: 1480px; top: 220px; width: 110px; height: 110px; background: #50b0e0; animation: turn 2s linear infinite; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  #line { position: absolute; left: 220px; top: 760px; margin: 0; color: #f4efe6; font-size: 84px; font-weight: 700; }
+  #readout { position: absolute; left: 220px; top: 900px; margin: 0; color: #9fb3c8; font-size: 40px; }
+</style>
+</head>
+<body>
+<div id="tile"></div>
+<div id="turn"></div>
+<h1 id="line"></h1>
+<p id="readout"></p>
+<script>
+  // Reads every clock the virtual clock must drive (Date, performance.now, rAF, timers, a CSS animation) plus
+  // Math.random; the stage renderer seeds and steps them all, so a fresh replay matches frame for frame.
+  const line = document.getElementById("line");
+  line.textContent = "Lanterns drift home";
+  LitStage.text(line);
+  const tile = document.getElementById("tile");
+  const readout = document.getElementById("readout");
+  let frames = 0;
+  const tick = () => { frames += 1; requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+  setTimeout(() => { tile.style.borderRadius = "50%"; }, 1300);
+  const wobble = LitStage.rand(11);
+  LitStage.define({
+    width: 1920, height: 1080, fps: 30, duration: 4,
+    render(t) {
+      tile.style.transform = `translate(${220 + t * 280}px, ${320 + Math.sin(t * 2) * 90}px) rotate(${t * 36}deg)`;
+      tile.style.background = `hsl(${Math.round(t * 55 + Math.random() * 18 + wobble() * 9) % 360} 70% 55%)`;
+      readout.textContent = `${new Date().toISOString().slice(11, 22)} / ${performance.now().toFixed(0)} ms / ${frames} frames`;
+    },
+  });
+</script>
+</body>
+</html>

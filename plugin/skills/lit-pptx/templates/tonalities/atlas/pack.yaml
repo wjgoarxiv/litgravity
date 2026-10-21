@@ -1,0 +1,92 @@
+# Atlas: a picture book with captions. Images bleed, titles sit on dark panels over photographs
+# or under large images, text stays short and calm, and the photographs bring the colour. Wrong
+# when there are few real images: a look built around pictures turns into empty boxes without them.
+id: atlas
+name: Atlas
+version: "1.0.0"
+intent: "Image-led decks: products, portfolios, places, field work."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Regular
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: Pretendard Regular
+faces-a2z:
+  display: A2Z Light
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: A2Z Light
+
+palette:
+  ground: "#FFFFFF"
+  surface: "#F3F4F5"
+  ink: "#1A1D21"
+  ink-muted: "#555B63"
+  line: "#D6D9DD"
+  accent: "#2B4C7E"
+  accent-deep: "#1B2F4E"
+  accent-tint: "#E6ECF4"
+  field: "#1A1D21"
+  on-field: "#FFFFFF"
+  positive: "#1E7A3F"
+  negative: "#B3261E"
+  series: ["#2B4C7E", "#555B63", "#8A6A2E", "#3E7A5A"]
+
+ramp: reading
+hero: false
+type-voice:
+  title-tracking: 0
+  display-tracking: -1
+
+density: 10
+variance: 7
+radius: 0
+edge: fill
+
+treatments: [overlay, bottom-anchor, side-rail, top-plain-large, statement]
+role-defaults:
+  content: side-rail
+  data: top-plain-large
+  data-takeaway: bottom-anchor
+  sequence: top-plain-large
+  image: overlay
+  statement: statement
+  reference: side-rail
+  definition: side-rail
+
+decoration: [caption-band, hairline-rule, colour-field]
+layout-families: [image-full, image-split, photo-grid, figure-pair, asymmetric-feature, kpi-row, comparison, timeline, text-column, statement]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: plate
+  statement: drench
+  number: tint
+  closing: band
+covers: [cover-full-image, cover-split-image, cover-typographic]
+sections: [section-image, section-field]
+closings: [closing-contact-split, closing-ask]
+
+table:
+  header: none
+  header-ink: ink
+  rules: rows
+  banding: none
+  totals: bold
+chart:
+  gridlines: hairline
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: none
+
+fill-order: [anchor-visual, change-family, distribute, step-up]
+avoid:
+  - text placed straight on photographs
+  - images in card frames
+  - more than three images in one row
+  - grey placeholder boxes in a delivered deck

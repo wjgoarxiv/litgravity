@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "note": "Paired positive and clean cases for each ko-metrics threshold family. They exercise counts and minimum-length gates, not authorship.",
+  "cases": [
+    {
+      "id": "pivot-positive",
+      "text": "결론적으로 일정은 유지된다. 따라서 예산도 그대로다. 이를 통해 위험이 줄었다. 그러므로 승인을 요청한다.",
+      "warning": "ko-conclusion-pivot-cluster"
+    },
+    {
+      "id": "pivot-clean",
+      "text": "일정은 유지된다. 예산도 그대로다. 위험은 줄었고 승인을 요청한다.",
+      "absent": "ko-conclusion-pivot-cluster"
+    },
+    {
+      "id": "cleft-positive",
+      "text": "이번 점검에서 필요한 것은 배포 전에 설정 파일을 한 번 더 확인하는 일이다. 더 중요한 것은 확인 결과를 팀 채널에 바로 남기는 일이다. 나머지 항목은 지난주와 같은 순서로 진행하며 담당자도 바뀌지 않았다. 점검 기록은 공유 폴더에 날짜별로 정리해 두었고 다음 점검 일정도 같은 폴더의 첫 문서에 적어 두었다. 문의가 있으면 담당 부서로 연락하면 된다.",
+      "warning": "ko-cleft-cluster"
+    },
+    {
+      "id": "cleft-clean",
+      "text": "이번 점검에서는 배포 전에 설정 파일을 한 번 더 확인한다. 확인 결과는 팀 채널에 바로 남긴다. 나머지 항목은 지난주와 같은 순서로 진행하며 담당자도 바뀌지 않았다. 점검 기록은 공유 폴더에 날짜별로 정리해 두었고 다음 점검 일정도 같은 폴더의 첫 문서에 적어 두었다. 문의가 있으면 담당 부서로 연락하면 된다.",
+      "absent": "ko-cleft-cluster"
+    },
+    {
+      "id": "opener-positive",
+      "text": "또한 배포 일정이 바뀌었다. 따라서 담당자도 바뀐다. 나아가 보고 주기도 줄인다.",
+      "warning": "ko-paragraph-initial-connective-cluster",
+      "minimum": {
+        "paragraphInitialConnectiveCounts": [
+          3
+        ]
+      }
+    },
+    {
+      "id": "opener-clean",
+      "text": "배포 일정이 바뀌었다. 그래서 담당자도 바뀐다.\n\n또한 보고 주기는 줄인다.",
+      "absent": "ko-paragraph-initial-connective-cluster"
+    },
+    {
+      "id": "comma-positive",
+      "text": "서버를 열고, 로그를 확인하며, 설정을 바꾸지만, 결과를 저장하면서, 알림을 보낸다.",
+      "warning": "ko-connective-ending-comma-cluster"
+    },
+    {
+      "id": "comma-clean",
+      "text": "서버를 열고 로그를 확인하며 설정을 바꾼 뒤 결과를 저장하고 알림을 보낸다.",
+      "absent": "ko-connective-ending-comma-cluster"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schema_id": "litfamily.frontend-default-profile/v1",
+  "name": "Field notes / pixel signal",
+  "authorship": "Original LitGravity profile outside the immutable library",
+  "hierarchy": ["large editorial title with intentional breaks", "small terminal labels", "broad spacing and thin rules", "asymmetric atmospheric field", "original task-specific pixel-art illustration as the primary visual anchor when the brief gives no visual direction"],
+  "spacing": {"unit_px": 8, "detail_px": 4, "section_desktop_px": [80, 128], "section_mobile_px": [40, 64]},
+  "type": {"display_desktop_px": [56, 104], "display_mobile_px": [36, 56], "latin_leading": [0.95, 1.05], "korean_leading": [1.12, 1.25], "body_leading": [1.5, 1.7]},
+  "palette": {"paper": "#f5f3eb", "ink": "#18272b", "accent": "#c64d2e", "mist": "#b7d8c7"},
+  "pixel_art": {
+    "default_when_unspecified": true,
+    "primary_visual_anchor": true,
+    "description": "When the brief gives no visual direction, use an original, task-specific pixel-art illustration as the primary visual anchor without asking. A brief that names competing directions without choosing them is unresolved, not unspecified.",
+    "method": "author a recognizable integer-grid motif with hard edges and nearest-neighbor scaling",
+    "minimum_rendered_cell_size_css_px": 6,
+    "rendering": "crisp and non-smoothed; use nearest-neighbor scaling and disable interpolation",
+    "constraint": "recognizable task-related subject, not random noise or a smooth icon"
+  },
+  "work_surfaces": {
+    "applies_to": "screens people work in repeatedly, such as admin consoles, analytics views and internal tools, as opposed to pages people read once",
+    "first_viewport": "the working content and primary controls; no hero headline, tagline or illustration block above them",
+    "pixel_art": "a small accent at most, never the primary visual anchor",
+    "keeps": "the palette, type scale and spacing of this profile"
+  },
+  "responsive": {"minimum_css_width": 320, "rule": "reflow content and line breaks, never crop the title"},
+  "motion": "state changes remain understandable with nonessential motion disabled",
+  "precedence": "explicit user direction and existing brand tokens override this default; if the brief names competing visual directions without choosing or delegating one, ask before applying it"
+}

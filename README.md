@@ -1,205 +1,147 @@
-<p align="center">
-  <img src="./cover.png" alt="Antigravity Swarm cover" width="100%" />
-</p>
+<p align="center"><picture><source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/cover-motion-still.webp" /><source media="(prefers-reduced-motion: no-preference)" srcset="./docs/assets/cover-motion.webp" /><img src="./docs/assets/cover.webp" width="100%" alt="LitFamily cover: seven armored machines stand in their bays, and the LitGravity machine in the seventh bay, gyroscope rings around a dark spherical head, wakes with orange cores in its head and chest and a lit frame, under LITFAMILY and KEEP THE WORK LIT." /></picture></p>
 
-<h1 align="center">Antigravity Swarm</h1>
+<h1 align="center">LitGravity</h1>
+<p align="center"><strong>Keep the work lit.</strong></p>
 
-<table align="center">
-<tr>
-<td>
-<pre><code>
- █████╗ ███████╗██╗    ██╗
-██╔══██╗██╔════╝██║    ██║
-███████║███████╗██║ █╗ ██║
-██╔══██║╚════██║██║███╗██║
-██║  ██║███████║╚███╔███╔╝
-╚═╝  ╚═╝╚══════╝ ╚══╝╚══╝
-</code></pre>
-</td>
-</tr>
-</table>
+<p align="center">LitGravity gives Google's Antigravity CLI (<code>agy</code>) the habit of planning before it edits, checking what it built, and leaving a handoff, so the next conversation starts where this one stopped. One npm command installs it as an agy plugin.</p>
 
 <p align="center">
-  <strong>Antigravity CLI workflow layer: type <code>asw</code> and turn a loose request into a planned agent run.</strong>
+<a href="https://www.npmjs.com/package/@litfamily/litgravity"><img src="https://img.shields.io/npm/v/@litfamily/litgravity?color=FF6337&amp;label=npm" alt="npm version" /></a>
+<a href="https://www.npmjs.com/package/@litfamily/litgravity"><img src="https://img.shields.io/npm/dm/@litfamily/litgravity?color=D7F75B" alt="npm downloads per month" /></a>
+<a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /></a>
+<a href="https://github.com/wjgoarxiv/litgravity/stargazers"><img src="https://img.shields.io/github/stars/wjgoarxiv/litgravity?style=flat" alt="GitHub stars" /></a>
 </p>
 
-<p align="center">
-  <img alt="Antigravity CLI" src="https://img.shields.io/badge/Antigravity-CLI-00D5FF?style=for-the-badge&labelColor=111827" />
-  <img alt="ASW v0.2.4" src="https://img.shields.io/badge/ASW-v0.2.4-8B5CF6?style=for-the-badge&labelColor=111827" />
-  <img alt="Hooks skills agents HUD" src="https://img.shields.io/badge/hooks%20%2B%20skills%20%2B%20agents-HUD-22C55E?style=for-the-badge&labelColor=111827" />
-  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-F59E0B?style=for-the-badge&labelColor=111827" />
-</p>
+<p align="center"><a href="#install">Install</a> &nbsp; <a href="#what-you-get">What you get</a> &nbsp; <a href="#what-agy-limits-today">agy limits</a> &nbsp; <a href="#safety-and-uninstall">Safety</a> &nbsp; <a href="./README_ko-KR.md">한국어</a></p>
 
-<p align="center">
-  <a href="#quick-start">Quick Start</a> ·
-  <a href="#large-update">Large Update</a> ·
-  <a href="#mission-control">Mission Control</a> ·
-  <a href="#aliases">Aliases</a> ·
-  <a href="#status-line">HUD</a> ·
-  <a href="./README_KO.md">한국어</a>
-</p>
+## Why LitGravity
 
-Antigravity Swarm installs an ASW workflow layer for Antigravity CLI and Antigravity IDE. It bundles short wake words, global skills, hook routes, subagent presets, diagnostics guidance, background continuation, and a compact status line.
+agy starts fast: you type a line and it gets to work. The trouble shows up later. A long conversation fills its context, the next one begins without what the last one learned, and "done" often means the model said so. You end up re-explaining where you were and checking by hand what really works.
 
-The old repo was a Gemini-first swarm runner. v0.2.4 is the large Antigravity rebuild: npm install, Antigravity-native plugin layout, ASW aliases, hooks, subagents, LSP diagnostics guidance, and a HUD that can surface context, git state, and model quota data when the CLI provides it.
-
-> [!IMPORTANT]
-> Type `asw` when the work is ready to move. Type `asw-plan` when the work needs shape first. Type `asw-review` before you call it done.
-
-<a id="quick-start"></a>
-## Quick Start
-
-```bash
-npx --yes antigravity-swarm@0.2.4 install --permission-profile safe --hud
-```
-
-Then open Antigravity CLI or IDE in a project and use the loop:
+LitGravity gives each conversation a routine. Start a prompt with `lit` and a hook, which runs before the first model call, tells agy which LitGravity skill to read before it touches anything. A bigger change gets a written plan in `plans/` first. The work is checked against that plan with tests and a look at the real surface, and whatever nobody could check is marked as unverified. Before you stop, a handoff in `.litgravity/handoff/` records what was built, how it was checked and what is left.
 
 ```text
-asw-plan "Refactor auth without changing public behavior"
-start-work
-asw
-asw-review
+you type    lit plan a tiny todo app
+it does     reads the plan skill, explores the repo, writes plans/todo-app.md with ordered tasks and checks
+it ends     "Plan saved. Run `lit start plans/todo-app.md` when you are happy with it."
 ```
 
-Prefer the installer menu:
+agy still runs the conversation and picks the model. LitGravity adds the way of working, and it lives in plain files you can read.
+
+## Install
+
+You need Node.js 20 or newer and the Antigravity CLI, signed in once. In a terminal, run:
 
 ```bash
-npx antigravity-swarm --interactive
+npx @litfamily/litgravity install
 ```
 
-Choose a HUD color:
+The installer shows every destination first. By default it copies the plugin to `~/.gemini/config/plugins/litgravity`, so LitGravity is available in every project; `--scope project` copies it to `./.agents/plugins/litgravity` for one project. It validates the plugin with `agy plugin validate` before and after copying. agy loads a plugin's hooks, skills and agents without a trust step, so there is nothing to approve. Then check the result:
 
 ```bash
-npx antigravity-swarm install --hud --hud-color rose
+npx @litfamily/litgravity doctor
 ```
 
-Available colors: `cyan`, `blue`, `teal`, `green`, `lavender`, `rose`, `gold`, `orange`, `slate`, `gray`.
+`doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, every skill and agent, every engine with its pre-warm command, the host programs the skills call, and the Python the engines will use. It ends with `LitGravity: ready` when nothing is broken.
 
-Choose an installer permission profile:
+Useful switches: `--dry-run` previews and writes nothing; `--yes` lets an agent or CI shell install (a shell without a terminal otherwise only previews); `--status-line` adds the optional LitGravity status line to agy's user settings (never on by default).
 
-```bash
-npx --yes antigravity-swarm@0.2.4 install --permission-profile safe
-npx --yes antigravity-swarm@0.2.4 --dry-run install --permission-profile balanced --settings-target /tmp/asw-settings.json
-```
+The status line is one row under the prompt, drawn in the LitFamily status-line style: the `[🔥LIT v…]` mark, then every segment in LitGravity's flame orange. It reads `model [effort] │ ctx [█▎░] 42%/1049k │ quota [▌░]28% ↻ 2h5m`, then the active lit route as a pink `🔥 LIT` chip with its clock, then where the route stands on its map (PIN, RED, GREEN, VERIFY, REVIEW, RECORD for the open criterion of litwork and lit-loop, read from its evidence files; interview, plan, work, review, done for planning and start-work, with the plan's rows), the lanes of a lit-team, and whatever agy also reports: cost, background tasks, the branch and the title. The context and quota gauges turn yellow at 70% and red at 90%. On a narrow terminal the extras go first and the route and the context gauge stay. `NO_COLOR` turns colour off and `LITGRAVITY_HUD_ASCII=1` keeps every glyph ASCII. If agy already shows another status line, the installer refuses to touch it; `install --status-line --replace-status-line` swaps it after saving the old value, and `uninstall` puts that value back.
 
-Profiles: `safe` is least-privilege/read-mostly and is the non-TTY default, `balanced` is the recommended ASW profile, `full` grants broad tool access and should only be used in trusted workspaces, and `none` installs files without modifying permission settings. Existing `permission` settings are preserved unless `--force-permission` is passed. `custom` is future work and is not implemented.
+### Let a coding agent install it
 
-Other useful commands:
-
-```bash
-npx antigravity-swarm --dry-run install --permission-profile safe
-npx antigravity-swarm verify
-npx antigravity-swarm install-hud
-npx antigravity-swarm uninstall
-```
-
-ASW writes the plugin under `~/.gemini/config/`, installs global skill shims, and registers the HUD and optional OpenCode-compatible `permission` profile through `~/.gemini/antigravity-cli/settings.json`. Existing different `statusLine` settings are left alone unless `--force-hud` is passed, and existing `permission` settings are left alone unless `--force-permission` is passed.
-
-<a id="large-update"></a>
-## Large Update
-
-v0.2.4 is not a rename pass. It moves the project from a script-oriented swarm into an Antigravity workflow package.
-
-| Before | Now |
-|---|---|
-| Gemini-first runner scripts | Antigravity CLI and IDE plugin install |
-| Manual setup steps | `npx antigravity-swarm install --hud` |
-| Single command surface | Planner, executor, loop, reviewer, cleanup, goal, diagnostics guidance |
-| Static docs | Hooked aliases with visible workflow handoff |
-| Minimal prompt routing | Skills, hooks, subagents, LSP diagnostics guidance, HUD |
-
-The center of gravity is the command loop:
-
-- Type `asw-plan` to produce an executable plan before implementation.
-- Type `start-work` or `asw-start-work` to run that plan with the executor contract.
-- Type `asw` for test-first implementation and visible checks.
-- Type `asw-review` for a final reviewer pass over changes, hooks, install behavior, and docs.
-
-<a id="mission-control"></a>
-## Mission Control
+Paste this into a coding agent opened in any folder:
 
 ```text
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                     ASW Antigravity Mission Control                  ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-┌──────────────┬────────────┬──────────────────────┬──────────────────┐
-│ Command      │ Role       │ What it wakes         │ Best moment       │
-├──────────────┼────────────┼──────────────────────┼──────────────────┤
-│ asw-plan     │ planner    │ scope, risks, steps   │ before big work    │
-│ start-work   │ executor   │ plan execution        │ after plan review  │
-│ asw          │ loop       │ tests, code, QA       │ active build pass  │
-│ asw-review   │ reviewer   │ diff and install QA   │ before shipping    │
-└──────────────┴────────────┴──────────────────────┴──────────────────┘
+Install LitGravity, the LitFamily plugin for Google's Antigravity CLI.
+Use only the official npm package @litfamily/litgravity. Show me your plan and wait for my yes before changing anything.
+1. Check that Node.js 20+ and agy are on PATH (`agy --version`).
+2. Preview: npx @litfamily/litgravity install --dry-run
+3. Install: npx @litfamily/litgravity install --yes
+4. Verify: npx @litfamily/litgravity doctor and report its last line.
+5. Tell me what was written (the installer prints a "Written:" list) and anything it refused.
 ```
 
-This is the part inherited from the first Antigravity Swarm: visible coordination. The new version keeps that mission-control feeling, but moves the controls into Antigravity aliases, hooks, skills, agents, and a status line that stays with your session.
+## Quick start
 
-<a id="aliases"></a>
-## Aliases
+1. Open agy in a project. Type `/skills` to see the LitGravity skills and `/hooks` to see the plugin's hooks.
+2. Start a prompt with `lit`. Plain `lit` runs the default loop; the word after it picks the route: `lit plan`, `lit review`, `lit research`, `lit debug`, `lit handoff`, `lit recap`, `lit brainstorm`, `lit korean`. Any skill id works as that word (`lit debugging`, `lit structural-search`), and `/litgravity:<skill-id>` runs a skill as a slash command.
+3. Approve a plan, then `lit start plans/<slug>.md` builds it row by row with tests.
+4. Before you stop, `lit handoff`. Next time, `lit recap` reads where you were.
 
-Type these in Antigravity CLI or IDE:
+`npx @litfamily/litgravity list` prints every skill with the words that reach it. A `lit` while its route is already active gets a short "continues" note, `lit <other route>` switches, a bare `lit` picks up a plan you started with `lit start`, and `lit new` starts over.
 
-| Alias | Mode | Use |
-|---|---|---|
-| `asw-plan` | planning | Large changes, migrations, unclear work |
-| `start-work` | execution | Run the plan produced by `asw-plan` |
-| `asw-start-work` | execution | Same as `start-work`, ASW-explicit |
-| `asw-goal` | goal | Long tasks with explicit completion criteria |
-| `asw` | loop | Test-first implementation and visible checks |
-| `asw-loop` | loop | Same as `asw`, more explicit |
-| `asw-review` | review | Diff, package, hook, and QA review |
-| `asw-remove-ai-slops` | cleanup | Remove generated-looking clutter while preserving behavior |
-The hook injects a short directive before the model call. It does not run shell commands from the prompt and ignores identifier-like text such as `asw_helper.mjs`.
+## What you get
 
-<a id="contents"></a>
-## Contents
+**39 skills**, each a dense agy skill read on demand, with the references, scripts, templates and engines it needs inside its own folder. agy loads only the first 24,000 bytes of a `SKILL.md`, so the long material sits in the skill's `references/` folder and the skill names the file to open:
 
-### Skills
+- Loop and goals: lit-loop, litgoal, litwork
+- Ideas and planning: lit-brainstorm, deep-interview, lit-crucible, lit-plan
+- Building: start-work, lit-code, debugging, refactor, lit-commit, lsp, lsp-setup
+- Review and cleanup: review-work (plan review and work review), visual-qa, comment-checker, lit-burnoff, lit-burnoff-file
+- Research and knowledge: litresearch, autoresearch, autoconference, wikify, lit-comprehend
+- Teams: lit-team
+- Prose: lit-humanizer (Korean and English)
+- Continuity and guidance: lit-recap, lit-handoff, lit-init, rules
+- Interface and docs: frontend-ui-ux, readme-studio
+- Documents and figures: lit-docx, lit-pptx, lit-scientific-visualization, lit-diagram-drawer
+- Film and covers: lit-typographic-motion (short films, kinetic type, lyric videos and seamless README cover loops, each rendered by a deterministic renderer, gated on the decoded file and looked at frame by frame)
+- Tools: structural-search, browser-drive
 
-The package ships 15 skills:
+The document, diagram, README-cover, figure and motion skills ship pinned engines: `office`, `diagram`, `readme`, `sciviz` and `motion`. Each installs into `~/.local/share/litgravity/runtime/<name>` and nowhere else. Install them once with `npx @litfamily/litgravity runtime install all` (or one name); `runtime status` shows each one. A skill checks its engine first and asks agy to run the install command when it is missing. Engines that need Python pick a supported interpreter by themselves: a `python3` newer than 3.14 has no wheels for the pinned packages, so they walk to `python3.14`, `python3.13` and so on, honour `LITGRAVITY_OFFICE_PYTHON`, `LITGRAVITY_SCIVIZ_PYTHON` or `LITGRAVITY_MOTION_PYTHON`, and answer `BLOCKED` with the exact fix when no interpreter fits. The skills also call programs already on your machine: LibreOffice, pandoc, Poppler, Chrome or Chromium, ffmpeg, libwebp, ast-grep, XeLaTeX and the language checkers that `lsp` drives. `doctor` names what is missing and the command that installs it; LitGravity never installs software globally.
 
-```text
-asw, asw-loop, asw-plan, asw-start-work, asw-review, asw-goal,
-asw-debug, asw-programming, asw-lsp, asw-rules,
-asw-comment-check, asw-refactor, asw-ui-ux, asw-cleanup,
-asw-remove-ai-slops
-```
+**11 agents**, started by agy with `invoke_subagent` under their type name: lit-planner, lit-executor, lit-verifier, qa-runner, quality-reviewer, librarian-researcher, and five Korean prose agents (korean-style-analyzer, korean-prose-editor, meaning-preservation-auditor, native-flow-reviewer, polish-orchestrator). Reviewers and the Korean agents get read and search tools only.
 
-### Agents
+**6 hook events**:
 
-Antigravity validates six subagent presets:
+- SessionStart adds the LitGravity route list, an update notice and a pointer to a fresh handoff note, once per new conversation.
+- PreInvocation is the `lit` router. agy has no prompt hook, so on the first model call of a turn the router reads the newest prompt from the transcript, applies the re-entry rule and injects one step that names the skill file to read.
+- PostInvocation and Stop run the checks that agy cannot run in advance (see the limits below). Stop also holds a turn: a lit-plan turn until `plans/<slug>.md` exists, start-work while an approved plan has open rows, litgoal and lit-loop while a goal record has an open criterion, at most three holds in a row without progress. Say `pause`, or write `BLOCKED at row N:`, `PAUSED at row N:` or `CANCELLED:` in the ledger, to release it. A motion turn ends when the skill's own done-check passes on the last render, or after two holds with a plain not-done notice.
+- PreToolUse refuses child agents that could write while lit-plan is active.
+- PostToolUse writes one ledger line per tool call while a route is active, in `.litgravity/ledger/<conversation>.jsonl`, with key shapes redacted. A silent ledger means the hooks are not loaded.
 
-- `asw-planner`
-- `asw-planning-analysis`
-- `asw-plan-audit`
-- `asw-explorer`
-- `asw-librarian`
-- `asw-reviewer`
+**Models**: `npx @litfamily/litgravity models` lists the models and effort tiers your agy offers, read from agy itself, so a model Google adds later shows up with no LitGravity update.
 
-### Hooks
+## What agy limits today
 
-ASW installs hook support for alias detection, diagnostics guidance handoff, and background-work continuation.
+These are the facts of agy 1.4.3, probed on a real install. LitGravity works inside them and says so where it matters.
 
-### LSP diagnostics
+- **No blocking before a write.** agy's PreToolUse hook has to decide every call it sees; an empty answer counts as a denial, and an `allow` may lift your own approval prompts. So LitGravity leaves file writes and shell commands alone before they happen. A lit-plan turn that changed anything outside `plans/` is told to undo it right after, and prose that stacks negations or hedges is reported after it is written. The one hard stop is a child agent that could write during a lit-plan turn.
+- **Headless runs cannot ask.** In `agy -p`, a `run_command` or `write_file` that needs permission is denied, and the denial ends the run with an empty answer (the JSON lists it under `denied_actions`). `read_file` inside the workspace works. The skills read first and report `BLOCKED` with the permission they need. For scripted use add allow rules to agy's settings or pass `--dangerously-skip-permissions`, at your own risk. Use a project-scope install (`--scope project`) when a headless run has to read the skill files, because a plugin whose real path lies outside the workspace was denied its `read_file` in the same probe.
+- **Seeing images.** agy's model reads a PNG through `read_file`. Every look step in the visual skills relies on that, and it was proven with a picture whose only content was a word the prompt never mentioned.
+- **Starter Quota.** Every model call counts against your account's quota, so tests and probes use `agy plugin validate` and `/hooks`, `/skills`, `/agents`, which cost nothing, and a build of LitGravity spends only a handful of real calls.
+- **No compaction event, no slash-command folder, no MCP server from a plugin here.** `lit-handoff` writes `.litgravity/handoff/latest.md` and a new conversation is pointed at it. Skills are the commands (`/litgravity:<skill-id>`). `wikify` runs as script subcommands inside the skill.
+- **No lsp tool.** The `lsp` and `lsp-setup` skills drive language checkers from the command line instead.
 
-ASW includes a diagnostics guidance hook and skill guidance for running real language checks on changed files. The hook itself is a safe no-op and does not run a language server; use the project-native checks named by `asw-lsp` before claiming diagnostics passed.
+## What a planning turn may do
 
-<a id="status-line"></a>
-## Status Line
+`lit plan` turns are planning only. Most of that is asked, then checked afterwards, because agy offers no safe way to stop a write before it happens (see the limits above):
 
-The typical HUD line is compact:
+- The router tells the model to write only under `plans/` and `.litgravity/` and to keep the shell to plain read-only commands. Your own approval prompts still decide whether a write or command runs.
+- After every model call and at the end of the turn, the boundary check compares the workspace with its state at the start of the turn. A file changed or removed outside `plans/` is reported and the model is asked to undo it, at most twice per turn. A command that changed nothing on disk leaves no trace for this check.
+- Child agents are refused before they start unless they are read-only: lit-planner, librarian-researcher, lit-verifier, quality-reviewer and the Korean prose agents.
 
-```text
-[✨ASW v0.2.4] │ GPT-OSS 120B (Medium) │ ctx [█▋] 81%/131k
-```
+Route state lives outside the project, under `~/.local/state/litgravity/`, away from the files a planning turn is asked to touch. If that state is damaged, the child-agent limit and the plan gate stay on; if it goes missing, the hooks fall back to the route journal kept beside it.
 
-If Antigravity passes `/usage` model quota rows into the status line payload, ASW can append a compact quota segment:
+## Safety and uninstall
 
-```text
-mq G-f(M) [█░] 60% · G-f(H) 60% · G-f(L) 60% · G-p(L) 60% ↻6d22h
-```
+- The installer writes only its own plugin folder, its data directory (`$XDG_DATA_HOME/litgravity`) and, when you ask, the status line key in agy's user settings, after a backup. It never reads agy's credential files.
+- A symlinked, foreign or edited destination stops the install before the first write, with the command to move it aside. `--dry-run` never mutates.
+- Hooks fail open: if one breaks, your conversation continues.
+- Engine caches live under `~/.local/share/litgravity/runtime/`. `uninstall` keeps them, so delete that folder to free the space.
+- Set `LITGRAVITY_HOOK_TRACE=<file>` before starting agy to log one line per hook call. It is off otherwise.
+- Remove everything the installer wrote with `npx @litfamily/litgravity uninstall --yes` (add `--dry-run` to preview). Files that conversations created in your projects (`plans/`, `.litgravity/`) stay where they are.
 
-## Acknowledgements
+## Family
 
-ASW adapts community patterns for planning, hooks, skills, diagnostics, and careful review into Antigravity CLI terminology and contracts.
+LitGravity is one of the seven LitFamily packages. Each one brings the same way of working to a single coding agent, and each installs and runs on its own: install the one for the agent you use, and it needs none of the others.
+
+The seven armored machines on the cover are those seven packages, and LitGravity is the orbit machine in the seventh bay. The cover is brand motion made with the LitFamily motion skill: drawn and animated artwork, with no agy session recorded in it. If your system asks for reduced motion, you see a still frame instead.
+
+<p align="center"><img src="./docs/assets/litfamily-machines.png" width="100%" alt="The seven LitFamily machines side by side, all lit: LitClaude, LitHermes, LitCodex, LitOpenCode, LitGrok, LitMuse and LitGravity, under LITFAMILY and KEEP THE WORK LIT." /></p>
+
+[LitFamily](https://github.com/wjgoarxiv/litfamily) lists all seven and the agent each one is for.
+
+## License
+
+MIT. See [LICENSE](./LICENSE).

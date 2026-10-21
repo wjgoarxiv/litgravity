@@ -1,0 +1,229 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "slide-ast-v1",
+  "title": "Slide AST v1",
+  "description": "Versioned intermediate representation for compiled Markdown slide decks. Template-independent; resolved at render time against enrolled template contracts.",
+  "type": "object",
+  "required": ["astVersion", "version", "deck", "slides"],
+  "additionalProperties": false,
+  "properties": {
+    "astVersion": {
+      "type": "string",
+      "const": "slide-ast-v1",
+      "description": "AST version identifier. Must be exactly 'slide-ast-v1'."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version (semver)."
+    },
+    "deck": {
+      "type": "object",
+      "required": ["template", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "template": {
+          "type": "string",
+          "description": "Enrolled template name (e.g. MY-BRAND)."
+        },
+        "title": {
+          "type": "string",
+          "description": "Deck title."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Optional deck-level metadata (date, department, presenter, etc.)."
+        }
+      }
+    },
+    "slides": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/slide" },
+      "description": "Ordered array of slides."
+    }
+  },
+  "$defs": {
+    "slide": {
+      "type": "object",
+      "required": ["index", "layout", "blocks"],
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "0-based slide position."
+        },
+        "layout": {
+          "type": "string",
+          "enum": ["cover", "content", "main", "summary", "closing"],
+          "description": "Slide layout type."
+        },
+        "blocks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/block" },
+          "description": "Content blocks in order."
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["title", "body", "main-box", "summary-group", "kpi-table", "image", "notes"],
+          "description": "Block type."
+        }
+      },
+      "oneOf": [
+        { "$ref": "#/$defs/titleBlock" },
+        { "$ref": "#/$defs/bodyBlock" },
+        { "$ref": "#/$defs/mainBoxBlock" },
+        { "$ref": "#/$defs/summaryGroupBlock" },
+        { "$ref": "#/$defs/kpiTableBlock" },
+        { "$ref": "#/$defs/imageBlock" },
+        { "$ref": "#/$defs/notesBlock" }
+      ]
+    },
+    "titleBlock": {
+      "type": "object",
+      "required": ["type", "content", "level"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "const": "title" },
+        "content": { "type": "string", "description": "Title text." },
+        "level": { "type": "integer", "enum": [1, 2, 3], "description": "Heading level (1=#, 2=##, 3=###)." }
+      }
+    },
+    "bodyBlock": {
+      "type": "object",
+      "required": ["type", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "const": "body" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bodyItem" },
+          "description": "Body content items."
+        }
+      }
+    },
+    "mainBoxBlock": {
+      "type": "object",
+      "required": ["type", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "const": "main-box" },
+        "content": { "type": "string", "description": "Text content for the bordered box." }
+      }
+    },
+    "summaryGroupBlock": {
+      "type": "object",
+      "required": ["type", "position", "heading", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "const": "summary-group" },
+        "position": { "type": "string", "enum": ["top", "bottom"], "description": "Vertical position on the summary slide." },
+        "heading": { "type": "string", "description": "Group heading text." },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/bodyItem" },
+          "description": "Group content items."
+        }
+      }
+    },
+    "kpiTableBlock": {
+      "type": "object",
+      "required": ["type", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "const": "kpi-table" },
+        "headers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Column headers."
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "description": "Table rows (each row is an array of cell strings)."
+        }
+      }
+    },
+    "imageBlock": {
+      "type": "object",
+      "required": ["type", "src"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "const": "image" },
+        "src": { "type": "string", "description": "Image path (relative or absolute)." },
+        "alt": { "type": "string", "description": "Alt text." },
+        "width": { "type": "string", "description": "Optional width (e.g. '4in')." },
+        "height": { "type": "string", "description": "Optional height (e.g. '3in')." }
+      }
+    },
+    "notesBlock": {
+      "type": "object",
+      "required": ["type", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "const": "notes" },
+        "content": { "type": "string", "description": "Speaker/footnote text." }
+      }
+    },
+    "bodyItem": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["bullet", "numbered", "section", "text"],
+          "description": "Item type."
+        }
+      },
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "text"],
+          "properties": {
+            "type": { "type": "string", "const": "bullet" },
+            "text": { "type": "string" },
+            "level": { "type": "integer", "default": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "text"],
+          "properties": {
+            "type": { "type": "string", "const": "numbered" },
+            "text": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "heading", "children"],
+          "properties": {
+            "type": { "type": "string", "const": "section" },
+            "heading": { "type": "string" },
+            "children": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/bodyItem" }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "text"],
+          "properties": {
+            "type": { "type": "string", "const": "text" },
+            "text": { "type": "string" }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>README cover source</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+#cover{--paper:#f5f3eb;--ink:#18272b;--blur:2px;--grain:.06;position:relative;width:1600px;height:800px;background:var(--paper);overflow:hidden}
+#cover[data-theme=dark]{--paper:#18272b;--ink:#f5f3eb}
+.background{position:absolute;width:100%;height:100%;object-fit:cover}
+.depth-far{inset:0;filter:blur(calc(var(--blur) + 8px));transform:scale(1.08);animation:depth 5s ease-in-out both}
+.depth-mid{inset:0;clip-path:inset(8% 8% 18% 26% round 40px);filter:blur(calc(var(--blur) + 1px));opacity:.56;transform:scale(1.04);animation:depth 5s ease-in-out both}
+.light{position:absolute;inset:0;background:radial-gradient(ellipse at 85% 12%,transparent,var(--paper));opacity:.75}
+.glow{position:absolute;right:-100px;top:-200px;width:800px;height:600px;border-radius:50%;background:#b7d8c733;filter:blur(80px);animation:float 5s ease-in-out both}
+.grain{position:absolute;inset:0;width:100%;height:100%;opacity:var(--grain)}
+.rim-light{position:absolute;z-index:4;left:1060px;top:48px;width:460px;height:200px;border-radius:50%;background:radial-gradient(ellipse at 54% 42%,rgba(255,242,190,.6) 0%,rgba(255,242,190,.28) 38%,rgba(255,242,190,0) 76%);filter:blur(14px);opacity:.9;transform:rotate(-12deg);pointer-events:none}
+.type,.foreground-plane{z-index:5}
+.type{position:absolute;left:80px;top:145px;width:940px;padding:42px;background:var(--paper);border:1px solid var(--ink);animation:entry 5s ease-in-out both}
+.type img{display:block;width:100%}.type .label{width:58%;max-height:40px;object-fit:contain;object-position:left}.type .title{margin-top:36px}.type .subtitle{width:90%}.rule{width:64px;height:5px;background:#c64d2e;margin:28px 0}
+.pixel{position:absolute;z-index:6;width:400px;right:100px;bottom:125px;animation:float 5s ease-in-out both}
+.line{position:absolute;bottom:40px;left:80px;right:80px;border-top:1px solid var(--ink)}
+#cover[data-layout=mobile]{width:800px;height:1000px}#cover[data-layout=mobile] .type{left:54px;top:100px;width:692px;padding:30px}#cover[data-layout=mobile] .pixel{width:300px;right:80px;bottom:65px}#cover[data-layout=mobile] .rim-light{left:110px;top:20px;width:580px;height:56px;filter:blur(10px);opacity:.9;transform:none}
+@keyframes depth{0%,100%{transform:scale(1.04)}50%{transform:scale(1.055)}}
+@keyframes entry{0%,100%{transform:translateY(16px)}8%,88%{transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@media(prefers-reduced-motion:reduce){.depth-far,.depth-mid,.glow,.type,.pixel{animation:none;transform:none}}
+</style></head><body>
+<main id="cover" data-composition-id="readme-cover" data-start="0" data-duration="5" data-width="1600" data-height="800" data-no-timeline data-theme="light" data-layout="wide">
+<img class="background depth-far" src="assets/background.png" alt=""><img class="background depth-mid" src="assets/background.png" alt=""><div class="light"></div><div class="glow"></div>
+<svg class="grain"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="3" seed="19" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#noise)"/></svg>
+<div class="rim-light" data-light-zone="open-background" aria-hidden="true"></div><section class="type foreground-plane"><img class="label" src="assets/label-dark.svg" alt="Technical label"><img class="title" src="assets/title-dark.svg" alt="Project title"><div class="rule"></div><img class="subtitle" src="assets/subtitle-dark.svg" alt="Project purpose"></section>
+<svg class="pixel" viewBox="0 0 20 20" shape-rendering="crispEdges" aria-label="Original pixel notebook motif"><path fill="var(--paper)" d="M3 1h12v2h2v15H3z"/><path fill="var(--ink)" d="M3 1h12v2H5v13h10V3h2v15H3zM7 5h6v1H7zM7 8h6v1H7zM7 11h4v1H7z"/><path fill="#c64d2e" d="M1 4h4v2H1zM1 9h4v2H1zM1 14h4v2H1zM13 13h5v2h-5z"/></svg><div class="line"></div>
+</main></body></html>

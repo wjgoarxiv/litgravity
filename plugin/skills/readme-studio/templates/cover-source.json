@@ -1,0 +1,21 @@
+{
+  "schema": "litgravity.readme-cover/v1",
+  "title": "",
+  "subtitle": "",
+  "label": "",
+  "background": {"path": "", "origin": "unresolved", "sha256": "", "inspected": false},
+  "fonts": [],
+  "renderer": {"engine": "unselected", "version": "", "license_checked": false},
+  "effects": {
+    "blur_px": 2,
+    "focal_depth": {"foreground": "sharp", "background": "staged-blur"},
+    "second_light": "directional-rim",
+    "grain_seed": 19,
+    "grain_opacity": 0.06,
+    "glow": 0.2,
+    "variant": "restrained"
+  },
+  "assets": [],
+  "stages": {"facts": "pending", "background": "pending", "type": "pending", "render": "pending", "inspection": "pending"},
+  "hosted_render": "POST_PUBLICATION_UNVERIFIED"
+}

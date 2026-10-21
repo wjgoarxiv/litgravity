@@ -1,0 +1,33 @@
+# Diagram brief · 예약 요청이 결제와 재고로 이어지는 길
+
+- Type: architecture
+- Audience: engineers and reviewers
+- Purpose: 사용자 요청은 내부 경계에서 검증되고, 주문 데이터와 비동기 작업을 거쳐 결제 및 재고 시스템에 전달된다.
+- Theme: light
+- Canvas: 16:9 slide, editable SVG in HTML
+- Required facts:
+- 모바일 앱 participates in the labeled relationships below.
+- API 게이트웨이 participates in the labeled relationships below.
+- 인증 서비스 participates in the labeled relationships below.
+- 주문 서비스 participates in the labeled relationships below.
+- 주문 DB participates in the labeled relationships below.
+- 이벤트 큐 participates in the labeled relationships below.
+- 작업 소비자 participates in the labeled relationships below.
+- 재고 서비스 participates in the labeled relationships below.
+- 결제 어댑터 participates in the labeled relationships below.
+- 결제사 participates in the labeled relationships below.
+- 감사 로그 participates in the labeled relationships below.
+- Required relationships:
+- 모바일 앱 → API 게이트웨이 (HTTPS)
+- API 게이트웨이 → 인증 서비스 (인증)
+- API 게이트웨이 → 주문 서비스 (요청)
+- 주문 서비스 → 주문 DB (저장)
+- 주문 서비스 → 이벤트 큐 (비동기)
+- 이벤트 큐 → 작업 소비자 (전달)
+- 작업 소비자 → 재고 서비스 (예약)
+- 주문 서비스 → 결제 어댑터 (결제)
+- 결제 어댑터 → 결제사 (외부 결제)
+- 주문 서비스 → 감사 로그 (기록)
+- Trust boundary internal nodes: API 게이트웨이; 인증 서비스; 주문 서비스; 주문 DB; 이벤트 큐; 작업 소비자; 재고 서비스; 결제 어댑터; 감사 로그
+- Trust boundary external nodes: 모바일 앱; 결제사
+- Do not infer omitted systems or timing.

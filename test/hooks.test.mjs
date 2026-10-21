@@ -1,149 +1,76 @@
-import assert from "node:assert/strict";
-import { mkdtemp, rm, writeFile, readFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { spawnSync } from "node:child_process";
-import test from "node:test";
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { PLUGIN } from './helpers.mjs';
 
-const repoRoot = new URL("..", import.meta.url).pathname;
-const hookPath = join(repoRoot, "plugins", "antigravity-swarm", "scripts", "asw-hook.mjs");
-const lspPath = join(repoRoot, "plugins", "antigravity-swarm", "scripts", "asw-lsp-check.mjs");
+const HOOKS = JSON.parse(readFileSync(join(PLUGIN, 'hooks.json'), 'utf8'));
+const FLAT = ['SessionStart', 'PreInvocation', 'PostInvocation', 'Stop'];
+const GROUPED = ['PreToolUse', 'PostToolUse'];
 
-function runHook(script, payload, args = []) {
-  return spawnSync("node", [script, ...args], {
-    cwd: repoRoot,
-    input: JSON.stringify(payload),
-    encoding: "utf8",
-    env: { ...process.env, FORCE_COLOR: "0" },
-  });
+// Proven on agy 1.4.3 (task 2): a nested {matcher, hooks} group under a flat event makes the loader skip the whole file
+// while /hooks still lists it, so the shape is asserted here and again by `agy plugin validate`.
+test('hooks.json is at the plugin root in the strict shape: { name: { Event: [...] } }', () => {
+  assert.ok(!existsSync(join(PLUGIN, 'hooks', 'hooks.json')), 'hooks/hooks.json is never read by agy');
+  assert.equal(typeof HOOKS, 'object');
+  assert.ok(!('hooks' in HOOKS), 'no top-level "hooks" key: agy reads the plugin name first');
+  for (const [name, spec] of Object.entries(HOOKS)) {
+    assert.match(name, /^[a-z][a-z0-9-]*$/);
+    for (const [event, list] of Object.entries(spec)) {
+      if (event === 'enabled') continue;
+      assert.ok([...FLAT, ...GROUPED].includes(event), `${name}: unknown event ${event} (UserPromptSubmit does not exist on agy)`);
+      assert.ok(Array.isArray(list) && list.length > 0, `${name}.${event}`);
+      for (const item of list) {
+        if (FLAT.includes(event)) {
+          assert.ok(!('hooks' in item) && !('matcher' in item), `${name}.${event}: flat events take handlers directly`);
+          assertHandler(item, `${name}.${event}`);
+        } else {
+          assert.equal(typeof item.matcher, 'string', `${name}.${event}: grouped events need a matcher`);
+          assert.ok(Array.isArray(item.hooks) && item.hooks.length > 0, `${name}.${event}: grouped events need hooks[]`);
+          item.hooks.forEach((h) => assertHandler(h, `${name}.${event}`));
+        }
+      }
+    }
+  }
+});
+
+function assertHandler(h, where) {
+  assert.equal(h.type, 'command', where);
+  assert.match(h.command, /^node \.\/hooks\/[a-z-]+\.mjs$/, `${where}: runs from the plugin root, where agy sets the cwd`);
+  assert.ok(existsSync(join(PLUGIN, h.command.replace(/^node \.\//, ''))), `${where}: script exists`);
+  assert.ok(Number.isInteger(h.timeout) && h.timeout > 0 && h.timeout <= 30, `${where}: timeout`);
 }
 
-test("#asw hook #injects plan directive for Antigravity PreInvocation payload", () => {
-  const result = runHook(hookPath, {
-    invocationNum: 1,
-    initialNumSteps: 0,
-    workspacePaths: [repoRoot],
-    prompt: "asw-plan this migration",
+test('every LitGravity hook event the router depends on is wired', () => {
+  const events = Object.keys(HOOKS.litgravity);
+  for (const e of ['SessionStart', 'PreInvocation', 'PostInvocation', 'Stop', 'PreToolUse', 'PostToolUse']) assert.ok(events.includes(e), e);
+});
+
+// agy treats an empty PreToolUse answer as a denial and offers no way to abstain, so a global PreToolUse hook has to
+// approve everything it matches. The matcher stays on tools that never ask the user (child agents); file writes and
+// commands are checked after the fact by PostInvocation and Stop. Widening the matcher to `.*` turns on the full
+// pre-tool policy in hooks/pre-tool-use.mjs, but only after someone has shown that `allow` leaves the user's own
+// approval prompts in place (see AGENTS.md).
+test('PreToolUse is matcher-limited to tools that never prompt the user', () => {
+  const group = HOOKS.litgravity.PreToolUse[0];
+  assert.equal(group.matcher, 'invoke_subagent|define_subagent');
+  for (const risky of ['run_command', 'write_file', 'write_to_file', 'replace_file_content', 'read_file']) {
+    assert.ok(!new RegExp(`^(?:${group.matcher})$`).test(risky), `${risky} must not reach a hook that can only approve`);
+  }
+});
+
+const agy = spawnSync('agy', ['--version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+const hasAgy = agy.status === 0 && !process.env.LITGRAVITY_AGY_BIN;
+
+test('agy plugin validate --json --strict: zero errors and zero warnings, hooks listed',
+  { skip: hasAgy ? false : 'agy is not on PATH (or LITGRAVITY_AGY_BIN is set): install the Antigravity CLI to run the host validator' },
+  () => {
+    const r = spawnSync('agy', ['plugin', 'validate', PLUGIN, '--json', '--strict'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    const report = JSON.parse(r.stdout);
+    assert.deepEqual(report.findings, []);
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(report.name, 'litgravity');
+    assert.ok(report.components.hooks >= 1, 'hooks loaded');
+    assert.ok(report.components.rules >= 1, 'rules loaded');
   });
-
-  assert.equal(result.status, 0, result.stderr);
-  const output = JSON.parse(result.stdout);
-  assert.equal(output.injectSteps.length, 1);
-  assert.match(output.injectSteps[0].userMessage, /ASW PLAN MODE ENABLED/);
-  assert.match(output.injectSteps[0].userMessage, /Antigravity CLI/);
-  assert.match(output.injectSteps[0].userMessage, /\.asw\/plans\/<slug>\.md/);
-  assert.match(output.injectSteps[0].userMessage, /## TODOs/);
-  assert.match(output.injectSteps[0].userMessage, /Next: start-work <plan-name>/);
-  assert.doesNotMatch(output.injectSteps[0].userMessage, /Let me know if you would like to proceed/i);
-});
-
-test("#asw hook #injects loop directive for ASW aliases", () => {
-  for (const prompt of ["asw fix this", "asw-loop fix this", "swarmwork fix this"]) {
-    const result = runHook(hookPath, { prompt, workspacePaths: [repoRoot] });
-    assert.equal(result.status, 0, result.stderr);
-    const output = JSON.parse(result.stdout);
-    assert.match(output.injectSteps[0].userMessage, /ASW LOOP MODE ENABLED/);
-  }
-});
-
-test("#asw hook #injects goal directive for durable goal alias", () => {
-  const result = runHook(hookPath, { prompt: "asw-goal define evidence criteria", workspacePaths: [repoRoot] });
-
-  assert.equal(result.status, 0, result.stderr);
-  const output = JSON.parse(result.stdout);
-  assert.match(output.injectSteps[0].userMessage, /ASW GOAL MODE ENABLED/);
-  assert.match(output.injectSteps[0].userMessage, /success criteria/);
-});
-
-test("#asw hook #injects start-work directive for plan execution aliases", () => {
-  for (const prompt of ["start-work asw-v021", "asw-start-work .asw/plans/asw-v021.md"]) {
-    const result = runHook(hookPath, { prompt, workspacePaths: [repoRoot] });
-    assert.equal(result.status, 0, result.stderr);
-    const output = JSON.parse(result.stdout);
-    assert.match(output.injectSteps[0].userMessage, /ASW START-WORK MODE ENABLED/);
-    assert.match(output.injectSteps[0].userMessage, /ORCHESTRATION COMPLETE/);
-    assert.match(output.injectSteps[0].userMessage, /first unchecked top-level checkbox/);
-  }
-});
-
-test("#asw hook #does not treat identifier-like start-work terms as aliases", () => {
-  const result = runHook(hookPath, { prompt: "rename start-work_helper.mjs" });
-
-  assert.equal(result.status, 0, result.stderr);
-  assert.deepEqual(JSON.parse(result.stdout), {});
-});
-
-test("#asw hook #injects cleanup directive for AI slop removal aliases", () => {
-  for (const prompt of ["asw-remove-ai-slops clean the diff", "asw-cleanup remove obvious AI comments"]) {
-    const result = runHook(hookPath, { prompt, workspacePaths: [repoRoot] });
-    assert.equal(result.status, 0, result.stderr);
-    const output = JSON.parse(result.stdout);
-    assert.match(output.injectSteps[0].userMessage, /ASW CLEANUP MODE ENABLED/);
-    assert.match(output.injectSteps[0].userMessage, /Preserve behavior/);
-  }
-});
-
-test("#asw hook #detects alias from Antigravity docs-shaped PreInvocation transcript", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "asw-transcript-"));
-  try {
-    const transcriptPath = join(dir, "transcript.jsonl");
-    await writeFile(
-      transcriptPath,
-      [
-        JSON.stringify({ role: "user", text: "ordinary setup" }),
-        JSON.stringify({ type: "message", role: "user", content: [{ type: "text", text: "please asw-plan this port" }] }),
-      ].join("\n"),
-      "utf8",
-    );
-
-    const result = runHook(hookPath, {
-      invocationNum: 3,
-      initialNumSteps: 10,
-      conversationId: "ec33ebf9-0cba-4100-8142-c61503f6c587",
-      workspacePaths: [repoRoot],
-      transcriptPath,
-      artifactDirectoryPath: dir,
-    });
-
-    assert.equal(result.status, 0, result.stderr);
-    assert.match(JSON.parse(result.stdout).injectSteps[0].userMessage, /ASW PLAN MODE ENABLED/);
-  } finally {
-    await rm(dir, { recursive: true, force: true });
-  }
-});
-
-test("#asw hook #stays quiet for identifier-like terms and malformed stdin", () => {
-  const identifier = runHook(hookPath, { prompt: "rename asw_helper.mjs" });
-  assert.equal(identifier.status, 0, identifier.stderr);
-  assert.deepEqual(JSON.parse(identifier.stdout), {});
-
-  const malformed = spawnSync("node", [hookPath], {
-    cwd: repoRoot,
-    input: "{",
-    encoding: "utf8",
-  });
-  assert.equal(malformed.status, 0, malformed.stderr);
-  assert.deepEqual(JSON.parse(malformed.stdout), {});
-});
-
-test("#lsp hook #returns empty Antigravity JSON object and hook manifest wires PostToolUse", async () => {
-  const result = runHook(lspPath, {
-    stepIdx: 2,
-    workspacePaths: [repoRoot],
-    error: "",
-  });
-  assert.equal(result.status, 0, result.stderr);
-  assert.deepEqual(JSON.parse(result.stdout), {});
-
-  const manifest = JSON.parse(await readFile(join(repoRoot, "plugins", "antigravity-swarm", "hooks", "hooks.json"), "utf8"));
-  assert.ok(manifest["antigravity-swarm"].PreInvocation);
-  assert.match(manifest["antigravity-swarm"].PreInvocation[0].statusMessage, /ASW.*alias/i);
-  const matcher = manifest["antigravity-swarm"].PostToolUse[0].matcher;
-  assert.match(matcher, /write_to_file/);
-  assert.match(matcher, /multi_replace_file_content/);
-  assert.match(matcher, /write_file/);
-  assert.match(matcher, /replace_file_content/);
-  assert.match(matcher, /run_command/);
-  assert.match(manifest["antigravity-swarm"].PostToolUse[0].hooks[0].statusMessage, /ASW.*diagnostics/i);
-  assert.match(manifest["antigravity-swarm"].Stop[0].statusMessage, /ASW.*continuation/i);
-});

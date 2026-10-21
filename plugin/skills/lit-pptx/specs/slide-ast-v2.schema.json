@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "slide-ast-v2.schema.json",
+  "title": "Slide AST v2",
+  "description": "Additive successor to slide-ast-v1. A deck built only from v1 constructs still compiles to a slide-ast-v1 document; v2 is emitted only once a deck places content itself. Every v1 document is also a valid v2 document.",
+  "type": "object",
+  "required": ["astVersion", "version", "deck", "slides"],
+  "properties": {
+    "astVersion": { "enum": ["slide-ast-v1", "slide-ast-v2"] },
+    "version": { "type": "string" },
+    "deck": {
+      "type": "object",
+      "required": ["template", "title"],
+      "properties": {
+        "template": { "type": "string" },
+        "title": { "type": "string" },
+        "metadata": { "type": "object" }
+      }
+    },
+    "slides": { "type": "array", "items": { "$ref": "#/definitions/slide" } }
+  },
+  "definitions": {
+    "slide": {
+      "type": "object",
+      "required": ["index", "layout", "blocks"],
+      "properties": {
+        "index": { "type": "number" },
+        "layout": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "Any name the chosen template declares. The v1 set (cover, content, main, summary, section, closing) is no longer closed; layout-resolver validates the name against the template mapping."
+        },
+        "meta": {
+          "type": "object",
+          "description": "Slide-local keys declared under the layout line, such as variant.",
+          "additionalProperties": { "type": "string" }
+        },
+        "blocks": { "type": "array", "items": { "$ref": "#/definitions/block" } }
+      }
+    },
+
+    "block": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": [
+            "title", "body", "main-box", "summary-group", "kpi-table", "image",
+            "notes", "figure-caption", "table-caption",
+            "columns", "box", "shape"
+          ]
+        },
+        "regionHint": {
+          "type": "string",
+          "description": "Region this block targets, set by '::: region name=<region>'. Overrides the block-type default the resolver would otherwise pick."
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/columnsBlock" },
+        { "$ref": "#/definitions/boxBlock" },
+        { "$ref": "#/definitions/shapeBlock" }
+      ]
+    },
+
+    "columnsBlock": {
+      "description": "Declarative side-by-side placement. Tracks are fr ratios; the resolver divides the layout's body region between them and no coordinate appears in the source.",
+      "if": { "properties": { "type": { "const": "columns" } }, "required": ["type"] },
+      "then": {
+        "required": ["tracks", "gap", "columns"],
+        "properties": {
+          "tracks": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "One entry per column, e.g. [\"2fr\", \"1fr\"]. Count must equal columns.length."
+          },
+          "gap": { "type": "number", "description": "Gutter in inches." },
+          "columns": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["blocks"],
+              "properties": {
+                "blocks": { "type": "array", "items": { "$ref": "#/definitions/block" } }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "boxBlock": {
+      "description": "Absolutely placed content. Coordinates are inches on the template canvas and are never adjusted by the resolver's auto-nudge rules.",
+      "if": { "properties": { "type": { "const": "box" } }, "required": ["type"] },
+      "then": {
+        "required": ["x", "y", "w", "h", "z", "blocks"],
+        "properties": {
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "w": { "type": "number" },
+          "h": { "type": "number" },
+          "role": { "type": "string", "description": "font_role from the template's capabilities.yaml. Defaults to body_text." },
+          "align": { "type": "string" },
+          "valign": { "type": "string" },
+          "z": { "enum": ["under", "over"], "description": "Drawn before or after the template's own regions. Defaults to over." },
+          "blocks": { "type": "array", "items": { "$ref": "#/definitions/block" } }
+        }
+      }
+    },
+
+    "shapeBlock": {
+      "description": "A drawing primitive. Style keys are forwarded verbatim to the decoration renderer, which owns their meaning.",
+      "if": { "properties": { "type": { "const": "shape" } }, "required": ["type"] },
+      "then": {
+        "required": ["shape", "x", "y", "w", "z"],
+        "properties": {
+          "shape": { "enum": ["rect", "roundRect", "pill", "ellipse", "ring", "line", "text", "image"] },
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "w": { "type": "number" },
+          "h": { "type": "number", "description": "Required for every kind except line, which takes its thickness from the stroke width." },
+          "z": { "enum": ["under", "over"], "description": "Defaults to under, so a shape sits behind the slide's content." },
+          "fill": { "type": "string" },
+          "line": { "type": "string" },
+          "lw": { "type": "number" },
+          "radius": { "type": "number" },
+          "rotate": { "type": "number" },
+          "text": { "type": "string" },
+          "color": { "type": "string" },
+          "size": { "type": "number" },
+          "align": { "type": "string" },
+          "valign": { "type": "string" },
+          "char_spacing": { "type": "number" },
+          "bold": { "type": "boolean" },
+          "asset": { "type": "string" },
+          "dir": { "type": "string" },
+          "src": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

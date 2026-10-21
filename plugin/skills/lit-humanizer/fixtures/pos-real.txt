@@ -1,0 +1,26 @@
+Source: Example Shipyard Sustainability Report 2024. The 30% productivity and lead-time figures are expected outcomes after smart-yard programme completion, not realized results.
+Source: Example Shipyard yard digital twin and digital work-order descriptions; control points are pilot demonstration recommendations.
+Sources: NVIDIA industrial digital-twin materials. Architecture composition is a pilot demonstration synthesis.
+Source: Example Shipyard smart-yard programme expected outcomes. Proposed leading indicators and baselines are demonstration assumptions.
+[C003] Example Shipyard presents 30 percent productivity improvement and 30 percent shorter lead time as expected outcomes after smart-yard programme completion, not realized results [SRC001]
+<b>Evidence boundary</b><span>NVIDIA 공개 제품·기술 페이지의 구조를 요약. 특정 현장 배포 사실을 의미하지 않음.</span>
+> 표 2. 질문별로 분리한 증거 단위 | 출처: 최종 보고서 v3와 publisher claim ledger
+(1) 100 ps 전역 자료를 20–50 ps 지속성 증거로 사용하지 않았다.
+(3) 이 상한은 전환 부재나 독립 핵생성의 양성 증거가 아니므로 최종 방향 판정은 보류한다.
+![그림 6. 2.885 µs 단일 프레임의 PyMOL 연동 구조 문맥 | 출처: 검증된 로컬 프레임과 PyMOL-MCP 그림 영수증](x.png)
+| 원격 또는 새 시뮬레이션 | 미실행 | 명시적 승인 전에는 실행하지 않음 |
+관측되지 않았다는 뜻이며, 실제 물리 과정의 부재를 증명하지 않는다.
+- **수행 결과**: 9개 민감도 조합은 안정적이지만 PMF MD는 시작하지 않았다.
+(2) ⚠️ OPLS-AA 는 **epoxide 에 검증된 적이 없음** — 이 한계는 뒤에서 정량으로 다룸
+(3) 실험 해리 온도에 맞추는 **fitting parameter 는 쓰지 않음**
+(2) 혼합계에서 직접 측정한 값이 **아님**
+(2) 단 이건 **분류(있다/없다) 검증**이며 **크기 검증은 아님** — 
+연구 전용 · 투자 조언 아님 · 실제 체결 및 수익성 미확인 · 미래 성과와 주문 체결을 보장하지 않음
+SOXL 가격 전망: 제공하지 않음
+**Evidence basis:** A supplied fact packet from research retrieved 2026-07-13; no network refetch or independent page reproduction was performed in this lane.
+**Confidence:** High source-backed within the supplied fact packet. These claims were not independently revalidated in this lane.
+This is normalized holdings change times current close, not verified traded notional.
+Boundary: the archive is not verified on the NVIDIA host, no production `mdrun` was launched, and no mechanism closure is claimed.
+height,130,mm,사진 시트 표기,미확정·이미지 표기이며 실측 아님
+- **검증:** 관련 검사와 실제 사용 경로를 확인하고 근거와 가정을 구분합니다.
+선별 상태 선별 결과 · 수심·기준면 미검증 · 허가 판단 결과 아님

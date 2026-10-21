@@ -1,0 +1,19 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1200px; height: 600px; overflow: hidden; background: #000; } canvas { position: absolute; left: 0; top: 0; width: 1200px; height: 600px; }</style>
+<body>
+<canvas id="cv" width="2400" height="1200"></canvas>
+<script>
+// Never clears its canvas, so every frame keeps the marks of the frames painted before it: identical in sequence,
+// different when a frame is sought out of order.
+const g = document.getElementById("cv").getContext("2d");
+g.scale(2, 2);
+window.renderFrame = (t) => {
+  g.fillStyle = "#f2683a";
+  g.beginPath();
+  g.arc(120 + 960 * t, 300, 28, 0, Math.PI * 2);
+  g.fill();
+};
+window.ready = true;
+</script>
+</body>

@@ -1,0 +1,14 @@
+UI/UX Pro Max design data
+
+This package includes a normalized subset of design data from
+nextlevelbuilder/ui-ux-pro-max-skill at Git commit
+1307d97a72e6c1cda572cb65471ae5ce82995218.
+
+The reused data is licensed under the MIT License. The full pinned license is
+distributed beside this notice as LICENSE. Source-file hashes, the deterministic
+repair receipt, selected columns, record counts, and canonical dataset hash are
+recorded in PROVENANCE.json.
+
+No upstream scripts, templates, CLI, installers, manifests, screenshots, previews,
+documentation, premium features, host integrations, code-example columns,
+documentation-URL columns, or google-fonts.csv data are included.

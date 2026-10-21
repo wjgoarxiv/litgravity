@@ -1,0 +1,62 @@
+lit-typographic-motion — third-party notices
+
+Engine code
+  Portions of this engine are adapted from mexicat/pdoom-video (MIT), commit
+  ca251e3dddda422b364385eb484b5a3593a0990d, Copyright (c) 2026 Giacomo Magnanini.
+  The required notice is in NOTICE next to this file.
+
+Engine dependency (installed into the LitGravity motion cache by
+`npx @litfamily/litgravity runtime install motion`, never bundled)
+  opentype.js 2.0.0 (MIT) — its LICENSE ships inside the installed package:
+    <motion cache>/node-<lockdigest>-<platform>-<arch>/node_modules/opentype.js/LICENSE
+
+Fonts. Paths starting with fonts/ are relative to the skill directory
+(skills/lit-typographic-motion/); paths starting with <motion cache>/fonts/ are written by
+`npx @litfamily/litgravity runtime install motion` (pinned URL, sha256-verified, licence fetched with the
+font). <motion cache> is $LITGRAVITY_MOTION_RUNTIME, or
+${XDG_DATA_HOME:-~/.local/share}/litgravity/runtime/motion.
+
+  Archivo, static instances 75/100/125 x 400/700/900 (bundled; OFL 1.1, no Reserved Font Name)
+    font files: fonts/archivo/Archivo-w*.ttf
+    licence:    fonts/archivo/OFL.txt
+    source:     mexicat/pdoom-video@ca251e3 app/public/fonts/src/Archivo[wdth,wght].ttf, instanced
+                at development time with fontTools varLib.instancer
+
+  VT323 (bundled; OFL 1.1)
+    font file:  fonts/vt323/VT323-Regular.ttf
+    licence:    fonts/vt323/OFL.txt
+
+  Silkscreen Regular and Bold (bundled; OFL 1.1)
+    font files: fonts/silkscreen/Silkscreen-Regular.ttf, fonts/silkscreen/Silkscreen-Bold.ttf
+    licence:    fonts/silkscreen/OFL.txt
+
+  JetBrains Mono, variable wght 100-800, latin subset (bundled, unmodified; OFL 1.1, no Reserved
+  Font Name)
+    font file:  fonts/jetbrains-mono/JetBrainsMono-wght-latin.woff2
+    licence:    fonts/jetbrains-mono/OFL.txt
+    source:     @fontsource-variable/jetbrains-mono 5.3.0, files/jetbrains-mono-latin-wght-normal.woff2
+
+  EMS Allure, EMS Felix, EMS Osmotron, EMS Readability, EMS Tech single-stroke SVG fonts
+  (bundled, unmodified; OFL 1.1)
+    font files: fonts/stroke/EMS*.svg
+    licence:    fonts/stroke/OFL.txt
+    credits:    fonts/stroke/CREDITS
+
+  Pretendard Regular and Bold (reused from lit-pptx by path, not duplicated; OFL 1.1,
+  Reserved Font Name "Pretendard"; shipped unmodified)
+    font files: ../lit-pptx/fonts/pretendard/Pretendard-Regular.otf, Pretendard-Bold.otf
+    licence:    ../lit-pptx/fonts/pretendard/OFL.txt
+
+  Galmuri9 (fetched at pre-warm; OFL 1.1, Reserved Font Name implied; unmodified dist file)
+    font file:  <motion cache>/fonts/Galmuri9.ttf
+    licence:    <motion cache>/fonts/Galmuri-ofl.md
+
+  MesloLGS NF Regular (fetched at pre-warm; Apache-2.0 for Meslo, with the inherited Bitstream
+  Vera and Arev notices)
+    font file:  <motion cache>/fonts/MesloLGS-NF-Regular.ttf
+    licences:   <motion cache>/fonts/MesloLGS-NF-License.txt
+                <motion cache>/fonts/Apache-2.0.txt
+                <motion cache>/fonts/DejaVu-Bitstream-Vera-Arev-LICENSE.txt
+
+Not shipped and not fetched: the Hershey single-stroke fonts (non-OFL use restriction), Galmuri
+bitmap-strike variants, DotGothic16, and any subset of a font that carries a Reserved Font Name.

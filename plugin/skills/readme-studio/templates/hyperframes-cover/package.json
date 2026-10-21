@@ -1,0 +1,8 @@
+{
+  "name": "litgravity-readme-html-workspace",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {"render": "hyperframes render . -c index.html --fps 60 --workers 1"},
+  "devDependencies": {"hyperframes": "0.8.51"}
+}

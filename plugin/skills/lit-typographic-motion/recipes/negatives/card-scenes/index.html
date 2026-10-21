@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><!-- A shipped NEGATIVE that must keep failing the cover gate on G2: the old stage path's card scenes
+     that fade in, hold and fade out, ending on a static card. Never a recipe. -->
+<link rel="stylesheet" href="/lit/fonts.css">
+<style>
+html, body { margin: 0; width: 1200px; height: 600px; overflow: hidden; background: #080d14; color: #f2efdf; font-family: "JetBrains Mono"; }
+.c { position: absolute; left: 0; right: 0; text-align: center; white-space: nowrap; }
+body.mask, body.mask * { background: #000 !important; color: #000 !important; border-color: #000 !important; }
+body.mask .title { color: #fff !important; }
+</style><script src="/lit/loop-kit.js"></script>
+<style>.card{position:absolute;inset:0;opacity:0}.box{position:absolute;border:3px solid #ff6337;border-radius:10px}</style></head>
+<body>
+<div class="card" id="c0"><div class="c title" style="top:200px;font-size:96px;font-weight:800">LITGRAVITY</div><div class="c" style="top:340px;font-size:30px">A workflow family for the agy CLI</div></div>
+<div class="card" id="c1"><div class="box" style="left:160px;top:180px;width:260px;height:240px"></div><div style="position:absolute;left:480px;top:240px;font-size:44px;font-weight:700">1. Plan</div><div style="position:absolute;left:480px;top:310px;font-size:26px">Decision-complete steps.</div></div>
+<div class="card" id="c2"><div class="box" style="left:160px;top:180px;width:260px;height:240px;border-color:#d7f75b"></div><div style="position:absolute;left:480px;top:240px;font-size:44px;font-weight:700">2. Loop</div><div style="position:absolute;left:480px;top:310px;font-size:26px">Test first, then green.</div></div>
+<div class="card" id="c3"><div class="c" style="top:250px;font-size:64px;font-weight:700">KEEP THE WORK <span style="color:#ff6337">LIT.</span></div></div>
+<script>
+// Imitates the old stage path: card scenes with fade in / hold / fade out, ending on a static end card.
+const { clamp, ease } = LitLoop, S = 10, SC = [[0, 2.6], [2.6, 5.0], [5.0, 7.4], [7.4, 10]];
+window.renderFrame = (t, o = {}) => {
+  document.body.className = o.mask ? "mask" : "";
+  const s = t * S;
+  SC.forEach(([a, b], i) => { const el = document.getElementById("c" + i);
+    el.style.opacity = ease.smooth(clamp((s - a) / 0.4)) * (1 - ease.smooth(clamp((s - (b - 0.4)) / 0.4)));
+    el.style.transform = `translateX(${20 * (1 - ease.outCubic(clamp((s - a) / 0.5)))}px)`; });
+};
+document.fonts.ready.then(() => { window.ready = true; });
+</script></body></html>

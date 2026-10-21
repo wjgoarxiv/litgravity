@@ -1,0 +1,26 @@
+# Report: periodic results, project reports and analyses read by managers; 4-30 pages, tables carry the evidence.
+# Korean default is institute prose (the manner of a central-bank or think-tank issue note): a typographic title
+# block on page 1, a short contents list from five pages, sections numbered Ⅰ. / 1. / 가. (English 1 / 1.1),
+# booktabs tables with <표 n> captions, units and 자료 lines, a footer with the short title and the folio.
+schema_version: 2
+tonality: Report
+summary: Periodic results, project reports and analyses with tables and figures
+dials: {density: 9, variance: 5}
+docx:
+  page: {size: A4}
+  font: {latin: Pretendard, hangul: Pretendard, heading: Pretendard, body_pt_ko: 10.5, body_pt_en: 10.5}
+design:
+  ramp: {h1: 1.4, h2: 1.2, title: 2.5}
+  numbering: {ko: roman-ko, en: decimal}
+  title_block: masthead
+  contents: true
+  summary_form: prose
+  running_head: {footer: [title, folio]}
+  justify: ko
+  palette: {ink: "1A1A1A", ink_muted: "555555", line: "8C8C8C", accent: "1F3A5F"}
+  accent_on: [title_rule, callout_rule]
+  page_geometry: {columns: 1, column_gap_cm: 0.6}
+  components:
+    allowed: [keyfigures, callout, columns]
+    keyfigures: {per_row: 3}
+  figure_style: {max_height_ratio: 0.45}

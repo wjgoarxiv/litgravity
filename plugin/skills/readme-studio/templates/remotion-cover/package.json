@@ -1,0 +1,7 @@
+{
+  "name": "litgravity-readme-motion-workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {"compositions": "remotion compositions src/index.tsx", "render": "remotion render", "still": "remotion still"},
+  "dependencies": {"remotion": "4.0.526", "@remotion/cli": "4.0.526", "react": "19.3.0", "react-dom": "19.3.0"}
+}

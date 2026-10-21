@@ -1,43 +1,53 @@
 {
-  "name": "antigravity-swarm",
-  "version": "0.2.4",
-  "description": "Antigravity CLI plugin, skills, hooks, HUD, and installer for ASW workflows.",
+  "name": "@litfamily/litgravity",
+  "version": "0.1.0",
+  "description": "Installer for LitGravity: skills, hooks and agents that help Google's Antigravity CLI (agy) plan, build, check and hand off work.",
+  "keywords": [
+    "antigravity",
+    "agy",
+    "coding-agent",
+    "agent-skills",
+    "hooks",
+    "planning",
+    "code-review",
+    "research",
+    "context-handoff",
+    "korean"
+  ],
   "type": "module",
   "bin": {
-    "antigravity-swarm": "bin/antigravity-swarm.js"
+    "litgravity": "bin/litgravity.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "check:version": "node scripts/check-version.mjs",
+    "scan:legacy-tokens": "node scripts/scan-legacy-tokens.mjs",
+    "validate": "node scripts/validate-plugin.mjs",
+    "sync:fixtures": "node scripts/sync-fixtures.mjs"
   },
   "files": [
     "bin",
-    "plugins/antigravity-swarm",
+    "lib",
+    "plugin",
     "README.md",
-    "README_KO.md",
-    "cover.png",
+    "README_ko-KR.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
-  "scripts": {
-    "test": "node --test test/*.test.mjs",
-    "pack:dry-run": "npm pack --dry-run --json"
+  "publishConfig": {
+    "access": "public"
   },
-  "keywords": [
-    "antigravity",
-    "antigravity-cli",
-    "agent-skills",
-    "hooks",
-    "lsp",
-    "subagents",
-    "swarm"
-  ],
-  "author": "Antigravity Swarm Contributors",
   "license": "MIT",
+  "author": "LitGravity contributors",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wjgoarxiv/antigravity-swarm.git"
+    "url": "git+https://github.com/wjgoarxiv/litgravity.git"
   },
   "bugs": {
-    "url": "https://github.com/wjgoarxiv/antigravity-swarm/issues"
+    "url": "https://github.com/wjgoarxiv/litgravity/issues"
   },
-  "homepage": "https://github.com/wjgoarxiv/antigravity-swarm#readme",
-  "engines": {
-    "node": ">=18"
-  }
+  "homepage": "https://github.com/wjgoarxiv/litgravity#readme"
 }

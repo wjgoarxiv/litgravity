@@ -1,80 +1,11 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Node
 node_modules/
-npm-debug.log
-yarn-error.log
-
-# Gemini / Antigravity
-.gemini/
-.antigravity/
-.asw/
-.litopencode/
-.omo/
-.omx/
-.agents/.runtime/
-.swarm/
-REFERENCE/
-REFERENCE_lazycodex/
-
-# Oh-My-Claudecode
-.omc/
-
-# OS
+.lit*/
+.litgravity/
+/HANDOFF.md
+.handoff/
+evidence/
+plans/
+*.tgz
 .DS_Store
-Thumbs.db
-*~
-
-# Oh-My-Opencode / Manus Protocol
-.sisyphus/
-findings.md
-progress.md
-task_plan.md
-NEW-PRMT.md
-HANDOFF.md
-
-
-# Runtime Artifacts
-logs/
-subagents.yaml
-*.bak
-worktree-swarm-lag-hardening/
-system-prompt-extraction/
-
-# Local env / secrets
-.env
-.env.*
-!.env.example
-
-# Local agent-specific instruction files
-GEMINI.md
-CLAUDE.md
-
-# IDE
-.vscode/
-.idea/
-*.swp
+__pycache__/
+*.pyc

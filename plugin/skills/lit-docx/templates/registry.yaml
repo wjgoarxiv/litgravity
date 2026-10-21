@@ -1,0 +1,1366 @@
+#
+# Purpose: single source of truth for publisher-specific manuscript formatting.
+# Consumed by generate_docx_templates.py (template-time), convert_md_to_docx.py
+# (conversion-time), convert_md_to_pdf.py (LaTeX), and slop_lint.py (audit-time).
+#
+# Schema versioned so future readers can migrate if the shape changes.
+#
+# Adding a new publisher:
+#   1. Copy the `elsevier` block below and edit values per the publisher's
+#      author guide (margins, fonts, heading case, caption position, etc.)
+#   2. Run scripts/generate_docx_templates.py to rebuild templates/docx/<name>.docx
+#   3. (Optional) Drop a templates/latex/<name>/template.tex for the LaTeX path
+#
+# Note on CJK fonts: every profile pairs a Latin font with a CJK font via
+# w:rFonts/@w:eastAsia. Without this, Word falls back to a dated system default
+# (Batang/Gulim) and Korean text immediately reads as auto-generated. Pretendard
+# is the default CJK pair with Noto Sans CJK KR / AppleGothic / Malgun Gothic as
+# fallback.
+
+schema_version: 1
+
+publishers:
+  elsevier:
+    display_name: "Elsevier (generic / elsarticle)"
+    notes: |
+      Based on the public elsarticle.cls defaults and the common Elsevier
+      Word template conventions (Times New Roman 12pt, A4, 2.5 cm margins,
+      numbered headings, superscript author affiliations, numeric references
+      in square brackets). This profile is style-equivalent, not a
+      byte-exact copy of any Elsevier-distributed template file.
+    source_urls:
+      - "https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions"
+      - "https://ctan.org/pkg/elsarticle"
+
+    # ---------- DOCX path ----------
+    docx:
+      page:
+        size: A4
+        margin_top_cm: 2.5
+        margin_bottom_cm: 2.5
+        margin_left_cm: 2.5
+        margin_right_cm: 2.5
+      font:
+        # Latin font roles. Every role also has a CJK (east-asia) pairing
+        # so mixed KR/EN runs render Pretendard for Hangul automatically.
+        body:
+          family: "Times New Roman"
+          size_pt: 12
+          line_spacing: 1.5
+        body_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR", "AppleGothic", "Malgun Gothic"]
+        heading1:
+          family: "Times New Roman"
+          size_pt: 14
+          bold: true
+          space_before_pt: 18
+          space_after_pt: 6
+        heading1_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard", "Noto Sans CJK KR Bold"]
+        heading2:
+          family: "Times New Roman"
+          size_pt: 12
+          bold: true
+          space_before_pt: 12
+          space_after_pt: 6
+        heading2_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard"]
+        heading3:
+          family: "Times New Roman"
+          size_pt: 12
+          italic: true
+          space_before_pt: 10
+          space_after_pt: 4
+        heading3_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR"]
+        caption:
+          family: "Times New Roman"
+          size_pt: 10
+          italic: true
+        caption_cjk:
+          family: "Pretendard"
+        code:
+          family: "Courier New"
+          size_pt: 10
+        abstract:
+          family: "Times New Roman"
+          size_pt: 10
+        abstract_cjk:
+          family: "Pretendard"
+      numbering:
+        headings: true
+        heading_case: title_case
+      section_order:
+        - Introduction
+        - "Materials and Methods"
+        - Results
+        - Discussion
+        - Conclusions
+        - Acknowledgements
+        - References
+
+    # ---------- LaTeX path (not wired in M1; M3 will consume this) ----------
+    latex:
+      pandoc_template: templates/latex/elsevier/template.tex
+      documentclass: elsarticle
+      classoptions: [review, 12pt, a4paper]
+      required_packages: [amsmath, graphicx, hyperref, natbib, booktabs, microtype, siunitx, csquotes]
+      bibstyle: elsarticle-harv
+      cjk:
+        main_font: "Pretendard"
+        fallback_fonts: ["Noto Sans CJK KR", "Source Han Sans K"]
+        engine_requires: xelatex
+        package: xeCJK
+
+    # ---------- Frontmatter contract ----------
+    frontmatter_required: [title, authors, affiliations, abstract, keywords]
+
+    # ---------- Design / UI discipline ----------
+    # This block is the full anti-slop design contract. generate_docx_templates.py
+    # bakes these into templates/docx/elsevier.docx; convert_md_to_docx.py enforces
+    # the runtime parts via pre/post filters; slop_lint.py --audit-output verifies
+    # them post-conversion.
+    design:
+      paragraph:
+        first_line_indent_cm: 0.5
+        space_before_pt: 0
+        space_after_pt: 0
+        line_spacing: 1.5
+        alignment: justify
+        hyphenation: true
+        widow_control: true
+        keep_with_next_on_heading: true
+
+      heading_hierarchy:
+        h1:
+          size_pt: 14
+          weight: bold
+          case: title_case
+          numbering: "1."
+          space_before_pt: 24
+          space_after_pt: 6
+          keep_with_next: true
+        h2:
+          size_pt: 12
+          weight: bold
+          case: title_case
+          numbering: "1.1."
+          space_before_pt: 18
+          space_after_pt: 6
+          keep_with_next: true
+        h3:
+          size_pt: 12
+          weight: semibold
+          italic: true
+          case: sentence_case
+          numbering: "1.1.1."
+          space_before_pt: 12
+          space_after_pt: 4
+          keep_with_next: true
+        h4:
+          size_pt: 11
+          weight: semibold
+          italic: true
+          case: sentence_case
+          numbering: null
+          space_before_pt: 10
+          space_after_pt: 4
+          keep_with_next: true
+
+      table_style:
+        grid_mode: booktabs
+        top_rule_pt: 1.5
+        mid_rule_pt: 0.75
+        bottom_rule_pt: 1.5
+        no_vertical_rules: true
+        cell_padding_pt: 4
+        header_bold: true
+        header_border_only: true
+        numeric_align: decimal
+        text_align: left
+        caption_position: above
+        caption_font_size_pt: 9
+        caption_font_italic: false
+
+      figure_style:
+        caption_position: below
+        caption_font_size_pt: 9
+        caption_numbering_format: "Figure {n}. "
+        figure_width_cm_max: 16
+        figure_width_cm_double: 8
+        embed_alt_text: true
+        keep_with_caption: true
+
+      title_block:
+        title:
+          size_pt: 18
+          weight: bold
+          align: center
+          space_after_pt: 12
+        authors:
+          size_pt: 12
+          weight: regular
+          align: center
+          space_after_pt: 4
+        affiliations:
+          size_pt: 10
+          weight: regular
+          italic: true
+          align: center
+          space_after_pt: 8
+        corresponding_marker: "*"
+        author_separator: ", "
+        affiliation_numbering: superscript
+        abstract_label: "Abstract"
+        abstract_label_weight: bold
+        abstract_font_size_pt: 10
+        keywords_label: "Keywords"
+        keywords_separator: "; "
+
+      header_footer:
+        first_page_different: true
+        running_head_left: "{short_title}"
+        running_head_right: "{author_list_short}"
+        page_numbering: bottom_center
+        page_numbering_first_page: false
+        footer_font_size_pt: 9
+
+      bibliography:
+        hanging_indent_cm: 0.6
+        space_between_entries_pt: 6
+        font_size_pt: 10
+        line_spacing: 1.15
+        numbering_format: "[{n}]"
+        numbering_alignment: left
+        doi_as_hyperlink: true
+        hyperlink_color: "#0B5394"
+
+      micro_typography:
+        quote_style: curly
+        apostrophe_style: curly
+        dashes:
+          numeric_range: en_dash
+          parenthetical: em_dash
+          hyphen: hyphen
+        spaces:
+          before_unit: nbsp
+          double_space_after_period: false
+          before_citation: nbsp
+        abbreviations:
+          figure_prefix: "Fig."
+          table_prefix: "Table"
+          equation_prefix: "Eq."
+          nbsp_after_prefix: true
+        ellipsis_style: "…"
+        ligatures: true
+        oldstyle_figures: false
+        tabular_figures: true
+
+      color_palette:
+        body_text: "#000000"
+        heading_text: "#000000"
+        link: "#0B5394"
+        code_background: "#F5F5F5"
+        rule: "#000000"
+
+      page_geometry:
+        orientation: portrait
+        columns: 1
+        column_gap_cm: 0.8
+        line_numbers: false
+
+      banned:
+        styles:
+          - "Table Grid"
+          - "Intense Quote"
+          - "List Paragraph"
+          - "Subtle Emphasis"
+        fonts:
+          - "Calibri"
+          - "Cambria"
+          - "Aptos"
+        colors:
+          - "#FF0000"
+          - "#FFFF00"
+        decorations:
+          - "WordArt"
+          - "Shadow"
+          - "Glow"
+          - "Reflection"
+
+    # ---------- Lint overrides (consumed by slop_lint.py, v1 has minimal rules) ----------
+    lint:
+      citation_style: numeric
+      heading_case: title_case
+      locale_default: en
+
+  acs:
+    display_name: "ACS (generic / achemso-inspired)"
+    notes: |
+      Based on common ACS manuscript conventions for chemistry journals:
+      Arial/Helvetica-style sans-serif body text, compact line spacing,
+      title-case bold headings, numeric superscript citations, tables titled
+      above, and figures captioned below. This is a style-equivalent profile,
+      not a redistributed ACS template.
+    source_urls:
+      - "https://ctan.org/pkg/achemso"
+      - "https://pubs.acs.org/page/4authors/submission/index.html"
+
+    docx:
+      page:
+        size: A4
+        margin_top_cm: 2.54
+        margin_bottom_cm: 2.54
+        margin_left_cm: 2.54
+        margin_right_cm: 2.54
+      font:
+        body:
+          family: "Arial"
+          size_pt: 10
+          line_spacing: 1.15
+        body_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR", "AppleGothic", "Malgun Gothic"]
+        heading1:
+          family: "Arial"
+          size_pt: 13
+          bold: true
+          space_before_pt: 18
+          space_after_pt: 6
+        heading1_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard", "Noto Sans CJK KR Bold"]
+        heading2:
+          family: "Arial"
+          size_pt: 11
+          bold: true
+          space_before_pt: 14
+          space_after_pt: 5
+        heading2_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard"]
+        heading3:
+          family: "Arial"
+          size_pt: 10
+          italic: true
+          space_before_pt: 10
+          space_after_pt: 4
+        heading3_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR"]
+        caption:
+          family: "Arial"
+          size_pt: 9
+          italic: false
+        caption_cjk:
+          family: "Pretendard"
+        code:
+          family: "Courier New"
+          size_pt: 9
+        abstract:
+          family: "Arial"
+          size_pt: 9
+        abstract_cjk:
+          family: "Pretendard"
+      numbering:
+        headings: true
+        heading_case: title_case
+      section_order:
+        - Introduction
+        - Experimental
+        - Results and Discussion
+        - Conclusions
+        - Acknowledgements
+        - References
+
+    latex:
+      pandoc_template: templates/latex/acs/template.tex
+      documentclass: achemso
+      classoptions: [manuscript=article]
+      required_packages: [amsmath, graphicx, hyperref, booktabs, microtype, siunitx, csquotes]
+      bibstyle: achemso
+      cjk:
+        main_font: "Pretendard"
+        fallback_fonts: ["Noto Sans CJK KR", "Source Han Sans K"]
+        engine_requires: xelatex
+        package: xeCJK
+
+    frontmatter_required: [title, authors, affiliations, abstract, keywords]
+
+    design:
+      paragraph:
+        first_line_indent_cm: 0.0
+        space_before_pt: 0
+        space_after_pt: 0
+        line_spacing: 1.15
+        alignment: left
+        hyphenation: true
+        widow_control: true
+        keep_with_next_on_heading: true
+
+      heading_hierarchy:
+        h1:
+          size_pt: 13
+          weight: bold
+          case: title_case
+          numbering: "1."
+          space_before_pt: 18
+          space_after_pt: 6
+          keep_with_next: true
+        h2:
+          size_pt: 11
+          weight: bold
+          case: title_case
+          numbering: "1.1."
+          space_before_pt: 14
+          space_after_pt: 5
+          keep_with_next: true
+        h3:
+          size_pt: 10
+          weight: semibold
+          italic: true
+          case: sentence_case
+          numbering: "1.1.1."
+          space_before_pt: 10
+          space_after_pt: 4
+          keep_with_next: true
+        h4:
+          size_pt: 10
+          weight: semibold
+          italic: false
+          case: sentence_case
+          numbering: null
+          space_before_pt: 8
+          space_after_pt: 4
+          keep_with_next: true
+
+      table_style:
+        grid_mode: booktabs
+        top_rule_pt: 1.5
+        mid_rule_pt: 0.75
+        bottom_rule_pt: 1.5
+        no_vertical_rules: true
+        cell_padding_pt: 4
+        header_bold: true
+        header_border_only: true
+        numeric_align: decimal
+        text_align: left
+        caption_position: above
+        caption_font_size_pt: 9
+        caption_font_italic: false
+
+      figure_style:
+        caption_position: below
+        caption_font_size_pt: 9
+        caption_numbering_format: "Figure {n}. "
+        figure_width_cm_max: 16
+        figure_width_cm_double: 8
+        embed_alt_text: true
+        keep_with_caption: true
+
+      title_block:
+        title:
+          size_pt: 16
+          weight: bold
+          align: center
+          space_after_pt: 12
+        authors:
+          size_pt: 10
+          weight: regular
+          align: center
+          space_after_pt: 4
+        affiliations:
+          size_pt: 9
+          weight: regular
+          italic: false
+          align: center
+          space_after_pt: 8
+        corresponding_marker: "*"
+        author_separator: "; "
+        affiliation_numbering: superscript
+        abstract_label: "Abstract"
+        abstract_label_weight: bold
+        abstract_font_size_pt: 9
+        keywords_label: "Keywords"
+        keywords_separator: "; "
+
+      header_footer:
+        first_page_different: true
+        running_head_left: "{short_title}"
+        running_head_right: "{author_list_short}"
+        page_numbering: bottom_center
+        page_numbering_first_page: false
+        footer_font_size_pt: 9
+
+      bibliography:
+        hanging_indent_cm: 0.5
+        space_between_entries_pt: 4
+        font_size_pt: 9
+        line_spacing: 1.15
+        numbering_format: "[{n}]"
+        numbering_alignment: left
+        doi_as_hyperlink: true
+        hyperlink_color: "#0B5394"
+
+      micro_typography:
+        quote_style: curly
+        apostrophe_style: curly
+        dashes:
+          numeric_range: en_dash
+          parenthetical: em_dash
+          hyphen: hyphen
+        spaces:
+          before_unit: nbsp
+          double_space_after_period: false
+          before_citation: nbsp
+        abbreviations:
+          figure_prefix: "Fig."
+          table_prefix: "Table"
+          equation_prefix: "Eq."
+          nbsp_after_prefix: true
+        ellipsis_style: "…"
+        ligatures: true
+        oldstyle_figures: false
+        tabular_figures: true
+
+      color_palette:
+        body_text: "#000000"
+        heading_text: "#000000"
+        link: "#0B5394"
+        code_background: "#F5F5F5"
+        rule: "#000000"
+
+      page_geometry:
+        orientation: portrait
+        columns: 1
+        column_gap_cm: 0.8
+        line_numbers: false
+
+      banned:
+        styles:
+          - "Table Grid"
+          - "Intense Quote"
+          - "List Paragraph"
+          - "Subtle Emphasis"
+        fonts:
+          - "Calibri"
+          - "Cambria"
+          - "Aptos"
+        colors:
+          - "#FF0000"
+          - "#FFFF00"
+        decorations:
+          - "WordArt"
+          - "Shadow"
+          - "Glow"
+          - "Reflection"
+
+    lint:
+      citation_style: numeric_superscript
+      heading_case: title_case
+      locale_default: en
+
+  ieee:
+    display_name: "IEEE (generic / IEEEtran-inspired)"
+    notes: |
+      Based on common IEEE manuscript conventions: Times New Roman 10 pt,
+      compact spacing, bold title-case headings, Roman numeral top-level
+      sections, numeric bracket citations, and table captions above figure
+      captions below. DOCX remains one-column; two-column layout is deferred
+      to the LaTeX path.
+    source_urls:
+      - "https://ctan.org/pkg/ieeetran"
+      - "https://www.ieee.org/conferences/publishing/templates.html"
+
+    docx:
+      page:
+        size: A4
+        margin_top_cm: 1.9
+        margin_bottom_cm: 1.9
+        margin_left_cm: 1.9
+        margin_right_cm: 1.9
+      font:
+        body:
+          family: "Times New Roman"
+          size_pt: 10
+          line_spacing: 1.0
+        body_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR", "AppleGothic", "Malgun Gothic"]
+        heading1:
+          family: "Times New Roman"
+          size_pt: 11
+          bold: true
+          space_before_pt: 16
+          space_after_pt: 6
+        heading1_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard", "Noto Sans CJK KR Bold"]
+        heading2:
+          family: "Times New Roman"
+          size_pt: 10
+          bold: true
+          space_before_pt: 12
+          space_after_pt: 4
+        heading2_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard"]
+        heading3:
+          family: "Times New Roman"
+          size_pt: 10
+          italic: true
+          space_before_pt: 10
+          space_after_pt: 4
+        heading3_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR"]
+        caption:
+          family: "Times New Roman"
+          size_pt: 9
+          italic: false
+        caption_cjk:
+          family: "Pretendard"
+        code:
+          family: "Courier New"
+          size_pt: 9
+        abstract:
+          family: "Times New Roman"
+          size_pt: 9
+        abstract_cjk:
+          family: "Pretendard"
+      numbering:
+        headings: true
+        heading_case: title_case
+      section_order:
+        - Introduction
+        - Related Work
+        - Methods
+        - Experiments
+        - Results
+        - Discussion
+        - Conclusion
+        - References
+
+    latex:
+      pandoc_template: templates/latex/ieee/template.tex
+      documentclass: IEEEtran
+      classoptions: [conference]
+      required_packages: [amsmath, graphicx, hyperref, booktabs, microtype, siunitx, csquotes]
+      bibstyle: IEEEtran
+      cjk:
+        main_font: "Pretendard"
+        fallback_fonts: ["Noto Sans CJK KR", "Source Han Sans K"]
+        engine_requires: xelatex
+        package: xeCJK
+
+    frontmatter_required: [title, authors, affiliations, abstract, keywords]
+
+    design:
+      paragraph:
+        first_line_indent_cm: 0.0
+        space_before_pt: 0
+        space_after_pt: 0
+        line_spacing: 1.0
+        alignment: justify
+        hyphenation: true
+        widow_control: true
+        keep_with_next_on_heading: true
+
+      heading_hierarchy:
+        h1:
+          size_pt: 11
+          weight: bold
+          case: title_case
+          numbering: "I."
+          space_before_pt: 16
+          space_after_pt: 6
+          keep_with_next: true
+        h2:
+          size_pt: 10
+          weight: bold
+          case: title_case
+          numbering: "1.1."
+          space_before_pt: 12
+          space_after_pt: 4
+          keep_with_next: true
+        h3:
+          size_pt: 10
+          weight: semibold
+          italic: true
+          case: sentence_case
+          numbering: "1.1.1."
+          space_before_pt: 10
+          space_after_pt: 4
+          keep_with_next: true
+        h4:
+          size_pt: 10
+          weight: semibold
+          italic: false
+          case: sentence_case
+          numbering: null
+          space_before_pt: 8
+          space_after_pt: 4
+          keep_with_next: true
+
+      table_style:
+        grid_mode: booktabs
+        top_rule_pt: 1.5
+        mid_rule_pt: 0.75
+        bottom_rule_pt: 1.5
+        no_vertical_rules: true
+        cell_padding_pt: 4
+        header_bold: true
+        header_border_only: true
+        numeric_align: decimal
+        text_align: left
+        caption_position: above
+        caption_font_size_pt: 9
+        caption_font_italic: false
+
+      figure_style:
+        caption_position: below
+        caption_font_size_pt: 9
+        caption_numbering_format: "Figure {n}. "
+        figure_width_cm_max: 16
+        figure_width_cm_double: 8
+        embed_alt_text: true
+        keep_with_caption: true
+
+      title_block:
+        title:
+          size_pt: 16
+          weight: bold
+          align: center
+          space_after_pt: 12
+        authors:
+          size_pt: 10
+          weight: regular
+          align: center
+          space_after_pt: 4
+        affiliations:
+          size_pt: 9
+          weight: regular
+          italic: false
+          align: center
+          space_after_pt: 8
+        corresponding_marker: "*"
+        author_separator: ", "
+        affiliation_numbering: superscript
+        abstract_label: "Abstract"
+        abstract_label_weight: bold
+        abstract_font_size_pt: 9
+        keywords_label: "Index Terms"
+        keywords_separator: "; "
+
+      header_footer:
+        first_page_different: true
+        running_head_left: "{short_title}"
+        running_head_right: "{author_list_short}"
+        page_numbering: bottom_center
+        page_numbering_first_page: false
+        footer_font_size_pt: 9
+
+      bibliography:
+        hanging_indent_cm: 0.5
+        space_between_entries_pt: 4
+        font_size_pt: 9
+        line_spacing: 1.0
+        numbering_format: "[{n}]"
+        numbering_alignment: left
+        doi_as_hyperlink: true
+        hyperlink_color: "#0B5394"
+
+      micro_typography:
+        quote_style: curly
+        apostrophe_style: curly
+        dashes:
+          numeric_range: en_dash
+          parenthetical: em_dash
+          hyphen: hyphen
+        spaces:
+          before_unit: nbsp
+          double_space_after_period: false
+          before_citation: nbsp
+        abbreviations:
+          figure_prefix: "Fig."
+          table_prefix: "Table"
+          equation_prefix: "Eq."
+          nbsp_after_prefix: true
+        ellipsis_style: "…"
+        ligatures: true
+        oldstyle_figures: false
+        tabular_figures: true
+
+      color_palette:
+        body_text: "#000000"
+        heading_text: "#000000"
+        link: "#0B5394"
+        code_background: "#F5F5F5"
+        rule: "#000000"
+
+      page_geometry:
+        orientation: portrait
+        columns: 1
+        column_gap_cm: 0.8
+        line_numbers: false
+
+      banned:
+        styles:
+          - "Table Grid"
+          - "Intense Quote"
+          - "List Paragraph"
+          - "Subtle Emphasis"
+        fonts:
+          - "Calibri"
+          - "Cambria"
+          - "Aptos"
+        colors:
+          - "#FF0000"
+          - "#FFFF00"
+        decorations:
+          - "WordArt"
+          - "Shadow"
+          - "Glow"
+          - "Reflection"
+
+    lint:
+      citation_style: numeric
+      heading_case: title_case
+      locale_default: en
+
+  nature:
+    display_name: "Nature (generic / sn-jnl-inspired)"
+    notes: |
+      Based on a generic Nature-family manuscript look: Arial/Helvetica body,
+      sentence-case bold headings, superscript numeric citations, generous
+      line spacing, and figure captions below using a "Figure n |" label.
+      This is a style-equivalent profile, not a redistributed Nature template.
+    source_urls:
+      - "https://ctan.org/pkg/sn-jnl"
+      - "https://www.nature.com/nature/for-authors/formatting-guide"
+
+    docx:
+      page:
+        size: A4
+        margin_top_cm: 2.0
+        margin_bottom_cm: 2.0
+        margin_left_cm: 2.0
+        margin_right_cm: 2.0
+      font:
+        body:
+          family: "Arial"
+          size_pt: 11
+          line_spacing: 1.5
+        body_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR", "AppleGothic", "Malgun Gothic"]
+        heading1:
+          family: "Arial"
+          size_pt: 13
+          bold: true
+          space_before_pt: 18
+          space_after_pt: 6
+        heading1_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard", "Noto Sans CJK KR Bold"]
+        heading2:
+          family: "Arial"
+          size_pt: 12
+          bold: true
+          space_before_pt: 14
+          space_after_pt: 5
+        heading2_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard"]
+        heading3:
+          family: "Arial"
+          size_pt: 11
+          italic: false
+          space_before_pt: 10
+          space_after_pt: 4
+        heading3_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR"]
+        caption:
+          family: "Arial"
+          size_pt: 10
+          italic: false
+        caption_cjk:
+          family: "Pretendard"
+        code:
+          family: "Courier New"
+          size_pt: 9
+        abstract:
+          family: "Arial"
+          size_pt: 10
+        abstract_cjk:
+          family: "Pretendard"
+      numbering:
+        headings: false
+        heading_case: sentence_case
+      section_order:
+        - Introduction
+        - Results
+        - Discussion
+        - Methods
+        - References
+
+    latex:
+      pandoc_template: templates/latex/nature/template.tex
+      documentclass: sn-jnl
+      classoptions: [sn-basic]
+      required_packages: [amsmath, graphicx, hyperref, booktabs, microtype, siunitx, csquotes]
+      bibstyle: sn-basic
+      cjk:
+        main_font: "Pretendard"
+        fallback_fonts: ["Noto Sans CJK KR", "Source Han Sans K"]
+        engine_requires: xelatex
+        package: xeCJK
+
+    frontmatter_required: [title, authors, affiliations, abstract, keywords]
+
+    design:
+      paragraph:
+        first_line_indent_cm: 0.0
+        space_before_pt: 0
+        space_after_pt: 4
+        line_spacing: 1.5
+        alignment: left
+        hyphenation: true
+        widow_control: true
+        keep_with_next_on_heading: true
+
+      heading_hierarchy:
+        h1:
+          size_pt: 13
+          weight: bold
+          case: sentence_case
+          numbering: null
+          space_before_pt: 18
+          space_after_pt: 6
+          keep_with_next: true
+        h2:
+          size_pt: 12
+          weight: bold
+          case: sentence_case
+          numbering: null
+          space_before_pt: 14
+          space_after_pt: 5
+          keep_with_next: true
+        h3:
+          size_pt: 11
+          weight: semibold
+          italic: false
+          case: sentence_case
+          numbering: null
+          space_before_pt: 10
+          space_after_pt: 4
+          keep_with_next: true
+        h4:
+          size_pt: 10
+          weight: semibold
+          italic: false
+          case: sentence_case
+          numbering: null
+          space_before_pt: 8
+          space_after_pt: 4
+          keep_with_next: true
+
+      table_style:
+        grid_mode: booktabs
+        top_rule_pt: 1.5
+        mid_rule_pt: 0.75
+        bottom_rule_pt: 1.5
+        no_vertical_rules: true
+        cell_padding_pt: 4
+        header_bold: true
+        header_border_only: true
+        numeric_align: decimal
+        text_align: left
+        caption_position: above
+        caption_font_size_pt: 10
+        caption_font_italic: false
+
+      figure_style:
+        caption_position: below
+        caption_font_size_pt: 10
+        caption_numbering_format: "Figure {n} | "
+        figure_width_cm_max: 16
+        figure_width_cm_double: 8
+        embed_alt_text: true
+        keep_with_caption: true
+
+      title_block:
+        title:
+          size_pt: 18
+          weight: bold
+          align: center
+          space_after_pt: 12
+        authors:
+          size_pt: 11
+          weight: regular
+          align: center
+          space_after_pt: 4
+        affiliations:
+          size_pt: 10
+          weight: regular
+          italic: false
+          align: center
+          space_after_pt: 8
+        corresponding_marker: "*"
+        author_separator: ", "
+        affiliation_numbering: superscript
+        abstract_label: "Abstract"
+        abstract_label_weight: bold
+        abstract_font_size_pt: 10
+        keywords_label: "Keywords"
+        keywords_separator: "; "
+
+      header_footer:
+        first_page_different: true
+        running_head_left: "{short_title}"
+        running_head_right: "{author_list_short}"
+        page_numbering: bottom_center
+        page_numbering_first_page: false
+        footer_font_size_pt: 9
+
+      bibliography:
+        hanging_indent_cm: 0.5
+        space_between_entries_pt: 4
+        font_size_pt: 10
+        line_spacing: 1.15
+        numbering_format: "[{n}]"
+        numbering_alignment: left
+        doi_as_hyperlink: true
+        hyperlink_color: "#0B5394"
+
+      micro_typography:
+        quote_style: curly
+        apostrophe_style: curly
+        dashes:
+          numeric_range: en_dash
+          parenthetical: em_dash
+          hyphen: hyphen
+        spaces:
+          before_unit: nbsp
+          double_space_after_period: false
+          before_citation: nbsp
+        abbreviations:
+          figure_prefix: "Figure"
+          table_prefix: "Table"
+          equation_prefix: "Eq."
+          nbsp_after_prefix: true
+        ellipsis_style: "…"
+        ligatures: true
+        oldstyle_figures: false
+        tabular_figures: true
+
+      color_palette:
+        body_text: "#000000"
+        heading_text: "#000000"
+        link: "#0B5394"
+        code_background: "#F5F5F5"
+        rule: "#000000"
+
+      page_geometry:
+        orientation: portrait
+        columns: 1
+        column_gap_cm: 0.8
+        line_numbers: false
+
+      banned:
+        styles:
+          - "Table Grid"
+          - "Intense Quote"
+          - "List Paragraph"
+          - "Subtle Emphasis"
+        fonts:
+          - "Calibri"
+          - "Cambria"
+          - "Aptos"
+        colors:
+          - "#FF0000"
+          - "#FFFF00"
+        decorations:
+          - "WordArt"
+          - "Shadow"
+          - "Glow"
+          - "Reflection"
+
+    lint:
+      citation_style: numeric_superscript
+      heading_case: sentence_case
+      locale_default: en
+
+  korean-generic:
+    display_name: "Korean generic scientific report"
+    notes: |
+      Korean-first scientific manuscript profile with Pretendard as both Latin
+      and CJK face, generous line spacing, sentence-case Korean headings, and
+      margin conventions commonly used for local reports and theses.
+    source_urls:
+      - "https://github.com/orioncactus/pretendard"
+      - "https://www.kci.go.kr/"
+
+    docx:
+      page:
+        size: A4
+        margin_top_cm: 3.0
+        margin_bottom_cm: 3.0
+        margin_left_cm: 2.5
+        margin_right_cm: 2.5
+      font:
+        body:
+          family: "Pretendard"
+          size_pt: 11
+          line_spacing: 1.6
+        body_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR", "AppleGothic", "Malgun Gothic"]
+        heading1:
+          family: "Pretendard"
+          size_pt: 13
+          bold: true
+          space_before_pt: 18
+          space_after_pt: 6
+        heading1_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard", "Noto Sans CJK KR Bold"]
+        heading2:
+          family: "Pretendard"
+          size_pt: 12
+          bold: true
+          space_before_pt: 14
+          space_after_pt: 5
+        heading2_cjk:
+          family: "Pretendard SemiBold"
+          fallback: ["Pretendard"]
+        heading3:
+          family: "Pretendard"
+          size_pt: 11
+          italic: false
+          space_before_pt: 10
+          space_after_pt: 4
+        heading3_cjk:
+          family: "Pretendard"
+          fallback: ["Noto Sans CJK KR"]
+        caption:
+          family: "Pretendard"
+          size_pt: 10
+          italic: false
+        caption_cjk:
+          family: "Pretendard"
+        code:
+          family: "Courier New"
+          size_pt: 9
+        abstract:
+          family: "Pretendard"
+          size_pt: 10
+        abstract_cjk:
+          family: "Pretendard"
+      numbering:
+        headings: false
+        heading_case: sentence_case
+      section_order:
+        - 서론
+        - 이론
+        - 방법
+        - 결과
+        - 고찰
+        - 결론
+        - 감사의 글
+        - 참고문헌
+
+    latex:
+      pandoc_template: templates/latex/korean-generic/template.tex
+      documentclass: oblivoir
+      classoptions: [a4paper]
+      required_packages: [amsmath, graphicx, hyperref, booktabs, microtype, siunitx, csquotes]
+      bibstyle: plain
+      cjk:
+        main_font: "Pretendard"
+        fallback_fonts: ["Noto Sans CJK KR", "Source Han Sans K"]
+        engine_requires: xelatex
+        package: xeCJK
+
+    frontmatter_required: [title, authors, affiliations, abstract, keywords]
+
+    design:
+      paragraph:
+        first_line_indent_cm: 0.0
+        space_before_pt: 0
+        space_after_pt: 4
+        line_spacing: 1.6
+        alignment: left
+        hyphenation: true
+        widow_control: true
+        keep_with_next_on_heading: true
+
+      heading_hierarchy:
+        h1:
+          size_pt: 13
+          weight: semibold
+          case: sentence_case
+          numbering: null
+          space_before_pt: 18
+          space_after_pt: 6
+          keep_with_next: true
+        h2:
+          size_pt: 12
+          weight: semibold
+          case: sentence_case
+          numbering: null
+          space_before_pt: 14
+          space_after_pt: 5
+          keep_with_next: true
+        h3:
+          size_pt: 11
+          weight: semibold
+          italic: false
+          case: sentence_case
+          numbering: null
+          space_before_pt: 10
+          space_after_pt: 4
+          keep_with_next: true
+        h4:
+          size_pt: 10
+          weight: semibold
+          italic: false
+          case: sentence_case
+          numbering: null
+          space_before_pt: 8
+          space_after_pt: 4
+          keep_with_next: true
+
+      table_style:
+        grid_mode: booktabs
+        top_rule_pt: 1.5
+        mid_rule_pt: 0.75
+        bottom_rule_pt: 1.5
+        no_vertical_rules: true
+        cell_padding_pt: 4
+        header_bold: true
+        header_border_only: true
+        numeric_align: decimal
+        text_align: left
+        caption_position: above
+        caption_font_size_pt: 10
+        caption_font_italic: false
+
+      figure_style:
+        caption_position: below
+        caption_font_size_pt: 10
+        caption_numbering_format: "Figure {n}. "
+        figure_width_cm_max: 16
+        figure_width_cm_double: 8
+        embed_alt_text: true
+        keep_with_caption: true
+
+      title_block:
+        title:
+          size_pt: 18
+          weight: bold
+          align: center
+          space_after_pt: 12
+        authors:
+          size_pt: 11
+          weight: regular
+          align: center
+          space_after_pt: 4
+        affiliations:
+          size_pt: 10
+          weight: regular
+          italic: false
+          align: center
+          space_after_pt: 8
+        corresponding_marker: "*"
+        author_separator: ", "
+        affiliation_numbering: superscript
+        abstract_label: "초록"
+        abstract_label_weight: bold
+        abstract_font_size_pt: 10
+        keywords_label: "주요어"
+        keywords_separator: "; "
+
+      header_footer:
+        first_page_different: true
+        running_head_left: "{short_title}"
+        running_head_right: "{author_list_short}"
+        page_numbering: bottom_center
+        page_numbering_first_page: false
+        footer_font_size_pt: 9
+
+      bibliography:
+        hanging_indent_cm: 0.5
+        space_between_entries_pt: 4
+        font_size_pt: 10
+        line_spacing: 1.3
+        numbering_format: "[{n}]"
+        numbering_alignment: left
+        doi_as_hyperlink: true
+        hyperlink_color: "#0B5394"
+
+      micro_typography:
+        quote_style: curly
+        apostrophe_style: curly
+        dashes:
+          numeric_range: en_dash
+          parenthetical: em_dash
+          hyphen: hyphen
+        spaces:
+          before_unit: nbsp
+          double_space_after_period: false
+          before_citation: nbsp
+        abbreviations:
+          figure_prefix: "Figure"
+          table_prefix: "Table"
+          equation_prefix: "Eq."
+          nbsp_after_prefix: true
+        ellipsis_style: "…"
+        ligatures: true
+        oldstyle_figures: false
+        tabular_figures: true
+
+      color_palette:
+        body_text: "#000000"
+        heading_text: "#000000"
+        link: "#0B5394"
+        code_background: "#F5F5F5"
+        rule: "#000000"
+
+      page_geometry:
+        orientation: portrait
+        columns: 1
+        column_gap_cm: 0.8
+        line_numbers: false
+
+      banned:
+        styles:
+          - "Table Grid"
+          - "Intense Quote"
+          - "List Paragraph"
+          - "Subtle Emphasis"
+        fonts:
+          - "Calibri"
+          - "Cambria"
+          - "Aptos"
+          - "Batang"
+          - "Gulim"
+          - "MS Mincho"
+        colors:
+          - "#FF0000"
+          - "#FFFF00"
+        decorations:
+          - "WordArt"
+          - "Shadow"
+          - "Glow"
+          - "Reflection"
+
+    lint:
+      citation_style: numeric
+      heading_case: sentence_case
+      locale_default: ko

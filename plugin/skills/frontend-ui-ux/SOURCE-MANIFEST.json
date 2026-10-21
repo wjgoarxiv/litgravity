@@ -1,0 +1,1060 @@
+{
+  "schema_version": "litfamily.source-import-manifest/v1",
+    "source": {
+        "commit": "1307d97a72e6c1cda572cb65471ae5ce82995218",
+        "immutable_url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/commit/1307d97a72e6c1cda572cb65471ae5ce82995218",
+        "license": {
+            "object_id": "1e71cbf26660f31903807d099fe902c098fc7e4c",
+            "path": "LICENSE",
+            "raw_url": "https://raw.githubusercontent.com/nextlevelbuilder/ui-ux-pro-max-skill/1307d97a72e6c1cda572cb65471ae5ce82995218/LICENSE",
+            "sha256": "738f69dfa83db5c347c678fb9d90e560877059f0de93a327c39001bff92dc014",
+            "spdx": "MIT"
+        },
+        "object_type": "commit",
+        "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+        "retrieval": {
+            "commands": [
+                "git clone --filter=blob:none --no-checkout https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git \"$TMP_ROOT/design-data\"",
+                "git -C \"$TMP_ROOT/design-data\" fetch --depth=1 origin 1307d97a72e6c1cda572cb65471ae5ce82995218",
+                "git -C \"$TMP_ROOT/design-data\" cat-file -t 1307d97a72e6c1cda572cb65471ae5ce82995218",
+                "git -C \"$TMP_ROOT/design-data\" rev-parse \"1307d97a72e6c1cda572cb65471ae5ce82995218^{commit}\"",
+                "git -C \"$TMP_ROOT/design-data\" checkout --detach 1307d97a72e6c1cda572cb65471ae5ce82995218"
+            ],
+            "review_date": "2026-07-24"
+        }
+    },
+  "sources": [
+    {
+      "data_row_count": 30,
+      "header": [
+        "No",
+        "Category",
+        "Issue",
+        "Keywords",
+        "Platform",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Example Good",
+        "Code Example Bad",
+        "Severity"
+      ],
+      "normalized_record_count": 30,
+      "path": "src/ui-ux-pro-max/data/app-interface.csv",
+      "profile": "app-interface",
+      "raw_sha256": "2a17ef810dab715ce1f339861817a8fbe3ccc38142b70517301e874803e838ac",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Issue",
+        "Keywords",
+        "Platform",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 25,
+      "header": [
+        "No",
+        "Data Type",
+        "Keywords",
+        "Best Chart Type",
+        "Secondary Options",
+        "When to Use",
+        "When NOT to Use",
+        "Data Volume Threshold",
+        "Color Guidance",
+        "Accessibility Grade",
+        "Accessibility Notes",
+        "A11y Fallback",
+        "Library Recommendation",
+        "Interactive Level"
+      ],
+      "normalized_record_count": 25,
+      "path": "src/ui-ux-pro-max/data/charts.csv",
+      "profile": "charts",
+      "raw_sha256": "ebb565308115f955791b0431797a89d9b3587c25d5babb9428d10712c4924817",
+      "selected_columns": [
+        "No",
+        "Data Type",
+        "Keywords",
+        "Best Chart Type",
+        "Secondary Options",
+        "When to Use",
+        "When NOT to Use",
+        "Data Volume Threshold",
+        "Color Guidance",
+        "Accessibility Grade",
+        "Accessibility Notes",
+        "A11y Fallback",
+        "Interactive Level"
+      ]
+    },
+    {
+      "data_row_count": 192,
+      "header": [
+        "No",
+        "Product Type",
+        "Primary",
+        "On Primary",
+        "Secondary",
+        "On Secondary",
+        "Accent",
+        "On Accent",
+        "Background",
+        "Foreground",
+        "Card",
+        "Card Foreground",
+        "Muted",
+        "Muted Foreground",
+        "Border",
+        "Destructive",
+        "On Destructive",
+        "Ring",
+        "Notes"
+      ],
+      "normalized_record_count": 192,
+      "path": "src/ui-ux-pro-max/data/colors.csv",
+      "profile": "colors",
+      "raw_sha256": "d628b178803aee95c2bb8f3cf64d38ea5418948a072ef4feeedf4a69226912e8",
+      "selected_columns": [
+        "No",
+        "Product Type",
+        "Primary",
+        "On Primary",
+        "Secondary",
+        "On Secondary",
+        "Accent",
+        "On Accent",
+        "Background",
+        "Foreground",
+        "Card",
+        "Card Foreground",
+        "Muted",
+        "Muted Foreground",
+        "Border",
+        "Destructive",
+        "On Destructive",
+        "Ring",
+        "Notes"
+      ]
+    },
+    {
+      "data_row_count": 105,
+      "header": [
+        "No",
+        "Category",
+        "Icon Name",
+        "Keywords",
+        "Library",
+        "Import Code",
+        "Usage",
+        "Best For",
+        "Style"
+      ],
+      "normalized_record_count": 105,
+      "path": "src/ui-ux-pro-max/data/icons.csv",
+      "profile": "icons",
+      "raw_sha256": "f376c29fb4df37b4bdb366a5aa70cb211ba3dd8b435390aaa03152a64b07d2e8",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Icon Name",
+        "Keywords",
+        "Library",
+        "Usage",
+        "Best For",
+        "Style"
+      ]
+    },
+    {
+      "data_row_count": 34,
+      "header": [
+        "No",
+        "Pattern Name",
+        "Keywords",
+        "Section Order",
+        "Primary CTA Placement",
+        "Color Strategy",
+        "Recommended Effects",
+        "Conversion Optimization"
+      ],
+      "normalized_record_count": 34,
+      "path": "src/ui-ux-pro-max/data/landing.csv",
+      "profile": "landing",
+      "raw_sha256": "080cedbcd61ff8ec9520f33929baa76bee9589e783f83b2f8d824a466b6a46d7",
+      "selected_columns": [
+        "No",
+        "Pattern Name",
+        "Keywords",
+        "Section Order",
+        "Primary CTA Placement",
+        "Color Strategy",
+        "Recommended Effects",
+        "Conversion Optimization"
+      ]
+    },
+    {
+      "data_row_count": 16,
+      "header": [
+        "No",
+        "Category",
+        "Intensity Tier",
+        "Keywords",
+        "Trigger",
+        "Duration",
+        "Easing",
+        "GSAP Snippet",
+        "Framework Notes",
+        "Do",
+        "Don't",
+        "Performance Notes"
+      ],
+      "normalized_record_count": 16,
+      "path": "src/ui-ux-pro-max/data/motion.csv",
+      "profile": "motion",
+      "raw_sha256": "528be03324785eb568c9570f5d60fc1644d5bc7ce2cbdd21b648cb90ce74e76e",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Intensity Tier",
+        "Keywords",
+        "Trigger",
+        "Duration",
+        "Easing",
+        "Framework Notes",
+        "Do",
+        "Don't",
+        "Performance Notes"
+      ]
+    },
+    {
+      "data_row_count": 192,
+      "header": [
+        "No",
+        "Product Type",
+        "Keywords",
+        "Primary Style Recommendation",
+        "Secondary Styles",
+        "Landing Page Pattern",
+        "Dashboard Style (if applicable)",
+        "Color Palette Focus",
+        "Key Considerations"
+      ],
+      "normalized_record_count": 192,
+      "path": "src/ui-ux-pro-max/data/products.csv",
+      "profile": "products",
+      "raw_sha256": "e9749e4fd8f7d4c94919c25ebd347a4adaddb671e7b01d33fbc2c87d447e6667",
+      "selected_columns": [
+        "No",
+        "Product Type",
+        "Keywords",
+        "Primary Style Recommendation",
+        "Secondary Styles",
+        "Landing Page Pattern",
+        "Dashboard Style (if applicable)",
+        "Color Palette Focus",
+        "Key Considerations"
+      ]
+    },
+    {
+      "data_row_count": 44,
+      "header": [
+        "No",
+        "Category",
+        "Issue",
+        "Keywords",
+        "Platform",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Example Good",
+        "Code Example Bad",
+        "Severity"
+      ],
+      "normalized_record_count": 44,
+      "path": "src/ui-ux-pro-max/data/react-performance.csv",
+      "profile": "react-performance",
+      "raw_sha256": "904c8afcda229629545912dde0e8ac37503757131f0169f80b016f1f58c4fd3f",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Issue",
+        "Keywords",
+        "Platform",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 84,
+      "header": [
+        "No",
+        "Style Category",
+        "Type",
+        "Keywords",
+        "Primary Colors",
+        "Secondary Colors",
+        "Effects & Animation",
+        "Best For",
+        "Do Not Use For",
+        "Light Mode ✓",
+        "Dark Mode ✓",
+        "Performance",
+        "Accessibility",
+        "Mobile-Friendly",
+        "Conversion-Focused",
+        "Framework Compatibility",
+        "Era/Origin",
+        "Complexity",
+        "AI Prompt Keywords",
+        "CSS/Technical Keywords",
+        "Implementation Checklist",
+        "Design System Variables"
+      ],
+      "normalized_record_count": 84,
+      "path": "src/ui-ux-pro-max/data/styles.csv",
+      "profile": "styles",
+      "raw_sha256": "1bf9c1d8484a0a7a54fb67555902380446865b604c8449e47a449cb3d9c1ef88",
+      "selected_columns": [
+        "No",
+        "Style Category",
+        "Type",
+        "Keywords",
+        "Primary Colors",
+        "Secondary Colors",
+        "Effects & Animation",
+        "Best For",
+        "Do Not Use For",
+        "Light Mode ✓",
+        "Dark Mode ✓",
+        "Performance",
+        "Accessibility",
+        "Mobile-Friendly",
+        "Conversion-Focused",
+        "Framework Compatibility",
+        "Era/Origin",
+        "Complexity",
+        "Implementation Checklist",
+        "Design System Variables"
+      ]
+    },
+    {
+      "data_row_count": 74,
+      "header": [
+        "No",
+        "Font Pairing Name",
+        "Category",
+        "Heading Font",
+        "Body Font",
+        "Mood/Style Keywords",
+        "Best For",
+        "Google Fonts URL",
+        "CSS Import",
+        "Tailwind Config",
+        "Notes"
+      ],
+      "normalized_record_count": 74,
+      "path": "src/ui-ux-pro-max/data/typography.csv",
+      "profile": "typography",
+      "raw_sha256": "7abead73de0e43e09544f164cb60cd431674e411f1e063e555a8b44d51273328",
+      "selected_columns": [
+        "No",
+        "Font Pairing Name",
+        "Category",
+        "Heading Font",
+        "Body Font",
+        "Mood/Style Keywords",
+        "Best For",
+        "Notes"
+      ]
+    },
+    {
+      "data_row_count": 161,
+      "header": [
+        "No",
+        "UI_Category",
+        "Recommended_Pattern",
+        "Style_Priority",
+        "Color_Mood",
+        "Typography_Mood",
+        "Key_Effects",
+        "Decision_Rules",
+        "Anti_Patterns",
+        "Severity"
+      ],
+      "normalized_record_count": 161,
+      "path": "src/ui-ux-pro-max/data/ui-reasoning.csv",
+      "profile": "ui-reasoning",
+      "raw_sha256": "41976082ecae1100da937c949215dc6694393e03f3c2a7444dd92a9edb43cb11",
+      "selected_columns": [
+        "No",
+        "UI_Category",
+        "Recommended_Pattern",
+        "Style_Priority",
+        "Color_Mood",
+        "Typography_Mood",
+        "Key_Effects",
+        "Decision_Rules",
+        "Anti_Patterns",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 99,
+      "header": [
+        "No",
+        "Category",
+        "Issue",
+        "Platform",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Example Good",
+        "Code Example Bad",
+        "Severity"
+      ],
+      "normalized_record_count": 99,
+      "path": "src/ui-ux-pro-max/data/ux-guidelines.csv",
+      "profile": "ux-guidelines",
+      "raw_sha256": "1870ee048f2a2bdd60709f8f7adf7f3b6dcad560bc005c8b2915a8ac8639820d",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Issue",
+        "Platform",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 50,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 50,
+      "path": "src/ui-ux-pro-max/data/stacks/angular.csv",
+      "profile": "stack",
+      "raw_sha256": "9de35bbda536ced9af7642d88b7675cefa3e18c370ab40c0875f75ab473f0fd6",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 53,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 53,
+      "path": "src/ui-ux-pro-max/data/stacks/astro.csv",
+      "profile": "stack",
+      "raw_sha256": "6b587e32df201b6e5e7b2ed187b65eee8e6d55dcd6cc16bde29fc25e0f911dae",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 56,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 56,
+      "path": "src/ui-ux-pro-max/data/stacks/avalonia.csv",
+      "profile": "stack",
+      "raw_sha256": "6bfa40ec6609fcb59e52a38281edcc3a3e5b5e56341304fe5628b32cb9b1f875",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 52,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 52,
+      "path": "src/ui-ux-pro-max/data/stacks/flutter.csv",
+      "profile": "stack",
+      "raw_sha256": "fe36d404c799781e8ba6e9a8179b45799ed5126a545528550cd2eb0f2346e8c5",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 55,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 55,
+      "path": "src/ui-ux-pro-max/data/stacks/html-tailwind.csv",
+      "profile": "stack",
+      "raw_sha256": "7aef38e75c53559470afcfa91580a9917ca8b7dbf8b92110389e23e93703ac52",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 75,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 75,
+      "path": "src/ui-ux-pro-max/data/stacks/javafx.csv",
+      "profile": "stack",
+      "raw_sha256": "5545e331b2479eb431ca45203799ce1b0ab1e369045ab7735d5a9f85ec78f956",
+      "repair": {
+        "occurrences": 18,
+        "repaired_sha256": "cb424eee50fff9fb6f503ce9a2793177e6eafa6eb7d2ba68561fb3e1b7301ba0",
+        "rule": "backslash_quote_to_rfc4180_double_quote"
+      },
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 52,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 52,
+      "path": "src/ui-ux-pro-max/data/stacks/jetpack-compose.csv",
+      "profile": "stack",
+      "raw_sha256": "6c8fd4b0391c342c12b0af15610cd5becbeccaef0bbe8dcfc01d928c3195d93e",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 50,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 50,
+      "path": "src/ui-ux-pro-max/data/stacks/laravel.csv",
+      "profile": "stack",
+      "raw_sha256": "3e9f551b5232136f7b5ce1304c5e1bf5a83bd63c0dc02afb37502b238772d145",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 52,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 52,
+      "path": "src/ui-ux-pro-max/data/stacks/nextjs.csv",
+      "profile": "stack",
+      "raw_sha256": "e828ccc04843742f52f545a068e8a9ab0d2b97c0e771f7e93bf0cef74da05554",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 70,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 70,
+      "path": "src/ui-ux-pro-max/data/stacks/nuxt-ui.csv",
+      "profile": "stack",
+      "raw_sha256": "b9972b31e721faabc667ee2b4e93ba2af29e1df86f186c2ff608b68370f0e3a5",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 58,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 58,
+      "path": "src/ui-ux-pro-max/data/stacks/nuxtjs.csv",
+      "profile": "stack",
+      "raw_sha256": "f7a3f2d9542856d00199f85c6c023b7c284cc698e2e6e12d61afce2edacb24d6",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 51,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 51,
+      "path": "src/ui-ux-pro-max/data/stacks/react-native.csv",
+      "profile": "stack",
+      "raw_sha256": "a08ca77fcf6b6d9531982dce465366296013bfcf12d2938ac72ad57cf0c4f085",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 53,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 53,
+      "path": "src/ui-ux-pro-max/data/stacks/react.csv",
+      "profile": "stack",
+      "raw_sha256": "e5624ab41d33427d88e41d07581ce4eca59b37b36ab72a6ad43a9c8e2d0a1c72",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 60,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 60,
+      "path": "src/ui-ux-pro-max/data/stacks/shadcn.csv",
+      "profile": "stack",
+      "raw_sha256": "395c2e415ef6f48a474acccdc8eb2c7258a6ed751a5037ba171a2d8823e02ded",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 53,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 53,
+      "path": "src/ui-ux-pro-max/data/stacks/svelte.csv",
+      "profile": "stack",
+      "raw_sha256": "71af52d64f266c88070b91dbbaa900c2f8074b6baae9f35eaea6ba9cec6fd803",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 50,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 50,
+      "path": "src/ui-ux-pro-max/data/stacks/swiftui.csv",
+      "profile": "stack",
+      "raw_sha256": "c9c2d2510f8e66281a2514e8dd0125a6b653b9ef53a71281b5e7dfe003d5b569",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 53,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 53,
+      "path": "src/ui-ux-pro-max/data/stacks/threejs.csv",
+      "profile": "stack",
+      "raw_sha256": "c74d6ba76021f8d72c0ed12c559caecfeb6961829242acf6bcb9e99926b1a396",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 59,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 59,
+      "path": "src/ui-ux-pro-max/data/stacks/uno.csv",
+      "profile": "stack",
+      "raw_sha256": "5d2e0f396bb9dc5a2661204264cc0eda7cc4fa3d78152dec89d668704a41b8fc",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 55,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 55,
+      "path": "src/ui-ux-pro-max/data/stacks/uwp.csv",
+      "profile": "stack",
+      "raw_sha256": "debf669928871261ced9333788d5afd5784377ea1fa1b4f53993dd8f1574c0fc",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 49,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 49,
+      "path": "src/ui-ux-pro-max/data/stacks/vue.csv",
+      "profile": "stack",
+      "raw_sha256": "c2724915d3c11cd67263f25896cff721f787a0fdd8326002d31e9f5806dfd8f8",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 59,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 59,
+      "path": "src/ui-ux-pro-max/data/stacks/winui.csv",
+      "profile": "stack",
+      "raw_sha256": "2d970b08e44509d7afa53ce7feb446930b2d5e0667fa637df9aeeed65c42bbbe",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    },
+    {
+      "data_row_count": 56,
+      "header": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Code Good",
+        "Code Bad",
+        "Severity",
+        "Docs URL"
+      ],
+      "normalized_record_count": 56,
+      "path": "src/ui-ux-pro-max/data/stacks/wpf.csv",
+      "profile": "stack",
+      "raw_sha256": "ca78b5f28dc50d66900548d602d74856400097284c73e076fcfbb5a38ae5083c",
+      "selected_columns": [
+        "No",
+        "Category",
+        "Guideline",
+        "Description",
+        "Do",
+        "Don't",
+        "Severity"
+      ]
+    }
+  ]
+}
+

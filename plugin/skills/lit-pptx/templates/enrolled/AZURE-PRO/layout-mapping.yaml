@@ -1,0 +1,475 @@
+# Layout Mapping — AZURE-PRO (16:9, 13.333 x 7.5 in). Positions in inches.
+# rich-blocks capability (template.yaml pack:) → body→cards, kpi-table→KPI cards, cover title **emphasis**.
+
+layouts:
+  cover:
+    layout_source: none
+    decorations: cover
+    variants:
+      split-navy:
+        decorations: cover_split_navy
+        regions:
+          eyebrow:
+            x: 1.08
+            y: 1.02
+            w: 5.4
+            h: 0.40
+            font_role: eyebrow
+            valign: middle
+          title:
+            x: 0.84
+            y: 1.55
+            w: 5.5
+            h: 2.6
+            font_role: cover_title
+            valign: top
+          subtitle:
+            x: 0.84
+            y: 4.30
+            w: 5.5
+            h: 0.8
+            font_role: subtitle
+            valign: top
+          date_line:
+            x: 0.84
+            y: 5.55
+            w: 2.05
+            h: 0.52
+            font_role: cover_date
+            valign: middle
+      minimal:
+        decorations: cover_minimal
+        regions:
+          title:
+            x: 0.84
+            y: 2.60
+            w: 10.6
+            h: 1.85
+            font_role: cover_title
+            valign: top
+          subtitle:
+            x: 0.84
+            y: 4.55
+            w: 8.2
+            h: 0.8
+            font_role: subtitle
+            valign: top
+          date_line:
+            x: 0.84
+            y: 5.75
+            w: 2.05
+            h: 0.52
+            font_role: cover_date
+            valign: middle
+    regions:
+      eyebrow:
+        x: 1.08
+        y: 1.02
+        w: 9.0
+        h: 0.40
+        font_role: eyebrow
+        valign: middle
+      title:
+        x: 0.84
+        y: 1.55
+        w: 7.4
+        h: 1.85
+        font_role: cover_title
+        valign: top
+      subtitle:
+        x: 0.84
+        y: 3.45
+        w: 7.4
+        h: 0.8
+        font_role: subtitle
+        valign: top
+      date_line:
+        x: 0.84
+        y: 4.55
+        w: 2.05
+        h: 0.52
+        font_role: cover_date
+        valign: middle
+
+  content:
+    layout_source: none
+    decorations: body
+    regions:
+      title:
+        x: 0.84
+        y: 0.74
+        w: 11.6
+        h: 0.66
+        font_role: section_title
+        valign: middle
+      key_message:
+        x: 0.84
+        y: 1.50
+        w: 11.65
+        h: 0.46
+        font_role: key_message
+        valign: middle
+      body:
+        x: 0.84
+        y: 2.05
+        w: 11.65
+        h: 3.7
+        font_role: body_text
+      table:
+        x: 0.84
+        y: 2.05
+        w: 11.65
+        h: 1.75
+        font_role_header: table_header
+        font_role_data: table_data
+      image:
+        x: 7.6
+        y: 2.05
+        w: 4.9
+        h: 3.4
+      figure_caption:
+        x: 7.6
+        y: 5.55
+        w: 4.9
+        h: 0.4
+        font_role: figure_caption
+        align: center
+      table_caption:
+        x: 0.84
+        y: 5.9
+        w: 11.65
+        h: 0.4
+        font_role: table_caption
+        align: center
+
+  main:
+    layout_source: none
+    decorations: body
+    regions:
+      title:
+        x: 0.84
+        y: 0.74
+        w: 11.6
+        h: 0.66
+        font_role: section_title
+        valign: middle
+      key_message:
+        x: 0.84
+        y: 1.50
+        w: 11.65
+        h: 0.46
+        font_role: key_message
+        valign: middle
+      body:
+        x: 0.84
+        y: 2.05
+        w: 11.65
+        h: 3.4
+        font_role: body_text
+      main_box:
+        x: 0.84
+        y: 5.85
+        w: 11.65
+        h: 0.95
+        border:
+          width: 1
+      kpi_table:
+        x: 0.84
+        y: 2.05
+        w: 11.65
+        h: 1.75
+        font_role_header: table_header
+        font_role_data: table_data
+      image:
+        x: 7.6
+        y: 2.05
+        w: 4.9
+        h: 3.4
+      figure_caption:
+        x: 7.6
+        y: 5.55
+        w: 4.9
+        h: 0.4
+        font_role: figure_caption
+        align: center
+
+  summary:
+    layout_source: none
+    decorations: body
+    regions:
+      title:
+        x: 0.84
+        y: 0.74
+        w: 11.6
+        h: 0.66
+        font_role: section_title
+        valign: middle
+      group_top:
+        x: 0.84
+        y: 2.05
+        w: 5.7
+        h: 3.9
+        heading_role: section_header
+        sub_item_role: numbered_item
+      group_bottom:
+        x: 6.86
+        y: 2.05
+        w: 5.7
+        h: 3.9
+        heading_role: section_header
+        sub_item_role: numbered_item
+      image:
+        x: 6.86
+        y: 2.05
+        w: 5.65
+        h: 3.6
+      key_message:
+        x: 0.84
+        y: 1.50
+        w: 11.65
+        h: 0.46
+        font_role: key_message
+        valign: middle
+      table:
+        x: 6.86
+        y: 2.05
+        w: 5.65
+        font_role_header: table_header
+        font_role_data: table_data
+
+  section:
+    layout_source: none
+    decorations: section
+    variants:
+      rule:
+        decorations: section_rule
+        regions:
+          title:
+            x: 0.92
+            y: 3.15
+            w: 10.5
+            h: 1.4
+            font_role: closing_title
+            align: left
+            valign: top
+    regions:
+      title:
+        x: 0.92
+        y: 4.55
+        w: 10.5
+        h: 1.4
+        font_role: divider_title
+        valign: top
+
+  closing:
+    layout_source: none
+    decorations: closing
+    regions:
+      title:
+        x: 0.0
+        y: 3.25
+        w: 13.333
+        h: 1.2
+        font_role: closing_title
+        align: center
+        valign: middle
+
+decorations:
+  cover:
+    elements:
+      - type: image
+        dir: azure
+        asset: circle-lg.png
+        x: 8.35
+        y: 2.45
+        w: 4.6
+        h: 4.6
+        note: "gradient hero circle (bottom-right, fully inside the canvas)"
+      - type: ring
+        x: 6.7
+        y: 2.55
+        w: 1.3
+        h: 1.3
+        line: "#93C5FD"
+        line_width: 4
+      - type: ellipse
+        x: 11.9
+        y: 1.55
+        w: 0.5
+        h: 0.5
+        fill: "#3B82F6"
+      - type: text
+        text: "+"
+        x: 5.4
+        y: 4.35
+        w: 0.7
+        h: 0.7
+        color: "#3B82F6"
+        size: 42
+        align: center
+        valign: middle
+      - type: roundRect
+        x: 2.55
+        y: 4.7
+        w: 0.34
+        h: 0.34
+        radius: 0.07
+        line: "#93C5FD"
+        line_width: 3
+        rotate: 12
+      - type: rect
+        x: 0.84
+        y: 1.11
+        w: 0.13
+        h: 0.13
+        fill: "#1D4ED8"
+        note: "eyebrow square mark"
+      - type: pill
+        x: 0.84
+        y: 4.55
+        w: 2.05
+        h: 0.52
+        fill: "#1D4ED8"
+        note: "date pill (date_line text rendered on top)"
+
+  cover_split_navy:
+    elements:
+      - type: rect
+        x: 6.9
+        y: 0.0
+        w: 6.433
+        h: 7.5
+        fill: "#0B2E6F"
+        note: "navy field holding the right half of the cover"
+      - type: ring
+        x: 8.7
+        y: 2.3
+        w: 2.8
+        h: 2.8
+        line: "#3B82F6"
+        line_width: 3
+      - type: ellipse
+        x: 9.75
+        y: 5.1
+        w: 0.45
+        h: 0.45
+        fill: "#93C5FD"
+      - type: rect
+        x: 0.84
+        y: 1.11
+        w: 0.13
+        h: 0.13
+        fill: "#1D4ED8"
+        note: "eyebrow square mark"
+      - type: pill
+        x: 0.84
+        y: 5.55
+        w: 2.05
+        h: 0.52
+        fill: "#1D4ED8"
+        note: "date pill (date_line text rendered on top)"
+
+  cover_minimal:
+    elements:
+      - type: rect
+        x: 0.84
+        y: 1.11
+        w: 0.13
+        h: 0.13
+        fill: "#1D4ED8"
+        note: "eyebrow square mark"
+      - type: line
+        x: 0.84
+        y: 2.28
+        w: 2.6
+        color: "#1D4ED8"
+        width: 4
+        note: "rule standing in for the geometry"
+      - type: pill
+        x: 0.84
+        y: 5.75
+        w: 2.05
+        h: 0.52
+        fill: "#1D4ED8"
+        note: "date pill (date_line text rendered on top)"
+
+  section_rule:
+    elements:
+      - type: line
+        x: 0.94
+        y: 2.75
+        w: 2.2
+        color: "#1D4ED8"
+        width: 5
+      - type: text
+        text: "SECTION"
+        x: 0.94
+        y: 2.15
+        w: 4.0
+        h: 0.4
+        color: "#1D4ED8"
+        size: 12
+        bold: true
+        char_spacing: 2
+        align: left
+
+  body:
+    elements:
+      - type: rect
+        x: 0.84
+        y: 1.5
+        w: 0.9
+        h: 0.07
+        fill: "#1D4ED8"
+        note: "title underline bar"
+
+  section:
+    elements:
+      - type: rect
+        x: 0.0
+        y: 0.0
+        w: 13.333
+        h: 7.5
+        fill: "#0B2E6F"
+        note: "full-bleed navy panel"
+      - type: ring
+        x: 9.2
+        y: 1.7
+        w: 3.1
+        h: 3.1
+        line: "#3B82F6"
+        line_width: 2
+      - type: image
+        dir: azure
+        asset: circle-md.png
+        x: 9.0
+        y: 3.15
+        w: 1.8
+        h: 1.8
+      - type: text
+        text: "SECTION"
+        x: 0.94
+        y: 4.05
+        w: 4.0
+        h: 0.4
+        color: "#93C5FD"
+        size: 12
+        bold: true
+        char_spacing: 2
+        align: left
+
+  closing:
+    elements:
+      - type: ring
+        x: 6.27
+        y: 2.05
+        w: 0.8
+        h: 0.8
+        line: "#93C5FD"
+        line_width: 3
+      - type: ellipse
+        x: 6.52
+        y: 2.3
+        w: 0.3
+        h: 0.3
+        fill: "#1D4ED8"

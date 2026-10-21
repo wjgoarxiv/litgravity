@@ -1,0 +1,35 @@
+{
+  "active": true,
+  "current_phase": "deep-interview",
+  "state": {
+    "interview_id": "<uuid>",
+    "conversation_id": "<conversation id from the activation note>",
+    "profile": "standard",
+    "type": "greenfield",
+    "initial_idea": "<user input>",
+    "rounds": [
+      {
+        "n": 1,
+        "dimension": "intent",
+        "question": "<question text>",
+        "recommended": "<default offered>",
+        "answer": "<user answer or accepted default>",
+        "answer_source": "user",
+        "scores": { "intent": 0.0, "outcome": 0.0, "scope": 0.0, "constraints": 0.0, "success": 0.0, "context": 0.0 },
+        "gates": { "nongoals": false, "boundaries": false, "pressure": false },
+        "challenge_mode": null,
+        "ambiguity": 1.0
+      }
+    ],
+    "current_ambiguity": 1.0,
+    "threshold": 0.2,
+    "max_rounds": 12,
+    "challenge_modes_used": [],
+    "codebase_context": null,
+    "current_stage": "intent-first",
+    "current_focus": "intent",
+    "context_snapshot_path": ".litgravity/interview/<slug>-context.md",
+    "brainstorm_handoff": null,
+    "residual_risk": null
+  }
+}

@@ -1,0 +1,94 @@
+# Ledger: a set of accounts made readable. Small, exact type, right-aligned
+# numbers, tables and KPI rows doing most of the talking; colour marks only "this
+# period" and the one figure that matters. Wrong for a live pitch with little data
+# or for a briefing that is read as prose.
+id: ledger
+name: Ledger
+version: "1.0.0"
+intent: "Dense, numbers-forward review decks that are read closely."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: Pretendard Bold
+faces-a2z:
+  display: A2Z Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: A2Z Bold
+
+palette:
+  ground: "#FFFFFF"
+  surface: "#F2F4F6"
+  ink: "#16212C"
+  ink-muted: "#4B5866"
+  line: "#D0D6DC"
+  accent: "#0E6B5A"
+  accent-deep: "#0A4438"
+  accent-tint: "#E2F0EC"
+  field: "#0A4438"
+  on-field: "#FFFFFF"
+  positive: "#1E7A3F"
+  negative: "#B3261E"
+  series: ["#0E6B5A", "#4B5866", "#9A6A12", "#2F5F8A"]
+
+ramp: reading
+hero: false
+type-voice:
+  title-tracking: -1
+  display-tracking: -1
+
+density: 10
+variance: 5
+radius: 0
+edge: fill
+
+treatments: [top-rule, side-rail, kicker-numeral, bottom-anchor]
+role-defaults:
+  content: top-rule
+  data: top-rule
+  data-takeaway: side-rail
+  sequence: kicker-numeral
+  image: bottom-anchor
+  statement: side-rail
+  reference: top-rule
+  definition: side-rail
+
+decoration: [accent-rule, hairline-rule, rail-fill, numeral]
+layout-families: [kpi-row, kpi-over-chart, dashboard-grid, ledger-table, table-insight, chart-insight, full-chart, big-number, comparison, timeline, matrix-2x2, agenda, text-two-column, references-appendix]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: figures
+  number: tint
+  closing: box
+  index: true
+covers: [cover-figures, cover-typographic, cover-index]
+sections: [section-rule, section-numeral]
+closings: [closing-decision-box, closing-ask]
+
+table:
+  # The header row is the ledger's one dark mass: deep field, white labels.
+  header: field
+  header-ink: on-field
+  rules: header-and-totals
+  banding: none
+  totals: bold
+chart:
+  gridlines: hairline
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: hairline
+
+fill-order: [step-up, distribute, anchor-visual, change-family]
+avoid:
+  - KPI cards for counts that are not results
+  - more than one accent on a chart
+  - tables stretched by padding
+  - side-rail on two data slides in a row

@@ -1,0 +1,75 @@
+# Nature journal style (rcparams-based)
+# Usage: plt.style.use('nature.mplstyle')
+#
+# Inherits rcparams() base with Nature-specific overrides:
+# - Single column: 89 mm, One-and-half column: 120 mm, Double column: 183 mm
+# - Smaller fonts for compact Nature figures
+# - Pretendard first, Arial primary fallback, inward ticks, minor ticks visible
+
+# Figure properties
+figure.dpi: 100
+figure.facecolor: white
+figure.figsize: 3.5, 2.625  # 89 mm single column, 3:4 aspect
+
+# Font properties (Nature prefers smaller fonts)
+font.size: 7
+font.family: sans-serif
+font.sans-serif: Pretendard, Arial, Helvetica, DejaVu Sans, AppleGothic, Noto Sans CJK KR, Noto Sans CJK SC, Noto Sans CJK JP, Malgun Gothic
+pdf.fonttype: 42
+ps.fonttype: 42
+svg.fonttype: none
+
+# Axes properties
+axes.linewidth: 1
+axes.labelsize: 8
+axes.titlesize: 8
+axes.titlepad: 10
+axes.titleweight: normal
+axes.labelweight: normal
+axes.labelpad: 8
+axes.edgecolor: black
+axes.axisbelow: True
+axes.grid: False
+axes.prop_cycle: cycler('color', ['E69F00', '56B4E9', '009E73', 'F0E442', '0072B2', 'D55E00', 'CC79A7', '000000'])
+
+# Tick properties — inward direction, minor ticks visible
+xtick.major.size: 5
+xtick.minor.size: 3
+xtick.major.width: 1
+xtick.minor.width: 0.5
+xtick.labelsize: 6
+xtick.direction: in
+xtick.color: black
+xtick.major.pad: 7
+xtick.minor.visible: True
+ytick.major.size: 5
+ytick.minor.size: 3
+ytick.major.width: 1
+ytick.minor.width: 0.5
+ytick.labelsize: 6
+ytick.direction: in
+ytick.color: black
+ytick.major.pad: 7
+ytick.minor.visible: True
+
+# Line properties
+lines.linewidth: 1.2
+lines.markersize: 3
+lines.markeredgewidth: 0.4
+
+# Legend properties — black border, fully opaque
+legend.fontsize: 6
+legend.frameon: True
+legend.edgecolor: black
+legend.framealpha: 1
+
+# Save properties
+savefig.dpi: 600
+savefig.format: pdf
+savefig.bbox: tight
+savefig.pad_inches: 0.05
+savefig.transparent: False
+savefig.facecolor: white
+
+# Image properties
+image.cmap: viridis

@@ -1,0 +1,257 @@
+<!doctype html>
+<!--
+  lit-comprehend explainer scaffold (LitGravity).
+  Copy this file to .litgravity/drafts/comprehend/YYYY-MM-DD-<slug>.html and fill the five
+  placeholders below (LANG, TITLE, SUBTITLE, TOC, CONTENT, each wrapped in two underscores).
+  This comment names them without the underscores so a plain search-and-replace leaves it alone.
+  Everything stays inline so the page opens from a file:// URL with the network off:
+  keep scripts, styles, fonts and images inside this file (data: URIs are fine).
+  Quiz markup, micro-world markup and diagram classes are described in
+  references/artifact-template.md and references/micro-worlds.md.
+-->
+<html lang="__LANG__">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+  :root{ color-scheme:light dark;
+    --bg:#fcfbf9; --fg:#1d1c1a; --muted:#67645e; --rule:#e0dcd4;
+    --accent:#2f5d8a; --accent-bg:#edf2f7;
+    --ok:#2e6a3c; --ok-bg:#e9f3eb; --warn:#8a5a1f; --warn-bg:#faf2e3;
+    --bad:#a03427; --bad-bg:#f9ebe8; --code-bg:#f2f0eb;
+    --add:#e4f1e6; --del:#fbe9e7;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#151513; --fg:#e7e4de; --muted:#a09b92; --rule:#34312c;
+      --accent:#8fb6dd; --accent-bg:#1a2129;
+      --ok:#83c191; --ok-bg:#17231a; --warn:#d8a25f; --warn-bg:#272016;
+      --bad:#e48c80; --bad-bg:#2b1a17; --code-bg:#1f1d1a;
+      --add:#182a1c; --del:#2c1a18;
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16.5px/1.75 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",
+      "Noto Sans KR","Malgun Gothic","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    word-break:keep-all; overflow-wrap:anywhere;
+  }
+  .wrap{max-width:46rem; margin:0 auto; padding:3rem 1rem 6rem}
+  header.doc{border-bottom:2px solid var(--fg); padding-bottom:1.2rem; margin-bottom:2rem}
+  header.doc h1{font-size:1.85rem; line-height:1.3; margin:0 0 .5rem; letter-spacing:-.015em}
+  header.doc .sub{color:var(--muted); font-size:.95rem; margin:0}
+  h2{
+    font-size:1.35rem; margin:3.4rem 0 1rem; padding-top:.6rem;
+    border-top:1px solid var(--rule); letter-spacing:-.01em; scroll-margin-top:1rem;
+  }
+  h3{font-size:1.06rem; margin:2rem 0 .6rem}
+  p{margin:0 0 1rem}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
+    outline:2px solid var(--accent); outline-offset:2px;
+  }
+  ul,ol{margin:0 0 1rem; padding-left:1.3rem}
+  li{margin:.3rem 0}
+  small,.muted{color:var(--muted); font-size:.9rem}
+
+  /* table of contents: one scrolling page, so find-in-page reaches everything */
+  nav.toc{
+    background:var(--accent-bg); border:1px solid var(--rule);
+    border-radius:.5rem; padding:1rem 1.2rem; margin-bottom:2.4rem;
+  }
+  nav.toc strong{display:block; font-size:.8rem; letter-spacing:.08em;
+    color:var(--muted); margin-bottom:.45rem}
+  nav.toc ol{margin:0; padding-left:1.2rem}
+  nav.toc a{text-decoration:none}
+  nav.toc a:hover{text-decoration:underline}
+
+  /* code: pre blocks keep newlines; data-src prints the source path above the excerpt */
+  pre{
+    background:var(--code-bg); border:1px solid var(--rule); border-radius:.4rem;
+    padding:.85rem 1rem; overflow-x:auto; white-space:pre;
+    font:13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    margin:0 0 1rem; tab-size:2;
+  }
+  pre[data-src]::before{
+    content:attr(data-src); display:block; color:var(--muted);
+    font-size:11.5px; letter-spacing:.03em; margin-bottom:.5rem;
+    border-bottom:1px solid var(--rule); padding-bottom:.35rem;
+  }
+  pre .add{background:var(--add); display:block}
+  pre .del{background:var(--del); display:block; opacity:.8; text-decoration:line-through}
+  code{
+    background:var(--code-bg); border-radius:.25rem; padding:.1em .35em;
+    font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  pre code{background:none; padding:0; font-size:inherit}
+
+  /* callouts and skippable background */
+  .note{
+    border-left:3px solid var(--accent); background:var(--accent-bg);
+    padding:.85rem 1rem; border-radius:0 .4rem .4rem 0; margin:0 0 1.2rem;
+  }
+  .note.ok{border-color:var(--ok); background:var(--ok-bg)}
+  .note.warn{border-color:var(--warn); background:var(--warn-bg)}
+  .note.bad{border-color:var(--bad); background:var(--bad-bg)}
+  .note .label{
+    display:block; font-size:.74rem; letter-spacing:.08em;
+    color:var(--muted); margin-bottom:.3rem; font-weight:600;
+  }
+  .note :last-child{margin-bottom:0}
+  .skippable{border-left:3px dashed var(--rule); padding-left:1rem; color:var(--muted)}
+
+  /* diagrams: pipeline, before/after, state table, simplified UI */
+  figure{margin:1.5rem 0; padding:0}
+  figcaption{color:var(--muted); font-size:.87rem; margin-top:.6rem; text-align:center}
+  .pipe{display:flex; align-items:center; flex-wrap:wrap; gap:.4rem; justify-content:center}
+  .box{
+    border:1.5px solid var(--fg); border-radius:.4rem; padding:.5rem .75rem;
+    background:var(--bg); font-size:.87rem; text-align:center; min-width:5.5rem;
+  }
+  .box .t{font-weight:600; display:block}
+  .box .d{color:var(--muted); font-size:.78rem; display:block; margin-top:.15rem}
+  .box.hi{border-color:var(--accent); background:var(--accent-bg); border-width:2.5px}
+  .box.ghost{border-style:dashed; color:var(--muted)}
+  .box.gone{border-color:var(--bad); background:var(--bad-bg); text-decoration:line-through}
+  .arrow{color:var(--muted); font-size:1.15rem; padding:0 .1rem}
+  .ba{display:grid; grid-template-columns:1fr 1fr; gap:1rem}
+  .ba .side{border:1px solid var(--rule); border-radius:.5rem; padding:.9rem}
+  .ba .side h4{margin:0 0 .6rem; font-size:.8rem; letter-spacing:.08em; color:var(--muted)}
+  .ba .side.after{border-color:var(--accent)}
+  .ui-frame{border:1.5px solid var(--fg); border-radius:.6rem; padding:.8rem; background:var(--bg)}
+  .ui-frame .bar{height:.5rem; border-radius:.25rem; background:var(--rule); margin-bottom:.6rem}
+  @media (max-width:34rem){ .ba{grid-template-columns:1fr} }
+
+  /* tables, including the step-by-step state table */
+  table{border-collapse:collapse; width:100%; margin:0 0 1.2rem; font-size:.92rem}
+  th,td{border:1px solid var(--rule); padding:.5rem .65rem; text-align:left; vertical-align:top}
+  th{background:var(--code-bg); font-size:.82rem}
+  td code{font-size:12.5px}
+  tr.now td{background:var(--accent-bg)}
+  .scroll-x{overflow-x:auto}
+
+  /* micro-world */
+  .world{
+    border:1.5px solid var(--accent); border-radius:.55rem;
+    background:var(--accent-bg); padding:1.1rem; margin:0 0 1.2rem;
+  }
+  .world .label{
+    display:block; font-size:.76rem; letter-spacing:.06em;
+    color:var(--muted); margin-bottom:.7rem; font-weight:600;
+  }
+  .world input[type=text],.world input[type=number],.world textarea,.world select{
+    width:100%; padding:.45rem .6rem; border:1px solid var(--rule); border-radius:.3rem;
+    background:var(--bg); color:var(--fg); font:13.5px ui-monospace,Menlo,monospace;
+  }
+  .world input[type=range]{width:100%; accent-color:var(--accent)}
+  .world .out{
+    background:var(--bg); border:1px solid var(--rule); border-radius:.3rem;
+    padding:.6rem .75rem; margin-top:.7rem; white-space:pre-wrap;
+    font:13px/1.6 ui-monospace,Menlo,monospace; min-height:2.4rem;
+  }
+  .world button{
+    background:var(--fg); color:var(--bg); border:0; border-radius:.3rem;
+    padding:.4rem .85rem; font-size:.86rem; cursor:pointer; margin:.55rem .3rem 0 0;
+  }
+  .world .row{display:flex; gap:.5rem; align-items:center; flex-wrap:wrap}
+  .world .model-note{color:var(--muted); font-size:.86rem; margin:.7rem 0 0}
+
+  /* quiz */
+  .quiz-q{border:1px solid var(--rule); border-radius:.5rem; padding:1.1rem; margin:0 0 1.1rem}
+  .quiz-q .q{font-weight:600; margin:0 0 .8rem}
+  .quiz-q .q .n{color:var(--muted); font-weight:400; margin-right:.4rem}
+  .quiz-q .opt{
+    display:block; width:100%; text-align:left; background:var(--bg);
+    border:1px solid var(--rule); border-radius:.35rem; padding:.55rem .75rem;
+    margin:0 0 .45rem; font:inherit; font-size:.94rem; color:var(--fg); cursor:pointer;
+  }
+  .quiz-q .opt:hover{border-color:var(--accent)}
+  .quiz-q .opt.correct{border-color:var(--ok); background:var(--ok-bg)}
+  .quiz-q .opt.wrong{border-color:var(--bad); background:var(--bad-bg)}
+  .quiz-q .fb{
+    display:none; font-size:.9rem; padding:.6rem .75rem; border-radius:.35rem;
+    margin:0 0 .5rem; background:var(--code-bg); border-left:3px solid var(--rule);
+  }
+  .quiz-q .fb.show{display:block}
+  .quiz-q .fb.good{border-color:var(--ok)}
+  .quiz-q .fb.bad{border-color:var(--bad)}
+  .quiz-score{color:var(--muted); font-size:.9rem; margin-top:1rem}
+
+  /* print: show every feedback so a printed copy still teaches */
+  @media print{
+    nav.toc{display:none}
+    .quiz-q .fb{display:block}
+    .world button{display:none}
+    body{font-size:11.5pt}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="doc">
+  <h1>__TITLE__</h1>
+  <p class="sub">__SUBTITLE__</p>
+</header>
+
+<nav class="toc" aria-label="contents">
+  <strong>목차</strong>
+  <ol>__TOC__</ol>
+</nav>
+
+__CONTENT__
+
+</div>
+<script>
+// Quiz engine. One question looks like this:
+//   <div class="quiz-q" data-answer="1">
+//     <p class="q"><span class="n">1.</span> question text</p>
+//     <button class="opt" data-i="0">option</button> (one per option)
+//     <div class="fb" data-i="0">why this option is right or wrong</div> (one per option)
+//   </div>
+//   <p class="quiz-score" id="quiz-score" data-fmt="{answered}/{total} 응답, {correct}개 정답. 틀린 문항이 다시 읽을 곳입니다.">...</p>
+// data-fmt carries the score sentence in the reader's language; the default below is Korean.
+// The first click on a question counts for the score; later clicks still show feedback.
+(function () {
+  var answered = 0, correct = 0;
+  var qs = document.querySelectorAll('.quiz-q');
+  var score = document.getElementById('quiz-score');
+  var fmt = (score && score.getAttribute('data-fmt')) ||
+    '{answered}/{total} 응답, {correct}개 정답. 틀린 문항이 다시 읽을 곳입니다.';
+  function paint() {
+    if (!score) return;
+    score.textContent = fmt.replace('{answered}', answered)
+      .replace('{total}', qs.length).replace('{correct}', correct);
+  }
+  qs.forEach(function (q) {
+    var ans = parseInt(q.getAttribute('data-answer'), 10);
+    q.querySelectorAll('.opt').forEach(function (btn) {
+      btn.setAttribute('type', 'button');
+      btn.addEventListener('click', function () {
+        var i = parseInt(btn.getAttribute('data-i'), 10);
+        var first = q.getAttribute('data-done') !== '1';
+        q.querySelectorAll('.fb').forEach(function (f) { f.classList.remove('show'); });
+        var fb = q.querySelector('.fb[data-i="' + i + '"]');
+        if (fb) {
+          fb.classList.add('show');
+          fb.classList.toggle('good', i === ans);
+          fb.classList.toggle('bad', i !== ans);
+          fb.setAttribute('role', 'status');
+        }
+        btn.classList.toggle('correct', i === ans);
+        btn.classList.toggle('wrong', i !== ans);
+        if (first) {
+          q.setAttribute('data-done', '1');
+          answered++;
+          if (i === ans) correct++;
+          paint();
+        }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

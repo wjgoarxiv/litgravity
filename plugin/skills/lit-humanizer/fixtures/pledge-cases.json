@@ -1,0 +1,1341 @@
+{
+  "schema_version": 1,
+  "description": "Negative pledge sentences. Each pledge and each observed pledge must be refused (or, where severity is warn or none, stay advisory or silent) by the rule it names; every near-miss and review near-miss, scanned as its own document, must stay clear of the three pledge rule ids; each document case (including bold-label callouts and plain quotes) states whether the named rule blocks the whole text.",
+  "new_rule_ids": [
+    "ko-negative-pledge",
+    "ko-negative-pledge-repeat",
+    "en-negative-pledge"
+  ],
+  "pledges": [
+    {
+      "n": 1,
+      "text": "동일 조건의 독립 성능 비교로 쓰지 않음.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 2,
+      "text": "이 수치는 투자 권유로 해석하지 말 것.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 3,
+      "text": "본 자료는 최종 결론이 아니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 4,
+      "text": "이 표는 순위를 매기기 위한 것이 아닙니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 5,
+      "text": "실제 운영 데이터로 검증하지 않았습니다.",
+      "rule": "ko-status-negation",
+      "severity": "warn"
+    },
+    {
+      "n": 6,
+      "text": "본 슬라이드는 개별 고객 사례를 대표하지 않는다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 7,
+      "text": "이 그래프는 인과관계를 주장하지 않음.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 8,
+      "text": "외부 공개용 수치가 아님.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 9,
+      "text": "법률 자문을 대체하지 않습니다.",
+      "rule": null,
+      "severity": "none"
+    },
+    {
+      "n": 10,
+      "text": "This is not intended as a head-to-head benchmark.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 11,
+      "text": "These figures do not constitute an independent performance comparison.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 12,
+      "text": "Not to be read as a ranking.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 13,
+      "text": "The deck makes no claim about production readiness.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "n": 14,
+      "text": "(3) 실험 해리 온도에 맞추는 **fitting parameter 는 쓰지 않음**",
+      "rule": "ko-status-negation",
+      "severity": "warn"
+    },
+    {
+      "n": 15,
+      "text": "(2) 혼합계에서 직접 측정한 값이 **아님**",
+      "rule": "ko-status-negation",
+      "severity": "warn"
+    }
+  ],
+  "pledges_observed": [
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:3",
+      "text": "숫자끼리 직접 비교해서 \"어느 쪽이 빠르다\"는 결론을 내리면 안 됩니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:13",
+      "text": "## 왜 이 숫자들을 서로 비교할 수 없나",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:41",
+      "text": "- **할 수 없는 것:** 세 DB의 순위를 매기거나, 이 숫자를 근거로 후보를 탈락시키는 것.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:5",
+      "text": "숫자 크기만 놓고 어느 DB가 더 빠르다고 판단하면 안 됩니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:5",
+      "text": "이 문서는 순위표가 아니고, 지금 무엇을 알고 무엇을 모르는지 정리한 기록입니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:27",
+      "text": "- 우리 환경에서 재현한 값이 아니므로 \"Milvus가 Qdrant보다 2배 빠르다\"는 식으로 읽으면 안 됩니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:3",
+      "text": "세 숫자는 측정 조건이 모두 달라서 서로 비교할 수 없습니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:3",
+      "text": "이 문서는 각 숫자가 어떤 조건에서 나왔는지 기록하려는 것이고, 순위를 매기려는 것이 아닙니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-4-report.md:5",
+      "text": "하드웨어, 데이터 규모, 측정 횟수, 측정 주체가 제각각이라 숫자끼리 비교해 \"어느 DB가 더 빠르다\"는 결론을 낼 수 없습니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-4-report.md:5",
+      "text": "아래 표의 p95 값을 순위처럼 읽지 말아 주세요.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-4-report.md:26",
+      "text": "이 숫자로 pgvector가 느리다고 판단하면 안 됩니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C2-1-report.md:3",
+      "text": "**Do not compare these numbers with each other.**",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C2-1-report.md:3",
+      "text": "They are not a ranking.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C2-1-report.md:13",
+      "text": "## Why the numbers are not comparable",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C3-1-README.md:3",
+      "text": "**주의:** 아래 수치는 서로 다른 환경과 방법으로 측정했기 때문에 직접 비교할 수 없습니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block",
+      "note": "In the file this line is a '> ' blockquote; the engine skips blockquotes for every rule as quoted user text, so it is stored without the quote marker."
+    },
+    {
+      "source": "pledge-probe final-files/C3-1-README.md:3",
+      "text": "이 표만으로 어느 라이브러리가 더 빠르다고 판단하지 마세요.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:3",
+      "text": "현재 수집한 지연시간만으로 Qdrant, Milvus, pgvector의 성능 순위를 정하거나 후보를 제외할 수 없다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:3",
+      "text": "**현재 수치는 측정 환경과 데이터 규모가 달라 제품 간 성능 순위나 후보 제외의 근거로 사용할 수 없다.**",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:7",
+      "text": "표의 나열 순서는 순위를 뜻하지 않는다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:3",
+      "text": "**세 수치는 측정 환경과 데이터 규모가 달라 직접 비교할 수 없다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:3",
+      "text": "현재 자료만으로 성능 순위를 정하거나 후보를 제외해서는 안 된다.**",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:7",
+      "text": "표의 순서는 성능 순위가 아니다.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "coordinator probe 2026-10-16 (deliverable-subject form restored; not model-written)",
+      "text": "This table is not a ranking.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "coordinator probe 2026-10-16 (deliverable-subject form restored; not model-written)",
+      "text": "This chart is not a benchmark.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "coordinator probe 2026-10-16 (deliverable-subject form restored; not model-written)",
+      "text": "Do not read this chart as a ranking.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "coordinator probe 2026-10-16 (deliverable-subject form restored; not model-written)",
+      "text": "This report is not intended to rank the vendors.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "mutation pin 2026-10-18 (rule branch that no observed pledge covered; not model-written): the 음 ending",
+      "text": "두 공정의 수치는 서로 비교할 수 없음.",
+      "rule": "ko-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "mutation pin 2026-10-18 (rule branch that no observed pledge covered; not model-written): not meant to be",
+      "text": "This table is not meant to be a ranking.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "mutation pin 2026-10-18 (rule branch that no observed pledge covered; not model-written): leaderboard",
+      "text": "This chart is not a leaderboard.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "mutation pin 2026-10-18 (rule branch that no observed pledge covered; not model-written): endorsement",
+      "text": "This summary is not an endorsement.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "mutation pin 2026-10-18 (rule branch that no observed pledge covered; not model-written): is not intended as",
+      "text": "This report is not intended as a vendor comparison.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "mutation pin 2026-10-18 (rule branch that no observed pledge covered; not model-written): should not be read as",
+      "text": "These numbers should not be read as a benchmark.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    },
+    {
+      "source": "mutation pin 2026-10-18 (rule branch that no observed pledge covered; not model-written): makes no claims",
+      "text": "This deck makes no claims about market share.",
+      "rule": "en-negative-pledge",
+      "severity": "block"
+    }
+  ],
+  "near_misses": [
+    {
+      "source": "lit-pptx examples/01-pitch-signal-ko.md:44",
+      "text": "- 동네 세탁소 다섯 곳 중 네 곳은 수거·배송을 하지 않는다"
+    },
+    {
+      "source": "lit-pptx examples/01-pitch-signal-ko.md:87",
+      "text": "- **4. 배송** 다음 날 저녁 9시 전에 돌려주고, 늦으면 다음 주문 배송비를 받지 않는다"
+    },
+    {
+      "source": "lit-pptx examples/06-lecture-chalk-ko.md:194",
+      "text": "- 구간은 평균에 대한 범위이며, 개인 값의 범위나 참값이 들어 있을 확률로 읽지 않는다"
+    },
+    {
+      "source": "lit-pptx examples/04-lecture-chalk-ko.md:58",
+      "text": "  (1) 수상 기준 값이며 기상으로 날아가는 양은 포함하지 않음"
+    },
+    {
+      "source": "lit-pptx examples/11-forecast-review-night-ko.md:118",
+      "text": "  (1) 가중치 합은 항상 1, 한 번에 0.1 이상 바꾸지 않음"
+    },
+    {
+      "source": "operating rules as sentences",
+      "text": "이 장비는 방폭 구역에서 사용하지 않습니다. 냉각수로 쓰지 않음. 한 번에 0.1 이상 바꾸지 않음."
+    },
+    {
+      "source": "operating rules as a bullet list",
+      "text": "- 이 장비는 방폭 구역에서 사용하지 않습니다\n- 냉각수로 쓰지 않음\n- 한 번에 0.1 이상 바꾸지 않음\n"
+    },
+    {
+      "source": "case (a) ordinary Korean",
+      "text": "일본 자료는 이번 분석에 사용하지 않았다."
+    },
+    {
+      "source": "case (a) ordinary Korean",
+      "text": "수율이 비교적 낮아 이 공정에는 사용하지 않는다."
+    },
+    {
+      "source": "case (a) ordinary Korean",
+      "text": "이 결과는 우연이 아니다."
+    },
+    {
+      "source": "legal notice",
+      "text": "This is not intended as a substitute for professional advice."
+    },
+    {
+      "source": "legal notice",
+      "text": "본 자료는 투자 권유가 아닙니다."
+    },
+    {
+      "source": "legal notice",
+      "text": "This report does not constitute investment advice."
+    },
+    {
+      "source": "data fact",
+      "text": "The comparison does not imply causation."
+    },
+    {
+      "source": "data fact",
+      "text": "The results do not represent the full population, because only one site was sampled."
+    },
+    {
+      "source": "fact or rule",
+      "text": "환자는 복용 중 음주하지 않는다"
+    },
+    {
+      "source": "fact or rule",
+      "text": "The treatment did not reduce mortality"
+    },
+    {
+      "source": "fact or rule",
+      "text": "첨가제 B는 수율을 개선하지 않았다"
+    },
+    {
+      "source": "fact or rule",
+      "text": "방폭 구역에서 사용하지 않습니다"
+    },
+    {
+      "source": "fact or rule",
+      "text": "임부는 복용하지 않는다"
+    },
+    {
+      "source": "fact or rule",
+      "text": "원금을 보장하지 않습니다"
+    },
+    {
+      "source": "fact or rule",
+      "text": "냉각수로 쓰지 않음"
+    },
+    {
+      "source": "fact or rule",
+      "text": "한 번에 0.1 이상 바꾸지 않음"
+    },
+    {
+      "source": "fact or rule",
+      "text": "Do not mix bleach with ammonia"
+    },
+    {
+      "source": "fact or rule",
+      "text": "Additive B did not improve yield"
+    },
+    {
+      "source": "legal notice (plan scope line)",
+      "text": "본 자료는 법률 자문을 대체하지 않습니다."
+    },
+    {
+      "source": "legal notice (plan scope line)",
+      "text": "원금을 보장하지 않습니다."
+    }
+  ],
+  "near_misses_review": [
+    {
+      "source": "task-1 adversarial review",
+      "text": "아래 표의 소모품은 재사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "아래 표의 장비는 방폭 구역에서 사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 결과 파일은 덮어쓰지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "본 분석에는 2023년 이전 데이터를 사용하지 않음."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 표에서 압력 단위는 MPa이며 bar는 사용하지 않음."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "위 분석에서는 결측치를 0으로 간주하지 않음."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "본 문서는 대외비이므로 외부에 인용하지 마세요."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "본 자료의 저작권은 당사에 있으며, 사전 허가 없이 사용하면 안 됩니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "본 자료는 투자 참고용이며, 특정 종목에 대한 매수 추천이 아닙니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "표의 0.5 ppm은 법정 허용 수치가 아닙니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "표의 단가는 2025년 적용 수치가 아닙니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "자가보고 설문은 진단 근거로 사용하지 않음."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "중간고사 점수는 최종 평가로 사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "위법하게 수집된 자료는 증거로 사용하면 안 됩니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 결과를 진단 근거로 사용하지 마세요."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "결측값은 0으로 간주하지 않음.\n중복 응답은 별도 응답으로 간주하지 않음."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "1. 결측값은 0으로 간주하지 않습니다.\n2. 2010년 이전 문헌은 인용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "- 이 결과는 3월 측정값이다\n- 냉각수로 쓰지 않음"
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "- 이 표는 1분기 실적이다\n- 시제품은 판매용으로 사용하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "주: 이 표의 수치는 부가세를 포함하지 않음."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "주: 본 표의 '완료'는 출하를 의미하지 않음. 출하는 별도 집계."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "여기서 '완료'는 출하를 의미하지 않습니다. 또한 '접수'는 결제를 의미하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 장비는 방폭 구역에서 사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "해당 시약은 개봉 후 30일이 지나면 사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "해당 결과 값은 소수점 둘째 자리에서 반올림했으며 원자료는 쓰지 않음."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 내용은 2024년 개정 전 기준이므로 신규 계약에는 활용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "첨가제 B는 수율을 개선하지 않았다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "따라서 본 조사분석자료는 어떠한 경우에도 고객의 증권투자 결과에 대한 법적 책임소재의 증빙자료로 사용될 수 없습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "본 문서는 내부 검토용 자료이며 외부 배포를 금합니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "샘플 A의 측정값은 표준 시료와의 비교가 아님. 동일 시료의 반복 측정임."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 예시는 실제 고객 데이터를 사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "위 그래프의 점선은 추세선이며 회귀식을 사용하지 않음."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "본 보고서는 개인정보를 수집하거나 사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 슬라이드의 이미지는 외부 저작물을 사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "- 본 설문은 익명으로 진행되며 응답은 인사 평가로 사용하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "면접 점수는 순위로 쓰지 않으며 합격 여부만 판정한다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "측정 구간이 짧아 연간 추세는 의미하지 않음.\n두 공정의 차이는 통계적으로 근거가 아님."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "This report is not intended as legal, tax, or investment advice."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "This is not intended as financial advice."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "This document is not intended as an offer to sell or a solicitation to buy any security."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "This report does not constitute a recommendation or credit evaluation of any issuer."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "Not to be used as a flotation device."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "Not intended as a toy."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "- Not to be used as a step or ladder."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "This is not intended as a diagnosis."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "These results are not meant to be exhaustive; three further sites are being surveyed."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "- 이 표는 2024년 3분기 기준\n- 시험 장비는 방폭 구역에서 사용하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 결과, 반응기 A는 냉각수로 쓰지 않음."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "해당 내용은 사내 규정 제12조를 따르며 개인 메일로 사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "본 문서의 양식은 2025년부터 사용하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 그래프의 y축은 로그 눈금이므로 선형으로 읽으면 안 됨."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "해당 수치는 잠정치이므로 공시 자료로 인용하지 마세요."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "본 보고서의 결론이 아닌 부록의 내용이다."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "These results are not to be confused with the 2019 survey, which used a different sampling frame."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "The report makes no claim for compensation on behalf of the plaintiffs."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "This table is not meant as an exhaustive list; see Appendix B for the full inventory."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "This chart is not to be used as a navigational aid."
+    },
+    {
+      "source": "task-1 adversarial review",
+      "text": "이 슬라이드는 발표 시간 관계상 읽지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "□ 이 결과는 3월 측정값임\n○ 결측치는 0으로 간주하지 않음\n"
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "ㅇ 이 분석은 2개 사업장 대상\nㅇ 시간제 근로자는 정규직으로 간주하지 않음\n"
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "▪ 본 자료는 2024년 기준\n▪ 위탁 인력은 직원으로 간주하지 않음\n"
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "본 분석은 결측값을 0으로 간주하지 않는다."
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "본 보고서는 지연 납품 3일 이내를 계약 위반으로 간주하지 않습니다."
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "본 문서는 법적 증거가 아닙니다."
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "이 수치는 인사 평가가 아님."
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "이 결과는 통계적 근거가 아님을 확인했다."
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "This report does not constitute an endorsement or ranking of any vendor."
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "This document does not constitute a solicitation, offer or comparison of financial products."
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "These results should not be used as the comparison arm in future trials."
+    },
+    {
+      "source": "task-1 adversarial review, round 2",
+      "text": "Not to be used as a comparison standard for calibration."
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "□ 이 결과는\n○ 결측치가 많은 구간은 평균을 대표하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "- 본 분석은\n- 2개 공장의 연간 추이를 의미하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "가) 이 결과는 1차 측정분\n나) 재측정값은 장기 추세를 의미하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "(가) 이 표는 지점별 매출\n(나) 온라인 매출은 지점 실적을 대표하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "a. 이 결과는 1차 측정분\nb. 재측정값은 장기 추세를 의미하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "-- 이 결과는 1차 측정분\n-- 재측정값은 장기 추세를 의미하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "[1] 이 결과는 1차 측정분\n[2] 재측정값은 장기 추세를 의미하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "※ 이 표는 2024년 기준\n※ 반품은 순매출을 대표하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "① 이 결과는 1차 측정분\n② 재측정값은 장기 추세를 의미하지 않음"
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "이 분석은 순위가 아님을 전제로 하지 않으며 실제 판매 순위를 그대로 옮겼다."
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "이 결과는 비교가 아님에도 불구하고 언론에 순위처럼 보도되었다."
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "이 수치는 결론이 아님이 아니라 확정치이다."
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "This table does not constitute a comparison group for the trial."
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "These results are not intended as a comparison class in the taxonomy."
+    },
+    {
+      "source": "task-1 adversarial review, round 3",
+      "text": "These numbers are not intended as a ranking-based quota."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:3",
+      "text": "이 문서는 다음 분기 검색 백엔드 후보를 좁히기 전에 **무엇을 다시 측정해야 하는지** 정리하는 용도입니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:17",
+      "text": "규모가 커질 때 지연시간이 어떻게 변하는지는 DB와 인덱스 설정마다 다르므로, 한 규모의 결과로 다른 규모를 추정할 수 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:21",
+      "text": "- pgvector는 1회 측정이라 우연한 요인(백그라운드 프로세스, 캐시 상태, 발열에 따른 스로틀링 등)을 걸러낼 수 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:34",
+      "text": "- \"Milvus가 데이터 10배로 Qdrant보다 2배 빠르다\" → 하드웨어와 측정 조건이 공개되지 않은 벤더 수치라 근거가 되지 않습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:35",
+      "text": "지금 데이터로는 어느 쪽인지 알 수 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:20",
+      "text": "- 다만 벡터 수가 100만 개라서, 실제 서비스 규모가 이보다 크다면 그대로 적용할 수 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:26",
+      "text": "하드웨어를 모르는 상태에서는 이 차이가 DB 성능 때문인지 장비 때문인지 구분할 수 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:32",
+      "text": "규모가 커지면 지연시간이 어떻게 바뀔지 이 수치로는 알 수 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:33",
+      "text": "- 서버급 장비에서 다시 재면 결과가 꽤 달라질 수 있으므로, 이 수치만 보고 pgvector를 후보에서 빼지는 않는 것이 좋습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:39",
+      "text": "- **재현율(recall)**: 근사 검색은 정확도를 낮추면 빨라집니다. recall 목표가 같지 않으면 지연시간을 비교할 수 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:15",
+      "text": "숫자만 보면 Milvus가 가장 빠르고 pgvector가 가장 느려 보이지만, 이 데이터로는 그렇게 결론 낼 수 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:25",
+      "text": "- **Milvus**: 1,000만 벡터에서 한 자릿수 ms가 가능하다는 벤더 측 주장입니다. 우리 환경에서 재현된 값은 아닙니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:26",
+      "text": "- **pgvector**: 노트북에서 동작을 확인한 수준입니다. 서버 성능을 추정하는 근거로는 쓰기 어렵습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-4-report.md:23",
+      "text": "벤더 벤치마크는 보통 자사 제품에 유리한 설정에서 측정되므로, 우리 서버에서 같은 값이 나온다고 기대할 근거는 없습니다. 벡터 수가 1000만으로 가장 많다는 점은 눈에 띄지만, 하드웨어를 모르는 상태에서는 이 규모에서 빠르다는 결론도 내리기 어렵습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-4-report.md:26",
+      "text": "반대로 서버에서 더 빠를 거라고 단정할 수도 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-4-report.md:42",
+      "text": "- 세 DB 모두 이번 측정 범위에서 수십 ms 이내로 응답했습니다. 지연시간만으로 지금 후보에서 제외할 DB는 없습니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-4-report.md:43",
+      "text": "- 후보 간 속도 비교가 필요하다면 같은 조건에서 다시 측정해야 합니다."
+    },
+    {
+      "source": "pledge-probe final-files/C2-1-report.md:3",
+      "text": "Read them as three separate data points."
+    },
+    {
+      "source": "pledge-probe final-files/C2-1-report.md:15",
+      "text": "- **B's 45 ms can't be checked.** It is a vendor's published figure."
+    },
+    {
+      "source": "pledge-probe final-files/C2-1-report.md:21",
+      "text": "The ordering B < A < C may be an artifact of how each number was measured. It does not show that B is the fastest or that C is the slowest."
+    },
+    {
+      "source": "pledge-probe final-files/C2-1-report.md:25",
+      "text": "These figures alone are not enough to choose which two services to load-test."
+    },
+    {
+      "source": "pledge-probe final-files/C3-1-README.md:11",
+      "text": "공정하게 비교하려면 세 라이브러리를 같은 머신에서 같은 벤치마크로 다시 측정해야 합니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:3",
+      "text": "이 자료는 후속 검증을 준비하는 참고 자료로 사용한다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:7",
+      "text": "원시 측정 기록과 Milvus 블로그 원문은 이 보고서에서 확인하지 않았다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:15",
+      "text": "p95는 측정한 요청 지연시간의 95번째 백분위수다. 평균 지연시간이나 최댓값을 뜻하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:15",
+      "text": "두 집계 방식은 같은 결과를 보장하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:19",
+      "text": "다만 회차별 결과와 요청 수가 없어 변동 폭을 판단할 수 없고, 이 값이 운영 환경에서도 재현된다고 볼 수는 없다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:20",
+      "text": "- **Milvus:** 전달된 블로그 수치는 참고할 수 있지만, 하드웨어와 상세 측정 조건을 모르는 상태에서 우리 환경의 예상 지연시간으로 사용할 수 없다. 벡터 수가 더 많고 보고된 지연시간이 더 작다는 사실만으로 확장성이나 성능 우위를 입증하지는 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:21",
+      "text": "- **pgvector:** 노트북의 단일 측정 결과만으로 서버 환경의 성능이나 반복 측정 시 안정성을 판단할 수 없다. 31ms를 근거로 후보에서 제외하기에는 자료가 부족하다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:23",
+      "text": "세 수치의 차이를 DB 자체의 차이로 분리할 근거가 없다. 따라서 “Milvus가 가장 빠르다”, “pgvector가 가장 느리다”라는 제품 수준의 결론이나 지연시간 비율에 따른 우열 판단은 보류한다. 벡터 수로 지연시간을 나눠 보정하는 방식도 비교 가능성을 확보해 주지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:41",
+      "text": "현재 자료로는 성능에 따른 후보 축소를 보류한다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-1-report.md:41",
+      "text": "최종 선택에는 비용과 운영 부담도 별도로 평가해야 하며, 이번에 수집한 지연시간 자료는 그 판단을 제공하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:7",
+      "text": "원시 로그와 외부 원문을 대조해 검증한 결과는 아니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:15",
+      "text": "p95는 측정된 요청 지연시간 분포의 95번째 백분위수다. 평균 지연시간이나 최대 지연시간을 의미하지 않으며, 서로 다른 요청 집합에서 얻은 p95는 그 자체로 공정한 비교가 되지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:17",
+      "text": "각 회차의 p95를 평균한 것인지 등 집계 방식을 확인해야 하며, 전체 요청을 합쳐 계산한 p95로 간주해서는 안 된다. pgvector의 ‘1회 측정’은 측정 실행이 한 번이라는 뜻으로, 검색 요청이 한 건이었다는 의미는 아니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:23",
+      "text": "다만 9ms가 18ms보다 작다는 이유로 Milvus가 Qdrant보다 두 배 빠르다고 결론 내릴 수 없다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:23",
+      "text": "pgvector의 31ms도 제품 자체가 느리다는 근거가 되지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:23",
+      "text": "벡터 수로 지연시간을 나누거나 선형 환산해 비교하는 것도 피한다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:29",
+      "text": "현재 자료만으로 목표 충족 여부를 판정하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:32",
+      "text": "외부 블로그 수치와 노트북 결과만으로 후보를 제외하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-2-report.md:34",
+      "text": "확보되지 않는 조건은 추정값으로 채우지 않고 미확인으로 남긴다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:7",
+      "text": "이 보고서에서 원시 측정 로그나 외부 원문을 별도로 검증하지는 않았다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:15",
+      "text": "평균 응답시간이나 최대 응답시간을 뜻하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:15",
+      "text": "pgvector의 ‘1회 측정’은 실험을 한 번 실행했다는 뜻이며, 요청을 하나만 보냈다는 의미로 해석하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:19",
+      "text": "Milvus의 9ms는 수집된 값 중 가장 작지만, 이를 근거로 Qdrant보다 두 배 빠르다고 말할 수 없다. 더 많은 벡터를 대상으로 했다는 사실만으로 확장성이 우수하다고 결론 내릴 수도 없다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:19",
+      "text": "공식 블로그 수치라는 출처도 우리 서비스에서 같은 결과가 나온다는 보장은 아니다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:23",
+      "text": "이 값으로 서버 환경에서도 가장 느리다고 판단하거나 후보에서 제외할 수 없다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:23",
+      "text": "측정자가 인턴이라는 점은 결과의 품질을 판단하는 근거가 아니며, 절차와 로그로 검토해야 한다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:25",
+      "text": "벡터 수로 지연시간을 나누거나 단순 비례 환산해 비교하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:31",
+      "text": "현재 수집값을 기준으로 합격선을 역으로 정하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:32",
+      "text": "정확도가 다른 결과를 지연시간만으로 비교하지 않는다."
+    },
+    {
+      "source": "pledge-probe final-files/C1-3-report.md:37",
+      "text": "‘Milvus가 가장 빠름’, ‘pgvector는 성능 미달’ 같은 결론은 현재 자료로 뒷받침되지 않는다."
+    },
+    {
+      "source": "pledge widen adversarial pass, 2026-10-15",
+      "text": "This is not a ranking issue; the sort key was wrong and is fixed in 2.3.1."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "두 값은 단위가 달라 직접 비교할 수 없다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "숫자와 문자열은 서로 비교할 수 없습니다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "숫자 타입과 날짜 타입은 비교할 수 없으므로 먼저 형변환하십시오."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "수치형 변수와 범주형 변수는 크기를 직접 비교할 수 없다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "수치 모델은 격자가 성겨 경계층 두께를 실험과 비교할 수 없었다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "수치해석 결과는 해상도가 낮아 관측값과 정량적으로 비교할 수 없었다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "숫자 입력 칸에는 문자를 넣을 수 없고, 두 칸의 값을 비교할 수 없습니다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "NaN은 숫자이지만 자기 자신과도 비교할 수 없다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "수치 정밀도가 다른 부동소수점 값은 == 연산자로 비교하지 마세요."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "숫자 문자열을 그대로 비교하지 마십시오. 정수로 변환한 뒤 비교하십시오."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "수치는 반올림되어 합계와 비교하면 안 됩니다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 숫자를 다른 버전의 점수와 비교해서 결론을 내리면 안 된다는 점을 유의하라."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "수치들을 서로 비교해 이상 여부를 판단할 수 없을 때는 기준값을 사용한다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 안내서는 설치 방법을 다루는 것이 아니고, 운영 절차를 다룬다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 문서는 초보자를 위한 것이 아니며, 관리자용 참고서다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "본 보고서는 결론이 아니고 중간 점검 기록이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 그림은 비교가 아니며 개념도이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "아래 표는 비교가 아니고 단순 목록이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 예시는 일반화가 아니며 특정 사례를 보여준다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "위 결과는 결론이 아니고, 추가 실험이 필요하다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "본 연구는 순위를 매기려는 것이 아니고 요인을 식별하려는 것이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 절의 목적은 순위가 아니고 분포를 설명하는 데 있다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 분석은 비교를 위한 것이 아니며 탐색적 성격을 갖는다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 장비는 비교용 기기가 아니고 교정용 기준기다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "해당 내용은 결론이 아니며 가설이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "목록의 순서는 우선순위가 아니며 가나다순이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "나열 순서는 중요도 순위가 아니다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "정렬은 성능 순위가 아니고 이름순이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "순서는 접수 순위를 뜻하지 않는다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "대기열의 순서는 처리 우선순위를 뜻하지 않는다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "게시판 글의 순서는 추천 순위가 아니다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "후보자 명단의 나열은 순위가 아니며 기호 순이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "순위처럼 읽지 말고 막대의 길이만 비교하세요."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 그래프를 순위처럼 읽지 않도록 축을 이름순으로 정렬했다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "비교처럼 보이지만 실제로는 두 기간의 누적값이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "결론처럼 읽지 말고 가설로 받아들이세요."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "일반화처럼 들리는 문장은 피하고, 사례로 판단하지 마세요."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "비교로 판단하면 안 되는 경우가 있으니 절대값도 함께 보라."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "벤치마크로 판단하면 안 된다는 반론도 있다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "순위를 근거로 사용할 수 없다는 규정은 2019년에 폐지되었다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "비교 근거로 사용할 수 없는 자료는 부록으로 옮겼다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "순위는 입학 사정의 근거로 사용할 수 없다고 교육부가 밝혔다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "우열을 근거로 사용할 수 없습니다라는 문구를 계약서에서 삭제했다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "비교 결과를 승진 심사의 근거로 사용하지 마십시오."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "이 리그 성적만으로 순위를 정할 수 없다고 연맹 규정은 명시한다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "동점자는 득점만으로 순위를 정할 수 없으며 승자승을 적용한다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "승점으로는 순위를 가릴 수 없을 때 골득실을 본다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "기록만으로는 순위를 결정할 수 없습니다. 심판 판정이 우선합니다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "시험 점수만으로 순위를 매길 수 없다는 학칙에 따라 면접을 병행한다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "할 수 없는 것: 순위를 매기는 기능은 아직 지원되지 않습니다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "숫자 크기만 놓고 어느 서버가 더 빠르다고 판단하면 안 되는 이유는 캐시 때문이다."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "These values are not comparable across firmware versions."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "The numbers are not comparable because the units differ."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "Do not compare these values directly; convert to SI first."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "Do not compare these numbers with the 2019 edition; the method changed."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "These scores are not a ranking of schools."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "The order is not a ranking; items are listed alphabetically."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "They are not a ranking, but a stratified sample."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "This list is not a ranking of priority."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "These are not benchmark results for production hardware."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "These are not comparison groups."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "These numbers cannot be compared with last year's survey."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "The figures are not directly comparable to Table 2."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "Do not treat these values as a benchmark for clinical decisions."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "Never compare those numbers using floating-point equality."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "Do not compare these two strings with ==."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "They are not rankings; they are tiers."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "This is not a benchmark, it is a smoke test for the CI runner."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "These are not comparison operators; they are assignment operators."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "This is not a ranking algorithm."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "These are not ranking signals and do not affect search order."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "Product codes are not comparable as numbers."
+    },
+    {
+      "source": "pledge widen review false positives, 2026-10-16",
+      "text": "Warning: these figures are not comparable with the previous release because the base year changed."
+    },
+    {
+      "text": "> **주의:** 샘플은 한 공정 조건만 포함한다.",
+      "source": "blockquote callout (2026-10-16)"
+    },
+    {
+      "text": "> **Note:** Values are rounded to one decimal place.",
+      "source": "blockquote callout (2026-10-16)"
+    },
+    {
+      "text": "> 사용자가 보낸 원문: 이 표는 순위가 아닙니다.",
+      "source": "blockquote callout (2026-10-16)"
+    },
+    {
+      "text": "> **경고:** 전원을 끈 뒤 덮개를 여십시오.",
+      "source": "blockquote callout (2026-10-16)"
+    }
+  ],
+  "document_cases": [
+    {
+      "text": "측정값은 인과관계를 주장하지 않음.\n두 공정의 차이는 최종 결론이 아님.",
+      "rule": "ko-negative-pledge-repeat",
+      "expect": "block"
+    },
+    {
+      "text": "- 시장 점유율을 대표하지 않음\n- 업체 간 순위가 아님\n",
+      "rule": "ko-negative-pledge-repeat",
+      "expect": "block"
+    },
+    {
+      "text": "측정값은 인과관계를 주장하지 않음.\n두 공정의 온도는 같다.",
+      "rule": "ko-negative-pledge-repeat",
+      "expect": "clean"
+    },
+    {
+      "text": "결측값은 0으로 간주하지 않음.\n중복 응답은 별도 응답으로 간주하지 않음.",
+      "rule": "ko-negative-pledge-repeat",
+      "expect": "clean"
+    },
+    {
+      "text": "여기서 '완료'는 출하를 의미하지 않습니다. 또한 '접수'는 결제를 의미하지 않습니다.",
+      "rule": "ko-negative-pledge-repeat",
+      "expect": "clean"
+    },
+    {
+      "text": "- 이 표는 2024년 3분기 기준\n- 시험 장비는 방폭 구역에서 사용하지 않음\n",
+      "rule": "ko-negative-pledge",
+      "expect": "clean"
+    },
+    {
+      "text": "- 이 표는 2024년 3분기 기준\n- 인과관계를 주장하지 않음\n",
+      "rule": "ko-negative-pledge",
+      "expect": "clean"
+    },
+    {
+      "text": "- 표본은 한 공장만 포함\n- Not to be read as a ranking\n",
+      "rule": "en-negative-pledge",
+      "expect": "block"
+    },
+    {
+      "text": "| 공정 | 수율 |\n|---|---|\n| A | 91 |\n\n> **주의:** 이 표는 순위가 아닙니다.\n",
+      "rule": "ko-negative-pledge",
+      "expect": "block"
+    },
+    {
+      "text": "> **Note:** This table is not a ranking.\n",
+      "rule": "en-negative-pledge",
+      "expect": "block"
+    },
+    {
+      "text": "> __참고__: 이 문서는 제품을 비교하려는 것이 아닙니다.\n",
+      "rule": "ko-negative-pledge",
+      "expect": "block"
+    },
+    {
+      "text": "> 이 표는 순위가 아닙니다.\n",
+      "rule": "ko-negative-pledge",
+      "expect": "clean"
+    },
+    {
+      "text": "> This table is not a ranking.\n",
+      "rule": "en-negative-pledge",
+      "expect": "clean"
+    }
+  ]
+}

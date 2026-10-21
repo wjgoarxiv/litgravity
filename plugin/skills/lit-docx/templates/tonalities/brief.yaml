@@ -1,0 +1,28 @@
+# Brief: a one-to-three page briefing for a decision maker. Conclusion first: the decision request stands right
+# under a compact title block, the summary is a run of numbered points (①-④, a bold lead sentence then plain
+# text), sections stay unnumbered and open under a full-width hairline, one box at most, and only the folio
+# runs at the foot.
+schema_version: 2
+tonality: Brief
+summary: One-to-three page briefings for a decision maker, conclusion first
+dials: {density: 9, variance: 3}
+docx:
+  page: {size: A4}
+  font: {latin: Pretendard, hangul: Pretendard, heading: Pretendard, body_pt_ko: 10.5, body_pt_en: 10.5}
+design:
+  ramp: {h1: 1.3, h2: 1.15, title: 2.5}
+  numbering: none
+  h1_rule: above
+  title_block: masthead
+  contents: false
+  summary_form: points
+  conclusion_first: true
+  running_head: {footer: [folio], folio_align: right}
+  justify: ko
+  palette: {ink: "1A1A1A", ink_muted: "555555", line: "8C8C8C", accent: "2D5A47"}
+  accent_on: [title_rule, callout_rule]
+  page_geometry: {columns: 1, column_gap_cm: 0.6}
+  components:
+    allowed: [callout, columns]
+    callout_max: 1
+  figure_style: {max_height_ratio: 0.40}

@@ -1,0 +1,4 @@
+{
+  "claims": [{"id": "package-name", "value": "REPLACE_AFTER_READING_MANIFEST", "source": "package.json"}],
+  "badges": []
+}

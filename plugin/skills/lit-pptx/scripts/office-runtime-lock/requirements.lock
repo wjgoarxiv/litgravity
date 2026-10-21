@@ -1,0 +1,15 @@
+# Pinned Python runtime for lit-pptx and lit-docx. Installed on first use into a
+# LitGravity-owned virtual environment with `pip install --only-binary=:all:`;
+# nothing is installed globally. Requires Python 3.10 or newer.
+beautifulsoup4==4.15.0
+defusedxml==0.7.1
+lxml==6.1.3
+Markdown==3.11
+pillow==12.3.0
+pymupdf==1.28.2
+python-docx==1.2.0
+python-pptx==1.0.2
+PyYAML==6.0.3
+soupsieve==2.10
+typing_extensions==4.16.0
+xlsxwriter==3.2.9

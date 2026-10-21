@@ -1,0 +1,26 @@
+# Proposal: a proposal or plan as a document. A typographic cover page (the title left-aligned in the upper
+# third, one short rule, the byline and date at its foot; no colour block, no figures), unnumbered sections,
+# one decision box, key figures once in the summary, a budget table, the folio centred at the foot.
+schema_version: 2
+tonality: Proposal
+summary: Proposals, plans and pitches as documents, with a cover, a decision box, budget and schedule
+dials: {density: 8, variance: 6}
+docx:
+  page: {size: A4}
+  font: {latin: Pretendard, hangul: Pretendard, heading: Pretendard, body_pt_ko: 10.5, body_pt_en: 11}
+design:
+  ramp: {h1: 1.4, h2: 1.2, title: 2.7}
+  numbering: none
+  title_block: cover
+  contents: false
+  summary_form: prose
+  running_head: {footer: [folio], folio_align: center}
+  justify: ko
+  palette: {ink: "1A1A1A", ink_muted: "555555", line: "8C8C8C", accent: "6E2639"}
+  accent_on: [title_rule, callout_rule]
+  page_geometry: {columns: 1, column_gap_cm: 0.6}
+  components:
+    allowed: [keyfigures, callout, columns]
+    callout_max: 1
+    keyfigures: {per_row: 3}
+  figure_style: {max_height_ratio: 0.60}

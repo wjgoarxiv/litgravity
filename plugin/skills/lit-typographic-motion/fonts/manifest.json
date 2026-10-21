@@ -1,0 +1,455 @@
+{
+  "schema": "litgravity.motion-fonts/v1",
+  "note": "source bundled = shipped in this directory; reuse = the product's own lit-pptx file, verified against the hash recorded here; fetch = downloaded only by `npx @litfamily/litgravity runtime install motion` from the pinned URL, sha256-verified with its licence files, never at render time.",
+  "excluded": {
+    "Hershey trio": "non-OFL use-restriction licence; neither shipped nor fetched (MO-FT-08)",
+    "Galmuri *Bitmap-*": "empty glyf outlines; unusable by an outline renderer",
+    "DotGothic16": "rejected (no Hangul, large)"
+  },
+  "fonts": {
+    "archivo-75-400": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "archivo/Archivo-w75-400.ttf",
+      "bytes": 120844,
+      "sha256": "ab437ef0137ec388471125ae55d33dca9c1b719cafbee2615ded6bf233564155",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "widthPct": 75,
+      "licence": [
+        {
+          "path": "archivo/OFL.txt",
+          "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+        }
+      ],
+      "origin": "static instance of Archivo[wdth,wght].ttf (sha256 0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053, mexicat/pdoom-video@ca251e3 app/public/fonts/src) made at development time with fontTools 4.60.1 varLib.instancer"
+    },
+    "archivo-75-700": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "archivo/Archivo-w75-700.ttf",
+      "bytes": 120888,
+      "sha256": "c95505df2335b1d293af91da99f60b78c871b5c05f77b60a3d3ba069165ac2e3",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 700,
+      "widthPct": 75,
+      "licence": [
+        {
+          "path": "archivo/OFL.txt",
+          "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+        }
+      ],
+      "origin": "static instance of Archivo[wdth,wght].ttf (sha256 0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053, mexicat/pdoom-video@ca251e3 app/public/fonts/src) made at development time with fontTools 4.60.1 varLib.instancer"
+    },
+    "archivo-75-900": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "archivo/Archivo-w75-900.ttf",
+      "bytes": 120588,
+      "sha256": "bfb66fceeefbc14eb77aea2ea8fa31f0d4c4e76ff11a58777654f787aea30ccd",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 900,
+      "widthPct": 75,
+      "licence": [
+        {
+          "path": "archivo/OFL.txt",
+          "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+        }
+      ],
+      "origin": "static instance of Archivo[wdth,wght].ttf (sha256 0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053, mexicat/pdoom-video@ca251e3 app/public/fonts/src) made at development time with fontTools 4.60.1 varLib.instancer"
+    },
+    "archivo-100-400": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "archivo/Archivo-w100-400.ttf",
+      "bytes": 121520,
+      "sha256": "e1ce42720997ea77db8349f82a7c15971ec31d49e1bbe09b3085ffe35be8e00b",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "widthPct": 100,
+      "licence": [
+        {
+          "path": "archivo/OFL.txt",
+          "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+        }
+      ],
+      "origin": "static instance of Archivo[wdth,wght].ttf (sha256 0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053, mexicat/pdoom-video@ca251e3 app/public/fonts/src) made at development time with fontTools 4.60.1 varLib.instancer"
+    },
+    "archivo-100-700": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "archivo/Archivo-w100-700.ttf",
+      "bytes": 121440,
+      "sha256": "ff0358c4d6766e0da2efd09563209799235e91196f75bffcf4f835101b3b03a3",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 700,
+      "widthPct": 100,
+      "licence": [
+        {
+          "path": "archivo/OFL.txt",
+          "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+        }
+      ],
+      "origin": "static instance of Archivo[wdth,wght].ttf (sha256 0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053, mexicat/pdoom-video@ca251e3 app/public/fonts/src) made at development time with fontTools 4.60.1 varLib.instancer"
+    },
+    "archivo-100-900": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "archivo/Archivo-w100-900.ttf",
+      "bytes": 120740,
+      "sha256": "61397f110fc48824a717af43ca8c1912fa1a1ff00af7cb0e99fa0eab6f402260",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 900,
+      "widthPct": 100,
+      "licence": [
+        {
+          "path": "archivo/OFL.txt",
+          "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+        }
+      ],
+      "origin": "static instance of Archivo[wdth,wght].ttf (sha256 0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053, mexicat/pdoom-video@ca251e3 app/public/fonts/src) made at development time with fontTools 4.60.1 varLib.instancer"
+    },
+    "archivo-125-400": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "archivo/Archivo-w125-400.ttf",
+      "bytes": 121600,
+      "sha256": "78760623f6a679d4a8c4f1bcc736edba930727dea12e414a83163ccdeef09012",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "widthPct": 125,
+      "licence": [
+        {
+          "path": "archivo/OFL.txt",
+          "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+        }
+      ],
+      "origin": "static instance of Archivo[wdth,wght].ttf (sha256 0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053, mexicat/pdoom-video@ca251e3 app/public/fonts/src) made at development time with fontTools 4.60.1 varLib.instancer"
+    },
+    "archivo-125-700": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "archivo/Archivo-w125-700.ttf",
+      "bytes": 121628,
+      "sha256": "319a959d5d5776ba287e5d2a167503371f11fff8d6f493c28a6a0a43cbdff983",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 700,
+      "widthPct": 125,
+      "licence": [
+        {
+          "path": "archivo/OFL.txt",
+          "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+        }
+      ],
+      "origin": "static instance of Archivo[wdth,wght].ttf (sha256 0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053, mexicat/pdoom-video@ca251e3 app/public/fonts/src) made at development time with fontTools 4.60.1 varLib.instancer"
+    },
+    "archivo-125-900": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "archivo/Archivo-w125-900.ttf",
+      "bytes": 121220,
+      "sha256": "1b7e33488059c726389de8ba4a65c2aaa0741ccd5f3e062d37602e07476ff444",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 900,
+      "widthPct": 125,
+      "licence": [
+        {
+          "path": "archivo/OFL.txt",
+          "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+        }
+      ],
+      "origin": "static instance of Archivo[wdth,wght].ttf (sha256 0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053, mexicat/pdoom-video@ca251e3 app/public/fonts/src) made at development time with fontTools 4.60.1 varLib.instancer"
+    },
+    "vt323": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "vt323/VT323-Regular.ttf",
+      "bytes": 153116,
+      "sha256": "cf4de751ada78ceac033dbe16a687742939995b77bc2a052ae17a4957958594d",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "licence": [
+        {
+          "path": "vt323/OFL.txt",
+          "sha256": "27d9af34210253e7ca1251fbace86c6f65b40031d6ce1a75493a1b2093631298"
+        }
+      ]
+    },
+    "silkscreen-400": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "silkscreen/Silkscreen-Regular.ttf",
+      "bytes": 32220,
+      "sha256": "c845473330b94c2079ce9af01c51ac8ba2d99c24f4d14c039843bbb8e642ebd8",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "licence": [
+        {
+          "path": "silkscreen/OFL.txt",
+          "sha256": "86c5e9c9382cdcc5948704fdfe60f2aa164a719746931219a42736ecd9cefbd3"
+        }
+      ]
+    },
+    "silkscreen-700": {
+      "source": "bundled",
+      "format": "ttf",
+      "path": "silkscreen/Silkscreen-Bold.ttf",
+      "bytes": 30632,
+      "sha256": "768476aa712d4f5c3e18d3bce80f980a8bd3f72b7094d22ec5e768df3acfed61",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 700,
+      "licence": [
+        {
+          "path": "silkscreen/OFL.txt",
+          "sha256": "86c5e9c9382cdcc5948704fdfe60f2aa164a719746931219a42736ecd9cefbd3"
+        }
+      ]
+    },
+    "ems-allure": {
+      "source": "bundled",
+      "format": "svg",
+      "path": "stroke/EMSAllure.svg",
+      "bytes": 57469,
+      "sha256": "55ed2de9c602229f32dd2784aae704023a5594eb8d208131f2552fae330a2a67",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "licence": [
+        {
+          "path": "stroke/OFL.txt",
+          "sha256": "fe4ddef88d2705569740a4b6c59e1a73315e1a55fb0a0d054bd791977681f8cb"
+        },
+        {
+          "path": "stroke/CREDITS",
+          "sha256": "761de6257665259b609e75e2df251072c2ff0fd7b408d55d0b1492dea6b312d4"
+        }
+      ]
+    },
+    "ems-felix": {
+      "source": "bundled",
+      "format": "svg",
+      "path": "stroke/EMSFelix.svg",
+      "bytes": 48819,
+      "sha256": "e7b2463c6cb2a2cbef59db9b1f9f5a20a0ecd9158eeb8f01f2015c9e5be7dca4",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "licence": [
+        {
+          "path": "stroke/OFL.txt",
+          "sha256": "fe4ddef88d2705569740a4b6c59e1a73315e1a55fb0a0d054bd791977681f8cb"
+        },
+        {
+          "path": "stroke/CREDITS",
+          "sha256": "761de6257665259b609e75e2df251072c2ff0fd7b408d55d0b1492dea6b312d4"
+        }
+      ]
+    },
+    "ems-osmotron": {
+      "source": "bundled",
+      "format": "svg",
+      "path": "stroke/EMSOsmotron.svg",
+      "bytes": 30158,
+      "sha256": "158b0f247a005ca5b6b8556f85684ad10cbb04c41ebbd394b9090c8ea2f16c52",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "licence": [
+        {
+          "path": "stroke/OFL.txt",
+          "sha256": "fe4ddef88d2705569740a4b6c59e1a73315e1a55fb0a0d054bd791977681f8cb"
+        },
+        {
+          "path": "stroke/CREDITS",
+          "sha256": "761de6257665259b609e75e2df251072c2ff0fd7b408d55d0b1492dea6b312d4"
+        }
+      ]
+    },
+    "ems-readability": {
+      "source": "bundled",
+      "format": "svg",
+      "path": "stroke/EMSReadability.svg",
+      "bytes": 41926,
+      "sha256": "eebece4f2a47b9d3a8f40cab2b0f689ca60902997abd5c81064ef0d2a3a05522",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "licence": [
+        {
+          "path": "stroke/OFL.txt",
+          "sha256": "fe4ddef88d2705569740a4b6c59e1a73315e1a55fb0a0d054bd791977681f8cb"
+        },
+        {
+          "path": "stroke/CREDITS",
+          "sha256": "761de6257665259b609e75e2df251072c2ff0fd7b408d55d0b1492dea6b312d4"
+        }
+      ]
+    },
+    "ems-tech": {
+      "source": "bundled",
+      "format": "svg",
+      "path": "stroke/EMSTech.svg",
+      "bytes": 40777,
+      "sha256": "7b5a420d4e16285213e7e2b1d187d086835c2dd7a7f64c5b8057434f082fc46f",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "licence": [
+        {
+          "path": "stroke/OFL.txt",
+          "sha256": "fe4ddef88d2705569740a4b6c59e1a73315e1a55fb0a0d054bd791977681f8cb"
+        },
+        {
+          "path": "stroke/CREDITS",
+          "sha256": "761de6257665259b609e75e2df251072c2ff0fd7b408d55d0b1492dea6b312d4"
+        }
+      ]
+    },
+    "pretendard-400": {
+      "source": "reuse",
+      "format": "otf",
+      "path": "../../lit-pptx/fonts/pretendard/Pretendard-Regular.otf",
+      "sha256": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93",
+      "bytes": 1574352,
+      "scripts": [
+        "hangul",
+        "latin"
+      ],
+      "weight": 400,
+      "licence": [
+        {
+          "path": "../../lit-pptx/fonts/pretendard/OFL.txt",
+          "sha256": "b04538c9abec39a3db75108cf0af0fd9c77032fe8aa2cf38345b4d250e98e38e"
+        }
+      ],
+      "fallback": {
+        "file": "Pretendard-Regular.otf",
+        "url": "https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/public/static/Pretendard-Regular.otf",
+        "sha256": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93",
+        "bytes": 1574352,
+        "licence": [
+          {
+            "file": "Pretendard-LICENSE.txt",
+            "url": "https://raw.githubusercontent.com/orioncactus/pretendard/v1.3.9/LICENSE",
+            "sha256": "d31ddd9f2bed32fd7e302a205cf2380ba0de6529152d239ef99cfb6f261bfc04"
+          }
+        ]
+      }
+    },
+    "pretendard-700": {
+      "source": "reuse",
+      "format": "otf",
+      "path": "../../lit-pptx/fonts/pretendard/Pretendard-Bold.otf",
+      "sha256": "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7",
+      "bytes": 1576660,
+      "scripts": [
+        "hangul",
+        "latin"
+      ],
+      "weight": 700,
+      "licence": [
+        {
+          "path": "../../lit-pptx/fonts/pretendard/OFL.txt",
+          "sha256": "b04538c9abec39a3db75108cf0af0fd9c77032fe8aa2cf38345b4d250e98e38e"
+        }
+      ]
+    },
+    "galmuri9": {
+      "source": "fetch",
+      "format": "ttf",
+      "file": "Galmuri9.ttf",
+      "url": "https://raw.githubusercontent.com/quiple/galmuri/v2.40.4/dist/Galmuri9.ttf",
+      "bytes": 4649144,
+      "sha256": "5cb68052ee0a15571747e91c20f145e24b51bb459c6cd58226fafee78d9c0b16",
+      "scripts": [
+        "hangul",
+        "latin"
+      ],
+      "weight": 400,
+      "gridPx": 9,
+      "licence": [
+        {
+          "file": "Galmuri-ofl.md",
+          "url": "https://raw.githubusercontent.com/quiple/galmuri/v2.40.4/ofl.md",
+          "sha256": "9a9e5a342c430c3fcf01a408b680f4405d5bf4ac659c931be35f8a1b27ea69c9"
+        }
+      ]
+    },
+    "meslo-400": {
+      "source": "fetch",
+      "format": "ttf",
+      "file": "MesloLGS-NF-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/romkatv/powerlevel10k-media/145eb9fbc2f42ee408dacd9b22d8e6e0e553f83d/MesloLGS%20NF%20Regular.ttf",
+      "bytes": 2594368,
+      "sha256": "d97946186e97f8d7c0139e8983abf40a1d2d086924f2c5dbf1c29bd8f2c6e57d",
+      "scripts": [
+        "latin"
+      ],
+      "weight": 400,
+      "licence": [
+        {
+          "file": "MesloLGS-NF-License.txt",
+          "url": "https://raw.githubusercontent.com/romkatv/powerlevel10k-media/145eb9fbc2f42ee408dacd9b22d8e6e0e553f83d/MesloLGS%20NF%20License.txt",
+          "sha256": "0eb25f1a4e86320ceae5f650cb75e628117c3f575bc2e332bb13cd08c3be438e"
+        },
+        {
+          "file": "Apache-2.0.txt",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "file": "DejaVu-Bitstream-Vera-Arev-LICENSE.txt",
+          "url": "https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/version_2_37/LICENSE",
+          "sha256": "7a083b136e64d064794c3419751e5c7dd10d2f64c108fe5ba161eae5e5958a93"
+        }
+      ]
+    },
+    "jetbrains-mono": {
+      "source": "bundled",
+      "format": "woff2",
+      "path": "jetbrains-mono/JetBrainsMono-wght-latin.woff2",
+      "bytes": 40404,
+      "sha256": "18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e",
+      "scripts": [
+        "latin"
+      ],
+      "weight": "100 800",
+      "licence": [
+        {
+          "path": "jetbrains-mono/OFL.txt",
+          "sha256": "403581b69dac5cff4079205e01c6b467e56af449ecbd7247693ddb1baafa005b"
+        }
+      ],
+      "origin": "unmodified latin subset of JetBrains Mono[wght] from @fontsource-variable/jetbrains-mono 5.3.0 (files/jetbrains-mono-latin-wght-normal.woff2); a real wght axis 100-800 for cover-mode weight motion"
+    }
+  }
+}

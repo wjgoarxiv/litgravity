@@ -1,0 +1,1433 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "repository": "https://github.com/cathrynlavery/diagram-design",
+    "commit": "dc1ace47b99a419e42d01a03cb6ace5346efa8ae",
+    "coreTypeCount": 41,
+    "galleryEntryCount": 61
+  },
+  "variants": [
+    "light",
+    "dark",
+    "full"
+  ],
+  "entries": [
+    {
+      "id": "architecture",
+      "label": "Architecture",
+      "purpose": "Show system components, boundaries, and meaningful connections.",
+      "parentType": "architecture",
+      "family": "diagram",
+      "reference": "type-architecture.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-architecture.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "bar",
+      "label": "Bar chart",
+      "purpose": "Compare measured values across categories.",
+      "parentType": "bar",
+      "family": "quantitative",
+      "reference": "type-bar.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-bar.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "dumbbell-when-used"
+      ]
+    },
+    {
+      "id": "beeswarm",
+      "label": "Beeswarm",
+      "purpose": "Show one observation per item without hiding distribution through overplotting.",
+      "parentType": "scatter",
+      "family": "quantitative",
+      "reference": "type-beeswarm.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-beeswarm.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "beeswarm"
+      ]
+    },
+    {
+      "id": "bubble",
+      "label": "Bubble chart",
+      "purpose": "Compare two positions and encode a third value by circle area.",
+      "parentType": "scatter",
+      "family": "quantitative",
+      "reference": "type-bubble.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-bubble.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "bubble"
+      ]
+    },
+    {
+      "id": "bump",
+      "label": "Bump chart",
+      "purpose": "Show rank movement across ordered snapshots.",
+      "parentType": "line",
+      "family": "quantitative",
+      "reference": "type-bump.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-bump.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "bump"
+      ]
+    },
+    {
+      "id": "data-flow",
+      "label": "Data flow",
+      "purpose": "Show how information moves through owners, transformations, and stores.",
+      "parentType": "data-flow",
+      "family": "diagram",
+      "reference": "type-data-flow.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-data-flow.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "datalake",
+      "label": "Data lake",
+      "purpose": "Show a data-lake stack and paths into and out of it.",
+      "parentType": "high-level",
+      "family": "diagram",
+      "reference": "type-datalake.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-datalake.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "db-schema",
+      "label": "Database schema",
+      "purpose": "Show physical tables, keys, constraints, and column references.",
+      "parentType": "db-schema",
+      "family": "diagram",
+      "reference": "type-db-schema.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-db-schema.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "dependency",
+      "label": "Dependency graph",
+      "purpose": "Show prerequisites, fan-in, and cycles that do not fit a tree.",
+      "parentType": "dependency",
+      "family": "diagram",
+      "reference": "type-dependency.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-dependency.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "deployment",
+      "label": "Deployment map",
+      "purpose": "Show where software runs, including zones, hosts, replicas, and ports.",
+      "parentType": "deployment",
+      "family": "diagram",
+      "reference": "type-deployment.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-deployment.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "dp-integration",
+      "label": "Data platform integration",
+      "purpose": "Show data-platform sources, core services, and consumers.",
+      "parentType": "dp-integration",
+      "family": "diagram",
+      "reference": "type-dp-integration.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-dp-integration.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "dp-security-matrix",
+      "label": "Data platform security matrix",
+      "purpose": "Map roles or components to permitted operations.",
+      "parentType": "dp-security-matrix",
+      "family": "diagram",
+      "reference": "type-dp-security-matrix.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-dp-security-matrix.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "er",
+      "label": "Entity relationship model",
+      "purpose": "Show entities, attributes, and conceptual relationships.",
+      "parentType": "er",
+      "family": "diagram",
+      "reference": "type-er.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-er.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "fishbone",
+      "label": "Fishbone analysis",
+      "purpose": "Group plausible causes around one observed effect.",
+      "parentType": "fishbone",
+      "family": "diagram",
+      "reference": "type-fishbone.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-fishbone.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "flowchart",
+      "label": "Flowchart",
+      "purpose": "Show decisions, branches, and outcomes.",
+      "parentType": "flowchart",
+      "family": "diagram",
+      "reference": "type-flowchart.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-flowchart.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "gantt",
+      "label": "Gantt chart",
+      "purpose": "Show task durations, phase grouping, and dependencies over time.",
+      "parentType": "gantt",
+      "family": "time",
+      "reference": "type-gantt.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-gantt.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "heatmap",
+      "label": "Heatmap",
+      "purpose": "Show values in a labeled row-by-column grid.",
+      "parentType": "heatmap",
+      "family": "quantitative",
+      "reference": "type-heatmap.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-heatmap.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "heatmap"
+      ]
+    },
+    {
+      "id": "high-level",
+      "label": "High-level system",
+      "purpose": "Show the main platform layers and how information crosses them.",
+      "parentType": "high-level",
+      "family": "diagram",
+      "reference": "type-high-level.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-high-level.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "high-level-vertical",
+      "label": "High-level vertical system",
+      "purpose": "Show platform layers in a vertical reading path.",
+      "parentType": "high-level",
+      "family": "diagram",
+      "reference": "type-high-level-vertical.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-high-level-vertical.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "import-drawio",
+      "label": "draw.io import",
+      "purpose": "Redraw extracted draw.io content with a chosen native type.",
+      "parentType": "architecture",
+      "family": "import",
+      "reference": "type-import-drawio.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light"
+      ],
+      "sourceExample": "example-import-drawio.html",
+      "semanticPattern": null,
+      "importFormat": "drawio",
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "import-excalidraw",
+      "label": "Excalidraw import",
+      "purpose": "Redraw a saved Excalidraw scene from labels and relationships.",
+      "parentType": "flowchart",
+      "family": "import",
+      "reference": "type-import-excalidraw.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light"
+      ],
+      "sourceExample": "example-import-excalidraw.html",
+      "semanticPattern": null,
+      "importFormat": "excalidraw",
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "import-mermaid",
+      "label": "Mermaid import",
+      "purpose": "Redraw a supported Mermaid grammar in the native design system.",
+      "parentType": "flowchart",
+      "family": "import",
+      "reference": "type-import-mermaid.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light"
+      ],
+      "sourceExample": "example-import-mermaid.html",
+      "semanticPattern": null,
+      "importFormat": "mermaid",
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "it-state",
+      "label": "IT current state",
+      "purpose": "Show a legacy IT landscape by phase, department, or current-state group.",
+      "parentType": "it-state",
+      "family": "diagram",
+      "reference": "type-it-state.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-it-state.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "journey",
+      "label": "User journey",
+      "purpose": "Show a person's actions, needs, and experience across stages.",
+      "parentType": "journey",
+      "family": "time",
+      "reference": "type-journey.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-journey.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "kanban",
+      "label": "Kanban board",
+      "purpose": "Show work by state, WIP limit, and blocked status.",
+      "parentType": "kanban",
+      "family": "time",
+      "reference": "type-kanban.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-kanban.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "layers",
+      "label": "Layer stack",
+      "purpose": "Group controls or concepts by the layer where they act.",
+      "parentType": "layers",
+      "family": "diagram",
+      "reference": "type-layers.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-layers.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "line",
+      "label": "Line chart",
+      "purpose": "Show continuous change over an ordered horizontal scale.",
+      "parentType": "line",
+      "family": "quantitative",
+      "reference": "type-line.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-line.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "loop",
+      "label": "Loop / flywheel",
+      "purpose": "Show a reinforcing or balancing cycle and its accumulation point.",
+      "parentType": "loop",
+      "family": "diagram",
+      "reference": "type-loop.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-loop.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "loop-terminal",
+      "label": "Terminal loop",
+      "purpose": "Pair a cycle with a compact command-and-result view.",
+      "parentType": "loop",
+      "family": "diagram",
+      "reference": "type-loop-terminal.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light"
+      ],
+      "sourceExample": "example-loop-terminal.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "marimekko",
+      "label": "Marimekko chart",
+      "purpose": "Compare categories with variable widths and stacked composition.",
+      "parentType": "treemap",
+      "family": "quantitative",
+      "reference": "type-marimekko.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-marimekko.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "marimekko"
+      ]
+    },
+    {
+      "id": "medallion",
+      "label": "Medallion data layers",
+      "purpose": "Show data zones, quality progression, and access policy.",
+      "parentType": "medallion",
+      "family": "diagram",
+      "reference": "type-medallion.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-medallion.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "nested",
+      "label": "Nested containment",
+      "purpose": "Show containment, scope, or membership through enclosure.",
+      "parentType": "nested",
+      "family": "diagram",
+      "reference": "type-nested.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-nested.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "org-chart",
+      "label": "Organization chart",
+      "purpose": "Show reporting, ownership, routing, or escalation.",
+      "parentType": "org-chart",
+      "family": "diagram",
+      "reference": "type-org-chart.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-org-chart.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "paved-road-animated",
+      "label": "Secure paved road",
+      "purpose": "Show allowed and rejected routes across a named trust boundary.",
+      "parentType": "architecture",
+      "family": "semantic",
+      "reference": "type-paved-road-animated.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light"
+      ],
+      "sourceExample": "example-paved-road-animated.html",
+      "semanticPattern": "secure-paved-road",
+      "importFormat": null,
+      "motionExample": true,
+      "specializedChecks": []
+    },
+    {
+      "id": "polar",
+      "label": "Polar chart",
+      "purpose": "Compare one value per cyclic category by angle and radius.",
+      "parentType": "polar",
+      "family": "quantitative",
+      "reference": "type-polar.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-polar.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "polar"
+      ]
+    },
+    {
+      "id": "policy-trace-animated",
+      "label": "Paired policy traces",
+      "purpose": "Align two policy paths and identify their first divergence.",
+      "parentType": "flowchart",
+      "family": "semantic",
+      "reference": "type-policy-trace-animated.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light"
+      ],
+      "sourceExample": "example-policy-trace-animated.html",
+      "semanticPattern": "paired-policy-traces",
+      "importFormat": null,
+      "motionExample": true,
+      "specializedChecks": []
+    },
+    {
+      "id": "process",
+      "label": "Process map",
+      "purpose": "Show ordered stages, actors, handoffs, and outputs.",
+      "parentType": "process",
+      "family": "diagram",
+      "reference": "type-process.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-process.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "pyramid",
+      "label": "Pyramid / funnel",
+      "purpose": "Show a ranked hierarchy or staged drop-off.",
+      "parentType": "pyramid",
+      "family": "diagram",
+      "reference": "type-pyramid.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-pyramid.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "quadrant",
+      "label": "Quadrant map",
+      "purpose": "Position items against two labeled dimensions.",
+      "parentType": "quadrant",
+      "family": "quantitative",
+      "reference": "type-quadrant.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-quadrant.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "quadrant-consultant",
+      "label": "Consulting quadrant",
+      "purpose": "Use evaluation language and a defensible decision boundary.",
+      "parentType": "quadrant",
+      "family": "quantitative",
+      "reference": "type-quadrant-consultant.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light"
+      ],
+      "sourceExample": "example-quadrant-consultant.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "queue-animated",
+      "label": "Queue and bottleneck",
+      "purpose": "Show arrivals, finite capacity, waiting, and drain behavior.",
+      "parentType": "data-flow",
+      "family": "semantic",
+      "reference": "type-queue-animated.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light"
+      ],
+      "sourceExample": "example-queue-animated.html",
+      "semanticPattern": "fan-in-queue",
+      "importFormat": null,
+      "motionExample": true,
+      "specializedChecks": []
+    },
+    {
+      "id": "radar",
+      "label": "Radar chart",
+      "purpose": "Compare a few entities over three to five criteria.",
+      "parentType": "radar",
+      "family": "quantitative",
+      "reference": "type-radar.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-radar.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "ridgeline",
+      "label": "Ridgeline chart",
+      "purpose": "Compare distributions across aligned groups.",
+      "parentType": "line",
+      "family": "quantitative",
+      "reference": "type-ridgeline.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-ridgeline.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "ridgeline"
+      ]
+    },
+    {
+      "id": "sankey",
+      "label": "Sankey chart",
+      "purpose": "Show quantities splitting or merging with proportional band width.",
+      "parentType": "sankey",
+      "family": "quantitative",
+      "reference": "type-sankey.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-sankey.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "sankey"
+      ]
+    },
+    {
+      "id": "scatter",
+      "label": "Scatter plot",
+      "purpose": "Show the relationship or distribution of two quantitative variables.",
+      "parentType": "scatter",
+      "family": "quantitative",
+      "reference": "type-scatter.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-scatter.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "sequence",
+      "label": "Sequence diagram",
+      "purpose": "Show messages between participants in time order.",
+      "parentType": "sequence",
+      "family": "diagram",
+      "reference": "type-sequence.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-sequence.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "sequence-oauth",
+      "label": "OAuth sequence",
+      "purpose": "Show an OAuth exchange with lifelines, request direction, and a combined fragment.",
+      "parentType": "sequence",
+      "family": "diagram",
+      "reference": "type-sequence-oauth.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-sequence-oauth.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "sequence-oauth"
+      ]
+    },
+    {
+      "id": "slopegraph",
+      "label": "Slopegraph",
+      "purpose": "Compare exactly two states on a shared scale.",
+      "parentType": "line",
+      "family": "quantitative",
+      "reference": "type-slopegraph.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-slopegraph.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "slopegraph"
+      ]
+    },
+    {
+      "id": "state",
+      "label": "State machine",
+      "purpose": "Show states and guarded transitions.",
+      "parentType": "state",
+      "family": "diagram",
+      "reference": "type-state.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-state.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "state-lifecycle",
+      "label": "Lifecycle state map",
+      "purpose": "Show phases, waits, retries, cancellation, and terminal outcomes.",
+      "parentType": "state",
+      "family": "diagram",
+      "reference": "type-state-lifecycle.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-state-lifecycle.html",
+      "semanticPattern": "lifecycle-phase-map",
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "story-map",
+      "label": "User story map",
+      "purpose": "Show a user-activity backbone divided into releases.",
+      "parentType": "story-map",
+      "family": "time",
+      "reference": "type-story-map.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-story-map.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "streamgraph",
+      "label": "Streamgraph",
+      "purpose": "Show changing series composition around a centered baseline.",
+      "parentType": "line",
+      "family": "quantitative",
+      "reference": "type-streamgraph.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-streamgraph.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "streamgraph"
+      ]
+    },
+    {
+      "id": "swimlane",
+      "label": "Swimlane process",
+      "purpose": "Show cross-functional work and handoffs by owner.",
+      "parentType": "swimlane",
+      "family": "time",
+      "reference": "type-swimlane.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-swimlane.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "timeline",
+      "label": "Timeline",
+      "purpose": "Place events on a shared time axis.",
+      "parentType": "timeline",
+      "family": "time",
+      "reference": "type-timeline.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-timeline.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "tree",
+      "label": "Tree hierarchy",
+      "purpose": "Show parent-to-child hierarchy.",
+      "parentType": "tree",
+      "family": "diagram",
+      "reference": "type-tree.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-tree.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "tree-block-decomposition",
+      "label": "Traceable block decomposition",
+      "purpose": "Show an ID-addressable hierarchy with I/O, constraints, and implementation links.",
+      "parentType": "tree",
+      "family": "semantic",
+      "reference": "type-tree-block-decomposition.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-tree-block-decomposition.html",
+      "semanticPattern": "traceable-block-decomposition",
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "block-registry"
+      ]
+    },
+    {
+      "id": "treemap",
+      "label": "Treemap",
+      "purpose": "Show part-to-whole through relative rectangular area.",
+      "parentType": "treemap",
+      "family": "quantitative",
+      "reference": "type-treemap.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-treemap.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "treemap"
+      ]
+    },
+    {
+      "id": "uml-class",
+      "label": "UML class diagram",
+      "purpose": "Show classes, operations, inheritance, and composition.",
+      "parentType": "uml-class",
+      "family": "diagram",
+      "reference": "type-uml-class.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-uml-class.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "venn",
+      "label": "Venn diagram",
+      "purpose": "Show shared and unique membership among a small number of sets.",
+      "parentType": "venn",
+      "family": "quantitative",
+      "reference": "type-venn.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-venn.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "wardley",
+      "label": "Wardley map",
+      "purpose": "Show value-chain dependencies against evolution.",
+      "parentType": "wardley",
+      "family": "diagram",
+      "reference": "type-wardley.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-wardley.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": []
+    },
+    {
+      "id": "waterfall",
+      "label": "Waterfall chart",
+      "purpose": "Bridge a start total to an end total through signed contributions.",
+      "parentType": "waterfall",
+      "family": "quantitative",
+      "reference": "type-waterfall.md",
+      "variants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "upstreamVariants": [
+        "light",
+        "dark",
+        "full"
+      ],
+      "sourceExample": "example-waterfall.html",
+      "semanticPattern": null,
+      "importFormat": null,
+      "motionExample": false,
+      "specializedChecks": [
+        "waterfall"
+      ]
+    }
+  ]
+}

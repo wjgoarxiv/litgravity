@@ -1,0 +1,17 @@
+{
+  "schema": "litgravity.motion-cover-negative/v1",
+  "note": "A slide-like page the decoded-file gate has to keep failing. It counts as caught only when its render completed and was gated, every gate listed in mustFail failed at the named tier, and no other FLOOR gate among G1 to G4 failed. Never tune a threshold so it passes.",
+  "mustFail": [
+    "G2.floor",
+    "G3.floor"
+  ],
+  "treatment": {
+    "loopSec": 10,
+    "fps": 20,
+    "encode": {
+      "q": 78,
+      "edgeQ": 78,
+      "edgeFrames": 0
+    }
+  }
+}

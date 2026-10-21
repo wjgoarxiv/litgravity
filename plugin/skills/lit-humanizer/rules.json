@@ -1,0 +1,938 @@
+{
+  "schema_version": 1,
+  "description": "Phase A rules are line-scoped editing signals, not authorship or quality scores.",
+  "context_policy": {
+    "fenced_code": "Skip fenced regions while retaining original line numbers.",
+    "quoted_user_text": "Skip Markdown blockquote lines as a conservative proxy; adapters should pass provenance for exact user-quote boundaries.",
+    "table_figure_caption": "Skip label checks in recognizable table/figure captions, where source attribution is valid."
+  },
+  "rules": [
+    {
+      "id": "ko-bold-deliverable-label",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "^\\s*(?:[-*]\\s+)?\\*\\*(?:증거|근거|검증(?:\\s*상태)?|확인\\s*상태|신뢰도|출처|한계|제한\\s*사항|면책)\\s*[:：]\\*\\*",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text",
+        "table_figure_caption"
+      ],
+      "rationale": "A bold standalone evidence or limitation label reads like internal scaffolding in a deliverable.",
+      "fixture_ids": [
+        "ko-bold-deliverable-label:positive",
+        "ko-bold-deliverable-label:negative"
+      ]
+    },
+    {
+      "id": "en-bold-deliverable-label",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "^\\s*(?:[-*]\\s+)?\\*\\*(?:Evidence|Sources?|Verification(?: status)?|Confidence(?: level)?|Caveats?|Limitations?|Provenance|Disclaimer)\\s*:\\*\\*",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text",
+        "table_figure_caption"
+      ],
+      "rationale": "A bold evidence or caveat label exposes drafting metadata instead of presenting the claim directly.",
+      "fixture_ids": [
+        "en-bold-deliverable-label:positive",
+        "en-bold-deliverable-label:negative"
+      ]
+    },
+    {
+      "id": "ko-plain-meta-label",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "^\\s*(?:[-*]\\s+)?(?:출처|자료|※\\s*자료|증거|근거|검증\\s*상태|확인\\s*상태|한계|제한\\s*사항|면책)\\s*[:：]",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text",
+        "table_figure_caption"
+      ],
+      "rationale": "A bare source label is a block in prose, with a narrow exemption for a plain attribution directly attached to a table, image, or figure; caveat-bearing labels still block.",
+      "fixture_ids": [
+        "ko-plain-meta-label:positive",
+        "ko-plain-meta-label:negative"
+      ]
+    },
+    {
+      "id": "en-plain-meta-label",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "^\\s*(?:Source|Evidence|Verification(?: status)?|Confidence(?: level)?|Limitations?|Provenance|Disclaimer)\\s*:",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text",
+        "table_figure_caption"
+      ],
+      "rationale": "A bare source label is a block in prose, with a narrow exemption for a plain attribution directly attached to a table, image, or figure; caveat-bearing labels still block.",
+      "fixture_ids": [
+        "en-plain-meta-label:positive",
+        "en-plain-meta-label:negative"
+      ]
+    },
+    {
+      "id": "ko-stacked-limitation-chain",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "(?:미검증|미확인|미실행|미측정|미실측|판단\\s*결과\\s*아님|허가\\s*판단\\s*아님|조언\\s*아님|실측\\s*아님)[^\\n]{0,35}[·•|][^\\n]{0,35}(?:미검증|미확인|미실행|미측정|미실측|판단\\s*결과\\s*아님|허가\\s*판단\\s*아님|조언\\s*아님|보장하지\\s*않음)",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Several caveats chained together read as a generated disclaimer block rather than useful prose.",
+      "fixture_ids": [
+        "ko-stacked-limitation-chain:positive",
+        "ko-stacked-limitation-chain:negative"
+      ]
+    },
+    {
+      "id": "en-stacked-limitation-chain",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "(?:not\\s+(?:independently\\s+)?verified|not\\s+performed|not\\s+measured)[^\\n]{0,35}[·•|;][^\\n]{0,45}not\\s+(?:a\\s+)?(?:permit|legal|medical|investment)\\s+(?:decision|advice)",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Stacked verification and professional-scope disclaimers are redundant in a deliverable body.",
+      "fixture_ids": [
+        "en-stacked-limitation-chain:positive",
+        "en-stacked-limitation-chain:negative"
+      ]
+    },
+    {
+      "id": "en-knowledge-cutoff",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\bas of my (?:last |latest )?(?:knowledge |training )?(?:update|cutoff|cut-off)\\b|\\bmy knowledge cutoff\\b",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A model-status disclaimer belongs in the reply only when relevant, never in the requested deliverable.",
+      "fixture_ids": [
+        "en-knowledge-cutoff:positive",
+        "en-knowledge-cutoff:negative"
+      ]
+    },
+    {
+      "id": "en-ai-self-disclaimer",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\bas an AI(?: language model)?\\b|\\bas a large language model\\b|\\bI don't have access to real-time\\b",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Self-identification as a chatbot is residue when pasted into authored content.",
+      "fixture_ids": [
+        "en-ai-self-disclaimer:positive",
+        "en-ai-self-disclaimer:negative"
+      ]
+    },
+    {
+      "id": "en-hope-helps",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\bI hope (?:this|that) helps\\b",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A generic assistant sign-off does not belong in the requested artifact.",
+      "fixture_ids": [
+        "en-hope-helps:positive",
+        "en-hope-helps:negative"
+      ]
+    },
+    {
+      "id": "ko-chatbot-signoff",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "도움이\\s*(?:되셨|되었|됐)(?:길|기를)\\s*바랍니다|궁금한\\s*(?:점|사항)이\\s*있으시면\\s*(?:언제든지?\\s*)?(?:문의|말씀)해\\s*주세요",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A generic service sign-off is conversational residue in a finished deliverable.",
+      "fixture_ids": [
+        "ko-chatbot-signoff:positive",
+        "ko-chatbot-signoff:negative"
+      ]
+    },
+    {
+      "id": "ko-status-negation",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "(?:검증|실측|측정|실행|실시|시작|확인|보장|평가|판단|조언|의미|증명|재현|사용|제공|적용|쓰)(?:[된한](?:\\s*(?:적이|값이))?|하지(?:\\s*않(?:음|는다|았다))?|되지\\s*않(?:음|는다|았다)|(?<=쓰)지|이|은|는)?\\s*(?:(?:\\*\\*|__)\\s*)?(?:아님|않음|않는다|않았다|않습니다|않았습니다|없음)|보류",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Korean status negation often carries a real qualifier; the Korean human corpus does not justify blocking it.",
+      "fixture_ids": [
+        "ko-status-negation:positive",
+        "ko-status-negation:negative"
+      ]
+    },
+    {
+      "id": "ko-mi-status",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "미(?:검증|확인|실행|확정|측정|실측)(?![가-힣])",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A compact status term can be valid technical language and remains warning-only.",
+      "fixture_ids": [
+        "ko-mi-status:positive",
+        "ko-mi-status:negative"
+      ]
+    },
+    {
+      "id": "en-epistemic-negation",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "\\bnot (?:independently |yet )?(?:verified|validated|revalidated|realized|reproduced|measured|substantiated)\\b",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Verification limits can be material facts; report them plainly and only once where needed.",
+      "fixture_ids": [
+        "en-epistemic-negation:positive",
+        "en-epistemic-negation:negative"
+      ]
+    },
+    {
+      "id": "en-not-performed",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "\\bno (?:[\\w-]+ ){0,4}(?:was|were) (?:performed|launched|executed|run)\\b|\\bno [\\w-]+(?: [\\w-]+)? is claimed\\b",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A statement about work not performed may be needed for accuracy; avoid turning it into a list.",
+      "fixture_ids": [
+        "en-not-performed:positive",
+        "en-not-performed:negative"
+      ]
+    },
+    {
+      "id": "ko-plain-meta-label-warn",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "^\\s*(?:<b>)?(?:Evidence boundary|Boundary|Verification status|증거\\s*경계|검증\\s*상태)(?:</b>)?\\s*:?",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text",
+        "table_figure_caption"
+      ],
+      "rationale": "A plain meta heading can expose process language, but context determines whether it is useful.",
+      "fixture_ids": [
+        "ko-plain-meta-label-warn:positive",
+        "ko-plain-meta-label-warn:negative"
+      ]
+    },
+    {
+      "id": "en-plain-caveat-label",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "^\\s*(?:Caveat|Caveats)\\s*:",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text",
+        "table_figure_caption"
+      ],
+      "rationale": "Technical manuals use caveat labels legitimately; in a deliverable, check whether the caveat can be stated in context.",
+      "fixture_ids": [
+        "en-plain-caveat-label:positive",
+        "en-plain-caveat-label:negative"
+      ]
+    },
+    {
+      "id": "workflow-jargon",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\bin this lane\\b|\\bfact packet\\b|\\bclaim ledger\\b|\\[(?:C|SRC)\\d{3}\\]|\\bclaim\\s+IDs?\\b",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Internal tracking vocabulary and claim IDs belong in the evidence ledger; corpus screening is zero-hit, and deliverable fixtures cover each token.",
+      "fixture_ids": [
+        "workflow-jargon:positive",
+        "workflow-jargon:negative"
+      ]
+    },
+    {
+      "id": "ko-workflow-jargon",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "(?:그림|캡처|증거|근거)\\s*영수증|영수증\\]",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "This compound denotes an internal artifact receipt in deliverable text; ordinary purchase receipts remain untouched.",
+      "fixture_ids": [
+        "ko-workflow-jargon:positive",
+        "ko-workflow-jargon:negative"
+      ]
+    },
+    {
+      "id": "en-not-x-but-y",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "(?:^|(?<=[.!?]\\s))not\\b[^.!?]{1,100}\\bbut(?:\\s+rather)?\\b[^.!?]{1,100}(?=[.!?]|$)|\\bnot\\b[^.!?]{1,100}\\bbut(?:\\s+rather)?\\b[^.!?]{1,100}[\\s\\S]*?\\bnot\\b[^.!?]{1,100}\\bbut(?:\\s+rather)?\\b[^.!?]{1,100}",
+      "flags": "i",
+      "scope": "document",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Warn only when a not/but contrast opens a sentence or repeats at least twice in one document; opening detection ignores physical line starts and repetition does not require terminal punctuation.",
+      "fixture_ids": [
+        "en-not-x-but-y:positive",
+        "en-not-x-but-y:negative"
+      ]
+    },
+    {
+      "id": "ko-negation-contrast",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "(?:것은|건)\\s+[^.。!?]{1,36}\\s*아니라\\s*[^.。!?]+[.。!?]",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Repeated correction-by-contrast can feel formulaic; preserve a contrast that carries meaning.",
+      "fixture_ids": [
+        "ko-negation-contrast:positive",
+        "ko-negation-contrast:negative"
+      ]
+    },
+    {
+      "id": "en-forced-triad",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "\\b(?:robust|seamless|holistic|innovative),\\s+(?:transformative|intuitive|strategic),\\s+and\\s+(?:scalable|powerful|meaningful)\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A narrow cluster of generic product adjectives can signal a manufactured triad; ordinary lists remain unflagged.",
+      "fixture_ids": [
+        "en-forced-triad:positive",
+        "en-forced-triad:negative"
+      ]
+    },
+    {
+      "id": "ko-forced-triad",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "[^,，、]{2,18}[,，、]\\s*[^,，、]{2,18}[,，、]\\s*그리고\\s*[^.。!?]{2,18}[.。!?]",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A list of three is a review cue, not a rule to flatten natural enumeration.",
+      "fixture_ids": [
+        "ko-forced-triad:positive",
+        "ko-forced-triad:negative"
+      ]
+    },
+    {
+      "id": "en-colon-reveal",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "\\b(?:key takeaway|the answer|the truth|here's the catch|what matters most):",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A colon reveal can announce a point instead of stating it.",
+      "fixture_ids": [
+        "en-colon-reveal:positive",
+        "en-colon-reveal:negative"
+      ]
+    },
+    {
+      "id": "en-conclusion-opener",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "^\\s*(?:in conclusion|to summarize|all in all|overall,?)\\b",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A stock transition often repeats what the paragraph already says.",
+      "fixture_ids": [
+        "en-conclusion-opener:positive",
+        "en-conclusion-opener:negative"
+      ]
+    },
+    {
+      "id": "en-throat-clearing",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "^\\s*(?:it is worth noting|it should be noted|it is important to note|needless to say|to be clear),?\\b",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A throat-clearing preface delays the useful sentence.",
+      "fixture_ids": [
+        "en-throat-clearing:positive",
+        "en-throat-clearing:negative"
+      ]
+    },
+    {
+      "id": "ko-chatbot-invitation",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "(?:궁금한\\s*(?:점|사항)이\\s*있으시면|언제든지?\\s*(?:문의|말씀)해\\s*주세요)",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Offer language can sound like a service template when pasted into a document.",
+      "fixture_ids": [
+        "ko-chatbot-invitation:positive",
+        "ko-chatbot-invitation:negative"
+      ]
+    },
+    {
+      "id": "en-lexical-tell",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "\\b(?:delve|delves|delving|leverage|leveraging|multifaceted|underscores|landscape|tapestry)\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "These words are review prompts, not banned vocabulary; retain them when they say exactly what you mean.",
+      "fixture_ids": [
+        "en-lexical-tell:positive",
+        "en-lexical-tell:negative"
+      ]
+    },
+    {
+      "id": "ko-calque",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "(?:새로운 지평을 열|중요한 역할을 수행|다양한 측면에서|살펴볼 가치가 있)",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A few translated stock phrases can flatten Korean prose; review locally rather than normalize every phrase.",
+      "fixture_ids": [
+        "ko-calque:positive",
+        "ko-calque:negative"
+      ]
+    },
+    {
+      "id": "ko-double-passive",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "(?:되어지|보여지|알려져지고)",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Stacked passive forms can obscure the actor, though a passive may be accurate.",
+      "fixture_ids": [
+        "ko-double-passive:positive",
+        "ko-double-passive:negative"
+      ]
+    },
+    {
+      "id": "ko-light-verb",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "(?:영향을 미치다|역할을 수행하다|진행을 하다|검토를 진행하다)",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A light-verb phrase may have a shorter direct verb; keep it if it is the natural register.",
+      "fixture_ids": [
+        "ko-light-verb:positive",
+        "ko-light-verb:negative"
+      ]
+    },
+    {
+      "id": "en-em-dash-cluster",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "—[^\\n]{0,120}—",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Several em dashes in one line can make rhythm feel staged; there is no fixed ban.",
+      "fixture_ids": [
+        "en-em-dash-cluster:positive",
+        "en-em-dash-cluster:negative"
+      ]
+    },
+    {
+      "id": "ko-decorative-bold",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "\\*\\*[^*]{1,28}\\*\\*[^\\n]{0,80}\\*\\*[^*]{1,28}\\*\\*",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Repeated bold emphasis can weaken hierarchy; preserve it when scanability needs it.",
+      "fixture_ids": [
+        "ko-decorative-bold:positive",
+        "ko-decorative-bold:negative"
+      ]
+    },
+    {
+      "id": "code-narrating-comment",
+      "lang": "code",
+      "severity": "warn",
+      "pattern": "^\\s*(?://|#)\\s*(?:now we|next,? we|we now|이제|다음으로)",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A comment should explain intent or constraints, not narrate the next obvious line.",
+      "fixture_ids": [
+        "code-narrating-comment:positive",
+        "code-narrating-comment:negative"
+      ]
+    },
+    {
+      "id": "code-ai-attribution",
+      "lang": "code",
+      "severity": "block",
+      "pattern": "^\\s*(?:Co-Authored-By:\\s*(?:Cl[a]ude|GPT|Co[d]ex|ChatGPT|OpenAI|GitHub Copilot|Copilot|Gemini|Llama|Mistral|DeepSeek|AI)(?:\\s|$)|Generated\\s+(?:with|by)\\s+(?:\\[\\s*)?(?:an?\\s+)?(?:AI(?:\\s+(?:assistant|model))?|Cl[a]ude(?:[ ]Co[d]e)?|GPT(?:-[0-9.]+)?|Co[d]ex|ChatGPT|OpenAI|GitHub Copilot|Copilot|Gemini|Llama|Mistral|DeepSeek)\\b|Authored-By:\\s*(?:an?\\s+)?(?:AI(?:\\s+(?:assistant|model))?|Cl[a]ude(?:[ ]Co[d]e)?|GPT(?:-[0-9.]+)?|Co[d]ex|ChatGPT|OpenAI|GitHub Copilot|Copilot|Gemini|Llama|Mistral|DeepSeek)\\b)",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Writing rules for commits and PRs forbid AI attribution trailers in commits and PRs, including generated-by and co-author forms.",
+      "fixture_ids": [
+        "code-ai-attribution:positive",
+        "code-ai-attribution:negative"
+      ]
+    },
+    {
+      "id": "code-defensive-guard",
+      "lang": "code",
+      "severity": "warn",
+      "pattern": "^\\s*if\\s*\\(\\s*typeof\\s+\\w+\\s*!==?\\s*['\"]undefined['\"]\\s*\\)",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A defensive branch may duplicate a type or platform guarantee; verify before simplifying.",
+      "fixture_ids": [
+        "code-defensive-guard:positive",
+        "code-defensive-guard:negative"
+      ]
+    },
+    {
+      "id": "ko-weasel-attribution",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "(?:전문가|업계|관계자)들?에 따르면|(?:전문가|업계)에서는?\\s*.*(?:분석|평가|전망)했다",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Name a source when available; otherwise make clear that the statement is an estimate.",
+      "fixture_ids": [
+        "ko-weasel-attribution:positive",
+        "ko-weasel-attribution:negative"
+      ]
+    },
+    {
+      "id": "en-weasel-attribution",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "\\b(?:experts say|some analysts (?:say|believe|argue)|observers note)\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Vague authority is less useful than a named source or a clear statement of uncertainty.",
+      "fixture_ids": [
+        "en-weasel-attribution:positive",
+        "en-weasel-attribution:negative"
+      ]
+    },
+    {
+      "id": "en-stacked-hedges",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "\\b(?:could|may|might)\\s+(?:possibly|potentially)\\b|\\bperhaps\\s+(?:it is|there is)\\s+possible\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Keep the qualifier that changes the claim; remove duplicate uncertainty words.",
+      "fixture_ids": [
+        "en-stacked-hedges:positive",
+        "en-stacked-hedges:negative"
+      ]
+    },
+    {
+      "id": "ko-stacked-hedges",
+      "lang": "ko",
+      "severity": "warn",
+      "pattern": "(?:가능성이\\s*있을\\s*수\\s*있|일\\s*수도\\s*있을\\s*것으로\\s*보인다)",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Stacked Korean hedges often repeat the same uncertainty; retain one functional qualifier.",
+      "fixture_ids": [
+        "ko-stacked-hedges:positive",
+        "ko-stacked-hedges:negative"
+      ]
+    },
+    {
+      "id": "en-closer-offer",
+      "lang": "en",
+      "severity": "warn",
+      "pattern": "\\bis there anything else\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Warn on the broad question only: two hits in the pre-2022 human manual are genuine task questions, so this phrase alone cannot block.",
+      "fixture_ids": [
+        "en-closer-offer:positive",
+        "en-closer-offer:negative"
+      ]
+    },
+    {
+      "id": "en-lets-dive",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\b(?:let's dive in|without further ado)\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "These two fixed opening formulas are block-level drafting residue; the broader phrase “let’s explore” remains unblocked because one natural human-corpus hit was measured.",
+      "fixture_ids": [
+        "en-lets-dive:positive",
+        "en-lets-dive:negative"
+      ]
+    },
+    {
+      "id": "en-demo-self-disclaimer",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\b(?:demo|demonstration)\\s+(?:synthesis|assumptions|recommendations?)\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A demo status note embedded as self-commentary is process metadata; state the substantive scope in the artifact.",
+      "fixture_ids": [
+        "en-demo-self-disclaimer:positive",
+        "en-demo-self-disclaimer:negative"
+      ]
+    },
+    {
+      "id": "ko-bracket-status-tag",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "\\[(?:미검증|증거\\s*기반|검증\\s*필요)\\]",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Bracketed evidence tags expose an internal status key; put the verified condition in a sentence or keep it in internal records.",
+      "fixture_ids": [
+        "ko-bracket-status-tag:positive",
+        "ko-bracket-status-tag:negative"
+      ]
+    },
+    {
+      "id": "en-bracket-status-tag",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\[(?:unverified|evidence-based)\\]",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "Bracketed evidence tags expose an internal status key; put the verified condition in a sentence or keep it in internal records.",
+      "fixture_ids": [
+        "en-bracket-status-tag:positive",
+        "en-bracket-status-tag:negative"
+      ]
+    },
+    {
+      "id": "ko-standalone-scope-disclaimer",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "(?:허가|승인|투자)(?:\\s*(?:판단|결과))?\\s*(?:결과\\s*)?아님|제공된\\s*자료만으로는",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "These stock scope tags were zero-hit in the negative corpus and appear in real deliverable lines; retain a specific legal boundary when requested.",
+      "fixture_ids": [
+        "ko-standalone-scope-disclaimer:positive",
+        "ko-standalone-scope-disclaimer:negative"
+      ]
+    },
+    {
+      "id": "en-standalone-scope-disclaimer",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\bbased on the provided information\\b|\\bwhile specific details are limited\\b|\\bnot widely documented\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "These stock source-gap disclaimers were zero-hit in the negative corpus; replace them with the actual source condition.",
+      "fixture_ids": [
+        "en-standalone-scope-disclaimer:positive",
+        "en-standalone-scope-disclaimer:negative"
+      ]
+    },
+    {
+      "id": "ko-chatbot-opener",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "^\\s*(?:물론입니다[.!]?|네,?\\s*알겠습니다[.!]?|좋은\\s*질문입니다[.!?]?|[가-힣]+해\\s*드릴게요[.!]?|[가-힣]+해\\s*드리겠습니다[.!]?)",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A service-style acknowledgment at the start of deliverable text is conversation residue; remove the wrapper and keep the requested content.",
+      "fixture_ids": [
+        "ko-chatbot-opener:positive",
+        "ko-chatbot-opener:negative"
+      ]
+    },
+    {
+      "id": "en-chatbot-opener",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "^\\s*(?:certainly!|of course!|great question[.!?]?|you(?: are|\\x27re) absolutely right[.!?]?)",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A stock greeting or affirmation at the start of deliverable text is conversation residue; retain the actual answer.",
+      "fixture_ids": [
+        "en-chatbot-opener:positive",
+        "en-chatbot-opener:negative"
+      ]
+    },
+    {
+      "id": "en-testament",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\bstands as a testament(?:\\s+to)?\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "The fixed significance phrase adds praise without naming a concrete fact; report the fact directly.",
+      "fixture_ids": [
+        "en-testament:positive",
+        "en-testament:negative"
+      ]
+    },
+    {
+      "id": "en-left-in-narration",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "^\\s*I(?: have|\\x27ve) updated (?:the|this) file\\b",
+      "flags": "im",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "A process update left in the deliverable describes the editing action rather than the artifact.",
+      "fixture_ids": [
+        "en-left-in-narration:positive",
+        "en-left-in-narration:negative"
+      ]
+    },
+    {
+      "id": "en-chatbot-closer",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\b(?:let me know if you(?:'d| would)? like|would you like me to)\\b",
+      "flags": "im",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text"
+      ],
+      "rationale": "These two direct follow-up offers are zero-hit in the negative corpus and are characteristic chat residue in a finished deliverable.",
+      "fixture_ids": [
+        "en-chatbot-closer:positive",
+        "en-chatbot-closer:negative"
+      ]
+    },
+    {
+      "id": "ko-negative-pledge",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "(?<![가-힣])(?:이|본|해당|위|아래)\\s+(?:자료|문서|보고서|슬라이드|덱|표|그림|그래프|차트|수치|결과|비교|분석|내용|예시)(?:은|는)\\s[^.!?\\n]{0,40}?(?:(?:해석하|의미하|주장하|대표하)(?:지\\s*(?:[*_]{1,2}\\s*)?(?:않(?:음|는다|습니다)|말\\s*것|마세요|마십시오|말아\\s*주(?:세요|십시오))|(?:으)?면\\s*(?:[*_]{1,2}\\s*)?안\\s*(?:됨|된다|됩니다)(?![가-힣]))|(?:(?:비교|결론|벤치마크|순위|대표값|일반화)(?:이|가)|목적이|(?:위한|려는)\\s*것이)\\s*(?:[*_]{1,2}\\s*)?(?:아님|아니다|아닙니다)(?![가-힣])|순위표(?:이|가)\\s*(?:[*_]{1,2}\\s*)?(?:아님|아니다|아닙니다|아니고)(?![가-힣]))|(?:비교|결론|벤치마크|순위|대표값|일반화)(?:처럼|으로|로)\\s*(?:[*_]{1,2}\\s*)?(?:쓰|사용하|해석하|읽|간주하|인용하)(?:지\\s*(?:[*_]{1,2}\\s*)?(?:않(?:음|는다|습니다)|말\\s*것|마세요|마십시오|말아\\s*주(?:세요|십시오))|(?:으)?면\\s*(?:[*_]{1,2}\\s*)?안\\s*(?:됨|된다|됩니다)(?![가-힣]))|(?:공개|배포|대외|외부|홍보|발표|보고|비교|인용|공식)용\\s*(?:자료|문서|수치|표|그래프)(?:이|가)\\s*(?:[*_]{1,2}\\s*)?(?:아님|아니다|아닙니다)(?![가-힣])|(?<![가-힣])(?:숫자|수치)(?:들)?(?:은|는|이|가|을|를|끼리|도)(?![가-힣])(?:(?!면\\s)[^.!?\\n]){0,40}?(?<![와과]\\s)(?<![와과])비교할\\s*수\\s*(?:는\\s*)?없(?:다|습니다|음|나)(?![가-힣])|(?<![가-힣])(?:숫자|수치)(?:들)?끼리\\s*(?:서로\\s*|직접\\s*)?비교(?:해서|하여|해)\\s[^.!?\\n]{0,30}?[\"”’']\\s*(?:는|라는)\\s*결론[^.!?\\n]{0,8}?(?:수\\s*없(?:다|습니다)(?![가-힣])|(?:으)?면\\s*(?:[*_]{1,2}\\s*)?안\\s*(?:됨|된다|됩니다)(?![가-힣]))|(?:(?<![가-힣])(?:숫자|수치)(?:들)?|(?<![가-힣])(?:이|위|아래|본)\\s+(?:표|값|자료|그래프|차트))[^.!?\\n]{0,40}?(?:빠르|느리)다고\\s*판단하(?:지\\s*(?:[*_]{1,2}\\s*)?(?:말\\s*것|마세요|마십시오|말아\\s*주(?:세요|십시오))|(?:으)?면\\s*(?:[*_]{1,2}\\s*)?안\\s*(?:됨|된다|됩니다)(?![가-힣]))|(?:빠르|느리)다[\"”’']?\\s*(?:는|라는)\\s*식으로\\s*읽(?:지\\s*(?:[*_]{1,2}\\s*)?(?:말\\s*것|마세요|마십시오|말아\\s*주(?:세요|십시오))|(?:으)?면\\s*(?:[*_]{1,2}\\s*)?안\\s*(?:됨|된다|됩니다)(?![가-힣]))|만으로\\s[^.!?\\n]{0,40}?(?<![가-힣])순위를\\s*정하[^.!?\\n]{0,25}?(?:수\\s*없(?:다|습니다|음)(?![가-힣])|(?:해|하)서는\\s*안\\s*(?:됨|된다|됩니다)(?![가-힣]))|(?<![가-힣])순위[^.!?\\n]{0,20}?근거로\\s*(?:[*_]{1,2}\\s*)?사용할\\s*수\\s*(?:는\\s*)?없(?:다|습니다|음)(?![가-힣])|할\\s*수\\s*없는\\s*것\\s{0,3}:\\s{0,3}(?:[*_]{1,2}\\s{0,3})?[^.!?\\n]{0,30}?(?<![가-힣])순위를?\\s*매기거나|(?<![가-힣])표의\\s+(?:나열\\s+)?순서(?:는|가)\\s[^.!?\\n]{0,20}?(?<![가-힣])순위(?:(?:를|을)\\s*뜻하지\\s*(?:[*_]{1,2}\\s*)?않(?:음|는다|습니다)|(?:가|이)\\s*(?:[*_]{1,2}\\s*)?(?:아님|아니다|아닙니다)(?![가-힣]))",
+      "flags": "m",
+      "scope": "line",
+      "context": [
+        "fenced_code",
+        "quoted_user_text",
+        "blockquote_callout"
+      ],
+      "rationale": "A sentence that tells the reader what the document, table or number is not for belongs in the reply or becomes a data fact. Shapes: a self-reference topic (이/본/해당/위/아래 + document noun + 은/는) with a negated claim verb, a claim noun + 아님 (순위표 also + 아니고) or 위한/-려는 것이 아님, within one bullet; a comparison or ranking noun + (으)로/처럼 + a negated use or reading verb (순위처럼 읽지 말아 주세요); a purpose-용 data noun (공개용 수치) + 아님; 숫자/수치 + particle said to be incomparable (서로 비교할 수 없다) or compared among themselves toward a quoted verdict (숫자끼리 비교해 \"…빠르다\"는 결론을 내리면 안 됩니다); a speed judgment forbidden for these numbers or a quoted verdict forbidden as a reading (이 숫자로 … 느리다고 판단하면 안 됩니다); ranking refused for this data (…만으로 순위를 정할 수 없다, 순위의 근거로 사용할 수 없다, 할 수 없는 것: 순위를 매기거나); and a table's row order said not to be a ranking (표의 순서는 순위가 아니다). Use verbs after a self-reference, 근거/평가/증거/추천, inference limits (결론 내릴 수 없다, 근거가 되지 않는다), operating rules (…근거로 사용하지 마십시오), conditional method facts (…면 비교할 수 없다, 합계와 비교하면 안 됩니다), type-system rules (숫자 문자열을 그대로 비교하지 마십시오), reported speech and explainers (…면 안 된다는 반론, …면 안 되는 이유), order notices without a table anchor, and legal or financial notices (대체하, 보장하, 권유) stay outside the pattern because operating rules, method lines, manuals, discussions and standard notices use them.",
+      "fixture_ids": [
+        "ko-negative-pledge:positive",
+        "ko-negative-pledge:negative"
+      ]
+    },
+    {
+      "id": "ko-negative-pledge-repeat",
+      "lang": "ko",
+      "severity": "block",
+      "pattern": "(?:(?:해석하|주장하|대표하)지\\s*(?:[*_]{1,2}\\s*)?않(?:음|습니다)|(?:비교|결론|벤치마크|순위|대표값|일반화)(?:이|가)\\s*(?:[*_]{1,2}\\s*)?(?:아님|아닙니다)(?![가-힣]))(?:[*_]{1,2})?(?=\\s*(?:[.!?。]|$))[\\s\\S]*?(?:(?:해석하|주장하|대표하)지\\s*(?:[*_]{1,2}\\s*)?않(?:음|습니다)|(?:비교|결론|벤치마크|순위|대표값|일반화)(?:이|가)\\s*(?:[*_]{1,2}\\s*)?(?:아님|아닙니다)(?![가-힣]))(?:[*_]{1,2})?(?=\\s*(?:[.!?。]|$))",
+      "flags": "m",
+      "scope": "document",
+      "context": [
+        "fenced_code",
+        "quoted_user_text",
+        "blockquote_callout"
+      ],
+      "rationale": "Two or more sentences that end in 해석하지/주장하지/대표하지 않음 or a claim noun + 이/가 + 아님 turn a document into a list of disclaimers. 의미하, 간주하, 인용하 and the use verbs are left out because repeated definitions, data-processing rules, method lines and operating rules end that way; a single such sentence stays with the warn-only ko-status-negation.",
+      "fixture_ids": [
+        "ko-negative-pledge-repeat:positive",
+        "ko-negative-pledge-repeat:negative"
+      ]
+    },
+    {
+      "id": "en-negative-pledge",
+      "lang": "en",
+      "severity": "block",
+      "pattern": "\\b(?:this|these)\\s+(?:deck|report|document|analysis|table|chart|figure|figures|numbers|results|slide|comparison)\\s+(?:(?:is|are)\\s+not\\s+(?:intended|meant|to\\s+be\\s+(?:read|used|taken|interpreted))(?:\\s+to\\s+be\\s+(?:read|used|taken|interpreted))?\\s+as\\b(?!\\s*(?:a\\s+substitute|a\\s+replacement|(?:legal|investment|medical|professional)\\s+advice))\\s+(?:an?\\s+|the\\s+)?(?:[A-Za-z0-9-]+\\s+){0,4}?(?:comparison|benchmark|ranking)s?\\b(?!-)(?!\\s+(?:arm|arms|group|groups|standard|standards|class|baseline)\\b)|(?:should|must)\\s+not\\s+be\\s+(?:read|used|taken|interpreted)\\s+as\\s+(?:an?\\s+|the\\s+)?(?:[A-Za-z0-9-]+\\s+){0,4}?(?:comparison|benchmark|ranking)s?\\b(?!-)(?!\\s+(?:arm|arms|group|groups|standard|standards|class|baseline)\\b)|makes?\\s+no\\s+claims?\\s+(?:about|that|regarding|as\\s+to)\\b)|\\b(?:this|these)\\s+(?:is|are)\\s+not\\s+(?:intended|meant)\\s+as\\b(?!\\s*(?:a\\s+substitute|a\\s+replacement|(?:legal|investment|medical|professional)\\s+advice))\\s+(?:an?\\s+|the\\s+)?(?:[A-Za-z0-9-]+\\s+){0,4}?(?:comparison|benchmark|ranking)s?\\b(?!-)(?!\\s+(?:arm|arms|group|groups|standard|standards|class|baseline)\\b)|\\bthe\\s+(?:deck|report|document|analysis)\\s+makes?\\s+no\\s+claims?\\s+(?:about|that|regarding|as\\s+to)\\b|(?:^|\\s[-*]\\s)\\s*(?:[-*]\\s+|\\d+\\.\\s+)?(?:[*_]{1,2})?not\\s+(?:intended|meant|to\\s+be\\s+read|to\\s+be\\s+used)\\s+as\\b(?!\\s*(?:a\\s+substitute|a\\s+replacement|(?:legal|investment|medical|professional)\\s+advice))\\s+(?:an?\\s+|the\\s+)?(?:[A-Za-z0-9-]+\\s+){0,4}?(?:comparison|benchmark|ranking)s?\\b(?!-)(?!\\s+(?:arm|arms|group|groups|standard|standards|class|baseline)\\b)|\\b(?:this|these)\\s+(?:table|chart|figure|figures|numbers|results|comparison|analysis)\\s+(?:does|do)\\s+not\\s+constitute\\s+(?:an?\\s+)?[^.!?]{0,60}?\\b(?:comparison|benchmark|ranking)s?\\b(?!-)(?!\\s+(?:arm|arms|group|groups|standard|standards|class|baseline)\\b)|\\bthey\\s+are\\s+not\\s+(?:an?\\s+)?(?:comparison|benchmark|ranking)s?\\b(?!-)(?!\\s+(?:arm|arms|group|groups|standard|standards|class|baseline)\\b)(?=\\s*(?:[.!?*_]|$))|\\b(?:do\\s+not|don[’']t)\\s+compare\\s+(?:these|those)\\s+(?:numbers|figures|results|values|scores|latencies)(?:\\s+(?:with|to)\\s+(?:each\\s+other|one\\s+another)\\b|(?=\\s*(?:[.!?*_]|$)))|\\b(?:these|those|the)\\s+(?:numbers|figures)\\s+are\\s+not\\s+comparable(?:\\s+(?:with|to)\\s+(?:each\\s+other|one\\s+another)\\b|(?=\\s*(?:[.!?*_]|$)))|\\b(?:this|the|these|our)\\s+(?:table|chart|figure|graph|list|report|document|deck|slide|page|summary|overview|analysis)s?\\s+(?:is|are)\\s+not\\s+(?:(?:meant|intended)\\s+)?(?:(?:to\\s+be\\s+)?(?:an?\\s+)?(?:ranking|benchmark|comparison|leaderboard|endorsement)s?\\b(?!-)(?!\\s+(?:arm|arms|group|groups|standard|standards|class|baseline)\\b)(?=\\s*(?:[.!?*_]|$))|to\\s+(?:rank|compare|benchmark)\\b)|\\b(?:do\\s+not|don[’']t)\\s+read\\s+(?:this|the|these|our)\\s+(?:table|chart|figure|graph|list|report|document|deck|slide|page|summary|overview|analysis)s?\\s+as\\s+(?:an?\\s+)?(?:comparison|benchmark|ranking)s?\\b(?!-)(?!\\s+(?:arm|arms|group|groups|standard|standards|class|baseline)\\b)",
+      "flags": "i",
+      "scope": "sentence",
+      "context": [
+        "fenced_code",
+        "quoted_user_text",
+        "blockquote_callout"
+      ],
+      "rationale": "A sentence that says the deck, report or numbers are not intended, meant or to be read as a comparison, benchmark or ranking, or make no claim about something belongs in the reply, and so does a table, chart or set of numbers that does not constitute one; \"they are not a ranking.\", \"do not compare these numbers (with each other).\" and \"the numbers are not comparable.\" are the same refusal when they close the sentence. Requiring one of those nouns keeps safety labels and advice, offer or diagnosis notices clean; a refusal that continues (a ranking of schools, comparable with the previous release, compare these values directly; …, this is not a benchmark, it is …) describes or instructs and stays clean; a deliverable subject (this table, the report, our deck) that is not a ranking, benchmark, comparison, leaderboard or endorsement, is not meant to rank or compare, or is not to be read as a ranking is the same refusal, while a bare \"this\" is not a subject; \"does not constitute\" for a report or document stays a notice form, and \"the\" is not a subject except with \"makes no claim\" or \"numbers are not comparable\".",
+      "fixture_ids": [
+        "en-negative-pledge:positive",
+        "en-negative-pledge:negative"
+      ]
+    }
+  ]
+}

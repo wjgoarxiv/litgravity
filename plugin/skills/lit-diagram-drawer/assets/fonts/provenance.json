@@ -1,0 +1,22 @@
+{
+  "family": "Pretendard",
+  "release": "v1.3.9",
+  "repository": "https://github.com/orioncactus/pretendard",
+  "releaseAsset": "https://github.com/orioncactus/pretendard/releases/download/v1.3.9/Pretendard-1.3.9.zip",
+  "releaseArchiveSha256": "04be351a74d6bf7d60c480a3087e51d185485d35a52023142af1df19eb8c428a",
+  "sourcePath": "web/variable/woff2/PretendardVariable.woff2",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+    {
+      "file": "PretendardVariable.woff2",
+      "bytes": 2057688,
+      "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4",
+      "coverage": "full variable; Korean syllables and Latin checked"
+    },
+    {
+      "file": "OFL.txt",
+      "bytes": 4419,
+      "sha256": "b04538c9abec39a3db75108cf0af0fd9c77032fe8aa2cf38345b4d250e98e38e"
+    }
+  ]
+}

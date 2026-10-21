@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><!-- A shipped NEGATIVE that must keep failing the cover gate on G4: a progress sweep driven by elapsed
+     time that resets at the loop point, so the seam is a cut. Never a recipe. -->
+<link rel="stylesheet" href="/lit/fonts.css">
+<style>
+html, body { margin: 0; width: 1200px; height: 600px; overflow: hidden; background: #080d14; color: #f2efdf; font-family: "JetBrains Mono"; }
+.c { position: absolute; left: 0; right: 0; text-align: center; white-space: nowrap; }
+body.mask, body.mask * { background: #000 !important; color: #000 !important; border-color: #000 !important; }
+body.mask .title { color: #fff !important; }
+</style><script src="/lit/loop-kit.js"></script></head>
+<body>
+<div id="bar" style="position:absolute;left:0;top:0;height:600px;background:#1d2633"></div>
+<div class="c title" style="top:230px;font-size:110px;font-weight:800;letter-spacing:6px">LITGRAVITY</div>
+<script>
+// Wall-time habit: a progress sweep that resets at the loop point, so the seam is a cut.
+window.renderFrame = (t, o = {}) => { document.body.className = o.mask ? "mask" : ""; document.getElementById("bar").style.width = `${1200 * t}px`; };
+document.fonts.ready.then(() => { window.ready = true; });
+</script></body></html>

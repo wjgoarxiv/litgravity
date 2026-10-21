@@ -1,0 +1,93 @@
+# Gazette: a Korean briefing paper set as slides. A slate header band carries the title on content
+# pages, a boxed one-line conclusion sits on top, and itemised evidence fills two columns at reading
+# size; a red key line is the only accent. Wrong for a live talk: the density that serves a reader
+# overwhelms a listener.
+id: gazette
+name: Gazette
+version: "1.0.0"
+intent: "Korean briefing decks that are read, not presented."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: Pretendard Bold
+faces-a2z:
+  display: A2Z Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: A2Z Bold
+
+palette:
+  ground: "#FFFFFF"
+  surface: "#F1F4F8"
+  ink: "#1A2230"
+  ink-muted: "#4A5568"
+  line: "#C8D0DA"
+  accent: "#A61B1B"
+  accent-deep: "#233A4F"
+  accent-tint: "#E8EEF4"
+  field: "#233A4F"
+  on-field: "#FFFFFF"
+  positive: "#1E7A3F"
+  negative: "#1A2230"
+  series: ["#A61B1B", "#233A4F", "#4A5568", "#7A6A2A"]
+
+ramp: reading
+hero: false
+type-voice:
+  title-tracking: -1
+  display-tracking: -1
+
+density: 10
+variance: 4
+radius: 0
+edge: fill+border
+
+treatments: [band, top-rule, kicker-numeral, side-rail]
+role-defaults:
+  content: band
+  data: top-rule
+  data-takeaway: side-rail
+  sequence: kicker-numeral
+  image: side-rail
+  statement: band
+  reference: top-rule
+  definition: side-rail
+
+decoration: [header-band, box-outline, hairline-rule, numeral]
+layout-families: [summary-box-list, text-two-column, text-column, ledger-table, table-insight, comparison, timeline, matrix-2x2, agenda, references-appendix]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: band
+  number: outline
+  closing: box
+  index: true
+covers: [cover-band, cover-typographic, cover-index]
+sections: [section-band, section-rule]
+closings: [closing-decision-box, closing-ask]
+
+table:
+  header: field
+  header-ink: on-field
+  rules: grid
+  banding: surface
+  totals: bold
+chart:
+  gridlines: hairline
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: hairline
+
+fill-order: [step-up, distribute, change-family, anchor-visual]
+avoid:
+  - English section kickers
+  - red for anything but the key line
+  - a summary box longer than three lines
+  - more than three text families in a row

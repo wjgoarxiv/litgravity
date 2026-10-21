@@ -1,0 +1,98 @@
+# Paper: a journal page projected. Ink on white, hairline rules instead of fills, figures first,
+# numbered captions, booktabs tables, and a single deep crimson that always means "the proposed
+# method". Wrong for a sales or launch audience, where the restraint reads as cold.
+id: paper
+name: Paper
+version: "1.0.0"
+intent: "Research and technical talks built on figures and citations."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: Pretendard Regular
+faces-a2z:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: Pretendard Regular
+
+palette:
+  ground: "#FFFFFF"
+  surface: "#F5F5F6"
+  ink: "#111418"
+  ink-muted: "#50565E"
+  line: "#C9CDD2"
+  accent: "#8C1C2B"
+  accent-deep: "#5E121C"
+  accent-tint: "#F6E6E8"
+  field: "#111418"
+  on-field: "#FFFFFF"
+  positive: "#1E6B3A"
+  negative: "#50565E"
+  series: ["#8C1C2B", "#111418", "#50565E", "#2E5E8A"]
+
+ramp: reading
+hero: false
+type-voice:
+  title-tracking: 0
+  display-tracking: -1
+
+density: 10
+variance: 5
+radius: 0
+edge: border
+
+treatments: [top-rule, bottom-anchor, side-rail, statement]
+role-defaults:
+  content: top-rule
+  data: top-rule
+  data-takeaway: bottom-anchor
+  sequence: top-rule
+  image: bottom-anchor
+  statement: statement
+  reference: top-rule
+  definition: side-rail
+
+# A comparison is drawn as a ruled table under its title (spec-v2 Amendments 8).
+structure:
+  comparison: top-rule
+
+# No accent rule: here a top-rule title always sits on the hairline.
+decoration: [hairline-rule, box-outline]
+layout-families: [figure-academic, figure-pair, method, chart-insight, full-chart, table-insight, comparison, quote, statement, text-column, references-appendix]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: rules
+  statement: rules
+  number: outline
+  closing: rules
+  index: true
+covers: [cover-index, cover-typographic, cover-split-image]
+sections: [section-rule, section-field]
+closings: [closing-summary-list, closing-ask]
+
+table:
+  header: none
+  header-ink: ink
+  rules: booktabs
+  banding: none
+  totals: bold
+chart:
+  gridlines: hairline
+  labels: direct
+  highlight: series-order
+image:
+  frame: none
+
+fill-order: [anchor-visual, distribute, step-up, change-family]
+avoid:
+  - the short accent bar under a title (the rule is a hairline)
+  - coloured card fills
+  - figures without numbered captions
+  - the accent on anything but the proposed method

@@ -1,0 +1,10 @@
+{
+  "name": "litgravity-motion-runtime",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Pinned Node dependencies for the LitGravity lit-typographic-motion engine. Installed only by `npx @litfamily/litgravity runtime install motion` (or the installer's pre-warm) into a LitGravity-owned cache; a render never installs.",
+  "license": "MIT",
+  "dependencies": {
+    "opentype.js": "2.0.0"
+  }
+}

@@ -1,0 +1,97 @@
+# Chalk: a good teacher's board, cleaned up. Numbered steps, one concept marked per slide, a fenced
+# box for the definition or the common mistake, rounded surfaces and a warm rust accent for the
+# thing being taught. Wrong for decision decks, where the step rhythm reads as padding.
+id: chalk
+name: Chalk
+version: "1.0.0"
+intent: "Teaching decks: steps, worked examples, definitions."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: Pretendard Bold
+faces-a2z:
+  display: A2Z Bold
+  title: A2Z Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: A2Z Black
+
+palette:
+  ground: "#FAFBFC"
+  surface: "#EEF2F5"
+  ink: "#1F2933"
+  ink-muted: "#4E5A66"
+  line: "#CBD3DA"
+  accent: "#9A3412"
+  accent-deep: "#6B2409"
+  accent-tint: "#FCEBE0"
+  field: "#1F3B33"
+  on-field: "#FFFFFF"
+  positive: "#1E7A3F"
+  negative: "#B3261E"
+  series: ["#9A3412", "#1F3B33", "#4E5A66", "#2E6A8E"]
+
+ramp: reading
+hero: false
+type-voice:
+  title-tracking: -1
+  display-tracking: -1
+
+density: 10
+variance: 6
+radius: 6
+edge: fill
+
+treatments: [kicker-numeral, top-rule, side-rail, statement]
+role-defaults:
+  content: top-rule
+  data: top-rule
+  data-takeaway: side-rail
+  sequence: kicker-numeral
+  image: side-rail
+  statement: statement
+  reference: top-rule
+  definition: side-rail
+
+# A comparison is drawn with its criteria on the board rail (spec-v2 Amendments 8).
+structure:
+  comparison: side-rail
+
+decoration: [accent-rule, mark-underline, rail-fill, numeral]
+# The rail under a side title is the board itself: the dark field, the title in white.
+rail: field
+layout-families: [step-diagram, process, method, sidebar-note, comparison, image-split, quote, agenda, statement, text-column, table-insight]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: rail
+  statement: drench
+  number: tint
+  closing: box
+covers: [cover-rail, cover-typographic, cover-numeral]
+sections: [section-numeral, section-rail]
+closings: [closing-summary-list, closing-ask]
+
+table:
+  header: accent-tint
+  header-ink: accent-deep
+  rules: rows
+  banding: none
+  totals: bold
+chart:
+  gridlines: hairline
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: none
+
+fill-order: [distribute, step-up, change-family, anchor-visual]
+avoid:
+  - more than one marked term per slide
+  - numerals on points that are not a sequence
+  - definitions buried in bullets instead of the sidebar

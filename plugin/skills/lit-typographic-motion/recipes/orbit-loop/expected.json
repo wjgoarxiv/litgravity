@@ -1,0 +1,67 @@
+{
+  "schema": "litgravity.motion-cover-recipe/v1",
+  "note": "The decoded gate row this recipe reached when it shipped (scripts/qa-cover-recipes.mjs re-renders it and fails when median d or moving leave +-15 %, seamLocal leaves TARGET or bytes pass 2 MiB). Measured 2026-10-20 on headless Chrome's software rung and libwebp 1.6.0.",
+  "row": {
+    "medianD": 0.002671,
+    "movingFrac": 1,
+    "longestStillSec": 0.05,
+    "spike": 2.014,
+    "seamLocal": 1.9,
+    "bytes": 1348480
+  },
+  "settings": {
+    "size": [
+      1000,
+      500
+    ],
+    "fps": 25,
+    "frames": 200,
+    "encode": {
+      "q": 78,
+      "edgeQ": 78,
+      "edgeFrames": 0,
+      "method": 4
+    }
+  },
+  "treatment": {
+    "mode": "cover",
+    "request": "A README motion cover for LitGravity that shows work moving through gates.",
+    "idea": "Dots lap three rings and every crossing at the gate lights the next cell of a ledger under the name.",
+    "recipe": "orbit-loop",
+    "recipeReason": "A small system beside a still name shows checking without words.",
+    "brandWord": "LITGRAVITY",
+    "motto": {
+      "text": "KEEP THE WORK LIT.",
+      "source": "project",
+      "from": "README.md"
+    },
+    "aspect": "2:1",
+    "loopSec": 8,
+    "fps": 25,
+    "layers": {
+      "slow": "Dashed ring overlays turn a quarter lap per loop.",
+      "mid": "The core breathes once per loop and rings on every bar.",
+      "beat": "Gate flashes and dot pulses at each crossing; ledger cells light and decay."
+    },
+    "system": {
+      "rule": "One orbit rule with integer laps per ring.",
+      "copies": "Eight dots on three rings and sixteen ledger cells.",
+      "offset": "Each dot's start angle k / n on its ring."
+    },
+    "title": {
+      "box": [
+        0.05,
+        0.36,
+        0.43,
+        0.14
+      ],
+      "kind": "live"
+    },
+    "encode": {
+      "q": 78,
+      "edgeQ": 78,
+      "edgeFrames": 0
+    },
+    "ambition": "The ledger and the gates keep a steady pulse while the word stays perfectly still."
+  }
+}

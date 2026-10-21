@@ -1,0 +1,35 @@
+lit-pptx — LitGravity deck skill
+
+Deck engine, templates, QA gate, design laws and stage/role prompts
+Copyright (c) 2026 wjgoarxiv. Author of the Markdown-first deck
+engine (scripts/compile-deck.js, scripts/lib/*.js), the enrolled templates
+(templates/enrolled/*), scripts/learn_template.py, scripts/embed_fonts.py,
+scripts/qa_deck.py, scripts/validate_pptx.py and the 정/반/합 improvement
+loop, first published as the author's personal "pptx-toolkit" skill. The
+references/, specs/ and references/agents/ documents were written anew for
+LitGravity. Distributed under the LitGravity MIT licence (LICENSE at the
+package root).
+
+Written for this port (not from the personal skill's earlier files):
+  scripts/layout_inventory.py      text/picture/table geometry inventory
+  scripts/ooxml_integrity.py       OOXML package integrity check
+  scripts/render_pages.py          soffice + PyMuPDF page renderer
+  scripts/office-runtime.mjs       pinned first-use runtime installer
+  scripts/office_runtime_bootstrap.py, scripts/office_data.py
+  scripts/lib/runtime-require.js   runtime module loader
+  assets/example-a.png, example-b.png, example-c.png   generated placeholder pictures
+
+No company brand template, logo, mark or photograph ships with this skill.
+Users enroll their own brand template from a deck they own with
+scripts/learn_template.py.
+
+Fonts (unmodified, SIL Open Font License 1.1; see fonts/provenance.json):
+  fonts/pretendard  Pretendard v1.3.9, Copyright (c) 2021 Kil Hyung-jin,
+                    Reserved Font Name "Pretendard" — fonts/pretendard/OFL.txt
+  fonts/a2z         에이투지체 (A2Z) v1.001, Copyright (c) 2026 PT& —
+                    fonts/a2z/OFL.txt, fonts/a2z/SOURCE.md
+
+Runtime dependencies are not bundled. They install on first use from
+scripts/office-runtime-lock/ (pptxgenjs, sharp; python-pptx, python-docx,
+markdown, beautifulsoup4, pymupdf, PyYAML, defusedxml and their pinned
+dependencies), each under its own licence.

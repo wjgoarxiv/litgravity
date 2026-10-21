@@ -1,0 +1,26 @@
+# Manual: a technical guide or procedure. The title over a document-control block (document, owner,
+# organisation, issued), a short contents list, decimal sections 1 / 1.1, numbered steps, one warning style
+# for every callout, an optional sidebar beside the text, the short title in the header and the folio at the
+# foot.
+schema_version: 2
+tonality: Manual
+summary: How-to guides, procedures and operating manuals with steps, warnings and reference tables
+dials: {density: 9, variance: 6}
+docx:
+  page: {size: A4}
+  font: {latin: Pretendard, hangul: Pretendard, heading: Pretendard, body_pt_ko: 10.5, body_pt_en: 10.5}
+design:
+  ramp: {h1: 1.35, h2: 1.15, title: 2.5}
+  numbering: decimal
+  title_block: manual
+  contents: true
+  summary_form: prose
+  running_head: {header: [title], footer: [folio], folio_align: right}
+  justify: none
+  palette: {ink: "1A1A1A", ink_muted: "555555", line: "8C8C8C", accent: "2E4A66"}
+  accent_on: [callout_rule, sidebar_rule]
+  page_geometry: {columns: 1, column_gap_cm: 0.6}
+  components:
+    allowed: [callout, sidebar, columns]
+    sidebar: {default_width: third, float: right}
+  figure_style: {max_height_ratio: 0.45}

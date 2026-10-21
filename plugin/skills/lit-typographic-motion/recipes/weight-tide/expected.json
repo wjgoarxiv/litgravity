@@ -1,0 +1,67 @@
+{
+  "schema": "litgravity.motion-cover-recipe/v1",
+  "note": "The decoded gate row this recipe reached when it shipped (scripts/qa-cover-recipes.mjs re-renders it and fails when median d or moving leave +-15 %, seamLocal leaves TARGET or bytes pass 2 MiB). Measured 2026-10-20 on headless Chrome's software rung and libwebp 1.6.0.",
+  "row": {
+    "medianD": 0.01022,
+    "movingFrac": 1,
+    "longestStillSec": 0.063,
+    "spike": 1.132,
+    "seamLocal": 1.098,
+    "bytes": 1558982
+  },
+  "settings": {
+    "size": [
+      1000,
+      500
+    ],
+    "fps": 16,
+    "frames": 128,
+    "encode": {
+      "q": 58,
+      "edgeQ": 58,
+      "edgeFrames": 0,
+      "method": 4
+    }
+  },
+  "treatment": {
+    "mode": "cover",
+    "request": "A README motion cover for LitGravity where the name itself moves.",
+    "idea": "A weight wave rolls through the name and through faint rows of it that drift one word per loop.",
+    "recipe": "weight-tide",
+    "recipeReason": "The name is the material, so the motion happens inside the letters.",
+    "brandWord": "LITGRAVITY",
+    "motto": {
+      "text": "KEEP THE WORK LIT.",
+      "source": "project",
+      "from": "README.md"
+    },
+    "aspect": "2:1",
+    "loopSec": 8,
+    "fps": 16,
+    "layers": {
+      "slow": "Background rows drift one word length per loop, alternate rows opposite ways.",
+      "mid": "A weight swell offset by x and y crosses every letter once per loop.",
+      "beat": "A cursor steps under each hero letter with an overshoot and returns home."
+    },
+    "system": {
+      "rule": "Letter weight is a gain-shaped swell of the loop phase.",
+      "copies": "About 600 background letters and the ten hero letters.",
+      "offset": "0.85 x / W + 0.35 y / H plus a little loop noise per row."
+    },
+    "title": {
+      "box": [
+        0.11,
+        0.32,
+        0.78,
+        0.3
+      ],
+      "kind": "live"
+    },
+    "encode": {
+      "q": 58,
+      "edgeQ": 58,
+      "edgeFrames": 0
+    },
+    "ambition": "The tide reads as one wave through many copies and the hero never thins below a readable weight."
+  }
+}

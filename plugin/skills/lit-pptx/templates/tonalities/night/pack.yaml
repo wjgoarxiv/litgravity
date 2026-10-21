@@ -1,0 +1,93 @@
+# Night: a stage screen in a dark room. Near-black ground, off-white type, an amber accent and a
+# soft-blue second series, light numerals and big charts. Wrong for decks that are printed or read
+# on paper, and it never mixes with light slides inside one deck.
+id: night
+name: Night
+version: "1.0.0"
+intent: "Data and technical keynotes on a dark ground."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: Pretendard Regular
+faces-a2z:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Regular
+  numeral: A2Z Light
+
+palette:
+  ground: "#0F1419"
+  surface: "#1A222B"
+  ink: "#E8EDF2"
+  ink-muted: "#A3AEBA"
+  line: "#5A6672"
+  accent: "#E3A857"
+  accent-deep: "#F2C98A"
+  accent-tint: "#2A2418"
+  field: "#1E2A36"
+  on-field: "#F5F7FA"
+  positive: "#6CC08B"
+  negative: "#F08A7E"
+  series: ["#E3A857", "#7FB8E0", "#A3AEBA", "#C58FD0"]
+
+ramp: reading
+hero: false
+type-voice:
+  title-tracking: -1
+  display-tracking: -2
+
+density: 10
+variance: 6
+radius: 6
+edge: fill
+
+treatments: [top-plain-large, statement, side-rail, kicker-numeral, band]
+role-defaults:
+  content: top-plain-large
+  data: band
+  data-takeaway: side-rail
+  sequence: kicker-numeral
+  image: top-plain-large
+  statement: statement
+  reference: band
+  definition: side-rail
+
+decoration: [header-band, hairline-rule, numeral, rail-fill]
+layout-families: [full-chart, chart-insight, kpi-row, kpi-over-chart, dashboard-grid, big-number, method, comparison, timeline, statement]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: numeral
+  statement: open
+  number: tint
+  closing: band
+covers: [cover-numeral, cover-typographic, cover-figures]
+sections: [section-numeral, section-field]
+closings: [closing-statement, closing-decision-box]
+
+table:
+  header: surface
+  header-ink: ink
+  rules: rows
+  banding: none
+  totals: bold
+  protagonist: accent-tint
+chart:
+  gridlines: hairline
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: none
+
+fill-order: [anchor-visual, step-up, distribute, change-family]
+avoid:
+  - neon or saturated glows
+  - a pure black ground
+  - light slides mixed in
+  - thin light type below 18 pt

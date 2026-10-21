@@ -1,0 +1,74 @@
+# Presentation/Poster style (rcparams-based)
+# Usage: plt.style.use('presentation.mplstyle')
+#
+# Inherits rcparams() base with Pretendard first, Arial primary fallback,
+# larger fonts and thicker lines
+# for presentations, posters, and projected displays
+
+# Figure properties
+figure.dpi: 100
+figure.facecolor: white
+figure.figsize: 8, 6
+
+# Font properties (larger for visibility)
+font.size: 14
+font.family: sans-serif
+font.sans-serif: Pretendard, Arial, Helvetica, DejaVu Sans, AppleGothic, Noto Sans CJK KR, Noto Sans CJK SC, Noto Sans CJK JP, Malgun Gothic, Calibri
+pdf.fonttype: 42
+ps.fonttype: 42
+svg.fonttype: none
+
+# Axes properties
+axes.linewidth: 1.5
+axes.labelsize: 16
+axes.titlesize: 18
+axes.titlepad: 10
+axes.titleweight: normal
+axes.labelweight: normal
+axes.labelpad: 8
+axes.edgecolor: black
+axes.axisbelow: True
+axes.grid: False
+axes.prop_cycle: cycler('color', ['E69F00', '56B4E9', '009E73', 'F0E442', '0072B2', 'D55E00', 'CC79A7', '000000'])
+
+# Tick properties — inward direction, minor ticks visible
+xtick.major.size: 6
+xtick.minor.size: 4
+xtick.major.width: 1.5
+xtick.minor.width: 1.0
+xtick.labelsize: 12
+xtick.direction: in
+xtick.color: black
+xtick.major.pad: 7
+xtick.minor.visible: True
+ytick.major.size: 6
+ytick.minor.size: 4
+ytick.major.width: 1.5
+ytick.minor.width: 1.0
+ytick.labelsize: 12
+ytick.direction: in
+ytick.color: black
+ytick.major.pad: 7
+ytick.minor.visible: True
+
+# Line properties
+lines.linewidth: 2.5
+lines.markersize: 8
+lines.markeredgewidth: 1.0
+
+# Legend properties — black border, fully opaque
+legend.fontsize: 12
+legend.frameon: True
+legend.edgecolor: black
+legend.framealpha: 1
+
+# Save properties — DPI > 500
+savefig.dpi: 600
+savefig.format: png
+savefig.bbox: tight
+savefig.pad_inches: 0.1
+savefig.transparent: True
+savefig.facecolor: none
+
+# Image properties
+image.cmap: viridis

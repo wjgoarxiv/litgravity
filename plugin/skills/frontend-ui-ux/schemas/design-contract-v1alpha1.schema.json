@@ -1,0 +1,306 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "litfamily.design-contract/v1alpha1",
+  "title": "LitFamily Design Contract v1alpha1",
+  "description": "Twelve-key finite design contract. This document mirrors the rules that scripts/design-contract-rules.mjs executes; typed identifier prefixes, referential integrity, auth safety coupling, global identifier uniqueness, strict UTC timestamps, duplicate-key rejection, and canonical form are enforced only in that runtime.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id", "contract_id", "source_hash", "intent", "direction", "inventory",
+    "accessibility", "localization", "performance", "evidence_policy", "omissions",
+    "accepted_exceptions"
+  ],
+  "properties": {
+    "schema_id": { "const": "litfamily.design-contract/v1alpha1" },
+    "contract_id": { "type": "string", "pattern": "^contract:[a-z0-9][a-z0-9._/-]*$" },
+    "source_hash": { "$ref": "#/$defs/hash" },
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["audiences", "tasks", "qualities", "constraints", "non_goals"],
+      "properties": {
+        "audiences": { "$ref": "#/$defs/requiredPhrases" },
+        "tasks": { "$ref": "#/$defs/requiredPhrases" },
+        "qualities": { "$ref": "#/$defs/requiredPhrases" },
+        "constraints": { "$ref": "#/$defs/optionalPhrases" },
+        "non_goals": { "$ref": "#/$defs/optionalPhrases" }
+      }
+    },
+    "direction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "principles", "token_strategy", "voice"],
+      "properties": {
+        "name": { "$ref": "#/$defs/text" },
+        "principles": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/text" }
+        },
+        "token_strategy": { "enum": ["reuse", "extend", "create"] },
+        "voice": { "$ref": "#/$defs/text" }
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "routes", "regions", "components", "interactions", "states", "viewports",
+        "references", "authenticated_surfaces"
+      ],
+      "properties": {
+        "routes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": { "$ref": "#/$defs/route" }
+        },
+        "regions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": { "$ref": "#/$defs/region" }
+        },
+        "components": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 512,
+          "items": { "$ref": "#/$defs/component" }
+        },
+        "interactions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": { "$ref": "#/$defs/interaction" }
+        },
+        "states": {
+          "type": "array",
+          "maxItems": 512,
+          "items": { "$ref": "#/$defs/state" }
+        },
+        "viewports": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "$ref": "#/$defs/viewport" }
+        },
+        "references": {
+          "type": "array",
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/reference" }
+        },
+        "authenticated_surfaces": {
+          "type": "array",
+          "maxItems": 128,
+          "items": { "$ref": "#/$defs/authenticatedSurface" }
+        }
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target", "keyboard", "screen_reader", "reduced_motion", "forced_colors",
+        "zoom_percent"
+      ],
+      "properties": {
+        "target": { "const": "WCAG 2.2 AA" },
+        "keyboard": { "type": "boolean" },
+        "screen_reader": { "type": "boolean" },
+        "reduced_motion": { "type": "boolean" },
+        "forced_colors": { "type": "boolean" },
+        "zoom_percent": { "type": "integer", "minimum": 200, "maximum": 400 }
+      }
+    },
+    "localization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "locales", "text_expansion_percent", "cjk_line_break_review",
+        "font_fallback_review", "ime_review", "rtl_review"
+      ],
+      "properties": {
+        "locales": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z]{2,3}(?:-[A-Z][a-z]{3})?(?:-(?:[A-Z]{2}|[0-9]{3}))?$" }
+        },
+        "text_expansion_percent": { "type": "integer", "minimum": 0, "maximum": 300 },
+        "cjk_line_break_review": { "type": "boolean" },
+        "font_fallback_review": { "type": "boolean" },
+        "ime_review": { "type": "boolean" },
+        "rtl_review": { "type": "boolean" }
+      }
+    },
+    "performance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lcp_ms", "cls", "inp_ms", "initial_js_kb", "initial_css_kb"],
+      "properties": {
+        "lcp_ms": { "type": "integer", "minimum": 1, "maximum": 60000 },
+        "cls": { "type": "number", "minimum": 0, "maximum": 1 },
+        "inp_ms": { "type": "integer", "minimum": 1, "maximum": 60000 },
+        "initial_js_kb": { "type": "integer", "minimum": 0, "maximum": 1048576 },
+        "initial_css_kb": { "type": "integer", "minimum": 0, "maximum": 1048576 }
+      }
+    },
+    "evidence_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["independent_review_required", "required_channels", "cleanup_required"],
+      "properties": {
+        "independent_review_required": { "type": "boolean" },
+        "required_channels": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "tests", "browser", "keyboard", "accessibility-tree", "screen-reader",
+              "performance", "localization"
+            ]
+          }
+        },
+        "cleanup_required": { "type": "boolean" }
+      }
+    },
+    "omissions": { "$ref": "#/$defs/scopeRecords" },
+    "accepted_exceptions": { "$ref": "#/$defs/scopeRecords" }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 512, "pattern": "^\\S(?:.*\\S)?$" },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "requiredPhrases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/text" }
+    },
+    "optionalPhrases": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/text" }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "primary", "auth_required"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^route:[a-z0-9][a-z0-9._/-]*$" },
+        "path": { "$ref": "#/$defs/text" },
+        "primary": { "type": "boolean" },
+        "auth_required": { "type": "boolean" }
+      }
+    },
+    "region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "route_id", "purpose"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^region:[a-z0-9][a-z0-9._/-]*$" },
+        "route_id": { "type": "string", "pattern": "^route:[a-z0-9][a-z0-9._/-]*$" },
+        "purpose": { "$ref": "#/$defs/text" }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "region_id", "role"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^component:[a-z0-9][a-z0-9._/-]*$" },
+        "region_id": { "type": "string", "pattern": "^region:[a-z0-9][a-z0-9._/-]*$" },
+        "role": { "$ref": "#/$defs/text" }
+      }
+    },
+    "interaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "route_id", "critical", "input_modes"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^interaction:[a-z0-9][a-z0-9._/-]*$" },
+        "route_id": { "type": "string", "pattern": "^route:[a-z0-9][a-z0-9._/-]*$" },
+        "critical": { "type": "boolean" },
+        "input_modes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": { "enum": ["keyboard", "pointer", "touch", "voice", "switch"] }
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "route_id", "kind"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^state:[a-z0-9][a-z0-9._/-]*$" },
+        "route_id": { "type": "string", "pattern": "^route:[a-z0-9][a-z0-9._/-]*$" },
+        "kind": {
+          "enum": [
+            "loading", "empty", "error", "success", "disabled", "permission", "offline",
+            "ready"
+          ]
+        }
+      }
+    },
+    "viewport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "category", "width_px", "height_px"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^viewport:[a-z0-9][a-z0-9._/-]*$" },
+        "category": { "enum": ["compact", "medium", "expanded"] },
+        "width_px": { "type": "integer", "minimum": 240, "maximum": 7680 },
+        "height_px": { "type": "integer", "minimum": 240, "maximum": 4320 }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "sha256", "provenance"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^reference:[a-z0-9][a-z0-9._/-]*$" },
+        "kind": { "enum": ["user-provided", "repo-local", "generated", "measured"] },
+        "sha256": { "$ref": "#/$defs/hash" },
+        "provenance": { "$ref": "#/$defs/text" }
+      }
+    },
+    "authenticatedSurface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route_id", "safe_test_account"],
+      "properties": {
+        "route_id": { "type": "string", "pattern": "^route:[a-z0-9][a-z0-9._/-]*$" },
+        "safe_test_account": { "const": true }
+      }
+    },
+    "scopeRecords": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/scopeRecord" }
+    },
+    "scopeRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "reason", "owner"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*:[a-z0-9][a-z0-9._/-]*$" },
+        "reason": { "$ref": "#/$defs/text" },
+        "owner": { "$ref": "#/$defs/text" },
+        "expires_at": { "$ref": "#/$defs/timestamp" }
+      }
+    }
+  }
+}

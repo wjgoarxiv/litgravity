@@ -1,0 +1,95 @@
+{
+  "schema": "litgravity.motion-cover-recipe/v1",
+  "note": "The decoded gate row this recipe reached when it shipped (scripts/qa-cover-recipes.mjs re-renders it and fails when median d or moving leave +-15 %, seamLocal leaves TARGET or bytes pass 2 MiB). Measured 2026-10-20 on headless Chrome's software rung and libwebp 1.6.0.",
+  "row": {
+    "medianD": 0.002077,
+    "movingFrac": 1,
+    "longestStillSec": 0.063,
+    "spike": 1.701,
+    "seamLocal": 1.965,
+    "bytes": 2063990
+  },
+  "settings": {
+    "size": [
+      1000,
+      500
+    ],
+    "fps": 16,
+    "frames": 128,
+    "encode": {
+      "q": 83,
+      "edgeQ": 97,
+      "edgeFrames": 18,
+      "method": 4
+    }
+  },
+  "base": "a 1536x1024 painting supplied as cover/assets/base.png (the row was measured on the LitFamily robot line-up; QA: --base <png>); any other painting needs its own ART block",
+  "assets": [
+    {
+      "path": "cover/assets/base.png",
+      "role": "base-art",
+      "source": "user",
+      "box": [
+        0.125,
+        0,
+        0.75,
+        1
+      ],
+      "checkBox": [
+        0.131,
+        0.1445,
+        0.1416,
+        0.778
+      ],
+      "title": true
+    }
+  ],
+  "treatment": {
+    "mode": "cover",
+    "request": "Make the LitFamily README motion cover from the painted robot line-up.",
+    "idea": "A window of work light walks the sleeping bays while the lead robot breathes and a comet laps its frame.",
+    "recipe": "painted-light",
+    "recipeReason": "The painting already carries the brand, so the loop relights it instead of drawing over it.",
+    "brandWord": "LITFAMILY",
+    "aspect": "2:1",
+    "loopSec": 8,
+    "fps": 16,
+    "layers": {
+      "slow": "A comet laps the lead frame and motes rise one screen per loop.",
+      "mid": "A sharp-edged light window walks the bays once per loop, with scan bands at two passes.",
+      "beat": "Eyes breathe twice, one blink, and the LIT. flare pulses at t = 0 and 0.5."
+    },
+    "system": {
+      "rule": "One light window and one scan band rule.",
+      "copies": "Seven bays and fifty motes.",
+      "offset": "Each bay's phase comes from its x position."
+    },
+    "title": {
+      "box": [
+        0.347,
+        0.031,
+        0.31,
+        0.086
+      ],
+      "kind": "painted"
+    },
+    "encode": {
+      "q": 83,
+      "edgeQ": 97,
+      "edgeFrames": 18
+    },
+    "ambition": "Light reads as moving edges that survive the encoder, and the seam disappears under the flare."
+  },
+  "regressions": {
+    "feather-150": {
+      "patch": {
+        "find": "feather: 24,",
+        "replace": "feather: 150,"
+      },
+      "mustFail": [
+        "G1.target"
+      ],
+      "defect": "Light drawn as a soft wash: the 24 px light edge widened to 150 px. At this recipe's encode (q83, edge q97 for 18 frames) the encoder keeps the soft edge, so the motion gates read what they read for the recipe itself. The one gate that moves is the 2 MiB size TARGET (about 2.5 to 2.6 MB against 2 063 990 B), so G1.target is the only gate declared; seamLocal wanders 1.91 to 2.01 around the 2.0 TARGET from run to run and stays undeclared. Only look review of the sheet can see the wash itself."
+    }
+  }
+}

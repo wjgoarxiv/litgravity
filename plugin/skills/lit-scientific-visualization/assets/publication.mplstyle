@@ -1,0 +1,78 @@
+# Publication-quality matplotlib style (rcparams-based)
+# Usage: plt.style.use('publication.mplstyle')
+#
+# Matches the canonical rcparams() configuration:
+# Pretendard first, Arial primary fallback, emergency system/CJK fallback, inward ticks,
+# minor ticks visible, transparent tight export, raster DPI > 500
+
+# Figure properties
+figure.dpi: 100
+figure.facecolor: white
+figure.autolayout: False
+figure.figsize: 5, 4
+
+# Font properties
+font.size: 14
+font.family: sans-serif
+font.sans-serif: Pretendard, Arial, Helvetica, DejaVu Sans, AppleGothic, Noto Sans CJK KR, Noto Sans CJK SC, Noto Sans CJK JP, Malgun Gothic
+pdf.fonttype: 42
+ps.fonttype: 42
+svg.fonttype: none
+
+# Axes properties
+axes.linewidth: 1
+axes.labelsize: 16
+axes.titlesize: 18
+axes.titlepad: 10
+axes.titleweight: normal
+axes.labelweight: normal
+axes.labelpad: 8
+axes.edgecolor: black
+axes.labelcolor: black
+axes.axisbelow: True
+axes.grid: False
+axes.prop_cycle: cycler('color', ['E69F00', '56B4E9', '009E73', 'F0E442', '0072B2', 'D55E00', 'CC79A7', '000000'])
+
+# Tick properties — inward direction, minor ticks visible
+xtick.major.size: 5
+xtick.minor.size: 3
+xtick.major.width: 1
+xtick.minor.width: 0.5
+xtick.labelsize: 12
+xtick.direction: in
+xtick.color: black
+xtick.major.pad: 7
+xtick.minor.visible: True
+ytick.major.size: 5
+ytick.minor.size: 3
+ytick.major.width: 1
+ytick.minor.width: 0.5
+ytick.labelsize: 12
+ytick.direction: in
+ytick.color: black
+ytick.major.pad: 7
+ytick.minor.visible: True
+
+# Line properties
+lines.linewidth: 1.5
+lines.markersize: 5
+lines.markeredgewidth: 0.5
+
+# Legend properties — black border, fully opaque
+legend.fontsize: 12
+legend.frameon: True
+legend.edgecolor: black
+legend.framealpha: 1
+legend.loc: best
+
+# Save properties — DPI > 500
+savefig.dpi: 600
+savefig.format: pdf
+savefig.bbox: tight
+savefig.pad_inches: 0.05
+savefig.transparent: True
+savefig.facecolor: none
+
+# Image properties
+image.cmap: viridis
+image.aspect: auto

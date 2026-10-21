@@ -1,0 +1,6 @@
+{
+  "name": "litgravity-readme-type-workspace",
+  "private": true,
+  "type": "module",
+  "dependencies": {"fontkit": "2.0.4"}
+}

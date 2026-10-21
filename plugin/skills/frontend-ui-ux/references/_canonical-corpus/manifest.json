@@ -1,0 +1,873 @@
+{
+  "schema_version": "litgravity.canonical-frontend-corpus/v1",
+  "source": {
+    "commit": "8ec16c5129df7b9778959e8367657d0e79c2c3bb",
+    "reference_tree": "9188410be0af35f2421ba300d91a0d7a7341caf0",
+    "reference_subtree": "frontend/references"
+  },
+  "file_count": 167,
+  "byte_count": 2596349,
+  "aggregate_sha256": "f6959eeae02685102df9fbedafb2c437be4d51df8e102f9fcf32298f7674e7d7",
+  "files": [
+    {
+      "path": "design/README.md",
+      "size": 24662,
+      "sha256": "e9550b081ded238021f6021a79caa79be4d5bdec0eaff99717cf71ffe55c9571"
+    },
+    {
+      "path": "design/_INDEX.md",
+      "size": 14650,
+      "sha256": "a9916b8642972e087e57e2f64ea7dd61737914e61931853a1d3ea2624f2cd023"
+    },
+    {
+      "path": "design/airbnb.md",
+      "size": 29511,
+      "sha256": "4cd7b1972080ebeb2c360b27271e1d898c153c46c9d7f038ed512bb5130577fc"
+    },
+    {
+      "path": "design/airtable.md",
+      "size": 3665,
+      "sha256": "2bf4a6f853c23c8cf04f890654ad3cebec849a98de1655425b65e3ad25b69476"
+    },
+    {
+      "path": "design/apple.md",
+      "size": 17780,
+      "sha256": "001c06b02855b8443b397bfef583be5dedfd96391dcae94d7e3050e64841ed4d"
+    },
+    {
+      "path": "design/aside.md",
+      "size": 12819,
+      "sha256": "430c29884f7cddf2dee1ee8722c71d5f8a8bdf49218dbbc7cbbfba612ba37081"
+    },
+    {
+      "path": "design/binance.md",
+      "size": 18912,
+      "sha256": "7e86c5ac3bb21e1a8f210dab37cf6f5fad0252015ce8959afe5ddffca55abde8"
+    },
+    {
+      "path": "design/bmw.md",
+      "size": 9915,
+      "sha256": "f04fb9e29769c567674bfbba43bebaa01760f303d5bd544770dd80bdf7e807fb"
+    },
+    {
+      "path": "design/brutalist-skill.md",
+      "size": 8456,
+      "sha256": "fffbaac8597f07679e9d87145533567658aedba3b5eca6f16a7075a333048caa"
+    },
+    {
+      "path": "design/bugatti.md",
+      "size": 26758,
+      "sha256": "67f88865f620c03d2582af03fa2a1ca87599633deaab240035feb1ab8255cd05"
+    },
+    {
+      "path": "design/cal.md",
+      "size": 17906,
+      "sha256": "520e5c64e4dc6e368e4870ae2b0470225d587a41e426399475046e3932c690a1"
+    },
+    {
+      "path": "design/claude.md",
+      "size": 20391,
+      "sha256": "79063565b490ace245dbca4d134c5aff849d16b7004c1e8e23cea1ea98fa7eb5"
+    },
+    {
+      "path": "design/clay.md",
+      "size": 17432,
+      "sha256": "885f8be9e2d5c61b4cd024c9d5c308a791a0d4b0d464a2015094b67884890375"
+    },
+    {
+      "path": "design/clickhouse.md",
+      "size": 15494,
+      "sha256": "71b0f6cf864dd276afe3d8d3c93f8b6c969006fc8fd25b667b39ea07f32df496"
+    },
+    {
+      "path": "design/clone-from-url.md",
+      "size": 5178,
+      "sha256": "1ebd9bc28f59d1944c7e6e9e9af39b728936725bf774d50b806116257e824dd1"
+    },
+    {
+      "path": "design/cohere.md",
+      "size": 14852,
+      "sha256": "c0a7270cd888b74a4cebb9621f075f9f2e2bca9712723110e890fe2366032668"
+    },
+    {
+      "path": "design/coinbase.md",
+      "size": 5110,
+      "sha256": "52d6851e1cf6701d7b2344d148868e12f46b08ac80a65a31026e08e8ea6af66c"
+    },
+    {
+      "path": "design/composio.md",
+      "size": 21013,
+      "sha256": "c844f7873b28076dcce380204f5c79fbf3b63ce48a4f435907a36ad02bf5337d"
+    },
+    {
+      "path": "design/cursor.md",
+      "size": 19171,
+      "sha256": "66f4f737a2fbc17cd37489f321bbfa799b202a28bcf0df2b86a70b7773926a69"
+    },
+    {
+      "path": "design/design-system-architecture.md",
+      "size": 12710,
+      "sha256": "bf749ed406c8a26d6422f610fb02c821760a20d47fc9b6921bf1522ac877bd5c"
+    },
+    {
+      "path": "design/elevenlabs.md",
+      "size": 15278,
+      "sha256": "272e7f135ed7413ed666907c23a4d7ef2f4b7940fd5b796ae1b736927f45e011"
+    },
+    {
+      "path": "design/expo.md",
+      "size": 18779,
+      "sha256": "a1135f6a50e65ade8d129422922d7f63df41ed2929c2507e893e2582048c2849"
+    },
+    {
+      "path": "design/ferrari.md",
+      "size": 25593,
+      "sha256": "b77c3efadbc1a2f761ca5c66919d186e749067aa2c73c936b41708d35f7f1a3a"
+    },
+    {
+      "path": "design/figma.md",
+      "size": 11721,
+      "sha256": "69ec480da3a8befab7b44ffd5cc4deca0c8ae8ac5ee690335413063fa1a38292"
+    },
+    {
+      "path": "design/framer.md",
+      "size": 17668,
+      "sha256": "35d8767071c0d155864e1abbceb6c874b6c461986092e0bceb9f8bdf6dfdf0cc"
+    },
+    {
+      "path": "design/gpt-tasteskill.md",
+      "size": 7857,
+      "sha256": "2e64c269953f2656c21bf5a0fa6b4568e82fe0c72b36e8f84758e090349966a5"
+    },
+    {
+      "path": "design/hashicorp.md",
+      "size": 15728,
+      "sha256": "7532880ef6c1bd586a5fb6229563b69f26ee841994f5616c698e0316813042c6"
+    },
+    {
+      "path": "design/ibm.md",
+      "size": 19654,
+      "sha256": "eab18ea70c2e4da497a2e90a25e6e9919ac18a4136f1dcd35ce838c37c2586da"
+    },
+    {
+      "path": "design/image-to-code-skill.md",
+      "size": 36442,
+      "sha256": "4c060a8064a8b13380bc2ef3d6e6a1d0b1e316aa093cd9807d0ce9e4eeb037fa"
+    },
+    {
+      "path": "design/imagegen-brandkit.md",
+      "size": 15992,
+      "sha256": "b0c4837e1bd140ca816ae54948754ddd2ac1e2a4d3619363777a80caf00b2ede"
+    },
+    {
+      "path": "design/imagegen-frontend-mobile.md",
+      "size": 40326,
+      "sha256": "8a33389979f3074fa0926678e266ad2eb9234624472254469fc1ad916b9caa24"
+    },
+    {
+      "path": "design/imagegen-frontend-web.md",
+      "size": 36854,
+      "sha256": "6b5c2256522fdba1e3313eafa3d743b960a7b13ec029d3e6586e04b23327c1f8"
+    },
+    {
+      "path": "design/intercom.md",
+      "size": 6524,
+      "sha256": "00015191406ee315f7d9ef97a72f5272d9f47ce6fa7899332584a1990800aa72"
+    },
+    {
+      "path": "design/kraken.md",
+      "size": 4446,
+      "sha256": "8b9a1b5eebcce82881debd4ab815e780ba98b091fc9568475ddfb36be94c0c24"
+    },
+    {
+      "path": "design/lamborghini.md",
+      "size": 21227,
+      "sha256": "ee84e6d0b5a779f53032fa8fec721c632d936a05006e97101150a882e43d7178"
+    },
+    {
+      "path": "design/layout-skill.md",
+      "size": 8528,
+      "sha256": "bf38b363120ca797c4c49421e64e707da81e42f0a7b4dc0d643e06e004308534"
+    },
+    {
+      "path": "design/lazyweb.md",
+      "size": 3865,
+      "sha256": "9f19eeb60596123ac02d6d00b76dea76af43f3a2b1d67fb07d65c9bb50cf4ac1"
+    },
+    {
+      "path": "design/linear.app.md",
+      "size": 22540,
+      "sha256": "4c7264d8bc0e26de761c550e9f0445b0e7d92078c1a288f3fdb604b4f6df8fb7"
+    },
+    {
+      "path": "design/lovable.md",
+      "size": 17481,
+      "sha256": "8a568b388dca500e2eeb631eb05c6d10b7f64a6bdbd7401634a86ec4e1fd5191"
+    },
+    {
+      "path": "design/mastercard.md",
+      "size": 27110,
+      "sha256": "ba5a4f889cd52286b87cd06ebb9646ed91ea631dc6249491c0d27dde940f05c6"
+    },
+    {
+      "path": "design/meta.md",
+      "size": 20609,
+      "sha256": "1d981f34450ed843495c5d1680b7c8e4ff13a48851c17001a376941c6b45a547"
+    },
+    {
+      "path": "design/minimalist-skill.md",
+      "size": 7901,
+      "sha256": "36bc7328f085405f43b476938e62460fa573bf7e984e949e072bcf014831a44c"
+    },
+    {
+      "path": "design/minimax.md",
+      "size": 14364,
+      "sha256": "2960199d25c4b9a1fd8bc4756d998ee49c6315d7db23ad7ac0e274365f91ac9e"
+    },
+    {
+      "path": "design/mintlify.md",
+      "size": 17527,
+      "sha256": "ada2deafc02f37cc83570319e5309e767164a6a52b1b097d85f667bfa0c911df"
+    },
+    {
+      "path": "design/miro.md",
+      "size": 4898,
+      "sha256": "51f348feaf10f92873854e49dccb1c03a32bbb573f1de0bc87981d4d540f91d8"
+    },
+    {
+      "path": "design/mistral.ai.md",
+      "size": 15726,
+      "sha256": "59424032ca98c9d00103a9dc65e3a0a25de1bf44c7e618cdb094376af72b84c1"
+    },
+    {
+      "path": "design/mongodb.md",
+      "size": 15113,
+      "sha256": "8ade6a733fe3d4d264d3ce13dc8720203898c514568f39e9fcd26438c34a2ec7"
+    },
+    {
+      "path": "design/nike.md",
+      "size": 20100,
+      "sha256": "44b623b34e5b6cabd50f2fe391578f05dbd2fe91ee517f1e38c2c1e4ed9f647a"
+    },
+    {
+      "path": "design/notion.md",
+      "size": 18451,
+      "sha256": "94c550cc035a90aa08b6645e7b3105d2e579453f8415e57b3639319fdb7e5b23"
+    },
+    {
+      "path": "design/nvidia.md",
+      "size": 17184,
+      "sha256": "f1000c03abd65cd10835069bffc2e3e6f9a704e53e9e16d7134e12e2aa3d5fb9"
+    },
+    {
+      "path": "design/ollama.md",
+      "size": 15599,
+      "sha256": "a40ef634612c07706462e081b1b77ba18915faa60d2dea1a19c2945aa448b3f7"
+    },
+    {
+      "path": "design/opencode.ai.md",
+      "size": 15600,
+      "sha256": "beaa5092524e38e89825f4f59818e2b2dfdf86b6344c734c1fba3295d2d7bc90"
+    },
+    {
+      "path": "design/output-skill.md",
+      "size": 2592,
+      "sha256": "e5bf48b1ae561511439cf71672209a10a88cee0968cc925909ff861dfa0a96a7"
+    },
+    {
+      "path": "design/pinterest.md",
+      "size": 12007,
+      "sha256": "e6cb634aca8404b43b9eaeaf650bb64b0d26b1240bb3c33da643fded1fe1ecaa"
+    },
+    {
+      "path": "design/playstation.md",
+      "size": 28289,
+      "sha256": "aa328bc329428dd69daee224a64d8ad793dbdd340d9bb1cb8df2794dbbafabd6"
+    },
+    {
+      "path": "design/posthog.md",
+      "size": 18662,
+      "sha256": "a42b20545c777f732d6b9a0e24d877b229e84ce10a0e9e3ef9f058ea2c86fc5b"
+    },
+    {
+      "path": "design/raycast.md",
+      "size": 18583,
+      "sha256": "20e65e05ed2eee597dcdb6c7b056bd70842d786c0888592dda255ef672d8dd60"
+    },
+    {
+      "path": "design/react-dev-tooling-skill.md",
+      "size": 8603,
+      "sha256": "26f648a70311d870ffce17798f9ed17501911e483898ee04aed8b08686c36e20"
+    },
+    {
+      "path": "design/redesign-skill.md",
+      "size": 15060,
+      "sha256": "98ad3e5b051bfb71b2795f7e8a6aa0d32b51ee095606c098a4b2822ac07926c9"
+    },
+    {
+      "path": "design/renault.md",
+      "size": 24398,
+      "sha256": "db03bb3402edff5e5e84395856777ea6629c40e12fc737c5ae935de5d613be37"
+    },
+    {
+      "path": "design/replicate.md",
+      "size": 14239,
+      "sha256": "c3932771f83333f143774ac5d18cf57e9a4083d1e6af7daec605bac715a62dfd"
+    },
+    {
+      "path": "design/resend.md",
+      "size": 18513,
+      "sha256": "c6c22baba6e185d30e8da94dac45ebf5d1ae0f21ec88f5e1b3ceeacc14bfe00e"
+    },
+    {
+      "path": "design/revolut.md",
+      "size": 8725,
+      "sha256": "62501c2f1441717ee7e93f7df4f8acd637cdd25bc983db45c5d6c69be10a797a"
+    },
+    {
+      "path": "design/runwayml.md",
+      "size": 14436,
+      "sha256": "f873f90495a932a50d899f72600c231c76b3e706cdb17f90188747ad36613afc"
+    },
+    {
+      "path": "design/sanity.md",
+      "size": 21319,
+      "sha256": "52354c55c1c62dd16aeffc037fad7494a6de918a59bd65843ebcb9e6357928fa"
+    },
+    {
+      "path": "design/sentry.md",
+      "size": 14846,
+      "sha256": "a5140c9bbf0bd45426646f087691abed9f8bd70d94d3e4368745622e5163cdaa"
+    },
+    {
+      "path": "design/shopify.md",
+      "size": 20098,
+      "sha256": "ab10135212d6d8a0eaf4003f29cf5072f9390c27fb5e109a7bb8d4e2a28f4931"
+    },
+    {
+      "path": "design/soft-skill.md",
+      "size": 10561,
+      "sha256": "e1e32f5e2d420872c6c7332b53d5ff7721946766b78c4822b424c2d512c8fdbc"
+    },
+    {
+      "path": "design/spacex.md",
+      "size": 11425,
+      "sha256": "ead7689f96a1c44f43cee4831b1525d52757c6aca820b9cf85569651d46ab0b7"
+    },
+    {
+      "path": "design/spotify.md",
+      "size": 13056,
+      "sha256": "d7f3bc8413a01de9ef15cac8807990be3561f1897c37d1db9ccf23d84b5b1386"
+    },
+    {
+      "path": "design/starbucks.md",
+      "size": 37454,
+      "sha256": "25b116f858b197796ed4962457d07c9f0484e2d3c8e9a7604928358957bd61a3"
+    },
+    {
+      "path": "design/stitch-design-example.md",
+      "size": 12053,
+      "sha256": "0ab6740c4ebb1966dbceddb823a66d4bf027e960efbd73faca56cbf8370ae2ad"
+    },
+    {
+      "path": "design/stitch-skill.md",
+      "size": 11851,
+      "sha256": "46bdb08fee2dded38b6ba0a051230a502d6ac6e4044afd47592cb40c256028b5"
+    },
+    {
+      "path": "design/stripe.md",
+      "size": 20552,
+      "sha256": "66dea910aa4e4d7a2cbda9ad93496da5d464f40f343e7a14b8b8029d873535ae"
+    },
+    {
+      "path": "design/supabase.md",
+      "size": 14896,
+      "sha256": "341a8ad07bedf9134060f4c279007d6f920483e3b846ab6ce1d95a7c7b5b6914"
+    },
+    {
+      "path": "design/superhuman.md",
+      "size": 19021,
+      "sha256": "93f9375d392f77255f9a98640b53f181076515378b83326782c6e6e12dc51f8e"
+    },
+    {
+      "path": "design/taste-skill.md",
+      "size": 87253,
+      "sha256": "aa194351b246b8b4799099d4ed7b033d29eab6e6e3d58d8d2172978be7b3ec89"
+    },
+    {
+      "path": "design/tesla.md",
+      "size": 22321,
+      "sha256": "ee98b4b8acb7a0e5d25921e085661bb855e3dbd04c98a5f2885c458a680594e3"
+    },
+    {
+      "path": "design/theverge.md",
+      "size": 28497,
+      "sha256": "094db6e7a6369bef4539f7319b5bca116ed1b8e8784c51f8f36be84e566b46ce"
+    },
+    {
+      "path": "design/together.ai.md",
+      "size": 14374,
+      "sha256": "e1b6715a344774cf315eb011bc67252871531b0d8d8c55f650cb5a92aac52b4b"
+    },
+    {
+      "path": "design/uber.md",
+      "size": 18753,
+      "sha256": "1defaaf4677a0ffd9bcd799ac58a8558dedd08e0066900741e1992d99f860dbc"
+    },
+    {
+      "path": "design/vercel.md",
+      "size": 19545,
+      "sha256": "17d533f0ff2e1b5d9be3e69335ab7fc599d1ddf52bc9ac2f2dd36479676cbd3d"
+    },
+    {
+      "path": "design/vodafone.md",
+      "size": 30210,
+      "sha256": "53a9b5279d5405a16952eaa9477f363519710a80a58db7d87fb6570327ccc860"
+    },
+    {
+      "path": "design/voltagent.md",
+      "size": 26416,
+      "sha256": "2f58cadf75642185b09493a7bf00e81461acd67bdd543c021b22e254e3b2a32f"
+    },
+    {
+      "path": "design/warp.md",
+      "size": 16765,
+      "sha256": "41e2006c2ee0c018673f8eed59de198d8ae08b0a4d3bca2a6bdf90a323e6463c"
+    },
+    {
+      "path": "design/webflow.md",
+      "size": 4222,
+      "sha256": "0610a10e26546550ee70e8e1804d1222aaff6b355b68eacf8cab95f395516aba"
+    },
+    {
+      "path": "design/wired.md",
+      "size": 22618,
+      "sha256": "2c370c20aec5d1a8ccb42e8788cb68b768f0f26f69e0e7f995f468fd96cac57f"
+    },
+    {
+      "path": "design/wise.md",
+      "size": 8553,
+      "sha256": "71f1c384405e4641784aa0917b3eebb1ccb478fe11ea0cd6098b4979d4aaf59f"
+    },
+    {
+      "path": "design/x.ai.md",
+      "size": 16367,
+      "sha256": "83107b1981e877d7e772f6bfc383b68d1349a84882e22e0c2cba0409e70d82e6"
+    },
+    {
+      "path": "design/zapier.md",
+      "size": 18839,
+      "sha256": "01a80cc76a4c32defdca2efa34ebb34ba5a14ee6553894252a705d8e52228de4"
+    },
+    {
+      "path": "designpowers/EVIDENCE.md",
+      "size": 3755,
+      "sha256": "1c5e5e8149c34cee0887381bf68890f3ad5a732dafd7ceb63395903da3ad6366"
+    },
+    {
+      "path": "designpowers/README.md",
+      "size": 3762,
+      "sha256": "279635a5695f4dc4e7f342038074402bc4ed38f900b15623a88f988dd3b98640"
+    },
+    {
+      "path": "designpowers/UPSTREAM.md",
+      "size": 2234,
+      "sha256": "ea8c049856a3a6b71b5122bb590214c509ae445fa67412b1775b8e9bed0141b8"
+    },
+    {
+      "path": "designpowers/lane-a-direction.md",
+      "size": 5357,
+      "sha256": "56f982df6cdef6ae6b821e3b16395c6f4908103eda8fae3c75ec22f615b718f9"
+    },
+    {
+      "path": "designpowers/lane-b-execution.md",
+      "size": 5742,
+      "sha256": "591d7406e2836c0531e08d016073db6c77dd6c5ec69ee013f7fa1fe8a4283579"
+    },
+    {
+      "path": "designpowers/lane-c-review.md",
+      "size": 5513,
+      "sha256": "23caaf59307351026b34dc2cdb60bc5b1656803b5326bfdb46671cee00bbc286"
+    },
+    {
+      "path": "designpowers/lane-d-memory.md",
+      "size": 5108,
+      "sha256": "394da780de7ec826e238017b9a3d42b1195976a3c971e7dd1f7cd734cdc15336"
+    },
+    {
+      "path": "designpowers/orchestration.md",
+      "size": 5462,
+      "sha256": "6c6de38691d0ac6e21ec43d79d9fdd37a894347e95999d6f39c7b012eca5c67d"
+    },
+    {
+      "path": "designpowers/routing.md",
+      "size": 5353,
+      "sha256": "356b920ce02c632366f17b2cfe29ca62c544d99d4181e7e0128dd175c0bf8268"
+    },
+    {
+      "path": "designpowers/vendor/LICENSE",
+      "size": 1064,
+      "sha256": "1400d572fb60897f7970a763fb73d1aa7804b71bad41bf6e45061de7b7a09ac1"
+    },
+    {
+      "path": "designpowers/vendor/agents/accessibility-reviewer.md",
+      "size": 5869,
+      "sha256": "6a6e998da2b40a72255a44b531e4086cbc6106634bb8e62ebeb7a935156f0e59"
+    },
+    {
+      "path": "designpowers/vendor/agents/content-writer.md",
+      "size": 8674,
+      "sha256": "4951ff11c75c05a077c720883ad60375d452c507bc07407beb29176a9fa383a0"
+    },
+    {
+      "path": "designpowers/vendor/agents/design-builder.md",
+      "size": 8989,
+      "sha256": "2403ecca396ec779377c06ffebb9146293e749b350f6e71f64a4c3274d78e272"
+    },
+    {
+      "path": "designpowers/vendor/agents/design-critic.md",
+      "size": 6812,
+      "sha256": "3a24ea2e289add3f50b51a603eaee0d3914d14233b9d325fa979fbf8723c0c12"
+    },
+    {
+      "path": "designpowers/vendor/agents/design-lead.md",
+      "size": 8172,
+      "sha256": "cae566ad39634ecfda58bbe7a6d5227406662cfd61d263a6bae4cf142c5b4435"
+    },
+    {
+      "path": "designpowers/vendor/agents/design-scout.md",
+      "size": 4704,
+      "sha256": "ee220d8e8fc7eb63ac37379f38c91e1211c49101bfe05bcadab8267cf45d1292"
+    },
+    {
+      "path": "designpowers/vendor/agents/design-strategist.md",
+      "size": 8282,
+      "sha256": "e1a0467b33f2f51ab9b393d5e45f274b7cc0851a20bc2477a3f59d73334ee8d5"
+    },
+    {
+      "path": "designpowers/vendor/agents/heuristic-evaluator.md",
+      "size": 14294,
+      "sha256": "6f66c4c3369c3e034899ae9141326fab75cecc1c46920d46d28413f2f536052a"
+    },
+    {
+      "path": "designpowers/vendor/agents/inspiration-scout.md",
+      "size": 7320,
+      "sha256": "9494bc48b836d74f68b57a111f29b75a050f38fb1ba5db18189119470a9af2a8"
+    },
+    {
+      "path": "designpowers/vendor/agents/motion-designer.md",
+      "size": 8430,
+      "sha256": "bb622b9e2d6456573032ecbd297fc031129231cdabcafc62a49eb0c38fc017d0"
+    },
+    {
+      "path": "designpowers/vendor/skills/accessible-content/reference.md",
+      "size": 4492,
+      "sha256": "25c3c261f8dd9576166314e70cd6e4c45129805a2f66f288a9cb3abb4e0c723b"
+    },
+    {
+      "path": "designpowers/vendor/skills/adaptive-interfaces/reference.md",
+      "size": 4601,
+      "sha256": "4e2ccfcca475309780ff8787c33ee533a3c50eb2b9c828795c0127f1d178a1c6"
+    },
+    {
+      "path": "designpowers/vendor/skills/cognitive-accessibility/reference.md",
+      "size": 5252,
+      "sha256": "149ef820423a2f635a7bb937529084305dd5b34aacf28db3d26eb226d07e4c2f"
+    },
+    {
+      "path": "designpowers/vendor/skills/design-debate/reference.md",
+      "size": 8748,
+      "sha256": "b535ef96af6cd6a665d8e0fb70f7f7aa6d06aa9d6cad8390bb8694d4a59bf4f5"
+    },
+    {
+      "path": "designpowers/vendor/skills/design-debt-tracker/reference.md",
+      "size": 9025,
+      "sha256": "995fa32d22f0fb672a1dea7d86051f8ce1f68cfd02f2a05a602e0d3fa497a494"
+    },
+    {
+      "path": "designpowers/vendor/skills/design-handoff/reference.md",
+      "size": 4630,
+      "sha256": "48e357687f933f5fa30c186d6a024f68d60fa053dfe6e380085f1800d34f3233"
+    },
+    {
+      "path": "designpowers/vendor/skills/design-md/reference.md",
+      "size": 9562,
+      "sha256": "07c94b9426ec1b9f5c35e31b06e46b885d5b67abd9c3c54591b860d8c66c79a8"
+    },
+    {
+      "path": "designpowers/vendor/skills/design-retrospective/reference.md",
+      "size": 9668,
+      "sha256": "357f192c0b4d45da1e1a53ad8ba4a8ecc4112c0077abb995093de7aa461ef8be"
+    },
+    {
+      "path": "designpowers/vendor/skills/design-review/reference.md",
+      "size": 7172,
+      "sha256": "b099e87e80df676e8e971f70b0f85c9a4037cbbbd268991f4922650d2cdd1030"
+    },
+    {
+      "path": "designpowers/vendor/skills/design-system-alignment/reference.md",
+      "size": 4396,
+      "sha256": "fa12f778efb4644d20be837f352872107c2286fc15cb5a1889ab9d3291f5e87c"
+    },
+    {
+      "path": "designpowers/vendor/skills/designpowers-critique/reference.md",
+      "size": 6415,
+      "sha256": "61a505f993a5abfd91eb53c76ef704cab9ed958d12dc3ed15926dc0bc0f11b30"
+    },
+    {
+      "path": "designpowers/vendor/skills/heuristic-evaluation/reference.md",
+      "size": 5272,
+      "sha256": "eae74cdd27f258687e137fe22d39c988a4b8bd83b4f48f5becbeaadea1cdf225"
+    },
+    {
+      "path": "designpowers/vendor/skills/inclusive-personas/reference.md",
+      "size": 4169,
+      "sha256": "3ac1c22795c67ee7ecc8a2dbe2a25d4076d4585e655c99bf030cb718f8b44877"
+    },
+    {
+      "path": "designpowers/vendor/skills/inspiration-scouting/reference.md",
+      "size": 8963,
+      "sha256": "49f2bc33294c72b642cccb2b3cf5d96a9d4fcf2fd56d1643b56b3f34b7d0078c"
+    },
+    {
+      "path": "designpowers/vendor/skills/interaction-design/reference.md",
+      "size": 5313,
+      "sha256": "8fa3f1f1dec364f51c36bfdb79c18b97c81e8f1fedf03128057de331497981c6"
+    },
+    {
+      "path": "designpowers/vendor/skills/motion-choreography/reference.md",
+      "size": 2452,
+      "sha256": "f8b79372efa0cf0f35b841e175270f1608e0d479b4512a732cd00fa8252e65cd"
+    },
+    {
+      "path": "designpowers/vendor/skills/research-planning/reference.md",
+      "size": 3692,
+      "sha256": "37e907ae662308daf241aa74c6e9ad957457a0b2ba6bc636f9a9a2732b0787c2"
+    },
+    {
+      "path": "designpowers/vendor/skills/responsive-patterns/reference.md",
+      "size": 2186,
+      "sha256": "03771c1706b5df3d6e305fb877892bbb9813e3fa96f7a93c7f05c8df712f6afc"
+    },
+    {
+      "path": "designpowers/vendor/skills/synthetic-user-testing/reference.md",
+      "size": 9251,
+      "sha256": "10fc3343cdccbcf55cb7cdbd13fae62128986e565e505cb98345312a70712981"
+    },
+    {
+      "path": "designpowers/vendor/skills/taste-feedback/reference.md",
+      "size": 8848,
+      "sha256": "48d7eae20b3f1855a95970babffe0eb7af8798d78794be6c42261b05ecb91c9e"
+    },
+    {
+      "path": "designpowers/vendor/skills/taste-report/reference.md",
+      "size": 5644,
+      "sha256": "312f62c923e2c100c9516b6577fcc90d535167decbb754c9c46087be48ebeda1"
+    },
+    {
+      "path": "designpowers/vendor/skills/token-architecture/reference.md",
+      "size": 2247,
+      "sha256": "40621d1757aa0026e42e46afa92d5fffa8e427cf8ddf8a2670eee33ff2fae0a0"
+    },
+    {
+      "path": "designpowers/vendor/skills/ui-composition/reference.md",
+      "size": 4677,
+      "sha256": "67fcef4c8115514210b3a013a08f714f05586270641fe66d8c9685051b9498a5"
+    },
+    {
+      "path": "designpowers/vendor/skills/usability-testing/reference.md",
+      "size": 2872,
+      "sha256": "f2ca4afb579371b093350bdf456159d4d28c85cd92ff583ebef71a8e19780f2d"
+    },
+    {
+      "path": "designpowers/vendor/skills/verification-before-shipping/reference.md",
+      "size": 4277,
+      "sha256": "6277cc7fc59a4156bf5894079128fcabdaf679c47d721378cae450e29a1c4996"
+    },
+    {
+      "path": "designpowers/vendor/skills/voice-and-tone/reference.md",
+      "size": 2727,
+      "sha256": "77daad2fc817adf8f58ed7c51b5be591361096fe532b52f83fe3f62181166d5b"
+    },
+    {
+      "path": "designpowers/vendor/skills/writing-design-plans/reference.md",
+      "size": 4116,
+      "sha256": "98964a9308129c79f95ba47f377765388817902e27be4420c716b06e03f46197"
+    },
+    {
+      "path": "perfection/README.md",
+      "size": 11493,
+      "sha256": "5161a5c6d53827b819f053f6996dcba91c8debcad3d4aa1a493f06a1ec1c0ecd"
+    },
+    {
+      "path": "perfection/react-perf-tooling.md",
+      "size": 7898,
+      "sha256": "0ddf4845f9a772ea018eb6d44d46407efa3e96371e41eaecb774595412f50bf6"
+    },
+    {
+      "path": "ui-ux-db/README.md",
+      "size": 44776,
+      "sha256": "9bd26c52dfd10dfd613dd3cc85df217dc25a172e380bde41fdfa6fedda288b2a"
+    },
+    {
+      "path": "ui-ux-db/data/charts.csv",
+      "size": 19391,
+      "sha256": "ebb565308115f955791b0431797a89d9b3587c25d5babb9428d10712c4924817"
+    },
+    {
+      "path": "ui-ux-db/data/colors.csv",
+      "size": 32432,
+      "sha256": "69ee8c1147b269599d20ca418bdd6f32563a9aa2d962fb9a9b8dec66bf7b1ba4"
+    },
+    {
+      "path": "ui-ux-db/data/icons.csv",
+      "size": 20637,
+      "sha256": "f376c29fb4df37b4bdb366a5aa70cb211ba3dd8b435390aaa03152a64b07d2e8"
+    },
+    {
+      "path": "ui-ux-db/data/landing.csv",
+      "size": 16720,
+      "sha256": "080cedbcd61ff8ec9520f33929baa76bee9589e783f83b2f8d824a466b6a46d7"
+    },
+    {
+      "path": "ui-ux-db/data/products.csv",
+      "size": 58006,
+      "sha256": "9fd9e776ba847cf44c1ea78f95fe5e33b2c56bb7e186e3cfff9c49bc7fcb691b"
+    },
+    {
+      "path": "ui-ux-db/data/react-performance.csv",
+      "size": 14822,
+      "sha256": "904c8afcda229629545912dde0e8ac37503757131f0169f80b016f1f58c4fd3f"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/astro.csv",
+      "size": 11868,
+      "sha256": "ad18dae3ab6d148d37d144592df80dc1825b6c9e86d9d2d68fdda77434206a37"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/flutter.csv",
+      "size": 10416,
+      "sha256": "fe36d404c799781e8ba6e9a8179b45799ed5126a545528550cd2eb0f2346e8c5"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/html-tailwind.csv",
+      "size": 11305,
+      "sha256": "7aef38e75c53559470afcfa91580a9917ca8b7dbf8b92110389e23e93703ac52"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/jetpack-compose.csv",
+      "size": 8195,
+      "sha256": "6c8fd4b0391c342c12b0af15610cd5becbeccaef0bbe8dcfc01d928c3195d93e"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/nextjs.csv",
+      "size": 12493,
+      "sha256": "e828ccc04843742f52f545a068e8a9ab0d2b97c0e771f7e93bf0cef74da05554"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/nuxt-ui.csv",
+      "size": 14010,
+      "sha256": "05d6e74501b2b6a636faed32450622759f49a5bcafad971f5f4e7eba0eb7be71"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/nuxtjs.csv",
+      "size": 16539,
+      "sha256": "f7a3f2d9542856d00199f85c6c023b7c284cc698e2e6e12d61afce2edacb24d6"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/react-native.csv",
+      "size": 10035,
+      "sha256": "a08ca77fcf6b6d9531982dce465366296013bfcf12d2938ac72ad57cf0c4f085"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/react.csv",
+      "size": 12962,
+      "sha256": "e5624ab41d33427d88e41d07581ce4eca59b37b36ab72a6ad43a9c8e2d0a1c72"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/shadcn.csv",
+      "size": 15921,
+      "sha256": "395c2e415ef6f48a474acccdc8eb2c7258a6ed751a5037ba171a2d8823e02ded"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/svelte.csv",
+      "size": 11009,
+      "sha256": "71af52d64f266c88070b91dbbaa900c2f8074b6baae9f35eaea6ba9cec6fd803"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/swiftui.csv",
+      "size": 10821,
+      "sha256": "c9c2d2510f8e66281a2514e8dd0125a6b653b9ef53a71281b5e7dfe003d5b569"
+    },
+    {
+      "path": "ui-ux-db/data/stacks/vue.csv",
+      "size": 11006,
+      "sha256": "c2724915d3c11cd67263f25896cff721f787a0fdd8326002d31e9f5806dfd8f8"
+    },
+    {
+      "path": "ui-ux-db/data/styles.csv",
+      "size": 142673,
+      "sha256": "9b5089dcde8999333b36878252a255cc3bacbb2fe7b836c76cc7f7aa2abb643d"
+    },
+    {
+      "path": "ui-ux-db/data/typography.csv",
+      "size": 49667,
+      "sha256": "dbea262a54e3bfa2e6c3b15989a365d5ef4c43349316aff46635e82ca825adce"
+    },
+    {
+      "path": "ui-ux-db/data/ui-reasoning.csv",
+      "size": 53070,
+      "sha256": "41976082ecae1100da937c949215dc6694393e03f3c2a7444dd92a9edb43cb11"
+    },
+    {
+      "path": "ui-ux-db/data/ux-guidelines.csv",
+      "size": 18766,
+      "sha256": "1870ee048f2a2bdd60709f8f7adf7f3b6dcad560bc005c8b2915a8ac8639820d"
+    },
+    {
+      "path": "ui-ux-db/data/web-interface.csv",
+      "size": 9743,
+      "sha256": "2a17ef810dab715ce1f339861817a8fbe3ccc38142b70517301e874803e838ac"
+    },
+    {
+      "path": "ui-ux-db/scripts/core.py",
+      "size": 12393,
+      "sha256": "772b4d567c7a948c5d4a10343473b4123fec04238d250c9ffce31d0733f752c0"
+    },
+    {
+      "path": "ui-ux-db/scripts/design_system.py",
+      "size": 47070,
+      "sha256": "f7a21e83739c5ac6ca3738846220f6a9eb7f3c1ae7a44989c5aaa2061ca60310"
+    },
+    {
+      "path": "ui-ux-db/scripts/search.py",
+      "size": 5607,
+      "sha256": "6a565f960a672e16dd064ccadd3406db999bfd1a4bff4d609b36a8d4c6450b86"
+    }
+  ],
+  "legal": [
+    {
+      "path": "_canonical-corpus/legal/root-LICENSE",
+      "source_path": "LICENSE",
+      "size": 1068,
+      "sha256": "b083425948376611de9b92b0aeb7377e604505756ea427e541a34d9b030d4dc1"
+    },
+    {
+      "path": "_canonical-corpus/legal/frontend-ATTRIBUTION.md",
+      "source_path": "frontend/ATTRIBUTION.md",
+      "size": 12075,
+      "sha256": "a73cd147a533442218a9adef53d99e0eaf15c10d8db4819d9d1542727f077b92"
+    },
+    {
+      "path": "_canonical-corpus/legal/frontend-LICENSE-Apache-2.0.txt",
+      "source_path": "frontend/LICENSE-Apache-2.0.txt",
+      "size": 11296,
+      "sha256": "9d95806a26532623360eb84bb17d298f394b55ef73fb4c0796d99b4319b2b0da"
+    }
+  ],
+  "independent_normalized_dataset": {
+    "source_count": 34,
+    "record_count": 2277,
+    "sha256": "a89011236a6ff14e12ec55fccbfab1bbd40ae34614cea5710c022121aa841bb8"
+  }
+}

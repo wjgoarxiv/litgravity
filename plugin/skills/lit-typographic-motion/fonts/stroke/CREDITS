@@ -1,0 +1,42 @@
+Single-stroke (plotter) SVG fonts bundled with lit-typographic-motion
+
+Source: mexicat/pdoom-video, commit ca251e3dddda422b364385eb484b5a3593a0990d,
+app/public/fonts/stroke/<file>. Each file is shipped unmodified. Each file's own
+<metadata> block states the licence: SIL Open Font License, Version 1.1
+(http://scripts.sil.org/OFL). The full licence text is in OFL.txt in this directory.
+The metadata carries no copyright line; the credits below restate it.
+
+EMSAllure.svg
+  Font name: EMS Allure
+  Created by: Sheldon B. Michaels
+  SVG font conversion by: Windell H. Oskay
+  A derivative of: Allura, designed by Rob Leuschke, TypeSETit
+  sha256: 55ed2de9c602229f32dd2784aae704023a5594eb8d208131f2552fae330a2a67
+
+EMSFelix.svg
+  Font name: EMS Felix
+  Created by: Sheldon B. Michaels
+  SVG font conversion by: Windell H. Oskay
+  A derivative of: Felipa, designed by Fontstage
+  sha256: e7b2463c6cb2a2cbef59db9b1f9f5a20a0ecd9158eeb8f01f2015c9e5be7dca4
+
+EMSOsmotron.svg
+  Font name: EMS Osmotron
+  Created by: Sheldon B. Michaels
+  SVG font conversion by: Windell H. Oskay
+  A derivative of: Orbitron (Regular), designed by Matt McInerney, the League of Moveable Type
+  sha256: 158b0f247a005ca5b6b8556f85684ad10cbb04c41ebbd394b9090c8ea2f16c52
+
+EMSReadability.svg
+  Font name: EMS Readability
+  Created by: Sheldon B. Michaels
+  SVG font conversion by: Windell H. Oskay
+  A derivative of: Source Sans Pro-Light, designed by Paul D. Hunt, Adobe
+  sha256: eebece4f2a47b9d3a8f40cab2b0f689ca60902997abd5c81064ef0d2a3a05522
+
+EMSTech.svg
+  Font name: EMS Tech
+  Created by: Sheldon B. Michaels
+  SVG font conversion by: Windell H. Oskay
+  A derivative of: Architects Daughter, designed by Kimberly Geswein, Kimberly Geswein Fonts
+  sha256: 7b5a420d4e16285213e7e2b1d187d086835c2dd7a7f64c5b8057434f082fc46f

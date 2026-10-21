@@ -1,0 +1,58 @@
+en:
+  ai_tell_phrases:
+    - delve
+    - furthermore
+    - moreover
+    - in recent years
+    - a myriad of
+    - leverage
+    - robust
+    - comprehensive
+  stock_openers:
+    - in recent years
+    - in this study
+  stock_closers:
+    - in conclusion
+    - overall
+  adjective_stacks:
+    - remarkably novel and highly significant
+    - incredibly strong and very robust
+  redundant_qualifiers:
+    - very
+    - extremely
+    - highly
+    - remarkably
+    - incredibly
+  hedging_words:
+    - perhaps
+    - potentially
+    - could
+    - might
+ko:
+  ai_tell_phrases:
+    - 최근 들어
+    - 매우 중요한
+    - 지대한 관심을 받고 있다
+  stock_openers:
+    - 본 연구에서는
+    - 본 논문에서는
+    - 최근 들어
+  stock_closers:
+    - 결론적으로
+    - 요약하면
+  translationese:
+    - 에 있어서
+    - 라고 사료된다
+    - 살펴보면
+  overused_loanwords:
+    - 리서치
+    - 리뷰
+    - 메리트
+    - 컨센서스
+  eomi_repetition:
+    - 하였다
+    - 되었다
+    - 할 수 있다
+    - 라고 볼 수 있다
+    - 로 판단된다
+    - 임을 확인하였다

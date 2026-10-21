@@ -1,0 +1,78 @@
+{
+  "pretendard": {
+    "family": "Pretendard",
+    "release": "v1.3.9",
+    "repository": "https://github.com/orioncactus/pretendard",
+    "releaseAsset": "https://github.com/orioncactus/pretendard/releases/download/v1.3.9/Pretendard-1.3.9.zip",
+    "releaseArchiveSha256": "04be351a74d6bf7d60c480a3087e51d185485d35a52023142af1df19eb8c428a",
+    "license": "SIL Open Font License 1.1 (Reserved Font Name Pretendard; files ship unmodified)",
+    "sourcePaths": [
+      "public/static/Pretendard-Regular.otf",
+      "public/static/Pretendard-Bold.otf",
+      "LICENSE.txt"
+    ],
+    "weightsUsed": "Regular 400 and Bold 700: the Pretendard templates select weight with the bold flag",
+    "files": [
+      {
+        "file": "pretendard/Pretendard-Regular.otf",
+        "bytes": 1574352,
+        "sha256": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93"
+      },
+      {
+        "file": "pretendard/Pretendard-Bold.otf",
+        "bytes": 1576660,
+        "sha256": "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7"
+      },
+      {
+        "file": "pretendard/OFL.txt",
+        "bytes": 4419,
+        "sha256": "b04538c9abec39a3db75108cf0af0fd9c77032fe8aa2cf38345b4d250e98e38e"
+      }
+    ]
+  },
+  "a2z": {
+    "family": "에이투지체 (A2Z)",
+    "release": "v1.001",
+    "repository": "https://github.com/Freesentation/A2Z",
+    "license": "SIL Open Font License 1.1 (no Reserved Font Name; files ship unmodified)",
+    "weightsUsed": "Light, Regular, Medium, Bold, Black: the only per-weight families the A2Z templates and font map name",
+    "files": [
+      {
+        "file": "a2z/A2Z-Light.otf",
+        "bytes": 414552,
+        "sha256": "0af47a109c5b96a04a0ec1c28d70a384ccca913a0654f4b9f7f9793298811967"
+      },
+      {
+        "file": "a2z/A2Z-Regular.otf",
+        "bytes": 416236,
+        "sha256": "5d02a8ab19fec007bc0a05cd920da6a468b14e4dc9934397085be924eea945e7"
+      },
+      {
+        "file": "a2z/A2Z-Medium.otf",
+        "bytes": 417800,
+        "sha256": "2f09be198653707b91fdb01fcecf86441989ff9119de87efffc39c4fed775d39"
+      },
+      {
+        "file": "a2z/A2Z-Bold.otf",
+        "bytes": 416520,
+        "sha256": "c7154e57e0b7fde1c4f4657a3f9f0dc7ee891aec328fbc4f1381b3c379b81e5f"
+      },
+      {
+        "file": "a2z/A2Z-Black.otf",
+        "bytes": 419704,
+        "sha256": "ee41829a05da37d95aa4ca14d091f6f01f52764f81ab5274589851806a932787"
+      },
+      {
+        "file": "a2z/OFL.txt",
+        "bytes": 4490,
+        "sha256": "250ec9b788761b5e265e8700c0a169e3b409d9d114d6aa3ed6190384afbd542d"
+      },
+      {
+        "file": "a2z/SOURCE.md",
+        "bytes": 1895,
+        "sha256": "5af89baef4991b664382c81617a850b0bf84d2dcfea2ee19e4010794db5d643e"
+      }
+    ]
+  },
+  "totalBytes": 5246628
+}

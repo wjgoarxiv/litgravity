@@ -1,0 +1,12 @@
+{
+  "name": "litgravity-office-runtime",
+  "private": true,
+  "description": "Pinned Node runtime for the LitGravity lit-pptx engine. Installed on first use into a LitGravity-owned cache, never globally. image-size is overridden to a patched release; pptxgenjs declares it but its build never loads it.",
+  "dependencies": {
+    "pptxgenjs": "3.12.0",
+    "sharp": "0.35.5"
+  },
+  "overrides": {
+    "image-size": "2.0.4"
+  }
+}

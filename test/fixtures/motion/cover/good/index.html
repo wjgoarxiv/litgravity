@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/lit/fonts.css">
+<script src="/lit/loop-kit.js"></script>
+<style>
+  html, body { margin: 0; width: 1200px; height: 600px; overflow: hidden; background: #10141c; }
+  #name { position: absolute; left: 72px; top: 236px; padding: 0 18px; background: #10141c; color: #efe9d8; font: 900 108px "Archivo"; }
+  body.mask, body.mask * { background: #000 !important; color: #000 !important; }
+  body.mask #name { color: #fff !important; }
+  body.mask canvas { visibility: hidden; }
+</style>
+<body>
+<canvas id="cv" width="2400" height="1200" style="position:absolute;left:0;top:0;width:1200px;height:600px"></canvas>
+<div id="name">LOOPTEST</div>
+<script>
+// LitGravity test cover with the three speed layers: stripes slide one period per loop (slow), a marker circles its
+// ring twice (mid) and swells as it passes the top (beat). Each frame is drawn from t alone; the name stays put.
+const { TAU, fract, cubicPulse } = LitLoop;
+const g = document.getElementById("cv").getContext("2d");
+g.scale(2, 2);
+window.renderFrame = (t, opts = {}) => {
+  document.body.className = opts.mask ? "mask" : "";
+  g.fillStyle = "#10141c";
+  g.fillRect(0, 0, 1200, 600);
+  if (opts.mask) return;
+  g.fillStyle = "#22303f";
+  for (let i = -1; i < 13; i += 1) g.fillRect(i * 100 + t * 100, 0, 44, 600);
+  const lap = fract(t * 2);
+  const angle = lap * TAU;
+  g.fillStyle = "#f2683a";
+  g.beginPath();
+  g.arc(910 + 140 * Math.cos(angle), 300 + 140 * Math.sin(angle), 15 + 9 * cubicPulse(0, 0.06, lap), 0, TAU);
+  g.fill();
+};
+document.fonts.load('900 108px "Archivo"').then(() => { window.renderFrame(0); window.ready = true; });
+</script>
+</body>

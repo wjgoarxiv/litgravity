@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Recipe A, weight tide: type as material. A worked example: the brand word (WORD) stays in
+     place and a weight wave passes through it and through low-contrast rows of it that drift one
+     word length per loop. JetBrains Mono has a real wght axis (100-800) and a fixed advance, so
+     nothing reflows while the weight moves. Replace WORD and the motto with the project's own. -->
+<link rel="stylesheet" href="/lit/fonts.css">
+<script src="/lit/loop-kit.js"></script>
+<style>
+  :root { --bg: #080d14; --ink: #1b2531; --ivory: #f2efdf; --orange: #ff6337; }
+  html, body { margin: 0; width: 1200px; height: 600px; overflow: hidden; background: var(--bg); font-family: "JetBrains Mono"; }
+  #field { position: absolute; inset: 0; }
+  .row { position: absolute; left: 0; white-space: pre; font-size: 56px; line-height: 1; color: var(--ink); }
+  .row span, #hero span { display: inline-block; }
+  #band { position: absolute; left: 0; right: 0; top: 180px; height: 252px; background: var(--bg); }
+  #band::before, #band::after { content: ""; position: absolute; left: 0; right: 0; height: 2px; background: #1f2a37; }
+  #band::before { top: 0; } #band::after { bottom: 0; }
+  #hero { position: absolute; left: 0; right: 0; top: 196px; text-align: center; font-size: 168px; line-height: 1; color: var(--ivory); white-space: pre; }
+  #cursor { position: absolute; top: 364px; height: 9px; background: var(--orange); }
+  #motto { position: absolute; left: 0; right: 0; top: 396px; text-align: center; font-size: 19px; letter-spacing: 9px; color: #8b8f8f; font-weight: 500; }
+  #motto b { color: var(--orange); font-weight: 700; }
+  body.mask, body.mask * { color: #000 !important; background: #000 !important; }
+  body.mask #band::before, body.mask #band::after { background: #000 !important; }
+  body.mask #hero { color: #fff !important; background: transparent !important; }
+  body.mask #hero span { color: #fff !important; background: transparent !important; }
+</style>
+</head>
+<body>
+<div id="field"></div>
+<div id="band"></div>
+<div id="hero"></div>
+<div id="cursor"></div>
+<div id="motto">KEEP THE WORK <b>LIT.</b></div>
+<script>
+// Weight tide. One rule: a letter's weight = a swell of the loop phase, offset by where the letter is on screen.
+// The background rows drift one word per loop (perpetual, linear), so letters pass through the tide;
+// the hero word stays put and the tide passes through it. A terminal cursor walks the hero letter by letter.
+const { TAU, clamp, fract, mix, ease, swell, makeNoise, loopNoise, cubicPulse } = LitLoop;
+const WORD = "LITGRAVITY", GAP = "·", ROW_H = 64, FS = 56, ADV = FS * 0.6;
+const DRIFT = 1; // words of row travel per loop
+const noise = makeNoise(7);
+// Tide offset field: a diagonal sweep (x then y) plus slow loop noise per row, so the front is not a ruler.
+const offsetAt = (x, y, row) => 0.85 * (x / 1200) + 0.35 * (y / 600) + 0.06 * row;
+const tide = (t, off) => ease.gain(swell(fract(t - off)), 2.4); // dwells at light and at bold, turns quickly
+
+const field = document.getElementById("field");
+const rows = [];
+for (let r = 0; r < 10; r++) {
+  const el = document.createElement("div");
+  el.className = "row";
+  el.style.top = `${r * ROW_H - 18}px`;
+  const text = (WORD + GAP).repeat(6);
+  const spans = [...text].map((ch) => { const s = document.createElement("span"); s.textContent = ch; el.appendChild(s); return s; });
+  field.appendChild(el);
+  rows.push({ el, spans, y: r * ROW_H + 10, dir: r % 2 ? 1 : -1, r });
+}
+const hero = document.getElementById("hero");
+const heroSpans = [...WORD].map((ch) => { const s = document.createElement("span"); s.textContent = ch; hero.appendChild(s); return s; });
+const cursor = document.getElementById("cursor");
+const HFS = 168, HADV = HFS * 0.6, HX0 = (1200 - HADV * WORD.length) / 2;
+
+window.renderFrame = (t, o = {}) => {
+  document.body.className = o.mask ? "mask" : "";
+  const wordW = (WORD.length + 1) * ADV;
+  for (const row of rows) {
+    // Exactly one word of travel per loop keeps the drift seamless; a little noise breathes the row's phase.
+    const shift = row.dir * wordW * DRIFT * t - wordW * 1.5 + 6 * DRIFT * loopNoise(noise, t, row.r * 3.1, 0.9);
+    row.el.style.transform = `translateX(${shift}px)`;
+    const wob = 0.05 * loopNoise(noise, t, 40 + row.r, 1.1);
+    row.spans.forEach((s, i) => {
+      const x = shift + i * ADV + ADV / 2;
+      const k = tide(t, offsetAt(x, row.y, row.r) + wob);
+      s.style.fontVariationSettings = `"wght" ${Math.round(mix(100, 800, k))}`;
+      s.style.color = `rgb(${Math.round(mix(22, 46, k))},${Math.round(mix(31, 58, k))},${Math.round(mix(42, 74, k))})`;
+    });
+  }
+  // The hero word gets the same tide but a narrower range, so it never drops below a readable weight.
+  heroSpans.forEach((s, i) => {
+    const x = HX0 + i * HADV + HADV / 2;
+    const k = tide(t, offsetAt(x, 300, 4.5));
+    s.style.fontVariationSettings = `"wght" ${Math.round(mix(330, 800, k))}`;
+  });
+  // Cursor: dwell under each letter, step on with a small overshoot; on the last stop it carriage-returns.
+  const stops = WORD.length + 1, x = t * stops, i = Math.floor(x), f = x - i;
+  const go = clamp((f - 0.62) / 0.38);
+  let pos;
+  if (i < stops - 1) pos = i + ease.outBack(go, 1.4);
+  else pos = WORD.length * (1 - ease.inCubic(clamp(f / 0.45))) ; // carriage return, accelerating home
+  pos = Math.min(pos, WORD.length);
+  const blinkOff = i === stops - 1 ? 0 : cubicPulse(0.3, 0.12, f); // a short dip while it dwells
+  cursor.style.left = `${HX0 + pos * HADV + 6}px`;
+  cursor.style.width = `${HADV - 12}px`;
+  cursor.style.opacity = String(1 - 0.75 * blinkOff);
+};
+document.fonts.load('400 56px "JetBrains Mono"').then(() => document.fonts.ready).then(() => { window.renderFrame(0); window.ready = true; });
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Memo: a notice, internal memo, short decision request or letter of one to two pages. No cover: a label, the
+# subject as title and To / From / Date / Subject rows between two hairlines; no components (a callout reads as
+# a bold lead line); unnumbered sections; the folio from page 2.
+schema_version: 2
+tonality: Memo
+summary: Notices, internal memos, short decision requests and letters of one to two pages
+dials: {density: 9, variance: 2}
+docx:
+  page: {size: A4}
+  font: {latin: Pretendard, hangul: Pretendard, heading: Pretendard, body_pt_ko: 10.5, body_pt_en: 11}
+design:
+  ramp: {h1: 1.2, h2: 1.1, title: 1.8}
+  numbering: none
+  title_block: memo
+  contents: false
+  summary_form: prose
+  running_head: {footer: [folio], folio_align: right}
+  justify: ko
+  palette: {ink: "1A1A1A", ink_muted: "555555", line: "8C8C8C"}
+  accent_on: []
+  page_geometry: {columns: 1, column_gap_cm: 0.6}
+  components:
+    allowed: []
+  figure_style: {max_height_ratio: 0.40}
+  # A memo stays on one page when its content allows: the low end of the line pitch, tighter heading space.
+  spacing: tight
