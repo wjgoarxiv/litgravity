@@ -12,7 +12,13 @@
 <a href="https://github.com/wjgoarxiv/litgravity/stargazers"><img src="https://img.shields.io/github/stars/wjgoarxiv/litgravity?style=flat" alt="GitHub 스타" /></a>
 </p>
 
-<p align="center"><a href="#설치">설치</a> &nbsp; <a href="#들어-있는-것">들어 있는 것</a> &nbsp; <a href="#지금-agy가-막아-두는-것">agy의 한계</a> &nbsp; <a href="#안전과-제거">안전</a> &nbsp; <a href="./README.md">English</a></p>
+<p align="center"><a href="#설치"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> 설치</a> &nbsp; <a href="#데모"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> 데모</a> &nbsp; <a href="#안전과-제거"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> 안전</a> &nbsp; <a href="#빠른-시작">빠른 시작</a> &nbsp; <a href="#들어-있는-것">들어 있는 것</a> &nbsp; <a href="#지금-agy가-막아-두는-것">agy의 한계</a> &nbsp; <a href="./README.md">English</a></p>
+
+## 데모
+
+`lit`을 치면 무엇이 도는지, 이 Mac의 실제 훅과 상태 표시줄에서 가져왔습니다. 친 프롬프트, 끼워 넣은 경로 안내, lit-loop 지도를 단 상태 표시줄 순서입니다.
+
+<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="터미널 갈무리. 프롬프트는 lit add a --shout flag that prints the greeting in capitals, with a test. 훅은 LIT 표시와 LIT IGNITED · lit-loop로 답하고, 먼저 읽을 lit-loop 스킬 파일을 알리고, 도구 기록이 대화 ledger에 남는다고 안내합니다. 아래 상태 표시줄에는 모델, 42퍼센트 컨텍스트 게이지, 시계가 달린 lit-loop 칩, PIN이 켜진 PIN부터 RECORD까지의 지도가 보입니다." /></p>
 
 ## 왜 LitGravity인가
 
@@ -26,7 +32,13 @@ LitGravity는 대화마다 따라갈 순서를 줍니다. 프롬프트를 `lit`�
 마무리    "계획을 저장했습니다. 괜찮으면 `lit start plans/todo-app.md`를 실행하세요."
 ```
 
-대화를 돌리고 모델을 고르는 것은 여전히 agy입니다. LitGravity는 일하는 방식을 더하고, 그 방식은 직접 읽을 수 있는 평범한 파일로 남습니다.
+대화를 돌리고 모델을 고르는 것은 여전히 agy이고, LitGravity는 그 주위에 따라갈 순서를 더합니다. 그 순서는 직접 읽을 수 있는 평범한 파일로 남습니다.
+
+| agy가 하는 일 | lit이 더하는 일 |
+|---|---|
+| 한 줄을 치면 시작합니다 | 첫 편집 전에 `plans/`에 계획을 적습니다 |
+| 지난 대화를 잊습니다 | 계획에 맞춰 확인하고, 확인하지 못한 곳은 미확인으로 표시합니다 |
+| 모델이 그렇다고 하면 끝냅니다 | 다음 턴이 읽을 `.litgravity/` 인계를 남깁니다 |
 
 ## 설치
 
@@ -43,6 +55,8 @@ npx @litfamily/litgravity doctor
 ```
 
 `doctor`는 설치된 사본, 검증 결과, 훅 이벤트 6개와 각 훅 스크립트의 실행 확인, 스킬과 에이전트 전체, 각 엔진과 그 사전 설치 명령, 스킬이 부르는 호스트 프로그램, 엔진이 쓸 Python을 보여 줍니다. 깨진 곳이 없으면 마지막 줄이 `LitGravity: ready`입니다.
+
+<p align="center"><img src="./docs/assets/litgravity/install-doctor.webp" width="960" alt="터미널 갈무리. 설치 명령은 Status: Ready로 끝나고, doctor 명령은 서른 개의 통과 확인 뒤에 LitGravity: ready로 끝납니다." /></p>
 
 자주 쓰는 옵션: `--dry-run`은 미리 보기만 하고 아무것도 쓰지 않습니다. `--yes`는 터미널이 붙지 않은 에이전트나 CI 셸에서 설치를 허용합니다(그런 셸에서는 기본으로 미리 보기만 합니다). `--status-line`은 agy 사용자 설정에 선택형 LitGravity 상태 표시줄을 추가합니다(기본값은 꺼짐).
 
@@ -71,22 +85,31 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 
 `npx @litfamily/litgravity list`는 모든 스킬과 그 스킬에 닿는 단어를 출력합니다. 경로가 이미 켜진 상태에서 `lit`을 다시 쓰면 짧은 "이어 갑니다" 메모만 가고, `lit <다른 경로>`는 경로를 바꾸며, `lit`만 쓰면 `lit start`로 시작해 둔 계획을 이어받고, `lit new`는 처음부터 다시 시작합니다.
 
+## 상태 표시줄
+
+프롬프트 아래 한 줄이 지금 작업이 어디쯤인지 보여 줍니다. 모델과 강도, 컨텍스트와 쿼터 게이지, 시계가 달린 지금 경로, 현재 단계가 켜진 경로 지도 순서입니다. 아래 갈무리는 이 Mac에서 실제로 렌더링한 것으로, `lit`을 치기 전과 친 뒤입니다.
+
+<p align="center"><img src="./docs/assets/litgravity/status-states.webp" width="960" alt="상태 표시줄의 터미널 갈무리. lit 전에는 모델과 42퍼센트 컨텍스트 게이지만 보이고, lit 뒤에는 시계가 달린 lit-loop 칩과 PIN이 켜진 PIN부터 RECORD까지의 지도가 덧붙습니다." /></p>
+
+터미널이 좁아지면 덧붙는 정보부터 빠지고 경로와 컨텍스트 게이지는 남습니다. 색이 꺼진 곳에서는 같은 줄이 다음처럼 평문으로 나옵니다.
+
+```text
+[LIT] | GF3.8 | ctx [#--] 42%/1049k | [LIT] . lit-loop 2:20 | [PIN] = RED . - GREEN . - VERIFY . - REVIEW . - RECORD .
+```
+
 ## 들어 있는 것
+
+모든 lit 턴은 같은 순서를 따릅니다. 큰 변경은 첫 편집 전에 계획으로 적습니다. 작업은 그 계획에 맞춰 테스트와 실제 화면 확인으로 검증합니다. 합치기 전에는 두 번째 눈이 검토합니다. 조사는 출처를 밝히고, 문서와 글은 깔끔하게 읽히며, 턴은 다음 대화가 읽을 인계 메모로 끝납니다. 아래 스킬, 에이전트, 훅, 엔진은 그 순서의 부품으로, 필요할 때 읽습니다.
 
 **스킬 39개.** 각 스킬은 필요할 때 읽는 agy 스킬로, 필요한 참고 문서, 스크립트, 템플릿, 엔진을 자기 폴더 안에 갖고 있습니다. agy는 `SKILL.md`의 앞 24,000바이트만 불러오므로 긴 내용은 스킬의 `references/` 폴더에 두고, 스킬이 열 파일을 알려 줍니다.
 
-- 루프와 목표: lit-loop, litgoal, litwork
-- 아이디어와 계획: lit-brainstorm, deep-interview, lit-crucible, lit-plan
-- 구현: start-work, lit-code, debugging, refactor, lit-commit, lsp, lsp-setup
-- 검토와 정리: review-work (계획 검토와 작업 검토), visual-qa, comment-checker, lit-burnoff, lit-burnoff-file
-- 조사와 지식: litresearch, autoresearch, autoconference, wikify, lit-comprehend
-- 팀: lit-team
-- 글: lit-humanizer (한국어와 영어)
-- 이어가기와 안내: lit-recap, lit-handoff, lit-init, rules
-- 화면과 문서: frontend-ui-ux, readme-studio
-- 문서와 그림: lit-docx, lit-pptx, lit-scientific-visualization, lit-diagram-drawer
-- 영상과 커버: lit-typographic-motion (짧은 영상, 키네틱 타이포, 가사 영상, 끊김 없는 README 커버 루프. 결정적 렌더러로 만들고, 디코딩한 파일로 게이트를 통과시키고, 프레임을 하나씩 눈으로 봅니다)
-- 도구: structural-search, browser-drive
+| 부분 | 내용 | 역할 |
+|---|---|---|
+| 스킬 39개 | 참고 문서, 스크립트, 엔진을 담은 agy 스킬 | 계획, 구현, 확인, 조사, 작성, 인계 |
+| 에이전트 11개 | agy가 타입 이름으로 시작하는 하위 에이전트 | 계획, 실행, 검증, 검토, 한국어 글 |
+| 훅 6개 | 세션 시작, 매 턴, 매 도구 호출, 종료 게이트에서 실행 | `lit` 라우팅, 미완 턴 붙잡기, 도구 ledger 기록 |
+
+스킬 묶음은 루프와 목표, 아이디어와 계획, 구현, 검토와 정리, 조사와 지식, 팀, 글, 이어가기와 안내, 화면과 문서, 문서와 그림, 영상과 커버, 도구이고, `npx @litfamily/litgravity list`는 모든 스킬과 그 스킬에 닿는 단어를 출력합니다.
 
 문서, 다이어그램, README 커버, 그림, 모션 스킬은 버전이 고정된 엔진을 함께 싣습니다. 이름은 `office`, `diagram`, `readme`, `sciviz`, `motion`입니다. 각 엔진은 `~/.local/share/litgravity/runtime/<이름>`에만 설치됩니다. `npx @litfamily/litgravity runtime install all`(또는 이름 하나)로 한 번 설치하고, `runtime status`로 상태를 봅니다. 스킬은 엔진이 준비됐는지 먼저 확인하고, 없으면 agy에 설치 명령을 실행해 달라고 합니다. Python이 필요한 엔진은 알아서 쓸 수 있는 인터프리터를 고릅니다. 3.14보다 새로운 `python3`에는 고정된 패키지의 휠이 없으므로 `python3.14`, `python3.13`을 차례로 찾고, `LITGRAVITY_OFFICE_PYTHON`, `LITGRAVITY_SCIVIZ_PYTHON`, `LITGRAVITY_MOTION_PYTHON`이 있으면 그 값을 따르며, 맞는 인터프리터가 없으면 정확한 해결 방법과 함께 `BLOCKED`로 답합니다. 스킬은 이미 설치된 프로그램도 부릅니다. LibreOffice, pandoc, Poppler, Chrome 또는 Chromium, ffmpeg, libwebp, ast-grep, XeLaTeX, `lsp`가 돌리는 언어별 검사기가 그것입니다. 빠진 것과 설치 명령은 `doctor`가 알려 주며, LitGravity는 소프트웨어를 전역으로 설치하지 않습니다.
 
@@ -123,6 +146,14 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 
 경로 상태는 프로젝트 밖의 `~/.local/state/litgravity/`에 있어서, 계획 턴이 다루라고 안내받는 파일과 떨어져 있습니다. 그 상태가 손상되면 하위 에이전트 제한과 계획 게이트는 켜진 채로 남고, 사라지면 훅이 옆에 둔 경로 기록을 대신 읽습니다.
 
+## 붙잡힌 턴과 ledger
+
+기다려도 되는 턴이 있습니다. 계획 파일이 아직 없는 lit-plan 턴은 `plans/<slug>.md`가 생길 때까지 끝에서 붙잡히며, 진전 없이 연달아 최대 세 번입니다. start-work는 승인된 계획에 열린 행이 있는 동안, litgoal과 lit-loop는 목표 기록에 열린 기준이 있는 동안 기다립니다. `pause`라고 말하거나 ledger에 `BLOCKED at row N:`, `PAUSED at row N:`, `CANCELLED:`를 적으면 풀립니다. 아래 갈무리는 아무것도 쓰지 않은 계획 턴이 실제로 붙잡힌 모습입니다.
+
+<p align="center"><img src="./docs/assets/litgravity/handoff-hold.webp" width="960" alt="터미널 갈무리. 계획 파일 없이 끝난 lit plan a tiny todo app 프롬프트 뒤에 Stop 훅이 decision continue와 계획 파일을 요구하는 lit-plan 게이트 사유로 답합니다. 아래쪽에는 read_file 도구 호출을 기록한 ledger 한 줄이 보입니다." /></p>
+
+경로가 켜져 있는 동안 모든 도구 호출은 `.litgravity/ledger/<대화>.jsonl`에 한 줄씩 남고, 키 모양의 값은 가려집니다. 멈추기 전에 `lit handoff`를 치면 무엇을 만들었고 어떻게 확인했고 무엇이 남았는지 `.litgravity/handoff/latest.md`에 적히고, 다음 대화는 그 메모에서 시작합니다.
+
 ## 안전과 제거
 
 - 설치기는 자기 플러그인 폴더, 데이터 디렉터리(`$XDG_DATA_HOME/litgravity`), 그리고 요청했을 때 agy 사용자 설정의 상태 표시줄 키만 씁니다. 설정 파일은 먼저 백업합니다. agy의 인증 파일은 읽지 않습니다.
@@ -130,7 +161,17 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 - 훅이 하나 깨져도 대화는 계속됩니다.
 - 엔진 캐시는 `~/.local/share/litgravity/runtime/`에 있습니다. `uninstall`은 캐시를 남기므로, 공간이 필요하면 그 폴더를 지우세요.
 - agy를 시작하기 전에 `LITGRAVITY_HOOK_TRACE=<파일>`을 지정하면 훅 호출마다 한 줄씩 기록합니다. 지정하지 않으면 꺼져 있습니다.
-- 설치기가 쓴 것은 모두 `npx @litfamily/litgravity uninstall --yes`로 지웁니다(미리 보려면 `--dry-run`). 대화가 프로젝트에 만든 파일(`plans/`, `.litgravity/`)은 그대로 남습니다.
+설치부터 제거까지 세 명령으로 충분하고, 모두 `--dry-run`으로 먼저 미리 봅니다.
+
+| 작업 | 명령 |
+|---|---|
+| 설치 | `npx @litfamily/litgravity install` |
+| 업데이트 | `npx @litfamily/litgravity install` (검증하고 그 자리에서 교체) |
+| 엔진 새로 받기 | `npx @litfamily/litgravity runtime install all` |
+| 확인 | `npx @litfamily/litgravity doctor` |
+| 제거 | `npx @litfamily/litgravity uninstall --yes` |
+
+대화가 프로젝트에 만든 파일(`plans/`, `.litgravity/`)은 그대로 남습니다.
 
 ## 패밀리
 

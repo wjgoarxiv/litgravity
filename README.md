@@ -12,7 +12,13 @@
 <a href="https://github.com/wjgoarxiv/litgravity/stargazers"><img src="https://img.shields.io/github/stars/wjgoarxiv/litgravity?style=flat" alt="GitHub stars" /></a>
 </p>
 
-<p align="center"><a href="#install">Install</a> &nbsp; <a href="#what-you-get">What you get</a> &nbsp; <a href="#what-agy-limits-today">agy limits</a> &nbsp; <a href="#safety-and-uninstall">Safety</a> &nbsp; <a href="./README_ko-KR.md">한국어</a></p>
+<p align="center"><a href="#install"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> Install</a> &nbsp; <a href="#demo"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> Demo</a> &nbsp; <a href="#safety-and-uninstall"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> Safety</a> &nbsp; <a href="#quick-start">Quick start</a> &nbsp; <a href="#what-you-get">What you get</a> &nbsp; <a href="#what-agy-limits-today">agy limits</a> &nbsp; <a href="./README_ko-KR.md">한국어</a></p>
+
+## Demo
+
+What ignition looks like, captured from the real hook and status line on this Mac: the typed prompt, the injected route note, and the status line carrying the lit-loop map.
+
+<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="Terminal capture. The prompt reads lit add a --shout flag that prints the greeting in capitals, with a test. The hook answers with the LIT mark and LIT IGNITED · lit-loop, names the lit-loop skill file to read first, and notes that tool events go to the conversation ledger. Below, the status line shows the model, the context gauge at 42 percent, the lit-loop chip with its clock, and the PIN through RECORD map with PIN lit." /></p>
 
 ## Why LitGravity
 
@@ -26,7 +32,13 @@ it does     reads the plan skill, explores the repo, writes plans/todo-app.md wi
 it ends     "Plan saved. Run `lit start plans/todo-app.md` when you are happy with it."
 ```
 
-agy still runs the conversation and picks the model. LitGravity adds the way of working, and it lives in plain files you can read.
+agy still runs the conversation and picks the model, while LitGravity adds the routine around it. That routine lives in plain files you can read:
+
+| What agy does | What lit adds |
+|---|---|
+| Starts from one typed line | A plan in `plans/` before the first edit |
+| Forgets the last conversation | Checks against the plan, marks the unchecked as unverified |
+| Calls it done when the model says so | A handoff in `.litgravity/` the next turn reads |
 
 ## Install
 
@@ -43,6 +55,8 @@ npx @litfamily/litgravity doctor
 ```
 
 `doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, every skill and agent, every engine with its pre-warm command, the host programs the skills call, and the Python the engines will use. It ends with `LitGravity: ready` when nothing is broken.
+
+<p align="center"><img src="./docs/assets/litgravity/install-doctor.webp" width="960" alt="Terminal capture. The install command ends with Status: Ready, and the doctor command ends with LitGravity: ready after thirty passing checks." /></p>
 
 Useful switches: `--dry-run` previews and writes nothing; `--yes` lets an agent or CI shell install (a shell without a terminal otherwise only previews); `--status-line` adds the optional LitGravity status line to agy's user settings (never on by default).
 
@@ -71,22 +85,31 @@ Use only the official npm package @litfamily/litgravity. Show me your plan and w
 
 `npx @litfamily/litgravity list` prints every skill with the words that reach it. A `lit` while its route is already active gets a short "continues" note, `lit <other route>` switches, a bare `lit` picks up a plan you started with `lit start`, and `lit new` starts over.
 
+## The status line
+
+One row under the prompt shows where the work stands: the model and its effort tier, the context and quota gauges, the active route with its clock, and the map of that route with the current stage lit. The capture below is a real render from this Mac, before and after a `lit` prompt.
+
+<p align="center"><img src="./docs/assets/litgravity/status-states.webp" width="960" alt="Terminal capture of the status line. Before lit it shows the model and the context gauge at 42 percent. After lit it adds the lit-loop chip with its clock and the PIN through RECORD map with PIN lit." /></p>
+
+When the terminal narrows, the extras give way first and the route and the context gauge stay. Where colour is off, the same row renders in plain text:
+
+```text
+[LIT] | GF3.8 | ctx [#--] 42%/1049k | [LIT] . lit-loop 2:20 | [PIN] = RED . - GREEN . - VERIFY . - REVIEW . - RECORD .
+```
+
 ## What you get
 
-**39 skills**, each a dense agy skill read on demand, with the references, scripts, templates and engines it needs inside its own folder. agy loads only the first 24,000 bytes of a `SKILL.md`, so the long material sits in the skill's `references/` folder and the skill names the file to open:
+**39 skills**, each a dense agy skill read on demand, with the references, scripts, templates and engines it needs inside its own folder. agy loads only the first 24,000 bytes of a `SKILL.md`, so the long material sits in the skill's `references/` folder and the skill names the file to open.
 
-- Loop and goals: lit-loop, litgoal, litwork
-- Ideas and planning: lit-brainstorm, deep-interview, lit-crucible, lit-plan
-- Building: start-work, lit-code, debugging, refactor, lit-commit, lsp, lsp-setup
-- Review and cleanup: review-work (plan review and work review), visual-qa, comment-checker, lit-burnoff, lit-burnoff-file
-- Research and knowledge: litresearch, autoresearch, autoconference, wikify, lit-comprehend
-- Teams: lit-team
-- Prose: lit-humanizer (Korean and English)
-- Continuity and guidance: lit-recap, lit-handoff, lit-init, rules
-- Interface and docs: frontend-ui-ux, readme-studio
-- Documents and figures: lit-docx, lit-pptx, lit-scientific-visualization, lit-diagram-drawer
-- Film and covers: lit-typographic-motion (short films, kinetic type, lyric videos and seamless README cover loops, each rendered by a deterministic renderer, gated on the decoded file and looked at frame by frame)
-- Tools: structural-search, browser-drive
+A lit turn runs the same routine through these parts. A bigger change gets a written plan first, the work is built row by row with tests under a goal record that outlives one conversation, a second look reviews it before anything merges, research shows its sources, documents and prose read clean, and the turn ends with a handoff the next conversation reads:
+
+| Part | Contents | Role |
+|---|---|---|
+| 39 skills | Dense agy skills with their references, scripts and engines | Plan, build, check, research, write, hand off |
+| 11 agents | Child agents agy starts under their type names | Plan, execute, verify, review, Korean prose |
+| 6 hooks | Run at session start, each turn, each tool call, and the stop gate | Route `lit`, hold unfinished turns, ledger every tool |
+
+agy loads only the first 24,000 bytes of a `SKILL.md`, so the long material sits in the skill's `references/` folder and the skill names the file to open. The skill groups are loop and goals, ideas and planning, building, review and cleanup, research and knowledge, teams, prose, continuity and guidance, interface and docs, documents and figures, film and covers, and tools; `npx @litfamily/litgravity list` prints every skill with the words that reach it.
 
 The document, diagram, README-cover, figure and motion skills ship pinned engines: `office`, `diagram`, `readme`, `sciviz` and `motion`. Each installs into `~/.local/share/litgravity/runtime/<name>` and nowhere else. Install them once with `npx @litfamily/litgravity runtime install all` (or one name); `runtime status` shows each one. A skill checks its engine first and asks agy to run the install command when it is missing. Engines that need Python pick a supported interpreter by themselves: a `python3` newer than 3.14 has no wheels for the pinned packages, so they walk to `python3.14`, `python3.13` and so on, honour `LITGRAVITY_OFFICE_PYTHON`, `LITGRAVITY_SCIVIZ_PYTHON` or `LITGRAVITY_MOTION_PYTHON`, and answer `BLOCKED` with the exact fix when no interpreter fits. The skills also call programs already on your machine: LibreOffice, pandoc, Poppler, Chrome or Chromium, ffmpeg, libwebp, ast-grep, XeLaTeX and the language checkers that `lsp` drives. `doctor` names what is missing and the command that installs it; LitGravity never installs software globally.
 
@@ -123,6 +146,14 @@ These are the facts of agy 1.4.3, probed on a real install. LitGravity works ins
 
 Route state lives outside the project, under `~/.local/state/litgravity/`, away from the files a planning turn is asked to touch. If that state is damaged, the child-agent limit and the plan gate stay on; if it goes missing, the hooks fall back to the route journal kept beside it.
 
+## Held turns and the ledger
+
+Some turns are allowed to wait. A lit-plan turn with no plan file yet is held at the end until `plans/<slug>.md` exists, at most three holds in a row without progress. Start-work waits while an approved plan has open rows, and litgoal and lit-loop wait while a goal record has an open criterion. Say `pause`, or write `BLOCKED at row N:`, `PAUSED at row N:` or `CANCELLED:` in the ledger, to release a hold. The capture below is the real hold from a planning turn that wrote nothing.
+
+<p align="center"><img src="./docs/assets/litgravity/handoff-hold.webp" width="960" alt="Terminal capture. After the prompt lit plan a tiny todo app with no plan file written, the Stop hook answers decision continue with the lit-plan gate reason asking for the plan file. A second block shows a ledger line recording a read_file tool call." /></p>
+
+While a route is active, every tool call lands in `.litgravity/ledger/<conversation>.jsonl` with key shapes redacted, one line per call. Before you stop, `lit handoff` writes `.litgravity/handoff/latest.md` with what was built, how it was checked and what is left, so the next conversation starts from that note.
+
 ## Safety and uninstall
 
 - The installer writes only its own plugin folder, its data directory (`$XDG_DATA_HOME/litgravity`) and, when you ask, the status line key in agy's user settings, after a backup. It never reads agy's credential files.
@@ -130,7 +161,17 @@ Route state lives outside the project, under `~/.local/state/litgravity/`, away 
 - Hooks fail open: if one breaks, your conversation continues.
 - Engine caches live under `~/.local/share/litgravity/runtime/`. `uninstall` keeps them, so delete that folder to free the space.
 - Set `LITGRAVITY_HOOK_TRACE=<file>` before starting agy to log one line per hook call. It is off otherwise.
-- Remove everything the installer wrote with `npx @litfamily/litgravity uninstall --yes` (add `--dry-run` to preview). Files that conversations created in your projects (`plans/`, `.litgravity/`) stay where they are.
+Three commands cover the lifecycle, and every one previews with `--dry-run`:
+
+| Task | Command |
+|---|---|
+| Install | `npx @litfamily/litgravity install` |
+| Update | `npx @litfamily/litgravity install` (validates, replaces in place) |
+| Refresh engines | `npx @litfamily/litgravity runtime install all` |
+| Check | `npx @litfamily/litgravity doctor` |
+| Remove | `npx @litfamily/litgravity uninstall --yes` |
+
+Files that conversations created in your projects (`plans/`, `.litgravity/`) stay where they are.
 
 ## Family
 
