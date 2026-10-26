@@ -1,32 +1,31 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 — 2026-10-27
 
-- Add `lit-adhd` (alias `lit-rewind`) for cross-session briefing with progress gauges, paused-work tracking and one next step. The collector reads agy transcripts, plans, litgoal, handoff headings, git log and workflow stacks under a byte budget with redaction of credentials and environment values (42 skills total).
-- Add the workflow stack: interleaving (`lit brainstorm` in the middle of `lit-loop` pauses the loop instead of erasing it) and `lit continue` to resume the paused spine at its stage and k/n.
-- Add `go` / `ㄱㄱ` / `진행` as the whole prompt: within 30 minutes of a lit-adhd brief, it continues the next step the brief offered.
-- Add `lit approve` / `lit deny` as router words for typed start-work approval.
-- The status line shows thread info when a paused frame exists: a `+N paused` suffix beside the workflow map.
-- Add `lit-hijack` for porting the know-how in someone else's published work into your own skill or system, clean-room: captures with provenance, licence gate, overlap gate incl. Hangul, nine phase checks, implementer isolation via `invoke_subagent`, and a source-free build brief (41 skills total).
-- Add `lit-schematic` for P&IDs, PFDs, equipment layouts, journal apparatus figures and isometric cutaways, with a full symbol library, orthogonal router, QA gate and render-and-look loop.
-- Make rich, layered output the default for diagrams (density 8/10, 14--24 nodes, 3--5 accent families), schematics (material palette), scientific figures (light grid, direct annotation, insets, multi-panel context) and films (house style, scored stems, shot grid). Minimal is now opt-in.
-- Give every film a house style (swiss-signal, tidal, terminalcore, paper), a shot grid in the treatment, a scaffold that generates the starting page, and a storyboard round before the full render.
-- Add story and protagonist fields to the film treatment; product assets are fetched as untrusted data and confined under `cover/`.
-- Add the 3D route: three.js r170 vendored unminified for WebGL scenes, and a Blender Cycles rung for path-traced 3D when Blender is installed.
-- Score each film with a layered per-film sound bed (at least six audible stems, sidechain, lookahead limiter, BS.1770 target).
-- Add TEXT-OVERLAP, TEXT-ON-STYLE, TEXT-ZONE, FLAT-FRAME, DEAD-AIR and RICH-FILL stage-QA and gate rules.
-- The lit-adhd brief is now drawn in code (`rewind.mjs --brief --lang ko|en`) and printed as is: cards only for conversations that wait on you or are active, ended ones in a table with one line per row, and a real recommended step even when nothing runs on `go`. A card with no write names the tools it used and its last tool call (base name or subagent type, never a command line). The roadmap leaves out unfilled plan scaffolds, stale plans of other folders and their finished goals.
-- While lit-adhd is the route, the status line's rainbow runs cell by cell, pills included, and keeps the plain line's text and width.
-- The lit-adhd card shows its last tool call when the route recorded no stage, and the next-step box is open on the right so Korean text cannot push its edge out of line.
-- The READMEs gain a "What you can make" gallery of real outputs: a deck in four tonalities, a P&ID, two equipment drawings, film frames and the lit-adhd brief.
-- `go` after `lit adhd` works: the collector writes the offered step for the conversation it was given (`--session <id>`), and the activation note passes that id. The recommended step looks at start-work runs of every conversation, so another conversation's run blocks a second plan start.
-- The redactor masks quoted secret keys (`"apiKey": "…"`), one-time codes and terminal control sequences, and runs before any text is clipped. Plan files whose names hold control characters are skipped.
-- `lit-hijack` refuses a GitHub tree path with `..` or one that resolves outside the clone, before cloning.
-- The hero glow wraps the stage moment instead of drawing bands across the page; pixel art refuses a cell size that is not a number; each motion house-file write uses its own temp name.
-- The status line counts lanes against its own clock.
-- Every way into lit-adhd turns the status line to its rainbow: `lit adhd`, `lit rewind`, the skill id typed whole or after `/`, the `lit-rewind` alias in each of those forms, and a skill load the model makes on its own (reading the installed SKILL.md or running its collector). A work route already running keeps its route.
-- Status-line looks, chosen from one registry: YOUR TURN in amber with the reason when a lit turn ends on a question, a typed approval, a BLOCKED report or a goal that needs a decision (cleared at the next prompt); the five review-work lanes, each in its own colour with its verdict mark as its lane file arrives; and `✦ DONE ✦` for 20 seconds after a plan or goal finishes during the route. Every entry into review-work selects its look, including the model loading the skill by itself.
-- `lit-hijack` captures and the motion asset fetch reach only public `https` hosts on every redirect, connect to the address that check approved (no DNS rebinding between check and connect), and stop reading a body past its cap while it streams.
+New skills (42 in all):
+
+- `lit-adhd` (also `lit-rewind`) tells you where your recent agy conversations stand: what each asked, did and waits on, how far the plans and goals have come, and one next step. Type `go`, `ㄱㄱ` or `진행` within 30 minutes and it starts that step. The brief is drawn in code, works in Korean and English, and masks credentials, environment values, one-time codes and terminal control sequences before anything is shortened.
+- `lit-hijack` ports the know-how in someone else's published work into your own skill or system, clean-room: captures with provenance, a licence check, an overlap check that also covers Hangul, nine phase checks, a separate implementer, and a build brief that holds no source text.
+- `lit-schematic` draws P&IDs, PFDs, equipment layouts, journal apparatus figures and isometric cutaways from a full symbol library, routes the lines, and checks the drawing with a QA gate and a look at the render.
+
+Workflow:
+
+- Routes can nest. `lit brainstorm` in the middle of `lit-loop` pauses the loop instead of ending it, and `lit continue` resumes it where it stopped. `lit approve` and `lit deny` record a start-work decision.
+- The status line shows paused routes and running lanes, turns rainbow on every way into lit-adhd, and has three new looks: YOUR TURN in amber with the reason when a turn ends waiting on you, the five review-work lanes with their verdicts as each one reports, and a short DONE mark when a plan or goal finishes.
+
+Making things:
+
+- Diagrams, schematics, figures and films now come out rich by default; ask for minimal when you want it.
+- `lit-pptx` adds five tonalities (computational brutalism, neo-brutalism, bauhaus, riso, newsroom), a shared slide grid and JetBrains Mono, and renders decks in their embedded fonts.
+- `frontend-ui-ux` adds five house styles, a design lock that keeps a project on its chosen style, a small component kit, layout starters and new probe rules.
+- Films get a house style, a shot grid, a starting page, a storyboard round before the full render, a story and protagonist, a three.js route for 3D (with Blender when it is installed), a layered score, and new checks for overlapping text, empty frames and dead air.
+- The design skills ask you to pick a theme first, with the recommended one on top, unless you already named one or said to choose.
+- The READMEs gain a "What you can make" gallery of real outputs.
+
+Safety:
+
+- `lit-hijack` captures and film asset downloads reach only public `https` hosts, on every redirect, connect to the address that was checked, and stop reading once a body passes its size cap.
+- `lit-hijack` refuses a repository path that leaves the clone.
 
 ## 0.1.1 — 2026-10-26
 
