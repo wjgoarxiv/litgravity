@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1 — 2026-10-26
+
+- The README studio's HyperFrames and Remotion cover templates pin newer `hono` and `fast-uri` in their lockfiles, picking up upstream fixes. A fresh template setup installs these versions.
+- Both READMEs are rewritten with real captures of the install check, the status line states, a held handoff and a short demo, plus overview tables. The images stay in the repository, so the npm page loads them from GitHub.
+
 ## 0.1.0 — 2026-10-22
 
 First release of LitGravity, the LitFamily member for Google's Antigravity CLI (probed on agy 1.4.3).
