@@ -1,8 +1,8 @@
 ---
 tonality: paper
-title: Rolling recalibration of low-cost air sensors
+title: Staged feeding in a fixed-volume reactor
 date: 2026-10-02
-department: Example Sensor Lab
+department: Example Process Lab
 presenter: Example Speaker
 notice: Example data — replace with real figures
 ---
@@ -10,116 +10,116 @@ notice: Example data — replace with real figures
 ---
 layout: cover-index
 
-# Rolling recalibration of low-cost air sensors over twelve months
+# Staged feeding and conversion in a 20 L reactor
 ---
 
 ---
 layout: statement
 
-## Can cheap sensors stay accurate without a trip back to the lab?
+## Can conversion rise without a larger reactor?
 
-Factory-calibrated particle sensors reach 26% error within six months at every field site we tested.
+Single-feed runs plateau at 50% conversion after 30 minutes in every pilot vessel we tested.
 ---
 
 ---
 layout: section-field
 
-# Baseline drift, recalibration layout and symbols
+# Baseline conversion, feed layout and symbols
 ---
 
 ---
 layout: figure-academic
 
-## Factory-calibrated baseline error, months 0-12
+## Single-feed baseline conversion, 0-60 min
 
-![Figure 1. Mean absolute error over time, factory calibration, four sites | Source: example image](assets/example-a.png)
+![Figure 1. Conversion over time, single feed, three replicates | Source: example image](assets/example-a.png)
 
-- **Observation** Error climbs steadily: 9% at month 2, 26% at month 6, 38% at month 12
-- **Observation** Nearly two thirds of the twelve-month drift appears in the first six months
-- **Basis** 20 sensors, four field sites, one sensor model, collocated reference monitor at each site (example data)
-- **Implication** Drift, not noise, limits how long a sensor stays useful
-- Source: Example Sensor Lab baseline deployments D1-D4, 2025-2026 (example data)
+- **Observation** Conversion stalls after 30 minutes: 44% at 30 min, 50% at 60 min
+- **Observation** The baseline gains only 6 points after minute 30
+- **Basis** 1.0 L/min feed, 20 L reactor, three replicates at one temperature and one catalyst batch (example data)
+- **Implication** The plateau, not the kinetics, limits throughput
+- Source: Example Process Lab baseline runs B1-B3, May 2026 (example data)
 ---
 
 ---
 layout: method
 
-## Rolling recalibration layout and symbols
+## Three-stage feed layout and symbols
 
-![Figure 2. Recalibration scheme used in all deployments | Source: example image](assets/example-b.png)
+![Figure 2. Process layout used in all runs | Source: example image](assets/example-b.png)
 
-- **Layout** each sensor is corrected every week against the nearest reference station
-- **e** mean absolute error, the average gap to the reference reading, %
-- **d** drift rate, the change in error per month, points
-- **w** correction window, 14 days of paired readings
-- **L** distance to the nearest reference station, km
-- **c** correction factor, refitted by least squares at each update
-- **t₀, t₁** start of deployment and first refit, day 0 and day 7
-- Source: Example Sensor Lab protocol sheet, version 2, September 2026
+- **Layout** the feed is split into three stages along the reactor
+- **X** conversion, the fraction of feed that reacted
+- **k** first-order rate constant, 1/min
+- **τ** residence time per stage, min
+- **n** number of feed stages, three in every run
+- **q** feed split between stages, 50/30/20 by volume
+- **t₂, t₃** start of stages two and three, minute 20 and minute 35
+- Source: Example Process Lab run sheet, version 1, June 2026
 ---
 
 ---
 layout: chart-insight
 
-## Error over time, rolling vs factory calibration
+## Conversion over time, staged vs single feed
 
 ::: chart type=line unit="%"
-| Month | Factory calibration (%) | Rolling recalibration (%) |
+| Minute | Single feed (%) | Staged feed (%) |
 |---|---|---|
-| 0 | 5 | 5 |
-| 2 | 9 | 5 |
-| 4 | 17 | 6 |
-| 6 | 26 | 6 |
-| 8 | 31 | 7 |
-| 10 | 35 | 7 |
-| 12 | 38 | 8 |
-> Mean absolute error of 20 sensors per condition, 10 km station spacing (example data)
+| 0 | 0 | 0 |
+| 10 | 21 | 24 |
+| 20 | 36 | 45 |
+| 30 | 44 | 59 |
+| 40 | 47 | 67 |
+| 50 | 49 | 72 |
+| 60 | 50 | 75 |
+> Mean conversion of three replicates per condition (example data)
 :::
 
-- The rolling scheme stays below the factory baseline from month 2 on
-- The gap opens after month 4, when factory drift speeds up
-- At month 12 the rolling scheme sits at 8% error against 38%
-- Spread between sensors stays under 2 points in the rolling condition
-- Source: Example Sensor Lab deployments R1-R4 and D1-D4, 2025-2026 (example data)
+- The staged feed leads at every time point after minute 10
+- The gap opens after minute 20, when the second stage starts feeding
+- At minute 60 the staged feed reaches 75% against 50%
+- Replicate spread stays under 3 points in both conditions
+- Source: Example Process Lab runs S1-S3 and B1-B3, 1.0 L/min, June 2026 (example data)
 ---
 
 ---
 layout: table-insight
 
-## Error at month 12 by distance to the reference station
+## Conversion at 60 min by feed rate
 
-| Distance (km) | Factory (%) | Rolling (%) | Gain (points) | Relative gain (%) |
+| Feed rate (L/min) | Single feed (%) | Staged feed (%) | Gain (points) | Relative gain (%) |
 |---|---|---|---|---|
-| 2 | 38 | 6 | 32 | 84 |
-| 5 | 37 | 7 | 30 | 81 |
-| 10 | 38 | 8 | 30 | 79 |
-| 20 | 39 | 11 | 28 | 72 |
-| 40 | 38 | 16 | 22 | 58 |
-| 80 | 39 | 25 | 14 | 36 |
+| 0.5 | 52 | 77 | 25 | 48 |
+| 0.75 | 51 | 76 | 25 | 49 |
+| 1.0 | 50 | 75 | 25 | 50 |
+| 1.25 | 49 | 73 | 24 | 49 |
+| 1.5 | 47 | 71 | 24 | 51 |
+| 2.0 | 41 | 64 | 23 | 56 |
 
-> Table 1. Mean absolute error at month 12 by station distance (example data)
+> Table 1. Conversion at 60 minutes by feed rate (example data)
 
-- The gain stays at 28 points or more up to 20 km
-- The relative gain falls from 84% at 2 km to 36% at 80 km
-- Beyond 40 km the reference no longer follows local air
-- Station spacing, not the refit schedule, limits the sparse networks
-- Source: Example Sensor Lab distance series, 40 sensors, 2025-2026 (example data)
+- The gain holds at all six feed rates tested, 23-25 points
+- The relative gain is 48-56% at every rate
+- The gap narrows by two points at the highest rate
+- Heat removal, not the feed schedule, limits the fastest runs
+- Source: Example Process Lab feed-rate series, 36 runs, June 2026 (example data)
 ---
 
 ---
 layout: section-field
 
-# Technician view, contributions and limits
+# Operator view, contributions and limits
 ---
 
 ---
 layout: quote
 
-## Field technician feedback
+## Pilot-plant operator feedback
 
-“I stopped climbing the pole every spring; the sensors fixed themselves from the web page.”
+“We hit the target conversion without changing the vessel, only the feed valves.”
 
-— Example field technician interview, city network, after the last recalibrated season (2026)
+— Example operator interview, pilot plant, after the last staged run (June 2026)
 ---
 
 ---
@@ -130,21 +130,21 @@ layout: comparison
 :::: columns 1fr 1fr
 ::: col
 - **Contributions**
-  (1) Accuracy: month-12 error falls from 38% to 8% with the same hardware
-  (2) Effort: the scheme needs one weekly refit, no site visits
-  (3) Range: the gain is 28 points or more at stations up to 20 km away
-  (4) Evidence: 40 sensors, spread between sensors under 2 points
+  (1) Yield: conversion rises from 50% to 75% at equal reactor volume
+  (2) Equipment: the schedule needs only valve timing, no new vessel
+  (3) Range: the 23-25 point gain holds at six feed rates, 0.5-2.0 L/min
+  (4) Evidence: 36 runs, replicates within 3 points of each other
 :::
 ::: col
 - **Limits**
-  (1) Accuracy: one sensor model and one particle size range (PM2.5)
-  (2) Effort: four sites in one climate zone, none above 1,000 m
-  (3) Range: dust events and stations farther than 80 km are untested
-  (4) Evidence: no cost model yet for reference stations and data upkeep
+  (1) Yield: tested at one temperature (60 °C) and one catalyst batch
+  (2) Equipment: pilot scale only, 20 L vessels against 2,000 L in production
+  (3) Range: heat removal above 2.0 L/min and at full scale is untested
+  (4) Evidence: no cost model yet for the valve control and its upkeep
 :::
 ::::
 
-- Source: Example Sensor Lab recalibration study, 2025-2026 (example data)
+- Source: Example Process Lab staged-feeding study, May-June 2026 (example data)
 ---
 
 ---
@@ -152,12 +152,12 @@ layout: closing-summary-list
 
 ## Findings and next step
 
-- A weekly rolling refit holds error at 8% over twelve months against 38% for factory calibration
-- The gain holds from 2 to 20 km, 28 points or more at every distance
-- The scheme needs a nearby reference station and a weekly refit, no site visits
-- The open question is sparse networks: at 80 km the gain halves
-- Ask: access to eight more reference stations in two climate zones, 16 months of data
-- Next step: a station placement model, Example Sensor Lab, draft by 15 December 2026
+- A three-stage feed lifts conversion from 50% to 75% in the same 60 minutes
+- The gain holds from 0.5 to 2.0 L/min feed rate, 23-25 points at every rate
+- The schedule needs only valve timing, no new vessel and no new catalyst
+- The open question is heat removal: the fastest runs lose two points of gain
+- Ask: pilot time for a second temperature (75 °C) and a second catalyst batch, 12 runs
+- Next step: a heat-removal model at full scale, Example Process Lab, draft by 15 December 2026
 ---
 
 ---
@@ -165,14 +165,14 @@ layout: references-appendix
 
 ## References and data sources
 
-- [1] Example, A. and Sample, B. (2021). Drift in optical particle sensors outdoors. *Journal of Example Sensing*, 12(3), 201-219.
-- [2] Specimen, C. (2023). Collocation calibration of low-cost monitors. *Example Air Letters*, 8, 55-63.
-- [3] Example Sensor Lab (2026). Rolling recalibration deployments, synthetic data set, version 1.
-- [4] Demo, D. et al. (2024). Humidity effects on low-cost particle counts. *Example Atmosphere Review*, 5, 140-158.
-- [5] Sample, E. (2022). Least-squares correction of sensor networks. *Example Environmental Notes*, 27, 9-22.
-- [6] Example, F. and Demo, G. (2025). Reference station spacing for urban networks. *Journal of Example Monitoring*, 4(2), 71-88.
-- [7] Specimen, H. (2020). Long-term stability of optical sensors, a review. *Example Measurement Reviews*, 9, 1-34.
-- [8] Example Sensor Lab (2026). Deployment logs D1-D4 and R1-R4, internal record, September 2026.
-- [9] Error e: mean absolute gap between the sensor and the collocated reference reading, divided by the reference mean
-- [10] Gain: factory-calibration error minus rolling-calibration error at month 12, in percentage points
+- [1] Example, A. and Sample, B. (2021). Single-feed conversion limits in stirred reactors. *Journal of Example Engineering*, 14(2), 101-118.
+- [2] Specimen, C. (2023). Two-stage feeding at pilot scale. *Example Process Letters*, 9, 33-41.
+- [3] Example Process Lab (2026). Staged feeding runs, synthetic data set, version 1.
+- [4] Demo, D. et al. (2024). Heat removal in large fed-batch vessels. *Example Reactor Review*, 6, 210-229.
+- [5] Sample, E. (2022). Residence-time models for staged feeds. *Example Chemical Notes*, 31, 5-19.
+- [6] Example, F. and Demo, G. (2025). Valve timing in fed-batch control. *Journal of Example Control*, 3(1), 44-58.
+- [7] Specimen, H. (2020). First-order kinetics in stirred tanks, a review. *Example Reaction Reviews*, 11, 1-27.
+- [8] Example Process Lab (2026). Pilot reactor run sheets B1-B3 and S1-S3, internal record, June 2026.
+- [9] Conversion X: moles of feed reacted over moles fed, measured by offline sampling every 10 minutes
+- [10] Gain: staged-feed conversion minus single-feed conversion at 60 minutes, in percentage points
 ---

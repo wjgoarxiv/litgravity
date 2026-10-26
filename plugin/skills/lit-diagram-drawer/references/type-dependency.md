@@ -8,7 +8,7 @@ Pick a dependency graph when a component has multiple dependents or a real depen
 
 ## Content schema
 
-Provide up to 9 package, module, or service nodes and up to 14 directed dependency edges. Each node has a stable ID, a name, a type (internal, external, or leaf), and an optional version/registry label. Fan-in count appears as a derived value. Declare at most one cycle for focal treatment. For a DAG, state the ranking rule; for a cyclic input, mark the single back-edge explicitly.
+Provide about 12--20 package, module, or service nodes and up to 30 directed dependency edges. Each node has a stable ID, a name, a type (internal, external, or leaf), and an optional version/registry label. Fan-in count appears as a derived value. Declare at most one cycle for focal treatment. For a DAG, state the ranking rule; for a cyclic input, mark the single back-edge explicitly.
 
 ## Deterministic layout recipe
 

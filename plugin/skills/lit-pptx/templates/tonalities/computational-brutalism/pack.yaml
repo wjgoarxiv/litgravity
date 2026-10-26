@@ -1,0 +1,99 @@
+# Computational Brutalism: retro-futurist computing with its structure left in view. A monospaced
+# Latin face for titles, labels and figures, the twelve-column grid marked in the top margin, ruled
+# tables, a black terminal field with phosphor text and one electric-blue signal. Wrong for boards,
+# finance or public-sector reports and for long Korean reading: the mono face tires over paragraphs.
+id: computational-brutalism
+name: Computational Brutalism
+version: "1.0.0"
+intent: "Engineering reviews and developer launches: the grid, the numbers and the system shown."
+canvas: ["16:9", "4:3"]
+
+# JetBrains Mono sets the Latin of titles, labels and figures; Hangul in those runs is set in
+# Pretendard. Body text stays Pretendard. There is no A2Z map: the mono face is the look.
+faces:
+  display: JetBrains Mono Bold
+  title: JetBrains Mono Bold
+  body: Pretendard Regular
+  label: JetBrains Mono Regular
+  numeral: JetBrains Mono Bold
+
+palette:
+  ground: "#EEEDE7"
+  surface: "#E2E1D9"
+  ink: "#111111"
+  ink-muted: "#4D4C47"
+  line: "#9A988F"
+  accent: "#1F43E0"
+  accent-deep: "#14267A"
+  accent-tint: "#D9DEF2"
+  # The terminal: a black field with phosphor-green text.
+  field: "#111111"
+  on-field: "#8CF5A6"
+  positive: "#1C6B35"
+  negative: "#B3261E"
+  series: ["#1F43E0", "#111111", "#7A786F"]
+
+ramp: reading
+hero: true
+type-voice:
+  title-tracking: 0
+  display-tracking: -1
+
+density: 10
+variance: 7
+radius: 0
+edge: border
+edge-weight: 1
+edge-colour: ink
+
+treatments: [top-rule, top-plain-large, side-rail, bottom-anchor, statement]
+role-defaults:
+  content: top-rule
+  data: top-rule
+  data-takeaway: bottom-anchor
+  sequence: top-rule
+  image: bottom-anchor
+  statement: statement
+  reference: top-rule
+  definition: side-rail
+# A family's own title in this pack: a chart under a ruled title, a table read up to its title, a
+# comparison set as a spec sheet beside its rail, a sequence under a large mono headline.
+structure:
+  chart-insight: top-rule
+  table-insight: bottom-anchor
+  comparison: side-rail
+  step-diagram: top-plain-large
+# The grid and its numbers are the decoration; nothing is filled for ornament.
+decoration: [hairline-rule, column-hairlines, box-outline, grid-marks, numeral]
+layout-families: [dashboard-grid, kpi-row, chart-insight, full-chart, table-insight, ledger-table, method, step-diagram, matrix-2x2, comparison, text-two-column, references-appendix, quote, statement]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: drench
+  statement: drench
+  number: outline
+  closing: box
+covers: [cover-typographic, cover-index, cover-figures]
+sections: [section-numeral, section-rule]
+closings: [closing-decision-box, closing-ask, closing-summary-list]
+
+table:
+  header: none
+  header-ink: ink
+  rules: grid
+  banding: none
+  totals: bold
+  protagonist: accent-tint
+chart:
+  gridlines: hairline
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: hairline
+
+fill-order: [change-family, distribute, anchor-visual, step-up]
+avoid:
+  - mono body paragraphs (body text stays Pretendard)
+  - the accent as decoration (it marks the protagonist number or series)
+  - rounded corners, shadows, gradients
+  - a green other than the phosphor text on the terminal field

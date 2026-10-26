@@ -2,6 +2,7 @@
 // brief): timeline -> pre-flight gate -> stills -> contact sheet -> [--stills-only stops] -> master,
 // preview, poster, reduced-motion still into .run/stage -> determinism re-render and perf in a second
 // Chrome process -> full gate -> promote, or withhold on a flash-audit FAIL.
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync, createWriteStream } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -23,10 +24,11 @@ import { formatReport, formatPreflightReport } from "./report.mjs";
 import { loadTreatment, TreatmentError } from "./treatment.mjs";
 import { viewedCount } from "./look.mjs";
 import { stillsPlan, writeStills } from "./stills.mjs";
+import { addToStills, writeBoard } from "./board.mjs";
+import { recordHouse } from "./house.mjs";
 import { treatmentSha } from "./done.mjs";
 import { auditMuxed } from "./sound.mjs";
 import { soundTrackFor } from "./sound-cli.mjs";
-import { describeSpawn } from "../../../../lib/host-exec.mjs";
 
 export const DELIVERABLES = ["film.mp4", "preview.webp", "preview.gif", "poster.png", "reduced-motion.png"];
 
@@ -88,7 +90,7 @@ export async function prepare({ briefPath, out, env = process.env, wordTiming = 
           audioTier = "librosa-beat-grid";
           log(`beat grid: ${grid.beats.length} beats at ${grid.tempo} BPM`);
         } else warnings.push("audio analysis found fewer than two beats; Tier 1 text reading-time is used");
-      } else warnings.push(`audio analysis failed (${describeSpawn(result)}); Tier 1 text reading-time is used`);
+      } else warnings.push(`audio analysis failed (${(result.stderr || "").trim().split("\n").pop()}); Tier 1 text reading-time is used`);
     }
   }
   const plan = asBlocked(() => planFromBrief(brief, { beatGrid, targetSec: treatment.durationSec, treatment }));
@@ -184,7 +186,7 @@ export function cutFrames(plan) {
  * midpoints, a -6/0/+6 strip at each of the engine's cuts, and a 12-frame sheet. Returns the frames
  * so a full render can rewrite the index with the delivered poster.
  */
-async function renderStillsSet({ session, plan, treatment, out, round, stillsOnly }) {
+async function renderStillsSet({ session, plan, treatment, out, round, stillsOnly, env = process.env, log = () => {} }) {
   const beats = treatment.beats.map((b) => ({ t0: Math.min(b.t0, plan.durationSec), t1: Math.min(b.t1, plan.durationSec) }));
   const cuts = plan.shots.slice(1).map((sh) => Math.round(sh.start * plan.fps)).filter((c) => c > 0 && c < plan.frameCount);
   const layout = stillsPlan({ beats, fps: plan.fps, frameCount: plan.frameCount, cuts, posterBeat: treatment.posterBeat });
@@ -195,8 +197,15 @@ async function renderStillsSet({ session, plan, treatment, out, round, stillsOnl
       frames.set(n, Buffer.from(bytes));
     });
   }
-  const write = (posterFile = null) => writeStills({ out, plan: layout, frames, width: 1920, height: 1080, fps: plan.fps, frameCount: plan.frameCount, round, stillsOnly, path: "type", posterFile });
-  return { layout, frames, stills: write(), write };
+  // Every stills set carries the storyboard (references/studio.md), drawn from its beat stills.
+  const write = async (posterFile = null) => {
+    const stills = writeStills({ out, plan: layout, frames, width: 1920, height: 1080, fps: plan.fps, frameCount: plan.frameCount, round, stillsOnly, path: "type", posterFile });
+    const beatFiles = stills.index.files.filter((f) => f.kind === "beat").sort((a, b) => a.beat - b.beat).map((f) => path.join(out, f.file));
+    await writeBoard({ out, treatment, beatFiles, env, log });
+    stills.sha256 = addToStills(out, { file: "stills/board.png", kind: "board", frames: layout.beats }, { sha256: (b) => createHash("sha256").update(b).digest("hex") });
+    return stills;
+  };
+  return { layout, frames, stills: await write(), write };
 }
 
 function contrastFrames(plan) {
@@ -445,10 +454,10 @@ export async function make({ briefPath, out, round = 1, stillsOnly = false, view
   let poster;
   let still;
   try {
-    stillsSet = await renderStillsSet({ session, plan, treatment: prep.treatment, out, round, stillsOnly: stillsOnly || !ffmpeg });
+    stillsSet = await renderStillsSet({ session, plan, treatment: prep.treatment, out, round, stillsOnly: stillsOnly || !ffmpeg, env, log });
     log(`stills: ${stillsSet.stills.files.length} files in ${path.join(out, "stills")}`);
     if (stillsOnly) {
-      return { code: EXIT.OK, message: `STILLS_ONLY: look at every file in ${path.join(out, "stills")} (index.json lists them), record the round with look --round ${round}, make the change, then render the film with --round ${round + 1} (no --stills-only)`, plan, stills: stillsSet.stills, egress: session.egress, renderer: session.renderer };
+      return { code: EXIT.OK, message: `STILLS_ONLY: open the storyboard ${path.join(out, "stills", "board.png")} and every file in ${path.join(out, "stills")} (index.json lists them), record the round with look --round ${round}, make the change, then render the film with --round ${round + 1} (no --stills-only)`, plan, stills: stillsSet.stills, egress: session.egress, renderer: session.renderer };
     }
     if (!ffmpeg) {
       return { code: EXIT.BLOCKED_NO_FFMPEG_FOR_VIDEO, message: `BLOCKED_NO_FFMPEG_FOR_VIDEO: ffmpeg is not on PATH; the stills and contact sheet are in ${path.join(out, "stills")}; install ffmpeg for the MP4, preview and poster`, plan };
@@ -497,7 +506,8 @@ export async function make({ briefPath, out, round = 1, stillsOnly = false, view
   const { gate, manifest } = collectAndEvaluate({ out, previewRecords: preview.records, previewFps: preview.rung?.fps, determinism, perf, coverage: pre.coverage, still, extraRules: soundAudit.rules });
   const promoted = promote({ out, gate });
   const loc = (name) => (promoted.withheld ? path.join(out, "withheld", name) : path.join(out, name));
-  if (existsSync(loc("poster.png"))) stillsSet.write(loc("poster.png"));
+  if (existsSync(loc("poster.png"))) await stillsSet.write(loc("poster.png"));
+  if (gate.pass && !promoted.withheld) recordHouse(out, { style: prep.treatment.style, path: "type", format: prep.treatment.format, durationSec: prep.treatment.durationSec });
   const report = formatReport({
     manifest, reason: plan.reason, gate, round, framesViewed: resolveViewed(out, viewed), software: manifest.softwareRenderer, withheld: promoted.withheld,
     outputs: { film: loc("film.mp4"), preview: preview.file ? loc(path.basename(preview.file)) : "(no preview under 3 MB)", poster: loc("poster.png"), still: loc("reduced-motion.png") },
@@ -569,7 +579,7 @@ export async function partial({ mode, briefPath, out, env = process.env, log = (
   const session = await openSession({ plan: prep.plan, fontKeys: prep.fontKeys, runDir: prep.runDir, env, log });
   try {
     if (mode === "stills" || mode === "sheet") {
-      const set = await renderStillsSet({ session, plan: prep.plan, treatment: prep.treatment, out, round: 1, stillsOnly: true });
+      const set = await renderStillsSet({ session, plan: prep.plan, treatment: prep.treatment, out, round: 1, stillsOnly: true, env, log });
       return { code: EXIT.OK, message: `STILLS: ${set.stills.files.length} files in ${path.join(out, "stills")} (the sheet is stills/sheet.png)` };
     }
     const perf = await perfCheck({ session, plan: prep.plan });

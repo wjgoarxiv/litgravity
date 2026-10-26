@@ -10,7 +10,7 @@ Pick deployment when the claim is placement on hosts, environments, replicas, or
 
 ## Content schema
 
-List the groups or trust zones in order, each with an ID and a short visible name. For each node record a stable ID, its group, a name, an optional role or technical sublabel, and an optional focal flag. For each directed edge record the source ID, the destination ID, the relationship meaning, an optional protocol or payload label, and an optional dashed state. All edge endpoints must resolve to declared nodes. Name the direction the reader should follow. An overview holds at most 9 nodes and 12 edges, with no more than 3 true boundary groups.
+List the groups or trust zones in order, each with an ID and a short visible name. For each node record a stable ID, its group, a name, an optional role or technical sublabel, and an optional focal flag. For each directed edge record the source ID, the destination ID, the relationship meaning, an optional protocol or payload label, and an optional dashed state. All edge endpoints must resolve to declared nodes. Name the direction the reader should follow. An overview carries about 14--24 nodes, every real edge between them, and up to 5 true boundary groups; past that, enlarge the canvas preset or split at a group boundary with cross-reference ids.
 
 ## Deterministic layout recipe
 
@@ -20,7 +20,7 @@ Paint boundary regions first, connectors second, and node shapes with their text
 
 ## Encoding rules
 
-Reserve a single accent for one focal component or for the primary path. Use a dashed boundary only for a real trust or ownership boundary. Use a dashed edge for a named optional, asynchronous, or return relationship, and explain it in a compact legend. Keep ordinary edges neutral. Protocols and ports take the mono role; names and explanations take Pretendard sans.
+Give each group or node role its own accent family from the style guide (3--5 families), tint the group bands with the matching wash, and mark the primary path with the first family and numbered step badges. Use a dashed boundary only for a real trust or ownership boundary. Use a dashed edge for a named optional, asynchronous, or return relationship, and explain it in a compact legend. Keep ordinary edges neutral. Protocols and ports take the mono role; names and explanations take Pretendard sans.
 
 ## Korean behavior
 
@@ -41,7 +41,7 @@ Run scripts/verify-diagram.mjs for geometry, overlaps, clipping, off-canvas cont
 ## Anti-patterns
 
 - Equal-weight cards for every service.
-- Accent on every boundary or every connector.
+- Coloring connectors or boundaries for variety rather than by a role the legend names.
 - Deployment detail inside a logical overview that has no placement question.
 - Decorative arrows between components with no supplied relationship.
 - Node names or edge labels that collide with a connector.

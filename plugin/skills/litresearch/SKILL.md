@@ -24,6 +24,7 @@ Answer directly and skip the workflow when one read or one search settles the qu
 | a budgeted experiment loop against a metric | `autoresearch` |
 | several researchers, review and a joint synthesis | `autoconference` |
 | a plan built on the findings | this skill, then `lit-plan` with the research packet |
+| port someone else's technique into my skill | this skill finds the sources, then `lit-hijack` captures and ports them |
 
 ## Inputs and state
 

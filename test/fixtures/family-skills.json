@@ -1,8 +1,9 @@
 [
   "autoconference", "autoresearch", "browser-drive", "comment-checker", "debugging", "deep-interview",
-  "frontend-ui-ux", "lit-brainstorm", "lit-burnoff", "lit-burnoff-file", "lit-code", "lit-commit",
-  "lit-comprehend", "lit-crucible", "lit-diagram-drawer", "lit-docx", "lit-handoff", "lit-humanizer",
-  "lit-init", "lit-loop", "lit-plan", "lit-pptx", "lit-recap", "lit-scientific-visualization",
+  "frontend-ui-ux", "lit-adhd", "lit-brainstorm", "lit-burnoff", "lit-burnoff-file", "lit-code", "lit-commit",
+  "lit-comprehend", "lit-crucible", "lit-diagram-drawer", "lit-docx", "lit-handoff", "lit-hijack",
+  "lit-humanizer", "lit-init", "lit-loop", "lit-plan", "lit-pptx", "lit-recap", "lit-schematic",
+  "lit-scientific-visualization",
   "lit-team", "lit-typographic-motion", "litgoal", "litresearch", "litwork", "lsp", "lsp-setup",
   "readme-studio", "refactor", "review-work", "rules", "start-work", "structural-search", "visual-qa", "wikify"
 ]

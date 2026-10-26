@@ -19,6 +19,9 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync,
 import { dirname, join } from 'node:path';
 import { pluginVersion, sessionPath, stateRoot } from '../hooks/lib/common.mjs';
 import { activePlan, openGoal, planRows } from '../hooks/lib/continuation.mjs';
+import { readStack } from '../hooks/lib/workflow-stack.mjs';
+import { readLanes } from '../hooks/lib/lanes.mjs';
+import { DONE_MS, REVIEW_LANES, ROUTE_LOOKS, lookOf } from './looks.mjs';
 
 const IGNITION_MS = 90_000;
 const EFFORTS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
@@ -48,12 +51,19 @@ export const ROLES = {
   red: { c256: 167, c16: 31 },
   ink: { rgb: [11, 15, 20], c256: 233, c16: 30 },
   pink: { rgb: [255, 45, 149], c256: 198, c16: 35 },
+  amber: { rgb: [255, 176, 32], c256: 214, c16: 33 },
+  // One colour per review-work lane, in REVIEW_LANES order.
+  lane1: { rgb: [0, 229, 255], c256: 51, c16: 36 },
+  lane2: { rgb: [120, 220, 90], c256: 113, c16: 32 },
+  lane3: { rgb: [170, 130, 255], c256: 141, c16: 35 },
+  lane4: { rgb: [255, 110, 110], c256: 203, c16: 31 },
+  lane5: { rgb: [90, 160, 255], c256: 75, c16: 34 },
 };
 export const BRAND_STOPS = [[255, 45, 149], [128, 137, 202], [0, 229, 255]];
 
 const GLYPHS = {
-  unicode: { fire: '🔥', mid: '·', sep: '│', head: '|', done: '✓', todo: '·', rail: '━', link: '─', now: '●', warn: '⚠', fail: '✗', reset: '↻', next: '▸', lane: '●', idle: '◌', ellipsis: '…', full: '█', empty: '░', partial: ['', '▏', '▎', '▍', '▌', '▋', '▊', '▉'] },
-  ascii: { fire: '', mid: '.', sep: '|', head: '|', done: '+', todo: '.', rail: '=', link: '-', now: '*', warn: '!', fail: 'x', reset: 'reset', next: '>', lane: '*', idle: '.', ellipsis: '~', full: '#', empty: '-', partial: null },
+  unicode: { fire: '🔥', mid: '·', sep: '│', head: '|', done: '✓', todo: '·', rail: '━', link: '─', now: '●', warn: '⚠', fail: '✗', reset: '↻', next: '▸', lane: '●', idle: '◌', ellipsis: '…', spark: '✦', full: '█', empty: '░', partial: ['', '▏', '▎', '▍', '▌', '▋', '▊', '▉'] },
+  ascii: { fire: '', mid: '.', sep: '|', head: '|', done: '+', todo: '.', rail: '=', link: '-', now: '*', warn: '!', fail: 'x', reset: 'reset', next: '>', lane: '*', idle: '.', ellipsis: '~', spark: '*', full: '#', empty: '-', partial: null },
 };
 
 export function colorDepth(env) {
@@ -347,6 +357,100 @@ function teamOf(route) {
   return best && best.members.length ? best.members : null;
 }
 
+// The goal record this conversation is bound to (the hooks saw it touch the record, or the record names it), newest
+// first, with its write time.
+function goalRecordOf(route) {
+  const base = join(route.dir, '.litgravity', 'goals');
+  const bound = typeof route.state.goalPath === 'string' ? route.state.goalPath.split('/').pop() : null;
+  let best = null;
+  for (const name of list(base, 40).filter((f) => f.endsWith('.json'))) {
+    try {
+      const rec = JSON.parse(readFileSync(join(base, name), 'utf8'));
+      if (!obj(rec) || (name !== bound && rec.conversation_id !== route.id)) continue;
+      const mtime = statSync(join(base, name)).mtimeMs;
+      if (!best || mtime > best.mtime) best = { rec, mtime };
+    } catch {
+      // a record being rewritten: skip it
+    }
+  }
+  return best;
+}
+
+// Why the session waits on the user, from what is on record: agy's own agent state, the reason the Stop hook saved
+// when the turn ended, or a goal record that stopped on a decision or a blocker. null when nothing says so.
+const GOAL_WAITS = { needs_user_decision: 'decision', blocked: 'BLOCKED', review_blocked: 'BLOCKED' };
+function waitingOf(input, route) {
+  const saved = route ? obj(route.state.waiting)?.reason : null;
+  if (typeof saved === 'string' && saved) return saved;
+  const goal = route ? GOAL_WAITS[goalRecordOf(route)?.rec.status] : null;
+  if (goal) return goal;
+  return agentStateOf(input) === 'turn' ? 'turn' : null;
+}
+
+// True for DONE_MS after a plan or goal of this route was finished: a plan under plans/ whose rows are all ticked, or
+// the bound goal record set to done, written after the route started. An older finish never shows.
+function doneOf(route, now) {
+  const since = num(route.state.activatedAt) ?? now;
+  const fresh = (t) => t >= since && now - t <= DONE_MS && t <= now + 1000;
+  const goal = goalRecordOf(route);
+  if (goal?.rec.status === 'done' && fresh(goal.mtime)) return true;
+  const plans = join(route.dir, 'plans');
+  for (const name of list(plans, 100).filter((f) => f.endsWith('.md'))) {
+    try {
+      const mtime = statSync(join(plans, name)).mtimeMs;
+      if (!fresh(mtime)) continue;
+      const rows = planRows(readFileSync(join(plans, name), 'utf8'));
+      if (rows.length && rows.every((r) => r.done)) return true;
+    } catch {
+      // unreadable plan: no finish to show
+    }
+  }
+  return false;
+}
+
+// The review-work lanes of the review folder written since the route started (`.litgravity/evidence/<slug>/review/`),
+// each with the verdict its `lane-N-<name>.md` reports, or null while it has not reported. null before any folder.
+function reviewLanesOf(route) {
+  const since = num(route.state.activatedAt) ?? 0;
+  const base = join(route.dir, '.litgravity', 'evidence');
+  let best = null;
+  for (const slug of list(base, 50)) {
+    const dir = join(base, slug, 'review');
+    try {
+      const mtime = statSync(dir).mtimeMs;
+      if (mtime >= since - 1000 && (!best || mtime > best.mtime)) best = { dir, mtime };
+    } catch {
+      // no review folder under this slug
+    }
+  }
+  if (!best) return null;
+  const files = list(best.dir, 200);
+  return REVIEW_LANES.map((name, i) => {
+    const file = files.find((f) => f === `lane-${i + 1}-${name}.md`);
+    if (!file) return { name, verdict: null };
+    try {
+      const head = readFileSync(join(best.dir, file), 'utf8').slice(0, 2048);
+      return { name, verdict: /^verdict:\s*(PASS|FAIL|BLOCKED)\b/im.exec(head)?.[1]?.toUpperCase() ?? null };
+    } catch {
+      return { name, verdict: null };
+    }
+  });
+}
+
+function lanesSegment(lanes, g) {
+  const sp = (t, role, extra = {}) => ({ t, role, ...extra });
+  const glyph = { PASS: g.done, FAIL: g.fail, BLOCKED: g.warn };
+  const reported = lanes.filter((l) => l.verdict).length;
+  const count = sp(` ${reported}/${lanes.length}`, 'accent', { b: true });
+  const named = lanes.flatMap((l, i) => [
+    ...(i ? [sp(' ', 'dim')] : []),
+    l.verdict ? sp(l.name, `lane${i + 1}`, { b: true }) : sp(l.name, 'empty'),
+    sp(` ${l.verdict ? glyph[l.verdict] : g.todo}`, l.verdict ? `lane${i + 1}` : 'empty'),
+  ]);
+  const blocks = lanes.map((l, i) => (l.verdict ? sp(g.full, `lane${i + 1}`) : sp(g.empty, 'empty')));
+  return { id: 'lanes', prio: 4, forms: [[...named, count], [...blocks, count], [count]] };
+}
+
 // A segment is a list of forms, richest first; a form is a list of spans { t, fg, bg, b }. `keep` marks the brand,
 // which shrinks but never goes.
 
@@ -389,7 +493,7 @@ function segments(input, ctx) {
     ] });
   }
 
-  const route = routeOf(input, env);
+  const { route, waiting, done } = ctx;
   const state = agentStateOf(input);
   if (route) {
     const name = clean(route.state.route, 24, g);
@@ -405,9 +509,18 @@ function segments(input, ctx) {
     segs.push({ id: 'lit', prio: 1, forms });
     const flow = flowSegment(route, ctx);
     if (flow) segs.push(flow);
+    const threads = threadSegment(route, ctx);
+    if (threads) segs.push(threads);
+    const lanes = ROUTE_LOOKS[route.state.route] === 'review' ? reviewLanesOf(route) : null;
+    if (lanes) segs.push(lanesSegment(lanes, g));
   }
 
-  if (state === 'turn') segs.push({ id: 'attention', prio: 2, forms: [[sp(`${g.warn} your turn`, 'yellow', { b: true })], [sp(g.warn, 'yellow', { b: true })]] });
+  if (waiting) {
+    const why = waiting === 'turn' || waiting === 'asked' ? '' : ` ${g.mid} ${clean(waiting, 12, g)}`;
+    segs.push({ id: 'attention', prio: 2, forms: [[sp(`${g.warn} YOUR TURN${why}`, 'amber', { b: true })], [sp(`${g.warn} YOUR TURN`, 'amber', { b: true })], [sp(g.warn, 'amber', { b: true })]] });
+  } else if (done) {
+    segs.push({ id: 'attention', prio: 2, forms: [[sp(`${g.spark} DONE ${g.spark}`, 'green', { b: true })], [sp('DONE', 'green', { b: true })]] });
+  }
   if (state === 'error') segs.push({ id: 'attention', prio: 2, forms: [[sp(`${g.fail} error`, 'red', { b: true })], [sp(g.fail, 'red', { b: true })]] });
 
   const cost = costOf(input);
@@ -504,8 +617,53 @@ function flowSegment(route, ctx) {
   return { id: 'flow', prio: 4, forms: mapForms(labels, at, detail, g) };
 }
 
+// Count chain for the top frame: recorded n/total -> plan checkboxes -> goal criteria -> steps N -> null.
+// A count appears only when both numbers are real. When only the done count is known, show "N steps".
+// Returns null when there is nothing to show.
+function topCount(route, top) {
+  if (Number.isInteger(top?.n) && Number.isInteger(top?.total)) return `${top.n}/${top.total}`;
+  // Plan-ref hand-off: the plan ref from a finished predecessor carries to the successor.
+  const ref = top?.ref?.plan;
+  if (ref) {
+    try {
+      const rows = planRows(readFileSync(join(route.dir, ref), 'utf8'));
+      if (rows.length) return `${rows.filter((r) => r.done).length}/${rows.length}`;
+    } catch { /* plan unreadable */ }
+  }
+  const goal = GOAL_ROUTES.has(route.state.route) ? openGoal({ conversationId: route.id, workspacePaths: [route.dir] }, route.state, route.dir) : null;
+  if (goal) return `${goal.pass}/${goal.total}`;
+  if (Number.isInteger(top?.n) && top.n > 0) return `${top.n} steps`;
+  return null;
+}
+
+function threadSegment(route, ctx) {
+  const { env, now } = ctx;
+  const sp = (t, role = 'accent', extra = {}) => ({ t, role, ...extra });
+  const dir = workspaceDirs({ workspace: route.dir, cwd: route.dir })[0];
+  if (!dir) return null;
+  const stack = readStack(dir, route.id, env);
+  const lanes = readLanes(dir, route.id, env, now);
+  const activeLanes = lanes.filter((l) => l.status === 'active');
+  const paused = stack ? stack.frames.filter((f) => f.status === 'paused') : [];
+  if ((!stack || stack.frames.length < 2) && !activeLanes.length) return null;
+  const top = stack?.frames.at(-1);
+  const count = topCount(route, top);
+  const parts = [];
+  if (count) parts.push(sp(count, 'accent'));
+  if (activeLanes.length > 0) {
+    parts.push(sp(`${count ? ' ' : ''}+${activeLanes.length} ${activeLanes.length === 1 ? 'lane' : 'lanes'}`, 'dim'));
+  } else if (paused.length > 0) {
+    parts.push(sp(`${count ? ' ' : ''}+${paused.length} paused`, 'dim'));
+  }
+  if (!parts.length) return null;
+  const short = activeLanes.length > 0
+    ? [sp(`+${activeLanes.length} ${activeLanes.length === 1 ? 'lane' : 'lanes'}`, 'dim')]
+    : paused.length > 0 ? [sp(`+${paused.length} paused`, 'dim')] : [];
+  return { id: 'threads', prio: 5, forms: [parts, short.length ? short : parts] };
+}
+
 // Display order: the mark, model [effort], context, quota, then the route and its map, then the extras.
-const ORDER = ['brand', 'model', 'ctx', 'quota', 'lit', 'attention', 'flow', 'cost', 'tasks', 'git', 'title'];
+const ORDER = ['brand', 'model', 'ctx', 'quota', 'lit', 'attention', 'flow', 'lanes', 'threads', 'cost', 'tasks', 'git', 'title'];
 
 function layout(segs, pick, g) {
   const shown = ORDER.flatMap((id) => segs.filter((s) => s.id === id && pick.get(s) !== null));
@@ -562,12 +720,69 @@ function fit(segs, width, g) {
   return out;
 }
 
-function paint(spans, depth) {
+// The lit-adhd rainbow: every cell of the line takes its own step round the colour wheel, pills
+// included (their ground turns, lightened so the dark ink keeps 4.5:1), and the whole wheel moves one
+// step per 10-second bucket, so a repaint inside a bucket is identical and nothing flashes. Only the
+// colour of fixed glyphs changes; widths and text are those of the plain line. NO_COLOR is the plain
+// depth and gets no escape at all.
+const RAINBOW_STEP = 15;
+const RAINBOW_BUCKET_MS = 10_000;
+const RAINBOW_INK = [20, 20, 24];
+const BASIC_HUES = [31, 33, 32, 36, 34, 35];
+
+function hslToRgb(h, s, l) {
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  let r = 0; let g = 0; let b = 0;
+  if (h < 60) { r = c; g = x; }
+  else if (h < 120) { r = x; g = c; }
+  else if (h < 180) { g = c; b = x; }
+  else if (h < 240) { g = x; b = c; }
+  else if (h < 300) { r = x; b = c; }
+  else { r = c; b = x; }
+  return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+}
+
+const cube = ([r, g, b]) => 16 + 36 * Math.round(r / 255 * 5) + 6 * Math.round(g / 255 * 5) + Math.round(b / 255 * 5);
+
+function rainbowCode(rgb, depth, ground, hue) {
+  if (depth === 'truecolor') return `${ground ? 48 : 38};2;${rgb.join(';')}`;
+  if (depth === '256') return `${ground ? 48 : 38};5;${cube(rgb)}`;
+  return String(BASIC_HUES[Math.floor(hue / 60) % BASIC_HUES.length] + (ground ? 10 : 0));
+}
+
+function rainbowSpan(s, depth, state) {
   let out = '';
-  for (const s of spans) {
-    if (s.brand !== undefined) { out += brandText(s.brand, depth); continue; }
-    if (!s.t) continue;
-    if (depth === 'plain') { out += s.t; continue; }
+  for (const ch of s.t) {
+    const cell = state.cell++;
+    if (ch === ' ' && !s.bg) { out += ch; continue; }
+    const hue = (cell * RAINBOW_STEP + state.bucket * RAINBOW_STEP * 2) % 360;
+    const codes = [s.b ? '1' : ''];
+    if (s.bg) {
+      codes.push(rainbowCode(RAINBOW_INK, depth, false, 0), rainbowCode(hslToRgb(hue, 0.8, 0.72), depth, true, hue));
+    } else {
+      codes.push(rainbowCode(hslToRgb(hue, 0.8, 0.65), depth, false, hue));
+    }
+    out += `\u001b[${codes.filter(Boolean).join(';')}m${ch}`;
+  }
+  return out ? `${out}\u001b[0m` : out;
+}
+
+// The YOUR TURN paint: every coloured span and every pill ground turns amber, so the row reads as one waiting state;
+// dim text, rails, red and the dark pill ink keep their colours. It is static.
+const AMBER_KEEPS = new Set(['dim', 'empty', 'rail', 'red', 'ink']);
+const amberSpan = (s) => ({ ...s, role: s.role && !AMBER_KEEPS.has(s.role) ? 'amber' : s.role, bg: s.bg ? 'amber' : s.bg });
+
+function paint(spans, depth, rainbow = null, amber = false) {
+  let out = '';
+  const state = rainbow ? { cell: 0, bucket: Math.floor((rainbow.now ?? Date.now()) / RAINBOW_BUCKET_MS) } : null;
+  for (const span of spans) {
+    if (span.brand !== undefined) { out += brandText(span.brand, depth); if (state) state.cell += visibleWidth(span.brand); continue; }
+    if (!span.t) continue;
+    if (depth === 'plain') { out += span.t; continue; }
+    if (state) { out += rainbowSpan(span, depth, state); continue; }
+    const s = amber ? amberSpan(span) : span;
     const codes = [s.b ? '1' : '', s.role ? sgr(s.role, depth, false) : '', s.bg ? sgr(s.bg, depth, true) : ''].filter(Boolean);
     out += codes.length ? `\u001b[${codes.join(';')}m${s.t}\u001b[0m` : s.t;
   }
@@ -586,8 +801,15 @@ export function renderStatus(input, opts = {}) {
   const env = opts.env ?? process.env;
   const data = obj(input) ?? {};
   const g = asciiOnly(env) ? GLYPHS.ascii : GLYPHS.unicode;
-  const ctx = { g, env, now: opts.now ?? Date.now() };
-  return paint(fit(segments(data, ctx), widthOf(data, env, opts.width), g), colorDepth(env));
+  const now = opts.now ?? Date.now();
+  const depth = colorDepth(env);
+  const route = routeOf(data, env);
+  const waiting = waitingOf(data, route);
+  const done = route ? doneOf(route, now) : false;
+  const look = lookOf({ route: route?.state.route ?? null, waiting, done });
+  const ctx = { g, env, now, route, waiting, done };
+  const rainbow = look === 'rewind' && depth !== 'plain' ? { now } : null;
+  return paint(fit(segments(data, ctx), widthOf(data, env, opts.width), g), depth, rainbow, look === 'your-turn');
 }
 
 /** The line printed when anything above throws: the mark alone, never an error. */

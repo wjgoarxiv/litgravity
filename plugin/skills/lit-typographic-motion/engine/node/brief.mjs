@@ -88,7 +88,13 @@ export function planFromBrief(brief, { fps = TIMELINE.defaultFps, beatGrid = nul
   const rawShots = Array.isArray(brief.shots) && brief.shots.length ? brief.shots : composeFromLines(brief.lines ?? [], brief.title);
   const shots = rawShots.map(normalizeShot);
   const text = briefText(shots, [str(brief.title), str(brief.request)]);
-  const { presetId, reason } = pickPreset({ style: brief.style, text, request: treatment?.request ?? brief.request ?? "" });
+  // The treatment's house style decides the preset on the type path, so a style means one thing on
+  // both paths; a brief style that disagrees with it is refused rather than silently winning.
+  const style = brief.style && brief.style !== "auto" ? brief.style : treatment?.style ?? brief.style;
+  if (treatment?.style && brief.style && brief.style !== "auto" && brief.style !== treatment.style) {
+    throw new TreatmentError("style", `the brief asks for ${brief.style} but the treatment's style is ${treatment.style}; drop style from the brief (the treatment's style decides the preset)`);
+  }
+  const { presetId, reason } = pickPreset({ style, text, request: treatment?.request ?? brief.request ?? "" });
   const preset = PRESETS[presetId];
   // The terminal look is a typed-input voice: it keeps typewriter punctuation (MO-A-34 plain()).
   if (presetId === "terminalcore") {

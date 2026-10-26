@@ -39,8 +39,7 @@ function officeDiagramChecks(texts, nodes, outlines, viewBox) {
     const hue = ((high===r?((g-b)/delta)%6:high===g?(b-r)/delta+2:(r-g)/delta+4)*60+360)%360;
     if (!hues.some((prior)=>Math.min(Math.abs(prior-hue),360-Math.abs(prior-hue))<=OF_LIMITS.hueFamilyDegrees)) hues.push(hue);
   }
-  if (hues.length >= OF_LIMITS.accentHighFamilies) issues.push(`OF-202 ACCENT_COUNT families=${hues.length} max=${OF_LIMITS.accentHighFamilies-1}`);
-  else if (hues.length >= OF_LIMITS.accentMediumFamilies) advisories.push(`OF-202 ACCENT_COUNT families=${hues.length} suggested<=2`);
+  if (hues.length >= OF_LIMITS.accentHighFamilies) issues.push(`OF-202 ACCENT_COUNT families=${hues.length} accent hue families among node fills; keep three to five, each tied to a role (OF-202)`);
   for (const text of texts) {
     const chars=[...text.label],latin=chars.filter((char)=>/[A-Za-z0-9]/.test(char)).length/Math.max(1,chars.filter((char)=>/\S/.test(char)).length);
     if (latin >= OF_LIMITS.latinShareMin && text.label !== text.label.toUpperCase()) {

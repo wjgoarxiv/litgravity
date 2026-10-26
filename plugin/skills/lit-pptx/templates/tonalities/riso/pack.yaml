@@ -1,0 +1,99 @@
+# Riso: two spot inks on warm paper, the look of a risograph print. Teal fields carry the cover, the
+# sections, the statements and the band over a data title; pink marks the one word or figure that
+# matters on a content page. Surfaces and rules stay grey so the two inks are the only colours.
+# For community, culture and education programmes, workshops, festivals and student or nonprofit
+# events. Wrong for a board, finance, public-sector or sensitive topic, and for a dense data review.
+id: riso
+name: Riso
+version: "1.0.0"
+intent: "Community, culture and education programmes: two spot inks on warm paper, friendly and printed."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Bold
+  numeral: Pretendard Bold
+faces-a2z:
+  display: A2Z Bold
+  title: A2Z Bold
+  body: Pretendard Regular
+  label: Pretendard Bold
+  numeral: A2Z Bold
+
+palette:
+  ground: "#F5F0E6"
+  surface: "#E4E2DE"
+  ink: "#1C2433"
+  ink-muted: "#4E5361"
+  line: "#C4C1BB"
+  # The pink ink, darkened from the fluorescent original so it holds 4.5:1 on the paper.
+  accent: "#D1206B"
+  accent-deep: "#8A1043"
+  accent-tint: "#F8D5E3"
+  # The teal ink: the cover, the sections, the statements, a big number's panel and the title band.
+  field: "#00727A"
+  on-field: "#FFFFFF"
+  positive: "#1D6B45"
+  # Pink is the accent, so a loss keeps the ink colour and carries its ▼ sign.
+  negative: "#1C2433"
+  series: ["#D1206B", "#00727A", "#1C2433", "#8A6A00"]
+
+ramp: reading
+hero: true
+type-voice:
+  title-tracking: -1
+  display-tracking: -2
+
+density: 10
+variance: 7
+radius: 6
+edge: fill
+
+treatments: [top-plain-large, band, kicker-numeral, statement, side-rail]
+role-defaults:
+  content: top-plain-large
+  data: band
+  data-takeaway: top-plain-large
+  sequence: kicker-numeral
+  image: top-plain-large
+  statement: statement
+  reference: band
+  definition: side-rail
+
+decoration: [mark-underline, colour-field, numeral]
+layout-families: [agenda, summary-box-list, text-two-column, sidebar-note, comparison, process, step-diagram, timeline, kpi-row, big-number, chart-insight, table-insight, image-split, photo-grid, quote, statement]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: drench
+  statement: drench
+  number: field
+  closing: band
+covers: [cover-typographic, cover-numeral, cover-split-field]
+sections: [section-field, section-numeral]
+closings: [closing-ask, closing-summary-list, closing-statement]
+
+table:
+  header: accent-tint
+  header-ink: ink
+  rules: header-rule
+  banding: surface
+  totals: bold
+chart:
+  gridlines: none
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: none
+
+# Two inks are the look: teal and pink may share a content slide (a band title over a pink figure).
+fill-order: [change-family, distribute, step-up, anchor-visual]
+avoid:
+  - a third ink (pink and teal are the press; black is the type)
+  - the fluorescent pink as text (it is darkened to the accent for type)
+  - gradients, glows or textures painted to fake the print
+  - teal blocks on content slides beyond the title band (fields belong to the display slides)
+  - this look for a board, finance, public-sector or sensitive topic

@@ -1,0 +1,98 @@
+# Bauhaus: primary colours and elementary geometry, kept to the display slides. The cover and the
+# statements carry a composition of a square, a circle, a bar and a triangle; content slides stay
+# quiet, on an off-white ground with black type and one red accent. Wrong for data-heavy business
+# reviews, finance, public-sector reports and sombre topics.
+id: bauhaus
+name: Bauhaus
+version: "1.0.0"
+intent: "Design, architecture and culture lectures: primary colours and geometry on the display slides."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Bold
+  numeral: Pretendard Bold
+faces-a2z:
+  display: A2Z Black
+  title: A2Z Black
+  body: Pretendard Regular
+  label: Pretendard Bold
+  numeral: A2Z Black
+
+palette:
+  ground: "#F4F1EA"
+  surface: "#E8E3D6"
+  ink: "#141414"
+  ink-muted: "#4A4740"
+  line: "#141414"
+  accent: "#C8261C"
+  accent-deep: "#7A140E"
+  # The yellow of the geometry: the square on a display slide, the notice and a highlighted table row.
+  accent-tint: "#F2C230"
+  field: "#1F3C99"
+  on-field: "#FFFFFF"
+  positive: "#1E6B3A"
+  # The accent is red, so a loss keeps the ink colour and carries its ▼ sign instead.
+  negative: "#141414"
+  # Red, blue, black, then an ochre: the geometry's yellow darkened so a bar holds 3:1 on the ground.
+  series: ["#C8261C", "#1F3C99", "#141414", "#9E7700"]
+
+ramp: reading
+hero: true
+type-voice:
+  title-tracking: -1
+  display-tracking: -2
+
+density: 10
+variance: 7
+radius: 0
+edge: fill
+
+treatments: [top-rule, side-rail, kicker-numeral, statement, bottom-anchor]
+role-defaults:
+  content: top-rule
+  data: top-rule
+  data-takeaway: side-rail
+  sequence: kicker-numeral
+  image: bottom-anchor
+  statement: statement
+  reference: top-rule
+  definition: side-rail
+
+decoration: [accent-rule, numeral, colour-field]
+layout-families: [asymmetric-feature, big-number, image-split, text-two-column, comparison, process, step-diagram, timeline, chart-insight, table-insight, kpi-row, quote, statement, agenda]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides"). Geometry lives here only.
+display:
+  cover: geometry
+  statement: geometry
+  number: field
+  closing: rules
+covers: [cover-typographic, cover-split-field, cover-numeral]
+sections: [section-field, section-numeral]
+closings: [closing-ask, closing-summary-list, closing-statement]
+
+table:
+  header: none
+  header-ink: ink
+  rules: header-rule
+  banding: none
+  totals: bold
+chart:
+  gridlines: none
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: none
+
+fill-order: [change-family, step-up, anchor-visual, distribute]
+# The composition on a display slide sets red, blue and yellow beside one another; content slides keep one accent.
+avoid:
+  - geometry on content slides (it belongs to the cover and the statements)
+  - a circle, square or triangle used as a bullet or an icon
+  - more than one accent colour on a content slide
+  - yellow text on the off-white ground
+  - this look for grief, safety or financial-loss topics

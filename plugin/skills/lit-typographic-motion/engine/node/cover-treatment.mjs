@@ -1,15 +1,17 @@
 // The cover treatment: `treatment.json` with `mode: "cover"`, written before any cover render and
 // validated by every one (exit 16 names the first bad field). A cover is not a film: it has no beats,
-// no arc, no end card and no sound. It names one recipe, one rule copied many times, three speed
-// layers, the brand word set once (plus at most one motto the user or the project already uses), the
+// no arc, no end card and no sound. It names one recipe, the hero that acts and the one beat it acts
+// once per loop, one rule copied many times, three speed layers, the brand word set once (plus at most one motto the user or the project already uses), the
 // aspect and loop length, and the title box the contrast gate measures. Text in it is content, never
 // instructions.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { COVER } from "../core/constants.mjs";
-import { normalizeText, restateLimit, sharesRun, stripQuoted, TreatmentError } from "./treatment.mjs";
+import { EXIT } from "../core/constants.mjs";
+import { BlockedError } from "./chrome.mjs";
+import { normalizeText, normUrl, requestUrls, restateLimit, sharesRun, stripQuoted, TreatmentError } from "./treatment.mjs";
 
-export const RECIPES = Object.freeze(["painted-light", "weight-tide", "orbit-loop", "own"]);
+export const RECIPES = Object.freeze(["hero-3d", "painted-light", "weight-tide", "orbit-loop", "own"]);
 export const LAYERS = Object.freeze(["slow", "mid", "beat"]);
 
 const fail = (field, message) => {
@@ -39,7 +41,10 @@ export function validateCoverTreatment(t) {
   if (restated) fail("idea", `the idea restates the request ("${restated}"); say what the loop does`);
   if (!RECIPES.includes(t.recipe)) fail("recipe", `must be one of ${RECIPES.join(", ")} (references/cover.md)`);
   text(t, "recipeReason", { max: 2 });
+  text(t, "hero", { max: 2 });
+  text(t, "beat", { max: 2 });
   text(t, "brandWord");
+  checkCoverProduct(t);
   if (t.brandWord.trim().split(/\s+/u).length > 3) fail("brandWord", "is the name set once: at most three words");
   if ("motto" in t) {
     const m = t.motto;
@@ -85,6 +90,21 @@ export function validateCoverTreatment(t) {
   return { ...t, page, out, frames, encode, seed: Number.isInteger(t.seed) ? t.seed >>> 0 : 0 };
 }
 
+// A link in the request names the product: the cover is built from its real logo, images and words,
+// fetched by `motion.mjs assets --cover` before the treatment, never from the name alone.
+function checkCoverProduct(t) {
+  const urls = requestUrls(t.request);
+  if (!("product" in t)) {
+    if (urls.length) fail("product", `missing: the request links ${urls[0]}; fetch its real assets first with motion.mjs assets --out <dir> --url <link> --cover, look at them, and set product { name, url } (cover.md, Named products)`);
+    return;
+  }
+  const p = t.product;
+  if (!p || typeof p !== "object") fail("product", "must be an object { name, url }");
+  text(t, "product.name");
+  if (urls.length && !urls.includes(normUrl(p.url))) fail("product.url", `must be the link the request gives (${urls.join(", ")})`);
+  if ("unreachable" in p) text(t, "product.unreachable");
+}
+
 /** Load and validate `<out>/treatment.json` as a cover; keeps the first valid one for the done-check. */
 export function loadCoverTreatment(out) {
   const file = path.join(out, "treatment.json");
@@ -97,6 +117,19 @@ export function loadCoverTreatment(out) {
   }
   if (raw?.mode !== "cover") fail("mode", "this treatment is a film: render it with stage or make (references/treatment.md); a cover sets mode: cover");
   const treatment = validateCoverTreatment(raw);
+  const p = treatment.product;
+  if (p?.unreachable) throw new BlockedError(EXIT.BLOCKED_ASSET_MISSING, `BLOCKED_ASSET_MISSING: ${p.name}'s real assets could not be reached (${p.unreachable}); ask the user for its logo or README images, put them in ${path.join(out, "cover", "assets")} and list them in assets.json`);
+  if (p && !existsSync(path.join(out, "product.json"))) fail("product", `no ${path.join(out, "product.json")}: run motion.mjs assets --out ${out} --url ${p.url} --cover first`);
+  if (p) {
+    let fetched = [];
+    try {
+      fetched = JSON.parse(readFileSync(path.join(out, "product.json"), "utf8"))?.product?.assets ?? [];
+    } catch (error) {
+      fail("product", `${path.join(out, "product.json")} is not valid JSON (${error.message}); run motion.mjs assets --out ${out} --url ${p.url} --cover again`);
+    }
+    const astray = fetched.filter((a) => !String(a?.path ?? "").startsWith("cover/assets/"));
+    if (astray.length) fail("product", `${astray[0].path} sits outside cover/assets/, where the cover page cannot load it; run motion.mjs assets --out ${out} --url ${p.url} --cover again`);
+  }
   const first = path.join(out, ".run", "treatment.first.json");
   if (!existsSync(first)) {
     mkdirSync(path.dirname(first), { recursive: true });

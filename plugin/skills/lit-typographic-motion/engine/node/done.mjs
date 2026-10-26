@@ -6,12 +6,14 @@
 // treatment with the first valid one and records any downgrade. A cover (treatment mode: cover) is
 // done on its own terms: the decoded cover reached every TARGET gate, and the last look round viewed
 // the contact sheet, the poster and the seam pair of that render. A generated asset in assets.json
-// becomes a label the reply has to carry.
+// becomes a label the reply has to carry. A film whose treatment asks for a preview (`preview: true`)
+// is done at its board: a stills-only render whose layout check passed, looked at, storyboard included.
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { generatedLabels } from "./cover-assets.mjs";
 import { validateCoverTreatment } from "./cover-treatment.mjs";
+import { readHouse } from "./house.mjs";
 import { readLook } from "./look.mjs";
 import { readStills } from "./stills.mjs";
 import { validateTreatment } from "./treatment.mjs";
@@ -49,10 +51,11 @@ export function evaluateDone({ out, viewedFiles = null }) {
   try {
     const raw = JSON.parse(readFileSync(tFile, "utf8"));
     if (raw?.mode === "cover") return evaluateCoverDone({ out, raw, viewedFiles });
-    treatment = validateTreatment(raw);
+    treatment = validateTreatment(raw, { house: readHouse(out) });
   } catch (error) {
     return notDone(`treatment.json is not valid: ${error.message}`);
   }
+  if (treatment.preview === true) return evaluatePreviewDone({ out, viewedFiles });
   const manifestFile = path.join(out, "manifest.json");
   const reportFile = path.join(out, "gate-report.txt");
   if (!existsSync(manifestFile) || !existsSync(reportFile)) return notDone("no full render has finished (manifest.json or gate-report.txt is missing)");
@@ -85,12 +88,12 @@ export function evaluateDone({ out, viewedFiles = null }) {
     if (stills && last.stillsSha256 !== stills.sha256) reasons.push("the last look round was recorded before the final render (its stills manifest differs); look again and record it");
     if (last.blocked === "no-vision-tool") unviewed = true;
     else if (stills) {
-      const required = stills.index.files.filter((f) => ["poster", "sheet", "beat", "strip"].includes(f.kind)).map((f) => f.file);
+      const required = stills.index.files.filter((f) => ["poster", "sheet", "beat", "strip", "board"].includes(f.kind)).map((f) => f.file);
       const missing = required.filter((f) => !last.viewed?.includes(f));
       if (missing.length) reasons.push(`the last look round did not view ${missing.slice(0, 4).join(", ")}${missing.length > 4 ? ` (+${missing.length - 4})` : ""}`);
       if (viewedFiles) {
         const unopened = (last.viewed ?? []).filter((f) => !viewedFiles.has(path.resolve(out, f)));
-        if (unopened.length) reasons.push(`these frames are listed as viewed but were never opened with read_file: ${unopened.slice(0, 4).join(", ")}${unopened.length > 4 ? ` (+${unopened.length - 4})` : ""}`);
+        if (unopened.length) reasons.push(`these frames are listed as viewed but were never opened with the image tool: ${unopened.slice(0, 4).join(", ")}${unopened.length > 4 ? ` (+${unopened.length - 4})` : ""}`);
       }
       if (last.revise?.length) {
         if (last.round >= 3) openItems.push(...last.revise.map((q) => `look question ${q}`));
@@ -108,6 +111,42 @@ export function evaluateDone({ out, viewedFiles = null }) {
   const downgraded = downgrades(first, treatment);
   if (reasons.length) return { status: "NOT_DONE", reasons, downgraded, openItems };
   return { status: unviewed ? "DONE_UNVIEWED" : "DONE", reasons: [], downgraded, openItems };
+}
+
+/** A preview: the board round of a film is the deliverable; the full render waits for the user. */
+export function evaluatePreviewDone({ out, viewedFiles = null }) {
+  const reasons = [];
+  const stills = readStills(out);
+  if (!stills) return { status: "NOT_DONE", reasons: ["no board yet: render with --stills-only"], downgraded: [], openItems: [], preview: true };
+  const board = stills.index.files.find((f) => f.kind === "board");
+  if (!board) reasons.push("the stills set has no storyboard (stills/board.png); render with --stills-only again");
+  try {
+    const check = JSON.parse(readFileSync(path.join(out, "stills", "check.json"), "utf8"));
+    const failed = (check.rules ?? []).filter((x) => x.status === "FAIL").map((x) => x.id);
+    if (failed.length) reasons.push(`the board check failed (${failed.join(", ")}); fix the page and render the board again`);
+  } catch {
+    if (stills.index.path === "stage") reasons.push("the board check result (stills/check.json) is missing");
+  }
+  let look;
+  try {
+    look = readLook(out);
+  } catch {
+    return { status: "NOT_DONE", reasons: ["look.json is unreadable"], downgraded: [], openItems: [], preview: true };
+  }
+  const last = look.rounds[look.rounds.length - 1];
+  if (!last) reasons.push("no look round on the board: open the storyboard and the stills with Read and record round 1");
+  else {
+    if (last.stillsSha256 !== stills.sha256) reasons.push("the look round was recorded before the latest board; look again and record it");
+    const required = stills.index.files.filter((f) => ["board", "sheet", "beat"].includes(f.kind)).map((f) => f.file);
+    const missing = required.filter((f) => !last.viewed?.includes(f));
+    if (missing.length) reasons.push(`the look round did not view ${missing.slice(0, 4).join(", ")}`);
+    if (viewedFiles) {
+      const unopened = (last.viewed ?? []).filter((f) => !viewedFiles.has(path.resolve(out, f)));
+      if (unopened.length) reasons.push(`these files are listed as viewed but were never opened with the image tool: ${unopened.slice(0, 4).join(", ")}`);
+    }
+  }
+  if (reasons.length) return { status: "NOT_DONE", reasons, downgraded: [], openItems: [], preview: true };
+  return { status: last.blocked === "no-vision-tool" ? "DONE_UNVIEWED" : "DONE", reasons: [], downgraded: [], openItems: [], preview: true, labels: [`this is the storyboard preview (${path.join(out, "stills", "board.png")}); the film is not rendered yet, and the user can say go to render it`] };
 }
 
 /** The cover branch of the done-check (references/cover.md, Done). */
@@ -142,7 +181,7 @@ export function evaluateCoverDone({ out, raw, viewedFiles = null }) {
   const rounds = look.rounds;
   const openItems = [];
   let unviewed = false;
-  if (!rounds.length) reasons.push("look.json has no round: open the sheet, the poster and the seam pair with read_file and record a look round");
+  if (!rounds.length) reasons.push("look.json has no round: open the sheet, the poster and the seam pair with Read and record a look round");
   else {
     const first = rounds[0];
     const last = rounds[rounds.length - 1];
@@ -156,7 +195,7 @@ export function evaluateCoverDone({ out, raw, viewedFiles = null }) {
       if (missing.length) reasons.push(`the last look round did not view ${missing.join(", ")}`);
       if (viewedFiles) {
         const unopened = (last.viewed ?? []).filter((f) => !viewedFiles.has(path.resolve(out, f)));
-        if (unopened.length) reasons.push(`these files are listed as viewed but were never opened with read_file: ${unopened.slice(0, 4).join(", ")}${unopened.length > 4 ? ` (+${unopened.length - 4})` : ""}`);
+        if (unopened.length) reasons.push(`these files are listed as viewed but were never opened with the image tool: ${unopened.slice(0, 4).join(", ")}${unopened.length > 4 ? ` (+${unopened.length - 4})` : ""}`);
       }
       if (last.revise?.length) {
         if (last.round >= 3) openItems.push(...last.revise.map((q) => `cover look question ${q}`));

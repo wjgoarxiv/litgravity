@@ -14,11 +14,11 @@ exits non-zero if ANY real defect is found:
                       foreign-language source lines on a Korean deck)
   6. Craft floor    — craft_extras.py (OF-101..OF-109 per slide; OF-110..OF-113
                       over the deck: title-treatment count, composition variety,
-                      empty bottom band, one frame per title treatment; OF-114
+                      empty bottom band, one shared title frame; OF-114
                       titles and the cover subtitle as labels, not sentences;
                       OF-115 no empty region; OF-117 no light figure card on a
                       dark ground; OF-116 with --sibling: another tonality of
-                      the same source draws another skeleton)
+                      the same source sets titles and body in the same places)
 
 No LibreOffice / rendering engine required: everything is read from the OOXML
 via python-pptx. (A renderer is only ever needed for the *visual* pass, which
@@ -31,7 +31,7 @@ import os as _os
 import sys as _sys
 
 _sys.dont_write_bytecode = True  # the installed skill directory stays read-only
-_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", "..", "lib"))
 from office_runtime_bootstrap import ensure_runtime  # noqa: E402
 
 ensure_runtime(["pptx"])
@@ -691,14 +691,14 @@ def run_validate(pptx: Path) -> dict[str, Any]:
 def qa(pptx: Path, sibling: Path | None = None) -> dict[str, Any]:
     from ooxml_integrity import check_package
     from deck_craft import analyse as analyse_craft
-    from craft_extras import analyse as analyse_extras, compare_skeletons
+    from craft_extras import analyse as analyse_extras, compare_placement
 
     integrity = check_package(pptx)
     craft = analyse_craft(pptx)
     extras = analyse_extras(pptx)
-    # Another tonality of the same source, when given: the two must not draw one skeleton (OF-116).
+    # Another tonality of the same source, when given: the two must place titles and body alike (OF-116).
     if sibling is not None:
-        extras["findings"] += compare_skeletons(pptx, sibling)
+        extras["findings"] += compare_placement(pptx, sibling)
     validate_report = run_validate(pptx)
     inv_summary = summarize_inventory(load_inventory_issues(pptx))
     contrast = check_contrast(pptx)

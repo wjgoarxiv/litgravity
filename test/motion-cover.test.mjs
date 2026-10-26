@@ -71,6 +71,8 @@ test('cover init script: every clock and entropy source throws during capture an
   const ctx = { Math: Object.create(Math), Date, Performance, performance: new Performance(), crypto: { getRandomValues: () => 1 }, document: { documentElement: null, addEventListener() {} } };
   ctx.window = ctx;
   vm.runInNewContext(init, ctx);
+  assert.equal(typeof ctx.Math.random(), 'number', 'Math.random answers from a fixed seed before window.ready');
+  ctx.window.ready = true;
   assert.throws(() => ctx.Math.random(), /Math\.random is forbidden/);
   assert.throws(() => ctx.window.Date.now(), /Date\.now is forbidden/);
   assert.throws(() => new ctx.window.Date(), /Date is forbidden/);
@@ -189,15 +191,15 @@ test('strict gate: a decoded cover between 2 and 3 MiB passes the floor and fail
   assert.equal(motionCli(['cover-gate', picked]).status, 0, 'without --strict the floor decides');
 });
 
-test('cover look: the eight cover questions, no stills-only round 1, and damage or a slide read asks for another round', () => {
+test('cover look: the nine cover questions, no stills-only round 1, and damage or a slide read asks for another round', () => {
   const out = fakeCoverRun(temp('litgravity-look-'));
   const r = lookCommand({ out, round: 1, answersFile: writeAnswers(out, coverAnswers()) });
   assert.equal(r.code, 0);
   assert.equal(r.record.mode, 'cover');
   assert.deepEqual(r.record.revise, []);
-  const nine = coverAnswers();
-  nine.answers.push({ q: 9, verdict: 'yes', frame: 'stills/sheet.png', observed: 'A ninth answer about the sheet that a cover never asks for.' });
-  assert.throws(() => lookCommand({ out, round: 1, answersFile: writeAnswers(out, nine) }), /unknown question 9/);
+  const ten = coverAnswers();
+  ten.answers.push({ q: 10, verdict: 'yes', frame: 'stills/sheet.png', observed: 'A tenth answer about the sheet that a cover never asks for.' });
+  assert.throws(() => lookCommand({ out, round: 1, answersFile: writeAnswers(out, ten) }), /unknown question 10/);
   const doc = coverAnswers();
   doc.answers[1].verdict = 'no';
   doc.answers[6].verdict = 'yes';
@@ -215,7 +217,7 @@ test('cover done: TARGET on the last render, two rounds, and a last round that v
   lookCommand({ out, round: 2, answersFile: file });
   const opened = new Set(['sheet', 'poster', 'seam'].map((n) => join(out, 'stills', `${n}.png`)));
   assert.equal(evaluateDone({ out, viewedFiles: opened }).status, 'DONE');
-  assert.match(evaluateDone({ out, viewedFiles: new Set() }).reasons.join(' '), /never opened with read_file/);
+  assert.match(evaluateDone({ out, viewedFiles: new Set() }).reasons.join(' '), /never opened with (?:read_file|the image tool)/);
   writeFileSync(join(out, 'gate-report.txt'), 'COVER gate --strict: PASS(floor)\n');
   assert.match(evaluateDone({ out, viewedFiles: opened }).reasons.join(' '), /did not reach every TARGET gate/);
 });
@@ -242,7 +244,18 @@ test('C001 defects: up to three, each with a loop time, a region on the cover an
   const film = fakeCoverRun(temp('litgravity-defects-film-'));
   const index = JSON.parse(readFileSync(join(film, 'stills', 'index.json'), 'utf8'));
   writeFileSync(join(film, 'stills', 'index.json'), JSON.stringify({ ...index, mode: undefined, path: 'stage', stillsOnly: true }));
-  assert.throws(() => lookCommand({ out: film, round: 1, answersFile: writeAnswers(film, { ...coverAnswers({ defects: [defect()] }), weakestBeat: 0 }) }), /defects are a cover-mode record/);
+  const filmDoc = { ...coverAnswers({ defects: [defect()] }), weakestBeat: 0 };
+  filmDoc.answers = [
+    ...filmDoc.answers.map((a) => {
+      if (a.q === 1) return { ...a, by: 'self', sentence: 'The cover shows a moving light.' };
+      if (a.q === 7) return { ...a, verdict: 'none' };
+      if (a.q === 8) return { ...a, verdict: 'no' };
+      return a;
+    }),
+    { q: 10, verdict: 'yes', frame: 'stills/sheet.png', observed: 'The turn lands on the second beat.' },
+  ];
+  const filmRun = lookCommand({ out: film, round: 1, answersFile: writeAnswers(film, filmDoc) });
+  assert.ok(Array.isArray(filmRun.record.defects), 'defects are accepted on a film look too');
 });
 
 // C007: the asset list is checked before any browser or runtime, so these run without Chrome.

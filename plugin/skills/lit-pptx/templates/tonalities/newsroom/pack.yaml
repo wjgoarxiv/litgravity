@@ -1,0 +1,99 @@
+# Newsroom: data journalism for a general reader. A black masthead band or a heavy rule at the title, charts in greys
+# with one orange series, direct labels and the source under every figure. For explainers, public
+# briefings, newsletters and data stories told to people who do not read tables. Wrong for an
+# internal dense review (Ledger), a pitch (Signal) or a lecture (Chalk).
+id: newsroom
+name: Newsroom
+version: "1.0.0"
+intent: "Data stories for a general reader: black masthead titles, grey charts with one orange series."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Bold
+  numeral: Pretendard Bold
+faces-a2z:
+  display: A2Z Bold
+  title: A2Z Bold
+  body: Pretendard Regular
+  label: Pretendard Bold
+  numeral: A2Z Bold
+
+palette:
+  ground: "#FBFAF7"
+  surface: "#EEEDEA"
+  ink: "#111111"
+  ink-muted: "#55534D"
+  # Rules and surfaces are neutral greys so the orange stays the only hue on a page.
+  line: "#CCCAC5"
+  # The one highlight: the series the story is about, the kicker, a figure that moved.
+  accent: "#C2410C"
+  accent-deep: "#7C2A08"
+  accent-tint: "#FBE3D3"
+  # The black masthead band behind a data title and the cover title.
+  field: "#111111"
+  on-field: "#FFFFFF"
+  positive: "#1F6B3A"
+  negative: "#111111"
+  # The highlight, then greys and one quiet blue for a second line the story compares against.
+  series: ["#C2410C", "#77746C", "#2F5D8A", "#111111"]
+
+ramp: reading
+hero: true
+type-voice:
+  title-tracking: -1
+  display-tracking: -2
+
+density: 10
+variance: 6
+radius: 0
+edge: fill
+
+treatments: [band, bottom-anchor, top-rule, kicker-numeral, statement]
+role-defaults:
+  content: top-rule
+  data: band
+  data-takeaway: bottom-anchor
+  sequence: kicker-numeral
+  image: bottom-anchor
+  statement: statement
+  reference: top-rule
+  definition: top-rule
+
+decoration: [hairline-rule, column-hairlines, numeral]
+layout-families: [full-chart, chart-insight, kpi-over-chart, big-number, kpi-row, table-insight, comparison, timeline, image-split, figure-pair, text-two-column, sidebar-note, references-appendix, quote, statement]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: band
+  statement: rules
+  number: tint
+  closing: rules
+  index: true
+covers: [cover-typographic, cover-figures, cover-index]
+sections: [section-rule, section-numeral]
+closings: [closing-summary-list, closing-statement, closing-ask]
+
+table:
+  header: none
+  header-ink: ink
+  rules: header-rule
+  banding: none
+  totals: bold
+chart:
+  gridlines: horizontal
+  labels: direct
+  highlight: accent-on-muted
+image:
+  frame: none
+
+fill-order: [anchor-visual, change-family, distribute, step-up]
+avoid:
+  - more than one highlighted series on a chart (the rest stay grey)
+  - a chart without its source line and its period
+  - a legend where a direct label fits
+  - 3D, gradients or pictograms standing in for numbers
+  - this look for a pitch, a lecture or an internal dense review

@@ -1,8 +1,8 @@
 ---
 tonality: night
-title: Pickup scheduling review, September 2026
-date: 2026-10-05
-department: Example Operations Team
+title: Checkout funnel review, September 2026
+date: 2026-10-02
+department: Example Analytics Team
 presenter: Example Analyst
 notice: Example data — replace with real figures
 ---
@@ -10,183 +10,185 @@ notice: Example data — replace with real figures
 ---
 layout: cover-numeral
 
-# Pickup scheduling review, September 2026
+# Checkout funnel review, September 2026
 ---
 
 ---
 layout: kpi-row
 
-## Bookings, punctuality and cost, September
+## Sessions, conversion and orders, September
 
-| Bookings | On-time pickups | Reschedule rate | Cost per pickup | Driver hours |
+| Sessions | Conversion | Orders | Average order | Revenue |
 |---|---|---|---|---|
-| 38,400 | 91% | 8.2% | €4.10 | 5,620 |
-| August 36,900 (+4%) | August 84% | August 11.6% | August €4.20 | August 5,540 |
+| 2.14m | 3.8% | 81,300 | $46.20 | $3.76m |
+| August 2.13m | August 3.3% | August 70,700 (+15%) | August $45.80 | August $3.24m (+16%) |
 
-> Home pickups of the Example Laundry Service, 1-30 September 2026, test accounts removed (example)
+> Web and app checkout, 1-30 September 2026, bots removed (example)
 
-- On-time pickups rose from 84% to 91% while bookings grew 4%
-- Driver hours grew 1.4%, so each pickup cost ten cents less
-- Reschedules fell by 3.4 points once customers got an evening-before reminder
-- Source: Example booking system and driver time sheets, August-September 2026
+- Conversion rose from 3.3% to 3.8% while traffic stayed flat (+0.5%)
+- Orders grew 15% with no change in paid traffic or discounts
+- Average order value moved by less than 1%, so revenue tracked orders
+- Source: Example analytics warehouse and order ledger, August-September 2026
 ---
 
 ---
 layout: full-chart
 
-## Late pickups by booked window, August vs September
+## Drop-off by checkout step, August vs September
 
-::: chart type=column unit="% of pickups in window"
-| Window | Late in August (%) | Late in September (%) |
+::: chart type=column unit="% of entrants"
+| Step | Drop-off in August (%) | Drop-off in September (%) |
 |---|---|---|
-| 07-10 | 11 | 7 |
-| 10-13 | 13 | 8 |
-| 13-16 | 20 | 9 |
-| 16-19 | 22 | 11 |
-| 19-21 | 9 | 7 |
-> Share of pickups collected after the end of their booked window (example data)
+| Cart | 31 | 30 |
+| Sign-in | 8 | 8 |
+| Address | 24 | 14 |
+| Shipping | 9 | 9 |
+| Payment | 12 | 11 |
+| Review | 4 | 4 |
+> Share of entrants who left at each step, August and September 2026 (example data)
 :::
 
-- Afternoon and early evening improved most after route re-sequencing on 6 September
-- The 13-16 window fell by eleven points, the largest single gain
-- The morning and night windows were already close to target
-- Source: Example booking system, collection scans, August-September 2026
-- Note: late means collected after the window closed, as defined on the method slide
+- Address drop-off fell by ten points after the new form shipped on 2 September
+- Every other step moved by one point or less
+- Cart remains the largest step loss, but most of it is browsing, not friction
+- Source: Example analytics warehouse, step events, August-September 2026
+- Note: drop-off is measured per step against that step's entrants, as defined on the method slide
 ---
 
 ---
 layout: chart-insight
 
-## Reschedule rate by booking channel, August vs September
+## Conversion by device, August vs September
 
 ::: chart type=bar unit="%"
-| Channel | Reschedules in August (%) | Reschedules in September (%) |
+| Device | Conversion in August (%) | Conversion in September (%) |
 |---|---|---|
-| App | 10.2 | 6.6 |
-| Web | 12.8 | 8.9 |
-| Phone | 18.5 | 15.0 |
-| Building desk | 5.0 | 4.2 |
-> Reschedule rate by booking channel, September vs August 2026 (example data)
+| Mobile web | 2.6 | 3.4 |
+| Tablet web | 3.1 | 3.6 |
+| Desktop web | 4.9 | 5.2 |
+| App, iOS | 5.9 | 6.1 |
+| App, Android | 5.6 | 5.8 |
+> Conversion by device, September vs August 2026 (example data)
 :::
 
-- App customers gained most from the reminder: −3.6 points
-- The reminder reaches the app and web within a minute of sending
-- Phone bookings still reschedule one time in seven
-- The app carries 52% of bookings, so it drives the overall fall
-- Source: Example booking system, bookings by channel, August-September 2026
+- Mobile buyers gained the most from the new form: +0.8 points
+- Autofill on small screens saves about 40 seconds per order
+- Desktop gained 0.3 points; both apps already had autofill
+- Mobile web is 58% of sessions, so it carries most of the gain
+- Source: Example analytics warehouse, sessions by first-page device, August-September 2026
 ---
 
 ---
 layout: dashboard-grid
 
-## On-time rate and door wait per stop, W36-W39
+## Card decline rate and payment page load, W36-W39
 
 ::: chart type=line unit="%"
-| Week | On-time pickups (%) |
+| Week | Card declines (%) |
 |---|---|
-| W36 | 85 |
-| W37 | 90 |
-| W38 | 94 |
-| W39 | 94 |
-> Weekly share of pickups inside the booked window, September 2026 (example data)
+| W36 | 6.1 |
+| W37 | 6.4 |
+| W38 | 6.9 |
+| W39 | 7.2 |
+> Weekly card decline rate, September 2026 (example data)
 :::
 
-::: chart type=line unit="min"
-| Week | Door wait per stop (min) |
+::: chart type=line unit="s"
+| Week | Payment page load (s) |
 |---|---|
-| W36 | 3.1 |
-| W37 | 3.4 |
-| W38 | 3.9 |
-| W39 | 4.3 |
-> Weekly median wait at the door, driver app (example data)
+| W36 | 2.1 |
+| W37 | 2.3 |
+| W38 | 2.6 |
+| W39 | 2.8 |
+> Weekly payment page load time, median (example data)
 :::
 
-- Tighter windows removed late pickups and exposed a new loss at the door
-- Door wait rose in all four weeks while on-time held at 94%
-- The June baseline was 2.6 minutes per stop
-- Source: Example driver app timestamps, weeks 36-39 of 2026
+- Payment failures are now the largest fixable loss in the funnel
+- Declines and load time rose together in all four weeks of September
+- The June baseline was 5.0% declines and 1.9 s load time
+- Source: Example payment logs and page timing beacons, weeks 36-39 of 2026
 ---
 
 ---
 layout: method
 
-## Punctuality definitions and data window
+## Funnel definitions and data window
 
-On-time rate = 1 − (late pickups ÷ completed pickups)
+Drop-off = 1 − (entrants to the next step ÷ entrants to this step)
 
-- **Pickup** a completed collection at the booked address; a failed visit is counted separately
-- **Late** a pickup scanned after the end of the booked two-hour or three-hour window
-- **Reschedule** a booking moved by the customer after confirmation, counted once per booking
-- **Window** bookings from 1 to 30 September, test accounts removed (about 1% of volume), against 1-31 August
-- **Channel** the place where the booking was first made, even if the customer changed it later
-- **Cost per pickup** driver hours × €28 an hour ÷ bookings, fuel and vehicles excluded
-- **Door wait** median minutes between arrival at the door and the collection scan or the failed visit
-- **Failed pickup** a visit where nobody handed over the bag within five minutes
+- **Entrant** a session that loaded the step at least once; reloads of the same step count once
+- **Session** visits from one browser or app install, closed after 30 minutes without activity
+- **Conversion** sessions with a confirmed order divided by all sessions in the window
+- **Window** sessions from 1 to 30 September, bots removed (about 3% of traffic), compared with 1-31 August
+- **Device** taken from the first page view of the session, so a switch mid-session is not counted twice
+- **Decline** a payment attempt the card issuer refused, counted once per order attempt
+- **Soft decline** a refusal the issuer marks as retryable, such as a timeout or a velocity limit
+- **Page load** median time until the payment form accepts input, measured in the browser
 - **Weeks** W36 is 31 August-6 September; W39 is 21-27 September
-- Source: Example booking system and driver app, data pulled 2 October 2026
+- Source: Example analytics warehouse and payment logs, data pulled 1 October 2026
 ---
 
 ---
 layout: section-field
 
-# November improvement options
+# October sprint options
 ---
 
 ---
 layout: comparison
 
-## Arrival alert vs apartment lockers
+## Card retry vs faster payment page
 
 :::: columns 1fr 1fr
 ::: col
-- **Send an arrival alert**
-  (1) Pickups: recovers about 700 a month, 31% of 2,300 failed visits
-  (2) Dependency: needs only the messaging service already in contract
-  (3) Effort: ships in two weeks with one engineer
-  (4) Risk: customers may ignore alerts sent after 20:00
+- **Retry declined cards**
+  (1) Orders: recovers about 1,200 a month, 41% of 2,950 soft declines
+  (2) Dependency: needs the payment partner's retry service, already in contract
+  (3) Effort: ships in three weeks with two engineers
+  (4) Risk: issuer fees of about $0.05 per repeated attempt
 :::
 ::: col
-- **Install apartment lockers**
-  (1) Pickups: recovers about 600 a month at 12 buildings holding 26% of failures
-  (2) Dependency: needs building consent and a locker supplier
-  (3) Effort: pilot ready in ten weeks with a facilities lead
-  (4) Risk: unused lockers cost €95 a month each in rent
+- **Faster payment page**
+  (1) Orders: recovers about 900 a month if load returns to the June 1.9 s
+  (2) Dependency: needs only front-end work, no partner change
+  (3) Effort: ships in two weeks with one engineer
+  (4) Risk: the gain depends on third-party scripts we do not control
 :::
 ::::
 
-- Source: Example Product Team and Facilities Team estimates, September 2026; alert trial, August 2026
+- Source: Example Payments Team and Web Team estimates, September 2026; retry trial May 2026
 ---
 
 ---
 layout: big-number
 
-## Failed pickups at the door, June-September
+## Card-decline order loss, June-September
 
-| Failed visits | Share of bookings | Apartment share | Alert recovery |
+| Lost to declines | Share of orders | Soft declines | Retry recovery |
 |---|---|---|---|
-| 2,300 | 6% | 26% | 31% |
-| September visits | June 4% | of all failures | August trial |
+| 5,900 | 7% | 50% | 41% |
+| September orders | June 5% | of all declines | May trial, one retry |
 
-> Driver app and booking logs, June-September 2026; alert trial, August 2026 (example)
+> Payment logs, June-September 2026; retry trial May 2026 (example)
 
-- Failed visits now cost more pickups than late arrivals
-- One in four failures happens at an apartment building
-- An arrival alert on every booking would recover about 700 pickups a month
-- Source: Example driver app and booking logs, June-September 2026; alert trial, August 2026
+- Declines cost more orders than any other step in September
+- Half of the declines were soft declines that a retry often clears
+- One retry on soft declines would recover about 1,200 orders a month
+- Source: Example payment logs, June-September 2026; retry trial, May 2026
 ---
 
 ---
 layout: closing-decision-box
 
-## Arrival alert release for November
+## Card retry release for October
 
-| Decision | Pickups per month | Owner | When |
+| Decision | Orders per month | Owner | When |
 |---|---|---|---|
-| Arrival alert for all bookings | about 700 | Example Product Team | Ship by 23 Oct |
-| Locker pilot at 12 buildings | about 600 | Example Facilities Team | Start in January |
-| Door-wait monitoring by route | baseline | Example Operations Team | From 12 Oct |
+| Card retry with the payment partner | about 1,200 | Example Payments Team | Ship by 24 Oct |
+| Faster payment page | about 900 | Example Web Team | Start in November |
+| Decline monitoring by issuer | baseline | Example Analytics Team | From 14 Oct |
 
-- Ask: product ships the arrival alert first in October
-- Next step: Example Operations Team reports the alert result at the 6 Nov scheduling review
-- Source: Example booking system and driver app, September 2026 (example data)
+- Ask: product ships card retry first in October
+- Next step: Example Analytics Team reports the retry result at the 7 Nov funnel review
+- Source: Example analytics warehouse and payment logs, September 2026 (example data)
 ---

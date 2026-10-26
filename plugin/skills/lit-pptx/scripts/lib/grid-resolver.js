@@ -10,14 +10,9 @@
  * out in points on the 960 x 540 (16:9) or 720 x 540 (4:3) canvas; the renderer converts to inches.
  */
 
-const CANVAS = { "16:9": { W: 960, H: 540 }, "4:3": { W: 720, H: 540 } };
+const SG = require("./slide-grid");
 
-// Side margin, column width and gutter of the airy, standard, dense and compact grids. Each sums
-// exactly to the canvas width over 12 columns and 11 gutters.
-const GRIDS = {
-  "16:9": { airy: { margin: 60, col: 48, gutter: 24 }, standard: { margin: 48, col: 50, gutter: 24 }, dense: { margin: 36, col: 52, gutter: 24 }, compact: { margin: 24, col: 54, gutter: 24 } },
-  "4:3": { airy: { margin: 54, col: 40, gutter: 12 }, standard: { margin: 42, col: 42, gutter: 12 }, dense: { margin: 30, col: 44, gutter: 12 }, compact: { margin: 24, col: 45, gutter: 12 } },
-};
+const { CANVAS } = SG;
 
 const RAMPS = {
   presented: { source: 12, label: 14, body: 18, lead: 24, title: 32, display: 44, cover: 56, hero: 72 },
@@ -29,19 +24,22 @@ const RAMPS = {
 const RAMP_ORDER = ["source", "label", "body", "lead", "title", "display", "cover", "hero"];
 const SCALE = [6, 12, 18, 24, 36, 48, 72];
 
-// Vertical zones shared by every canvas (all are 540 pt tall).
-const ZONE = { top: 36, body: 120, floor: 486, footer: 498, footerH: 18 };
+// The content zones of the shared slide grid (slide-grid.js), the same on both canvases.
+const ZONE = (() => {
+  const z = SG.ZONES.content;
+  return { top: z.title.y, body: z.body.y, floor: z.body.y + z.body.h, footer: z.footer.y, footerH: z.footer.h };
+})();
 
-// What the density dial sets: grid, ramp, gaps, padding, table rows and the empty band a content
-// slide may leave under its last line. From density 5 a deck reads on the reading ramp (body 14 pt);
-// density 10 is the compact step: 24 pt margins, body 13 pt, titles that sit close over the body.
+// What the density dial sets: ramp, gaps, padding, table rows and the empty band a content slide may
+// leave under its last line; never where the zones are. From density 5 a deck reads on the reading ramp
+// (body 14 pt); density 10 is the compact step: body 13 pt and the tightest gaps.
 const DENSITY_BANDS = [
-  { upTo: 2, grid: "airy", ramp: "presented", item: 18, group: 36, block: 48, pad: 24, rowMin: 36, maxLines: 6, cap: 0.28, stepUp: true },
-  { upTo: 4, grid: "standard", ramp: "presented", item: 12, group: 24, block: 36, pad: 24, rowMin: 32, maxLines: 8, cap: 0.24, stepUp: true },
-  { upTo: 6, grid: "standard", ramp: "reading", item: 6, group: 18, block: 24, pad: 18, rowMin: 24, maxLines: 12, cap: 0.18, stepUp: true },
-  { upTo: 8, grid: "dense", ramp: "reading", item: 6, group: 12, block: 24, pad: 12, rowMin: 22, maxLines: 16, cap: 0.14, stepUp: true },
-  { upTo: 9, grid: "dense", ramp: "reading", item: 6, group: 12, block: 24, pad: 12, rowMin: 20, maxLines: 18, cap: 0.12, stepUp: false },
-  { upTo: 10, grid: "compact", ramp: "compact", item: 6, group: 12, block: 18, pad: 12, rowMin: 18, maxLines: 22, cap: 0.12, stepUp: false, tight: true },
+  { upTo: 2, ramp: "presented", item: 18, group: 36, block: 48, pad: 24, rowMin: 36, maxLines: 6, cap: 0.28, stepUp: true },
+  { upTo: 4, ramp: "presented", item: 12, group: 24, block: 36, pad: 24, rowMin: 32, maxLines: 8, cap: 0.24, stepUp: true },
+  { upTo: 6, ramp: "reading", item: 6, group: 18, block: 24, pad: 18, rowMin: 24, maxLines: 12, cap: 0.18, stepUp: true },
+  { upTo: 8, ramp: "reading", item: 6, group: 12, block: 24, pad: 12, rowMin: 22, maxLines: 16, cap: 0.14, stepUp: true },
+  { upTo: 9, ramp: "reading", item: 6, group: 12, block: 24, pad: 12, rowMin: 20, maxLines: 18, cap: 0.12, stepUp: false },
+  { upTo: 10, ramp: "compact", item: 6, group: 12, block: 18, pad: 12, rowMin: 18, maxLines: 22, cap: 0.12, stepUp: false, tight: true },
 ];
 
 const TREATMENTS = ["top-rule", "top-plain-large", "side-rail", "band", "statement", "overlay", "kicker-numeral", "bottom-anchor"];
@@ -95,10 +93,15 @@ function clampDial(value, fallback) {
   return Number.isFinite(n) ? Math.max(1, Math.min(10, n)) : fallback;
 }
 
+/**
+ * The density band's tokens. A bold pack (`ramp: presented`, allowed only with `register: bold`)
+ * sets its type on the presented ramp at any density, so its titles and figures fill the same zones
+ * at presentation size; every other pack takes the band's ramp.
+ */
 function densityTokens(density, packRamp) {
   const d = clampDial(density, 5);
   const band = DENSITY_BANDS.find((b) => d <= b.upTo);
-  const ramp = band.ramp || packRamp || "presented";
+  const ramp = packRamp === "presented" ? "presented" : band.ramp;
   return { density: d, ...band, ramp, sizes: RAMPS[ramp] };
 }
 
@@ -109,12 +112,13 @@ function varianceMax(variance, treatmentCount) {
   return Math.min(max, treatmentCount);
 }
 
-function makeGrid(canvas, name) {
+/** The shared slide grid's columns on a canvas (the same for every pack and density). */
+function makeGrid(canvas) {
   const { W, H } = CANVAS[canvas];
-  const g = GRIDS[canvas][name];
+  const g = SG.COLUMNS[canvas];
   const pitch = g.col + g.gutter;
   return {
-    canvas, name, W, H, ...g, pitch,
+    canvas, name: "compact", W, H, ...g, pitch,
     /** Columns a…b (1-based, inclusive) as x and width in points. */
     span(a, b) { return { x: g.margin + pitch * (a - 1), w: pitch * (b - a + 1) - g.gutter }; },
     colX(a) { return g.margin + pitch * (a - 1); },
@@ -279,7 +283,16 @@ function leading(text) {
  * How much wider than the estimate a face sets: heavier weights of the bundled faces run wider,
  * so a frame measured at the regular width would lose its last line.
  */
-function faceWidth(face) {
+function faceWidth(face, text) {
+  // A monospaced Latin face sets every Latin character and space at 0.6 em, and its Hangul in the
+  // East Asian face; the factor is that advance over the estimate, or the Latin worst case unread.
+  if (face && face.ea) {
+    const est = textEms(text);
+    if (text == null || !est) return 1.26;
+    let mono = 0;
+    for (const ch of String(text)) mono += /[ᄀ-ᇿ㄰-㆏가-힣一-鿿]/u.test(ch) ? 0.94 * (face.bold ? 1.08 : 1.0) : 0.6;
+    return Math.max(1, mono / est);
+  }
   const font = (face && face.font) || "";
   return /9 Black/u.test(font) ? 1.14 : /7 Bold/u.test(font) ? 1.08 : /5 Medium/u.test(font) ? 1.05 : face && face.bold ? 1.04 : 1.0;
 }
@@ -375,86 +388,90 @@ function pickTreatment({ pack, family, role, override, slideNumber, used, max, a
 /**
  * Title frame, companion decoration and body zone of one treatment, in points.
  *
+ * Every treatment sets its title in the shared title zone (slide-grid.js) and leaves the body zone
+ * as it is: a treatment chooses the title's face, size and colour and what is drawn with it, never
+ * where the title or the body stands. A statement sets its sentence in the display title zone.
+ *
  * ctx: { grid, sizes, title, hero, decoration (Set), numeral, rail ("surface" or "field") }
- * Returns { title, decor[], numeral?, body: {a, b, y, bottom}, side?, lines } where body columns
- * a…b are on the deck grid. `fits` is false when the title does not fit the treatment's budget.
+ * Returns { title, decor[], numeral?, body: {a, b, y, bottom}, support?, lines } where body
+ * columns a…b are on the deck grid. `fits` is false when the title does not fit its zone.
  */
 function treatmentGeometry(id, ctx) {
   const { grid, sizes } = ctx;
   // Lines of the title at a size, in the face that sets it (ctx.wide: face role → width factor).
-  const fit = (t, w, size, face = "title") => lineCount(t, w / ((ctx.wide && ctx.wide[face]) || 1), size);
+  const fit = (t, w, size, face = "title") => {
+    const k = ctx.wide && ctx.wide[face];
+    return lineCount(t, w / ((typeof k === "function" ? k(t) : k) || 1), size);
+  };
   const text = ctx.title || "";
   const decor = [];
   const full = grid.span(1, 12);
   const out = { id, decor, fits: true };
-  const box = (cols, y, size, lines, face, colour) => {
-    const s = grid.span(cols[0], cols[1]);
-    return { x: s.x, y, w: s.w, h: Math.ceil(lines * size * 1.15), size, face, colour, lines };
+  const T = SG.zone(grid.canvas, "content", "title");
+  const B = SG.zone(grid.canvas, "content", "body");
+  const body = { a: B.a, b: B.b, y: B.y, bottom: B.y + B.h };
+  // The title frame is the zone itself. Two lines at the title step take 1.15 leading, or 1.1 when
+  // that is what keeps them inside the zone (the presented title step); display type sets solid (1.0)
+  // when that is what keeps two lines of it in the zone.
+  const frame = (size, face, colour) => {
+    const lines = fit(text, T.w, size, face);
+    const lineSpacing = [1.15, 1.1, ...(face === "display" ? [1.0] : [])].find((k) => lines * size * k <= T.h + 0.5) || 1.1;
+    return { x: T.x, y: T.y, w: T.w, h: T.h, size, face, colour, lines, lineSpacing, fits: lines * size * lineSpacing <= T.h + 0.5 };
   };
+  // Where the title's last line ends inside the frame (a rule under it follows the text, not the zone).
+  const textBottom = (f) => T.y + Math.ceil(Math.max(1, f.lines) * f.size * f.lineSpacing) + 2;
 
-  // On the compact step (ctx.tight) a top title frame is as tall as its lines, the rule sits 6 pt
-  // under it and the body 18 pt under the rule; a band keeps its height and the body follows it at 12.
-  if (id === "top-rule" || id === "band") {
-    const cols = id === "band" ? [1, 11] : [1, 12];
-    const w = grid.span(cols[0], cols[1]).w;
-    const lines = fit(text, w, sizes.title);
-    out.fits = lines <= 1 || (lines <= 2 && sizes.title * 1.15 * 2 <= 60.5);
-    const h = ctx.tight && id === "top-rule" ? Math.ceil(Math.max(1, lines) * sizes.title * 1.15) + 2 : 60;
-    out.title = { ...box(cols, 36, sizes.title, lines, "title", id === "band" ? "on-field" : "ink"), h };
-    if (id === "band") {
-      decor.push({ x: 0, y: 0, w: grid.W, h: 108, role: "field", kind: "band" });
-      out.body = { a: 1, b: 12, y: ctx.tight ? 120 : 132, bottom: ZONE.floor };
-    } else {
-      const ruleY = 36 + h + 6;
-      if (ctx.decoration.has("accent-rule")) decor.push({ x: out.title.x, y: ruleY, w: grid.col, h: 4, role: "accent", kind: "rule" });
+  if (id === "top-rule" || id === "band" || id === "bottom-anchor" || id === "side-rail" || id === "kicker-numeral") {
+    const f = frame(sizes.title, "title", id === "band" ? "on-field" : "ink");
+    out.fits = f.fits && f.lines <= 2 && (id !== "kicker-numeral" || ctx.numeral != null);
+    out.title = f;
+    out.body = body;
+    if (id === "top-rule") {
+      const ruleY = textBottom(f) + 4;
+      if (ctx.decoration.has("accent-rule")) decor.push({ x: T.x, y: ruleY, w: grid.col, h: 4, role: "accent", kind: "rule" });
       else decor.push({ x: full.x, y: ruleY, w: full.w, h: 0.75, role: "line", kind: "rule" });
-      out.body = { a: 1, b: 12, y: ctx.tight ? ruleY + 18 : ZONE.body, bottom: ZONE.floor };
+    } else if (id === "band") {
+      // The field runs from the page's top edge to the foot of the title zone.
+      decor.push({ x: 0, y: 0, w: grid.W, h: T.y + T.h, role: "field", kind: "band" });
+    } else if (id === "bottom-anchor") {
+      // The title zone closes on a heavy rule in the ink across the page's columns.
+      decor.push({ x: full.x, y: T.y + T.h + 2, w: full.w, h: 3, role: "ink", kind: "rule" });
+    } else if (id === "side-rail") {
+      // A bar in the left margin: the full page height in the rail colour where the pack fills its
+      // rail, else as tall as the title zone in the accent.
+      const filled = ctx.decoration.has("rail-fill");
+      const w = Math.round(grid.margin / 2);
+      decor.push(filled ? { x: 0, y: 0, w, h: grid.H, role: ctx.rail === "field" ? "field" : "accent", kind: "rail" }
+        : { x: 0, y: T.y, w, h: T.h, role: "accent", kind: "rail" });
+    } else {
+      const A = SG.zone(grid.canvas, "content", "aside");
+      out.numeral = { x: A.x, y: A.y, w: A.w, h: A.h, size: sizes.cover, text: String(ctx.numeral || ""), align: "right" };
     }
     return out;
   }
 
   if (id === "top-plain-large") {
-    const w = grid.span(1, 10).w;
-    const lines = fit(text, w, sizes.display, "display");
-    out.fits = lines <= 2;
-    // The frame reaches 8 pt into the gap below it: heavy display faces hang their descenders lower.
-    const h = lines <= 1 ? 54 : 102;
-    out.title = { ...box([1, 10], 36, sizes.display, lines, "display", "ink"), h: h + 8 };
-    out.body = { a: 1, b: 12, y: 36 + h + (ctx.tight ? 18 : 24), bottom: ZONE.floor };
-    return out;
-  }
-
-  if (id === "side-rail") {
-    const s = grid.span(1, 4);
-    const lines = fit(text, s.w, sizes.title);
-    out.fits = lines <= 4;
-    const filled = ctx.decoration.has("rail-fill");
-    const rail = filled && ctx.rail === "field" ? "field" : "surface";
-    out.title = box([1, 4], 36, sizes.title, lines, "title", rail === "field" ? "on-field" : "ink");
-    // In a rail a few words fill a line, so one word moving down can add a line the estimate does
-    // not see; the frame keeps a spare line (the text is top-aligned, so nothing moves).
-    out.title.h = Math.ceil((lines + 1) * sizes.title * 1.15);
-    const railRight = s.x + s.w + grid.gutter / 2;
-    if (filled) decor.push({ x: 0, y: 0, w: railRight, h: grid.H, role: rail, kind: "rail" });
-    else if (ctx.decoration.has("hairline-rule")) decor.push({ x: railRight, y: 36, w: 0.75, h: 450, role: "line", kind: "rule" });
-    out.body = { a: 5, b: 12, y: 36, bottom: ZONE.floor };
+    const f = frame(sizes.display, "display", "ink");
+    out.fits = f.fits && f.lines <= 2;
+    out.title = f;
+    out.body = body;
     return out;
   }
 
   if (id === "statement") {
-    // A pack may set the sentence beside a rail (`statementCols`); a hero pack sets it at the hero
-    // step while it breaks into at most three balanced lines.
-    const cols = ctx.statementCols || [1, 10];
-    const w = grid.span(cols[0], cols[1]).w;
-    const heroLines = fit(text, w, sizes.hero, "display");
-    const useHero = ctx.hero && heroLines <= 3;
+    // The sentence is centred in the display title zone, at the hero step in a hero pack while it
+    // keeps to three lines there, else at the display step.
+    const D = SG.zone(grid.canvas, "display", "title");
+    const tall = (size, lines) => lines * size * 1.15 <= D.h + 0.5;
+    const heroLines = fit(text, D.w, sizes.hero, "display");
+    const useHero = ctx.hero && heroLines <= 3 && tall(sizes.hero, heroLines);
     const size = useHero ? sizes.hero : sizes.display;
-    const lines = useHero ? heroLines : fit(text, w, sizes.display, "display");
-    out.fits = lines <= 3;
-    const h = Math.ceil(lines * size * 1.15);
-    const y = Math.round((303 - h / 2) / 6) * 6;
-    out.title = { ...box(cols, y, size, lines, "display", "ink"), h };
-    out.support = { ...grid.span(cols[0], Math.min(12, cols[0] + 7)), y: y + h + 24 };
+    const lines = useHero ? heroLines : fit(text, D.w, sizes.display, "display");
+    out.fits = lines <= 3 && tall(size, lines);
+    out.title = { x: D.x, y: D.y, w: D.w, h: D.h, size, face: "display", colour: "ink", lines, lineSpacing: 1.15, valign: "middle",
+      textH: Math.ceil(lines * size * 1.15) };
+    const P = SG.zone(grid.canvas, "display", "support");
+    out.support = { x: P.x, y: P.y, w: P.w, bottom: P.y + P.h };
     out.body = null;
     return out;
   }
@@ -466,35 +483,9 @@ function treatmentGeometry(id, ctx) {
     // The panel is as tall as the title and its caption line (ending 24 pt under the caption at 432), so its
     // lower part never stands empty; the sample tag in the footer zone sits on the picture, clear of its edge.
     decor.push({ x: 0, y: 324, w: s.x + s.w + 24, h: 146, role: "field", kind: "panel", alpha: 12 });
-    out.title = { ...box([1, 7], 348, sizes.title, lines, "title", "on-field"), h: 72 };
+    out.title = { x: s.x, y: 348, w: s.w, h: 72, size: sizes.title, face: "title", colour: "on-field", lines };
     out.image = { x: 0, y: 0, w: grid.W, h: grid.H };
     out.body = null;
-    return out;
-  }
-
-  if (id === "kicker-numeral") {
-    const w = grid.span(3, 12).w;
-    const lines = fit(text, w, sizes.title);
-    out.fits = lines <= 1 && ctx.numeral != null;
-    const n = grid.span(1, 2);
-    out.numeral = { x: n.x, y: 36, w: n.w, h: 72, size: sizes.cover, text: String(ctx.numeral || "") };
-    out.title = { ...box([3, 12], 48, sizes.title, lines, "title", "ink"), h: 60 };
-    out.body = { a: 1, b: 12, y: ctx.tight ? 120 : 132, bottom: ZONE.floor };
-    return out;
-  }
-
-  if (id === "bottom-anchor") {
-    // The title's last line ends on the body floor, so a one-line title leaves no band under itself;
-    // the hairline sits 12 pt above the title and the visual's zone ends 24 pt above it.
-    const s = grid.span(1, 9);
-    const lines = fit(text, s.w, sizes.title);
-    out.fits = lines <= 2;
-    const h = Math.ceil(Math.max(1, lines) * sizes.title * 1.15) + 2;
-    const y = ZONE.floor - h;
-    out.title = { ...box([1, 9], y, sizes.title, lines, "title", "ink"), h };
-    if (ctx.decoration.has("hairline-rule")) decor.push({ x: full.x, y: y - 12, w: full.w, h: 0.75, role: "line", kind: "rule" });
-    out.side = { ...grid.span(10, 12), y, bottom: ZONE.floor };
-    out.body = { a: 1, b: 12, y: 36, bottom: y - 24 };
     return out;
   }
   throw new Error(`unknown title treatment "${id}"`);
@@ -514,7 +505,7 @@ function treatmentApplies(id, facts, ctx) {
 }
 
 module.exports = {
-  CANVAS, GRIDS, RAMPS, SCALE, ZONE, TREATMENTS, FAMILIES, VARIANTS, LEGACY_LAYOUTS,
+  CANVAS, RAMPS, SCALE, ZONE, TREATMENTS, FAMILIES, VARIANTS, LEGACY_LAYOUTS,
   densityTokens, varianceMax, makeGrid, stepGap, stepRole, clampDial,
   textEms, lineCount, leading, textHeight, isKorean, faceWidth, balanceLines, keepLines,
   familyIds, resolveFamily, familyAllows, pickTreatment, treatmentGeometry, treatmentApplies,

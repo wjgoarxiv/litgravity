@@ -2,12 +2,12 @@
   "schema": "litgravity.motion-cover-recipe/v1",
   "note": "The decoded gate row this recipe reached when it shipped (scripts/qa-cover-recipes.mjs re-renders it and fails when median d or moving leave +-15 %, seamLocal leaves TARGET or bytes pass 2 MiB). Measured 2026-10-20 on headless Chrome's software rung and libwebp 1.6.0.",
   "row": {
-    "medianD": 0.002671,
+    "medianD": 0.002669,
     "movingFrac": 1,
     "longestStillSec": 0.05,
-    "spike": 2.014,
-    "seamLocal": 1.9,
-    "bytes": 1348480
+    "spike": 2.012,
+    "seamLocal": 1.894,
+    "bytes": 1344766
   },
   "settings": {
     "size": [
@@ -29,6 +29,8 @@
     "idea": "Dots lap three rings and every crossing at the gate lights the next cell of a ledger under the name.",
     "recipe": "orbit-loop",
     "recipeReason": "A small system beside a still name shows checking without words.",
+    "hero": "The dots lapping three rings.",
+    "beat": "Each crossing at the gate lights the next ledger cell.",
     "brandWord": "LITGRAVITY",
     "motto": {
       "text": "KEEP THE WORK LIT.",

@@ -1,167 +1,151 @@
 # Paper
 
-Paper treats the screen like a printed journal page. The ground is white, the type is near-black, and
-structure comes from thin rules where other directions use filled boxes. Figures do most of the
-talking, each with a numbered caption and a source; tables use the three-rule style readers know from
-papers; and one deep crimson is the only colour with a job: it marks the method or result the talk
-proposes. The effect is calm and checkable, which is what a room of peers wants while it decides
-whether to believe a result.
+Paper treats the screen like a printed journal page. The ground is white, the type is near-black,
+and structure comes from thin rules rather than filled boxes. Figures do most of the talking, each
+with a numbered caption and a source, and tables are set in the three-rule style readers know from
+papers. One deep crimson is the only colour with a job: it marks the method or result the talk
+proposes, and nothing else. The effect is calm and checkable, which is what a room of peers wants
+when they are deciding whether to believe a result.
 
-## When to choose it
+## When to use it
 
-Pick Paper for research talks, thesis defences, lab meetings and technical reviews where the audience
-reads the evidence closely. Of the eleven families, six are evidence families (`figure-academic`,
-`figure-pair`, `chart-insight`, `full-chart`, `table-insight`, `method`), and `references-appendix`
-closes the deck with a reference list whose DOIs become real links. Prefer it when the source carries
-numbered citations, DOIs or a references section, and when a third of the slides hold a chart. A
-written analysis delivered as slides also fits, because hairline tables and numbered figures survive
-printing.
+Pick Paper for research talks, thesis defences, lab meetings and technical reviews where the
+audience reads the evidence closely. It is the first candidate for the research-talk deck type, and
+it moves up the list when the source carries numbered citations, DOIs or a references section, or
+when a third or more of the slides hold a chart. It also suits a written analysis that happens to be
+delivered as slides, because its hairline tables and numbered figures survive printing.
 
-The pack file names the mismatch: a sales or launch audience, where the restraint reads as cold
-(Signal or Studio carry that energy). The pack has no full-bleed image family and keeps pictures
-inside the grid, and a large dark room asks for Night, where thin rules vanish at distance.
+## When it is the wrong choice
+
+Paper reads as cold to a sales, launch or investor audience; there Signal or Studio carry the
+energy the room expects. It is also a poor fit for a deck of mostly photographs, since the pack has
+no full-bleed image family and keeps pictures inside the grid. If the talk is given on a large
+stage in a dark room, Night keeps charts legible at distance where Paper's thin rules disappear.
 
 ## Tokens
 
+These values are read from the pack file `pack.yaml` of the `paper` tonality.
+
 | Token | Value |
 |---|---|
-| ground / surface | #FFFFFF / #F5F5F6 |
-| ink / ink-muted / line | #111418 / #50565E / #C9CDD2 |
-| accent / accent-deep / accent-tint | #8C1C2B / #5E121C / #F6E6E8 |
-| field / on-field | #111418 / #FFFFFF |
-| positive / negative | #1E6B3A / #50565E |
-| series | #8C1C2B, #111418, #50565E, #2E5E8A |
-| faces | Pretendard Bold for display and titles, Pretendard Regular for body, labels and numerals; `faces: a2z` keeps the same map |
-| tracking (title / display) | 0 % / -1 % of the size |
-| density / variance | 10 / 5 (up to 4 title treatments, all four of the pack) |
+| ground / surface | `#FFFFFF` / `#F5F5F6` |
+| ink / ink-muted | `#111418` / `#50565E` |
+| line | `#C9CDD2` |
+| accent / accent-deep / accent-tint | `#8C1C2B` / `#5E121C` / `#F6E6E8` |
+| field / on-field | `#111418` / `#FFFFFF` |
+| positive / negative | `#1E6B3A` / `#50565E` |
+| series | `#8C1C2B`, `#111418`, `#50565E`, `#2E5E8A` |
+| faces | display and title Pretendard Bold; body, label and numeral Pretendard Regular (`faces: a2z` keeps the same map) |
+| ramp / hero | compact (body 13 pt, labels 11, sources 9) / hero step (60 pt) on cover and statement titles that fit, off with `hero: false`; figures at most title size |
+| density / variance | 10 / 5 |
 | radius / edge | 0 / border |
-| table | booktabs: a 1 pt ink rule above the header, 0.5 pt under it, 1 pt at the end; no fill, no banding, right-aligned figures, bold totals |
-| chart | hairline gridlines, direct labels, `series-order`: the highlighted series takes the accent, the others take ink, muted ink and the blue in order |
-| image | no frame |
-| decoration | hairline-rule, box-outline |
-| fill-order | anchor-visual, distribute, step-up, change-family |
+| table | booktabs: heavy rule over the header, light rule under it, heavy rule at the end; no fill, no banding; numbers right-aligned; totals bold |
+| chart | hairline gridlines, direct labels, series in order (the proposed method takes the accent, baselines take ink and muted ink) |
+| decoration | hairline rule, box outline |
 
-`edge: border` means every surface (a summary box, a note, a decision box) is an outline in the line
-colour with no fill, so the page never gains a coloured card. A drop is shown with the muted ink,
-because negative equals `ink-muted`: a sign and a glyph carry the meaning, and the accent stays free for
-the proposed method. Without `accent-rule` in the decoration list, a `top-rule` title always sits on a
-full hairline.
+Negative values share the muted ink on purpose: a drop is shown with a sign and a glyph, never with
+a
+warning colour that would compete with the accent.
 
-## Titles by family
+## Treatments by slide role
 
-Role defaults: content, data, sequences and references `top-rule`; data with a takeaway and images
-`bottom-anchor`; definitions `side-rail`; statements `statement`. The pack's `structure` draws a
-`comparison` as a ruled table under `top-rule`, and that title stays even when the deck already leans
-on it.
-
-| Family | Default title | Then, in pack order |
-|---|---|---|
-| `figure-academic` | `bottom-anchor` | `top-rule`, `side-rail` |
-| `figure-pair` | `bottom-anchor` | `top-rule`, `side-rail` |
-| `method` | `side-rail` | `top-rule` |
-| `chart-insight` | `bottom-anchor` | `top-rule`, `side-rail` |
-| `full-chart` | `bottom-anchor` | `top-rule` |
-| `table-insight` | `top-rule` | `bottom-anchor`, `side-rail` |
-| `comparison` | `top-rule` | `bottom-anchor`, `side-rail` |
-| `quote` | `statement` | `top-rule` |
-| `statement` | `statement` | none |
-| `text-column` | `top-rule` | `side-rail` |
-| `references-appendix` | `top-rule` | none |
-
-A `bottom-anchor` title stands on the floor with a hairline 12 pt above it, so the chart or figure
-takes the upper body and the title labels it from below. A table never takes a bottom title while
-another title fits. Pin with `title: top-rule` after `layout:` when a figure slide needs the title at
-the top.
+Text slides, data tables, sequences and reference pages take `top-rule`, where the rule under the
+title is a full hairline. Charts and figures that carry the slide take `bottom-anchor`, the title
+closed by a heavy rule over a picture that takes the body's full height. Definitions and method slides
+take `side-rail`, a comparison is drawn as a ruled table under a `top-rule` title (the pack's
+`structure`, kept even when the deck already leans on that title), and a quoted line takes `statement`. The engine keeps the role's treatment when
+the body fills to the density band; when it would leave a tall empty band, it lays the slide out
+under the other treatments the family allows and keeps the one that fills best, while capping how
+many treatments one deck mixes. A slide can ask for a specific treatment with a `title:` line under
+its `layout:` line, for example `title: top-rule`, as long as the family allows it.
 
 ## Families and variants
 
-- `figure-academic`: one figure with its numbered caption and three bold-headed observations
-  (Observation, Basis, Implication).
+- `figure-academic`: one figure with its numbered caption and a short observation, basis and
+implication.
 - `figure-pair`: two figures side by side, for before and after or two conditions.
 - `method`: a formula or process figure beside the definitions of its symbols.
-- `chart-insight`, `full-chart`: a native chart with two or three takeaways, or across the body; at
-  the compact step the chart's values stand in a small table beside the takeaways.
-- `table-insight`, `comparison`, `quote`, `statement`, `text-column`, `references-appendix` as the
-  list above shows.
-- Covers `cover-index` (needs an agenda or two sections), `cover-typographic`, `cover-split-image`;
-  sections `section-rule`, `section-field`; closings `closing-summary-list`, `closing-ask`.
+- `chart-insight`: a native chart with two or three takeaways beside it.
+- `full-chart`: a chart across the body when the plot itself is the argument.
+- `table-insight`: a booktabs table with its caption and the takeaway it supports.
+- `comparison`: contributions against limits, or two methods row by row.
+- `quote`: a participant's or reviewer's words as a statement.
+- `statement`: an epigraph or quoted line; the research question and the finding go in a labelled
+  content slide with their evidence.
+- `text-column`: running argument at reading measure.
+- `references-appendix`: the reference list, one entry per row.
 
-Display devices: the typographic cover is a journal title page (a 2 pt rule at y 96, the title, a
-hairline, the presenter in bold, then department and date in one line); a statement stands between
-two hairlines like an epigraph; a big number sits in an ink outline; a section with an agenda is the
-index page, this part in the accent; a closing's next step sits under a hairline on the page foot.
+Covers are `cover-index` (lists the deck's sections, so it needs at least two), `cover-typographic`
+and `cover-split-image`. Sections are `section-rule` and `section-field`. Closings are
+`closing-summary-list` and `closing-ask`.
+
+Display slides. The typographic cover is a journal title page: a heavy rule, the title, a hairline,
+then the presenter and, under it, the place and date. A statement sits between two hairlines, like
+an epigraph. A section shows the deck's parts in one line under its rule, this part in the accent. A
+closing's next step sits under a rule at the foot of the page, its rows keyed by date.
 
 ## Do
 
-- Number every figure and table caption and give each a source (the engine numbers them).
-- Title each slide with what it shows ("Conversion at 60 min by feed rate"); the finding is the first
-  observation.
-- Keep the crimson for the proposed method in every chart, so the audience learns its meaning on the
-  first plot; name the other series with a reference word (Baseline, Prior, Plan) or a period.
-- Put the data fact that bounds a result on the same slide, beside the number it affects.
-- End with the reference list; write each DOI or URL as a Markdown link.
+Number every figure and table caption and give each a source. Title each slide with what it shows
+("Conversion at 60 min by feed rate"), and put the finding in the first observation. Keep the crimson for the proposed
+method in every chart, so the audience learns its meaning on the first plot. Put the data fact that
+bounds a result on the same slide, beside the number it affects. End with the reference list, so the last page carries the
+deck's sources.
 
 ## Avoid
 
-- The short accent bar under a title; this direction draws a hairline.
-- Coloured card fills.
-- The accent on anything other than the proposed method.
-- A figure without a numbered caption.
-
-## Failure patterns
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| QA `appendix_links` fails on a slide titled "Appendix" or "부록" | a DOI typed as plain text | write `[doi:10.x/y](https://doi.org/10.x/y)`; the engine writes a hyperlink relationship |
-| QA `anti_slop: forbidden_terms` | a word such as "placeholder", "tbd" or "todo" anywhere in a slide | rewrite the entry; the list matches substrings |
-| `note: slide 1: cover-index cannot be drawn (the deck has no agenda or sections to list)` | the deck has no agenda and fewer than two section slides | add an agenda or use `cover-typographic` |
-| the crimson lands on the baseline series | no period or reference word in the series names, so the last column wins | order the columns baseline first, proposed last |
-| a figure slide with no "Figure N." line | the alt text is empty | write the caption as the alt text |
+Avoid the short accent bar under a title; in this direction the rule is a hairline. Avoid coloured
+card fills, which turn a paper into a dashboard. Do not let the accent mark anything that is not the
+proposed method, and never show a figure without its numbered caption.
 
 ## Two worked slides
 
-A chart slide where the proposed series takes the crimson because the other column is named
-`Baseline`. The compile adds the values table beside the takeaways and numbers the caption.
+A table slide labels the table in the title and states the takeaway first beside it, so the body
+fills and the reader does not have to compute the gain.
 
 ```markdown
 ---
-layout: chart-insight
+layout: table-insight
 
-## Glucose yield at 24 h by enzyme dose
+## Conversion at 60 min by feed rate and feed mode
 
-::: chart type=column unit="%"
-| Enzyme dose (U/g) | Baseline (%) | Staged addition (%) |
-|---|---|---|
-| 5 | 41 | 52 |
-| 10 | 55 | 68 |
-| 15 | 63 | 77 |
-| 20 | 66 | 80 |
-> Glucose yield at 24 hours, mean of three runs (example data)
-:::
+| Feed rate (L/min) | Single feed (%) | Staged feed (%) | Gain (points) |
+|---|---|---|---|
+| 0.5 | 52 | 77 | 25 |
+| 0.75 | 51 | 76 | 25 |
+| 1.0 | 50 | 75 | 25 |
+| 1.5 | 47 | 71 | 24 |
+| 2.0 | 41 | 64 | 23 |
 
-- Staged addition raises the yield at every dose, by 11 to 14 points
-- The gain is largest at 10 U/g, where yield rises from 55 % to 68 %
-- Beyond 15 U/g both curves flatten, so extra enzyme adds little
-- Source: example bench log, runs 1-3
+> Table 1. Conversion at 60 minutes by feed rate, three replicates each (example data)
+
+- The gain holds at all five feed rates tested (+23 to +25 points)
+- The relative gain is 48-56% at every rate
+- The gap narrows by two points at the highest rate
+- Heat removal, not the feed schedule, limits the fastest runs
 ---
 ```
 
-A figure with its observation, basis and implication, each led by a bold label; the compile adds the
-colon after each label (OF-118 checks it).
+A method slide pairs the process figure with every symbol the talk will use, so later charts need
+no legend.
 
 ```markdown
 ---
-layout: figure-academic
+layout: method
 
-## Reactor layout with three feed ports
+## Three-stage feed layout and symbols
 
-![Figure 2. Reactor with three feed ports along the column | Source: example image](assets/example-b.png)
+![Figure 2. Process layout used in all runs | Source: example image](assets/example-b.png)
 
-- **Observation** feed enters at ports A, B and C in a 50/30/20 split by volume
-- **Basis** all twelve runs used the same column and the same residence time of 24 hours
-- **Implication** the gain in Figure 1 comes from the feed schedule alone
+- **Layout** feed split into three stages along the reactor
+- **X** conversion, the fraction of feed that reacted
+- **k** first-order rate constant, 1/min
+- **τ** residence time per stage, min
+- **n** number of feed stages, three in every run
+- **q** feed split between stages, 50/30/20 by volume
 ---
 ```
 
-Both slides compile under `tonality: paper` with `lang: en` and a generic cover (drawn as
-`cover-typographic`) and pass `qa_deck.py`; the laboratory and the data are invented.
+## Examples
+
+`05-research-talk-paper-en.md` uses the pack defaults (density 10, variance 5).

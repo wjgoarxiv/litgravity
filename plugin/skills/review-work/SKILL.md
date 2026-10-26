@@ -118,7 +118,7 @@ Use `git diff HEAD~1` or `git diff --cached` when the target is the last commit 
 
 Start every independent lane in one turn so they run side by side. Each brief is a self-contained assignment that begins with `TASK:` and carries `DELIVERABLE`, `SCOPE`, `VERIFY` and `STOP WHEN`. Always pass `TypeName` to `invoke_subagent`, because a child started without it is general-purpose with every tool, which defeats the read-only review stance. The `Prompt` carries the brief, the `Role` is `reviewer`, and each lane sends its result to the parent as a message when it finishes.
 
-Every lane returns this schema as plain text, and the parent saves it as `lane-N-<name>.md`:
+Every lane returns this schema as plain text, and the parent saves it as `lane-N-<name>.md` (`lane-1-goal.md` through `lane-5-context.md`) in the review folder as soon as it arrives. The status line reads these files: each lane lights in its own colour with its verdict mark once its file holds a `verdict:` line, so the user sees real lane progress.
 
 ```text
 verdict: PASS | FAIL | BLOCKED

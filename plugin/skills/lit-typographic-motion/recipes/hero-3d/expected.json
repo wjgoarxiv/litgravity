@@ -1,0 +1,69 @@
+{
+  "schema": "litgravity.motion-cover-recipe/v1",
+  "note": "The decoded gate row this recipe reached when it shipped (scripts/qa-cover-recipes.mjs re-renders it and fails when median d or moving leave +-15 %, seamLocal leaves TARGET or bytes pass 2 MiB). Measured 2026-10-25 on headless Chrome's GPU rung (ANGLE Metal, Apple M5 Pro) with three.js r170 and libwebp; 20 fps keeps every frame on the 50 ms gate grid.",
+  "row": {
+    "medianD": 0.002485,
+    "movingFrac": 1,
+    "longestStillSec": 0.05,
+    "spike": 3.684,
+    "seamLocal": 1.199,
+    "bytes": 1060856
+  },
+  "settings": {
+    "size": [
+      1000,
+      500
+    ],
+    "fps": 20,
+    "frames": 160,
+    "encode": {
+      "q": 94,
+      "edgeQ": 97,
+      "edgeFrames": 15,
+      "method": 4
+    }
+  },
+  "treatment": {
+    "mode": "cover",
+    "request": "A README motion cover for LitGravity with a product object that opens.",
+    "idea": "A case turns once and opens on its beat to show the lit core inside, beside a still name.",
+    "recipe": "hero-3d",
+    "recipeReason": "One object acting once per loop says what the project holds better than a type pattern.",
+    "hero": "A rounded case with a hinged lid and a lit core.",
+    "beat": "The lid opens, the core rises and settles, and the lid closes.",
+    "brandWord": "LITGRAVITY",
+    "motto": {
+      "text": "KEEP THE WORK LIT.",
+      "source": "project",
+      "from": "README.md"
+    },
+    "aspect": "2:1",
+    "loopSec": 8,
+    "fps": 20,
+    "layers": {
+      "slow": "The case turns exactly once per loop.",
+      "mid": "The camera breathes twice per loop.",
+      "beat": "The lid opens on the core and a ring runs out across the floor."
+    },
+    "system": {
+      "rule": "One hinge rule and one turn rule on one object.",
+      "copies": "One case, one core, one ring.",
+      "offset": "The ring trails the lid by a tenth of the loop."
+    },
+    "title": {
+      "box": [
+        0.05,
+        0.36,
+        0.43,
+        0.14
+      ],
+      "kind": "live"
+    },
+    "encode": {
+      "q": 94,
+      "edgeQ": 97,
+      "edgeFrames": 15
+    },
+    "ambition": "The object reads as a product in a studio and its beat lands once per loop."
+  }
+}

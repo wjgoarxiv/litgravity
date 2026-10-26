@@ -1,298 +1,194 @@
 # Layout families
 
-A layout family is a slide's job turned into a fixed shape on the 12-column grid. The source names it
-on the `layout:` line; the tonality decides how that shape is drawn: which title treatments it takes,
-the table and chart style, the rules and fields around it. The engine holds 28 content families, 9
-cover variants, 6 section variants and 5 closing variants. Each pack lists the subset that suits its
-character, and a source that asks a pack for something outside the list gets a `note:` line in the
-compile log and a drawing with the family's own geometry under the pack's role title.
+A layout family is a slide's job turned into a fixed shape on the 12-column grid. The source names
+it on the `layout:` line, and the tonality decides how it is drawn: which title treatments it may
+take, the table and chart style, the rules and fields around it. Twenty-eight families exist; each
+pack implements the ones that suit its character, and the compile stops or notes a substitution when
+a source asks a pack for a family it does not have.
 
-Choose the family from the job of the slide. A deck reads as varied when its slides do different jobs
-and each job takes its own shape; the gate measures this on the compiled file (OF-111) and fails a
-deck whose content slides share one composition.
+Pick the family from what the slide has to do, never from what the previous slide used. A deck
+reads as varied when its slides do different jobs and each job gets its own shape; the gate checks
+that from the compiled file (OF-111) and fails a deck whose content slides share one composition.
 
-Excerpts in this file are shown between rules, as they sit in a deck source: each slide starts with
-`layout:`, the optional `title:` key follows, then the `##` title and the content. Ask the engine what
-a pack offers before writing:
+List what a pack offers before writing:
 
 ```bash
 node "$SKILL_ROOT/scripts/compile-deck.js" --list-tonalities
-node "$SKILL_ROOT/scripts/compile-deck.js" --list-layouts ledger   # families with their titles, then covers, sections, closings
+node "$SKILL_ROOT/scripts/compile-deck.js" --list-layouts ledger    # families, the titles each allows, variants
 ```
 
 ## Content families
 
-"Titles" lists the treatments the family accepts in any pack; a pack narrows the list to its own
-treatments. "Role" picks the pack's default title (`role-defaults`).
+Each row says what the family is for, what the source gives it, and which packs carry it.
 
-| Family | Role | Job | Source it reads | Packs | Titles |
-|---|---|---|---|---|---|
-| `text-column` | content | running text or a short list at reading measure | bullets or bold-headed groups; an image turns it into a picture-and-text split | atlas, chalk, paper, gazette | top-rule, band, kicker-numeral, side-rail, top-plain-large |
-| `text-two-column` | content | a long list with two parallel halves | bullets, cut near the middle at a group boundary, or `:::: columns` | ledger, gazette, studio | top-rule, band, kicker-numeral, top-plain-large |
-| `summary-box-list` | content | a boxed conclusion over two columns of evidence | `::: key-message`, else the first paragraph, then groups | gazette | band, top-rule, kicker-numeral |
-| `sidebar-note` | content | a main point with a fenced note: the definition or the common mistake | body, then a `::: main-box` (else the last text block) that becomes the note | chalk | top-rule, kicker-numeral, band, side-rail |
-| `agenda` | content | the parts of the deck, numbered 01, 02 ... | `- **Part** what it covers` lines | ledger, chalk, gazette | top-rule, kicker-numeral, band, top-plain-large, side-rail |
-| `statement` | statement | one sentence at display size | the `##` text is the sentence; one body line becomes the support line | signal, atlas, chalk, paper, studio, night | statement |
-| `quote` | statement | a quoted sentence with its source | the quote as a text line, the source as a line that opens with `—` | signal, chalk, paper | statement, top-rule |
-| `kpi-row` | data | two to six headline numbers | a one-row table of short values, an optional second row with each figure's basis | ledger, signal, atlas, studio, night | top-rule, band, top-plain-large, side-rail, bottom-anchor |
-| `kpi-over-chart` | data | headline numbers above the trend that explains them | a KPI table, then a `::: chart` block | ledger, night | top-rule, band, top-plain-large |
-| `dashboard-grid` | data | two to four small charts read together | two or more `::: chart` blocks plus one takeaway line | ledger, night | top-rule, band, side-rail |
-| `table-insight` | data | a table with its takeaways beside it | a pipe table with a `>` caption, then bullets | ledger, signal, chalk, paper, gazette | top-rule, band, side-rail, bottom-anchor |
-| `ledger-table` | data | a full-width table that is the evidence | a wide table with its caption, then takeaway bullets under it | ledger, gazette | top-rule, band, kicker-numeral |
-| `matrix-2x2` | data | options placed on two axes | a 3-column, 2-row table (see below) | ledger, gazette | top-rule, band, side-rail |
-| `comparison` | data or content | two sides read across, point by point | `:::: columns` with one head and numbered points per side | all eight | top-rule, band, top-plain-large, side-rail, bottom-anchor |
-| `chart-insight` | data-takeaway | a chart with two or three takeaways | a `::: chart` block (or a numeric table of three or more rows), then bullets | ledger, signal, paper, studio, night | top-rule, band, side-rail, bottom-anchor, top-plain-large |
-| `full-chart` | data-takeaway | one chart that needs the whole width | a `::: chart` block and an optional note | ledger, signal, paper, night | bottom-anchor, top-plain-large, top-rule |
-| `big-number` | data-takeaway | a panel of related figures with evidence beside it | a KPI table (labels in the head, values in row one, basis in row two), then bullets | ledger, signal, studio, night | top-rule, side-rail, bottom-anchor, top-plain-large |
-| `process` | sequence | three to five steps in order | `- **1. Step** what happens` lines | signal, chalk | top-rule, band, top-plain-large, side-rail |
-| `step-diagram` | sequence | steps taught one by one | as `process` | chalk | top-rule, top-plain-large, band |
-| `timeline` | sequence | up to six dated events on one axis | a table of date, event, status rows, or `- **date** event` lines | ledger, atlas, gazette, studio, night | top-rule, band, top-plain-large, bottom-anchor |
-| `method` | definition | a figure or formula with its definitions | an image or text lines, then `- **term** meaning` bullets | chalk, paper, night | top-rule, side-rail, band |
-| `image-full` | image | one picture as the page | an image with a caption | atlas, studio | overlay |
-| `image-split` | image | a picture beside its explanation | an image, then bullets | signal, atlas, chalk, studio | top-plain-large, side-rail, bottom-anchor, top-rule |
-| `photo-grid` | image | two or three pictures compared | two or three image lines, then one line of text | atlas, studio | top-plain-large, bottom-anchor, top-rule |
-| `figure-pair` | image | before and after, or two conditions | two images, then one line of text | atlas, paper | top-rule, bottom-anchor, side-rail |
-| `figure-academic` | image | a numbered figure with its reading | an image with numbered caption and source, then bullets | paper | top-rule, bottom-anchor, side-rail |
-| `asymmetric-feature` | image | one visual and a column of argument | an image or a one-row table, then bullets | signal, atlas, studio | top-plain-large, bottom-anchor, top-rule |
-| `references-appendix` | reference | sources, one per row | `- [1] ...` lines; links as Markdown links | ledger, gazette, paper | top-rule, band |
-
-Legacy layout names keep working under a tonality: `content` and `main` become `text-column`,
-`summary` becomes `comparison`, `free` becomes `text-column`, and `cover`, `section` and `closing`
-ask for the pack's first variant that the deck can draw. `cover-split` is read as `cover-split-field`.
-A name the engine does not know stops the compile with the full list of families.
-
-## Per-family syntax
-
-**Table-led families.** A pipe table with a `>` line under it becomes a captioned table; the engine
-numbers the caption in the deck's language ("표 1.", "Table 1.") and renumbers a typed number instead of
-doubling it. Takeaway bullets follow. A line that opens with `출처:`, `자료:`, `주:`, `Source:` or
-`Note:` leaves the takeaways and sets as a source strip at the foot of the body.
-
-**`kpi-row` and `big-number`.** Two to six headers; one row of values; a second row of bases. A cell
-of the first row holds at most 12 characters and a basis at most 24, otherwise the table stays a
-table.
-
-```markdown
----
-layout: kpi-row
-
-## 3분기 이용 지표
-
-| 방문자 | 대출 권수 | 신규 회원 | 좌석 점유율 |
+| Family | Job | Source it reads | Packs |
 |---|---|---|---|
-| 18.2만 명 | 41.0만 권 | 6,320명 | 78% |
-| 전년 동기 +12% | 전년 동기 +9% | 목표 6,000명 | 목표 75% |
+| `text-column` | running text or a short list that keeps its measure | bullets or 개조식 groups; an image moves it to a picture-and-text split | atlas, chalk, paper, gazette |
+| `text-two-column` | a long list with two parallel halves | bullets, split at a group boundary near the middle, or `:::: columns` | ledger, gazette, studio |
+| `summary-box-list` | a boxed one-line conclusion over two columns of evidence | `::: key-message` (or the first line) for the box, groups under it | gazette |
+| `sidebar-note` | a main point with a fenced note: the definition or the common mistake; a note too short for its column stands across the top at lead size with the main points in two columns under it, and under a side title it stands in the rail | body, then a `::: main-box` (or a last list) that becomes the note | chalk |
+| `agenda` | the parts of the deck, numbered | `- **Part** what it covers` lines | ledger, chalk, gazette |
+| `statement` | a pull quote, or a display-led deck the user asked for | the `##` text is set as the sentence (a label in the default rules; OF-114 fails a declarative title); one body line becomes the support line | signal, chalk, paper, night, atlas, studio |
+| `quote` | a quoted sentence with its source | the quote as a text line, the source as a line starting with `—` | signal, chalk, paper |
+| `kpi-row` | two to six headline numbers | a one-row table of short values, a second row with each figure's basis, plus bullets for evidence | ledger, signal, atlas, studio, night |
+| `kpi-over-chart` | headline numbers above the trend that explains them | a one-row KPI table, then a `::: chart` block | ledger, night |
+| `dashboard-grid` | two to four small charts read together | two or more `::: chart` blocks, plus one line of takeaway | ledger, night |
+| `table-insight` | a table with its takeaway beside it | a pipe table with a `>` caption, then bullets | ledger, signal, chalk, paper, gazette |
+| `ledger-table` | a full-width table that is the evidence | a wider table with a caption, then takeaway bullets under it | ledger, gazette |
+| `matrix-2x2` | options placed on two axes | a 3 × 3 table: corner cell `영향 \ 난이도`, two column heads, two row heads; cells `item · detail · detail`; takeaways after the caption | ledger, gazette |
+| `comparison` | two sides read across, point by point | `:::: columns` with a `**head**` and `(1)` `(2)` items per side; `비용: …` labels on both sides become a criteria column, in the rail under a side title; a label of more than three words is not read as a label, so the slide keeps its points whole and nothing goes to the rail | all eight |
+| `chart-insight` | a chart with two or three takeaways | a `::: chart` block (or a data table), then bullets | ledger, signal, paper, studio, night |
+| `full-chart` | one chart that needs the whole width | a `::: chart` block, an optional note under it | ledger, signal, paper, night |
+| `big-number` | one real figure that carries the slide | a one-cell table (label in the head, value in the row), then 2-3 evidence bullets | ledger, signal, studio, night |
+| `process` | three to five steps in order | `- **1. 단계** what happens` lines | signal, chalk |
+| `step-diagram` | steps taught one by one | as `process` | chalk |
+| `timeline` | dated events on one axis | a table of `시점 | 할 일 | 담당` rows (or `- **date** event`), then takeaway bullets | ledger, atlas, gazette, studio, night |
+| `method` | a figure or formula with its definitions | an image or a text line, then `- **term** meaning` bullets | chalk, paper, night |
+| `image-full` | one picture as the slide, title on a panel | an image with a caption (`도 1. … \| 출처: …`) | atlas, studio |
+| `image-split` | a picture beside its explanation | an image, then bullets | signal, atlas, chalk, studio |
+| `photo-grid` | two or three pictures compared | two or three images on consecutive lines, then one line of text | atlas, studio |
+| `figure-pair` | before and after, or two conditions | two images, then one line of text | atlas, paper |
+| `figure-academic` | a numbered figure with its reading | an image with a numbered caption and source, then observation, basis, implication bullets | paper |
+| `asymmetric-feature` | a feature told by one large element and a narrow text column | an image or a one-cell figure, then bullets | signal, atlas, studio |
+| `references-appendix` | sources and definitions, one per row | `- [1] …` lines; links as real Markdown links | ledger, paper, gazette |
 
-> 3분기 이용 지표 (예시 데이터)
-
-- 방문자와 대출이 모두 늘었고 신규 회원은 목표를 넘었다
-- 좌석 점유율은 개관 이후 처음 목표를 넘었다
-- 출처: 예시 이용 통계 시스템, 2026년 9월 말
----
-```
-
-**`comparison`.** Two `::: col` blocks inside `:::: columns 1fr 1fr`. Each side opens with a bold head
-(`- **계획**`) and carries numbered points. When every point on both sides opens with a short label
-and a colon (`비용: ...`, at most three words), the labels leave the sides and stand once as a
-criteria column; under a side title they sit in the rail level with their rows. Without `columns`,
-the bullets split into two halves by entry. Halves heavy with digits (4 % of the text or more) take
-the pack's `data` title, others the `content` title.
-
-**`matrix-2x2`.** Header cell `영향 \ 난이도` names the vertical axis first and the horizontal axis
-second; the other two header cells name the columns; the first cell of each body row names the row.
-Each quadrant holds `item · detail · detail`: the item becomes the cell head and each detail a line.
-
-```markdown
----
-layout: matrix-2x2
-
-## 개선 과제 우선순위
-
-| 효과 \ 난이도 | 쉬움 | 어려움 |
-|---|---|---|
-| 큼 | 좌석 예약 안내 · 즉시 · 운영팀 | 서가 재배치 · 3개월 · 예산 필요 |
-| 작음 | 안내문 교체 · 이번 주 | 시스템 교체 · 보류 |
-
-> 효과와 난이도로 본 과제 (예시)
-
-- 효과가 크고 쉬운 과제부터 이번 달에 시작한다
-- 서가 재배치는 설계에 3개월이 걸려 다음 분기 예산에 넣는다
-- 효과가 작고 어려운 시스템 교체는 보류하고 연말에 다시 본다
-- 담당과 시점은 각 칸의 둘째, 셋째 줄에 적은 대로 확정한다
----
-```
-
-The takeaways stand in the four columns beside the matrix, so three or four lines keep that column as
-long as the quadrants (a single line leaves it 86 % empty and fails OF-115). Any other table shape
-falls back to `table-insight`.
-
-**`process`, `step-diagram`, `agenda`, `timeline`.** Steps are bold-headed bullets; a leading `1.` in the
-head becomes the numeral, otherwise the position does. Points without a bold head that follow two or
-more steps become takeaways under the steps. A timeline reads a table whose first column is the date,
-the second the event and the rest the status, or bullets whose bold head is the date and whose
-children are the status. More than six events keep the first six.
-
-**`quote` and `statement`.** The quote line and a `—` source line:
-
-```markdown
----
-layout: quote
-
-## 이용자 한마디
-
-“창가 자리가 생긴 뒤로 매일 저녁 이곳에서 공부한다”
-
-— 예시 이용자, 고등학생
----
-```
-
-The sentence sits in the title slot, so a `statement` title should be a quotation (a leading “ is
-read as a quote) or a noun phrase; a plain declarative sentence is flagged by OF-114.
-
-**`image-*` and `figure-*`.** The alt text of `![...](path)` is the caption and may carry a source
-after a bar: `![도 1. 창가 좌석 | 출처: 예시 이미지](assets/example-b.png)`. Consecutive image lines
-fill a `photo-grid` (up to three) or a `figure-pair` (two). `image-full` needs a picture and takes
-only `overlay`; a source without one stops the compile with "choose another layout family".
-
-**`method`.** Plain text lines are the formula or the statement of the method (set at title size in
-the accent-deep colour); bold-headed bullets are the terms, split into two or three columns when a
-figure does not stand beside them.
-
-**`sidebar-note`.** Main points as bullets and the note as a `::: main-box ... :::` block. A note
-short for its column moves across the top at lead size with the points in two columns below; under a
-side title it stands in the rail.
-
-**`summary-box-list`.** A `::: key-message` block of one to three lines becomes the box; bold-headed
-groups under it split into two columns at the boundary that evens them out.
-
-**`references-appendix`.** One entry per row, at reading size; a list longer than the body steps to
-label size and then to two columns. Markdown links keep their address.
+Legacy layout names still work under a tonality: `content` and `main` become `text-column`,
+`summary` becomes `comparison`, and `cover`, `section` and `closing` ask for one of the pack's own
+variants (the compile notes which one it drew).
 
 ## Covers, sections and closings
 
-The source names a variant (`layout: cover-figures`). The engine draws it when the pack lists it and
-the deck holds what it needs, else it takes the pack's first variant that can be drawn and logs
-`note: slide 1: cover-figures cannot be drawn (the deck has no row of headline numbers)` and
-`note: slide 1: drawn as cover-typographic`. A title on a cover or section comes from the `##` line;
-the frontmatter keys `subtitle`, `date`, `department` and `presenter` fill the meta lines.
+These are variants. The source names one (`layout: cover-figures`); the engine draws it when the
+pack lists it and the deck holds what it needs, or takes the pack's first variant that can be
+drawn and notes why. A generic `cover`, `section` or `closing` asks for the pack's first choice.
 
 | Variant | What it shows | Needs | Packs |
 |---|---|---|---|
-| `cover-typographic` | the title large, carried by the pack's cover device (next section) | nothing | atlas, chalk, gazette, ledger, night, paper, signal |
-| `cover-figures` | the title over the deck's first KPI row (up to four figures) | a non-chart KPI table with two or more values | ledger, night |
-| `cover-index` | the title beside the numbered list of parts | an agenda, or two or more sections | ledger, paper, gazette |
-| `cover-numeral` | a year at title size above the title | a four-digit year in the deck title or `date` | signal, chalk, studio, night |
-| `cover-split-field` | the title beside a field over the right five columns | nothing | signal |
-| `cover-split-image` | the title beside the deck's first picture | an image anywhere in the deck | atlas, paper, studio |
+| `cover-typographic` | the title large, carried by the pack's cover device (see Display slides) | nothing | ledger, signal, atlas, chalk, paper, gazette, night |
+| `cover-figures` | the title over the deck's headline numbers | a KPI row somewhere in the deck | ledger, night |
+| `cover-index` | the title beside the list of parts | an agenda or two or more sections | ledger, paper, gazette |
+| `cover-numeral` | a real year or figure at title size above the title | a year in the title or date | signal, chalk, studio, night |
+| `cover-split-field` | half the page in the accent field | nothing | signal |
+| `cover-split-image` | the title beside the deck's first picture | an image somewhere in the deck | atlas, paper, studio |
 | `cover-full-image` | the first picture full-bleed with the title on a panel | an image | atlas |
-| `cover-band` | the title in a 216 pt field band, the parts or figures across the page below | nothing | gazette |
-| `cover-rail` | the title beside a field rail over columns 1-4 | nothing | chalk, studio |
-| `section-field` | the part title on a full field | nothing | signal, atlas, paper, night |
-| `section-numeral` | part numeral and title; with an agenda, the index page | nothing | ledger, signal, chalk, studio, night |
-| `section-rule` | with an agenda, an index page; without one, the title at the cover step over a hairline | nothing | ledger, paper, gazette |
-| `section-rail` | the part title beside the rail, the numeral or the contents in the rail | nothing | chalk, studio |
-| `section-band` | a field band holding the part index, the part title as a statement below | nothing | gazette |
+| `cover-band` | the title under a strong head band | nothing | gazette |
+| `cover-rail` | the title in a tinted left rail | nothing | chalk, studio |
+| `section-field` | the part title on a colour field | nothing | signal, atlas, paper, night |
+| `section-numeral` | the part number at title size beside its title, with the part count when the agenda gives it; with the agenda, the `section-rule` index page (numeral, title, the agenda with this part marked) | nothing | ledger, signal, chalk, studio, night |
+| `section-rule` | with an agenda, an index page: the part numeral at title size over the part title, the agenda down the right columns with this part marked; without one, the title at the cover step over a hairline and the section's first slide titles | nothing | ledger, paper, gazette |
+| `section-rail` | the part title in the rail | nothing | chalk, studio |
+| `section-band` | the band holds the part index; under it the part title as a statement over the titles of the slides the part opens | nothing | gazette |
 | `section-image` | the part title on the section's own picture | an image on that slide | atlas |
-| `closing-ask` | the ask as the title, its table as action rows, the next step on the floor | a table or bullets | ledger, signal, atlas, chalk, paper, gazette |
-| `closing-decision-box` | the decision in a box, the items to approve as action rows under it | a line or bullets, an optional table | ledger, gazette, night |
-| `closing-statement` | one closing sentence | text only | signal, night |
-| `closing-summary-list` | the takeaways numbered down the page | bullets, or a visual with a short list | chalk, paper, studio |
-| `closing-contact-split` | action rows beside a field that holds each row's key | a table or bullets | atlas, studio |
+| `closing-ask` | the ask as the title, its table as action rows keyed by amount or date, the next step on the floor | a table or bullets | ledger, signal, atlas, chalk, paper, gazette |
+| `closing-decision-box` | the decision in a box, the items to approve under it | a line or bullets, an optional table | ledger, gazette, night |
+| `closing-statement` | one closing sentence | no table or image | signal, night |
+| `closing-summary-list` | the takeaways numbered down the page | bullets (or a visual with a short list) | chalk, paper, studio |
+| `closing-contact-split` | action rows beside a field that holds each row's amount or date (with its share bar), inset from its edges; the next step or contact runs as a band of the field's colour on the body floor across the left columns, meeting the field so the two read as one L; without a table, the ask beside a field with the contact | a table or bullets, plus a short text | atlas, studio |
 
-A closing is a content slide whose title is the ask: "건의 사항: 결정 요청 사항과 기한" or "18개월 운영
-자금 30억 원 사용 계획". "감사합니다" alone leaves the audience without a decision. Closings other than
-`closing-statement` take the top treatments (`top-rule`, `band`, `top-plain-large`).
-
-### Section numbering
-
-A section numbers itself by its place in the agenda when its title equals an agenda entry or that
-entry's description ("03 / 04"). In a deck with two or more sections and no agenda it counts the
-sections. A deck with one section and no agenda has no part count: the title is set at the cover step
-as a statement and the titles of the slides it opens stand under it. When those slides carry body
-lines, each title stands over at most two of them, in a column from the margin that spans at most 70 %
-of the page and about 70 characters (8 columns in a Korean deck, 6 in an English one on the compact
-grid); a bold run-in label keeps its weight and gains its colon.
-
-### Closing rows
-
-A closing's table becomes action rows (at most five, a totals row dropped). The key is the column of
-amounts in one unit ("14억 원", or a bare number under a header such as `금액 (억 원)`), else the column
-whose header reads as a date or deadline (`기한`, `시점`, `일정`, `마감`, `date`, `due`), else the last
-column. The first cell is the action in bold at lead size; the other cells form its detail line. Amount
-keys also draw a bar for each row's share of the total, and `closing-contact-split` closes its field with
-"합계 30억 원" (or, for dates, "안건 4건 · 10월 – 11월"). Rows that cannot fit above the next step keep the
-plain table.
+A closing is a content slide whose title is the ask. "감사합니다" alone is never a closing; write
+what the audience should decide or do, and who does what next by when.
 
 ## Display slides
 
 Covers, statements, sections, big numbers and closings carry little text, so each pack names the
-device that lets the slide hold its page (`display:` in the pack). A device frames what the deck
-holds; it adds no words or numbers.
+device that makes the slide hold its page (`display:` in the pack). The device encodes something
+in the deck or frames what is there; it never adds words or numbers the source does not hold.
 
 | Key | Device | What it draws | Packs |
 |---|---|---|---|
-| `cover` | `drench` | the field over the page, the title at the cover step in up to three balanced lines, anchored low | signal |
-| `cover` | `plate` | a field plate from y 288 to the foot, the title on it in at most two lines, the meta line above | atlas |
-| `cover` | `rail`, `band`, `figures`, `numeral` | the pack's `cover-rail`, `cover-band`, `cover-figures` or `cover-numeral` when the deck has what it needs, else the plain cover | chalk, gazette, ledger, night |
-| `cover` | `rules` | a journal title page: a heavy rule, the title, a hairline, the presenter, place and date | paper |
-| `statement` | `open` | the sentence alone at the display step | signal, night |
-| `statement` | `drench` | the whole page in the field, the sentence in the field's text colour | chalk, atlas |
-| `statement` | `rules` | a hairline above the sentence and one under its support line | paper, studio |
-| `number` | `field`, `tint`, `outline` | the panel behind a big number: the field, the accent tint, or the surface in an ink outline | signal / ledger, studio, atlas, chalk, night / gazette, paper |
-| `closing` | `band`, `box`, `rules` | the next step on the body floor: a field band, a tinted (or outlined) box, or a hairline above the line | signal, studio, atlas, night / ledger, gazette, chalk / paper |
-| `index` | `true` | section slides show the deck's parts with this part marked | ledger, gazette, paper |
+| `cover` | `drench` | the field over the whole page, the title at the cover step in up to three balanced lines, anchored low | signal, computational-brutalism, riso |
+| `cover` | `plate` | a field plate over a little under half the page, the title on it in at most two lines; the date line above | atlas, neo-brutalism |
+| `cover` | `rail`, `band` | the pack's `cover-rail` or `cover-band` | chalk, gazette, newsroom |
+| `cover` | `figures` | `cover-figures` when the deck has a KPI row, else the plain cover | ledger |
+| `cover` | `numeral` | `cover-numeral` with the year from the title or date | night |
+| `cover` | `rules` | a journal title page: a heavy rule, the title, a hairline, the presenter, then place and date | paper |
+| `cover` | `geometry` | the title on the left half and an elementary composition on the right half, each shape in its own grid cell: a square in the accent tint, a circle in the accent, a bar in ink, a triangle in the field | bauhaus |
+| `statement` | `open` | the sentence alone, at the display step | signal, night |
+| `statement` | `drench` | the whole slide in the field, the sentence in the field's text colour | chalk, atlas, computational-brutalism, neo-brutalism, riso |
+| `statement` | `plate` | the sentence set low on a field plate that covers less than half the page; a sentence too tall for it keeps the open page | no pack (Atlas takes `drench`) |
+| `statement` | `rules` | a hairline above the sentence and one under its support line | paper, studio, newsroom |
+| `statement` | `geometry` | the sentence on the left and a narrower composition from column 10 to the edge; a quote and a closing statement take it too | bauhaus |
+| `statement` | `offset` | the sentence in columns 5-12 beside a rail that stops a column short of it | no pack (the empty rail read as decoration; Studio takes `rules`) |
+| `number` | `field`, `tint`, `outline` | the panel behind a big number: the field, the accent tint, or the surface in an ink outline | signal, neo-brutalism, bauhaus, riso / ledger, studio, atlas, chalk, night, newsroom / gazette, paper, computational-brutalism |
+| `closing` | `band`, `box`, `rules` | the next step on the body floor: a field band across the grid, a tinted (or outlined) box, or a rule above it | signal, studio, atlas, night, riso / ledger, gazette, chalk, computational-brutalism, neo-brutalism / paper, bauhaus, newsroom |
+| `index` | `true` | section slides show the deck's parts, this part marked: one per line on a `section-rule` index page, in one line inside the `section-band` band | ledger, gazette, paper, newsroom |
 
-The engine also supports the devices `plain`, a `plate` statement and an `offset` statement; no
-shipped pack uses them. Things the engine settles from the deck, whatever the device:
+What the engine reads from the deck, never from the device:
 
-- Every title that wraps is broken into lines of near-equal width; the last line keeps two words when
-  a split allows it, and a number stays with the word after it ("30억 원을", "4 분기").
-- Body text and table cells that wrap are broken at spaces, filling each line in turn, so a figure keeps
-  its unit; a short parenthetical such as "(▲ +3.9%)" (up to 16 characters) stays on one line.
-- A big number is a data panel: seven of twelve columns (five of eight beside a rail), one row per
-  figure at title size at most with its label and basis, the evidence beside it as plain notes. A single
-  figure sits on a panel as tall as it is. No figure reaches the display, cover or hero step.
+- Every title that wraps (content, closing, statement, cover, section) is broken into lines of
+  near-equal width; the last line keeps two words whenever a split allows it (with a line more
+  when the frame holds it), and a number stays with the word after it ("30억 원을", "4 분기").
+- Body text and table cells that wrap are broken at spaces by the engine, filling each line in
+  turn, so a number keeps its unit and a word stays whole: a renderer's own line breaking may split
+  "51점" or "(10월" after the digits, and a short parenthetical ("(▲ +3.9%)", up to 16 characters)
+  stays whole on its line. A one-word last line takes a word from the line above when
+  it fits; text that would need more lines than its frame holds is left to the renderer.
+- A section numbers itself by its place in the agenda when its title is an agenda entry or that
+  entry's description ("03 / 04"); otherwise, in a deck of several sections, it counts them. A
+  deck with one section and no agenda has no part count, so no numeral is drawn: the section
+  title is set at the cover step as a statement, with the titles of the slides it opens under it.
+  When those slides carry body lines, each title stands over at most two of its lines in a column
+  that starts at the margin and stays within 70 % of the page and about 70 characters (8 columns
+  for a Korean deck, 6 for an English one); a line that opens with a bold label keeps it bold with
+  its colon ("**결과:** 공부 시간이 …").
+- A closing's table becomes action rows. The key is the column of amounts in one unit (each row
+  then draws a bar for its share of the ask), else the column headed as a date or deadline, else
+  the last column. Rows that do not fit step their text and then their key down the ramp; only
+  rows that still do not fit above the next step keep the table.
+- `cover-band` runs the deck's parts (else its headline figures) across the page under the band.
+- A big number is a data panel: two to four figures from a KPI table (labels, values, a second row
+  with each figure's basis), one row per figure at title size at most, the evidence beside the panel.
+  One figure alone sits on a panel as tall as it is. No figure takes the display, cover or hero step.
+- A big number's panel takes seven of twelve columns (five of eight beside a rail), never more
+  than half the page; the evidence stands beside it as plain notes, centred on the panel.
 - A dark plate, rail or panel that is not the whole page covers less than half of it, so the page
-  keeps its ground colour and the device reads as something placed on it.
-- `cover-band` runs the deck's parts (else its headline figures) under the band, up to four across.
+  keeps its own ground colour and the device reads as something placed on it.
+- `closing-decision-box` with a table keeps its decision box on top and runs the items to decide
+  as the same action rows under it, down to the floor.
 
-## Fill behaviour
+## How a deck keeps its variety
 
-The compile lays each slide out, measures the empty band under the last block, and compares it with
-the density cap (0.12 at density 9 and 10, 0.14 at 7-8, 0.18 at 5-6, 0.24 at 3-4, 0.28 at 1-2). A slide
-over the cap tries the pack's `fill-order` in turn: `step-up` (one ramp step larger, available up to
-density 8), `distribute` (the next spacing step), `anchor-visual` (the visual takes the room) and
-`change-family` (a different title, chosen by the treatment pass). The log line reads
-`fill: slide 6 band 0.59 -> 0.59 (none: nothing on the slide can grow; choose a fuller family)` when
-nothing helped; the fix is content that reaches the floor or a family that fits it.
+The compile picks each slide's title by how well the body fills, then checks the deck as the
+composition check reads it (title zone × column partition over the content slides, closings
+left out). When fewer distinct layouts appear than the check asks for, a data slide whose layout
+another slide already has moves to a title that gives a new one, provided it neither overflows nor
+leaves more than the density band empty; the log says `variety: slide N drawn under <title> so the
+deck carries K layouts`. List markers are small dots drawn beside the line, so a list reads as one
+column of text and not as a column of markers next to it.
 
-Short content spreads without invented text: a process of up to four steps runs as rows down the
-body; two to five points that each open with a bold head become rows with the head beside the point;
-sub-point groups under bold heads run in two columns; a table's takeaways stand midway in the room
-under the table, and the table's rows open by up to one minimum row each. The compact step (density
-10, the default) keeps type at body size, turns a short card row into figure rows beside the
-takeaways, reads a process row across, sets a method formula over its terms in two columns, puts a
-chart's values in a small table under the takeaways, and closes every data slide with the source
-strip. Takeaways that leave more than 40 % of their column empty beside a longer visual step up to
-lead size, the one place the compact step enlarges type.
+Short content spreads rather than stopping at the top: a process of up to four steps runs as rows
+down the body, two to five points that each open with a bold head become rows with the head beside
+the point, groups of sub-points under bold heads run in two columns on the reading ramp, a
+two-row comparison sets its points a step or two larger, and a table's takeaways stand midway in
+the room under the table. The compact step (density 10) never enlarges type to fill: there a short
+card row becomes figure rows beside the takeaways, a process row reads across (numeral, name, what
+happens), a method slide sets the formula across the top over its terms in two columns, a chart
+shows its values as a small table under the takeaways, and every data slide closes with the source
+strip, set at the foot of the takeaway column when that column ends above the visual beside it (else
+across the body's foot). Takeaways that still leave more than 40 % of their column, or of a side
+title's rail, empty beside a longer visual are set one step up (lead): the one place the compact
+step scales type, and only within the ramp. A process row does the same when what happens would
+stop short of the body's last quarter, so the rows reach across. Terms too long for the column beside
+a method figure first try half and half, which keeps the figure large enough to read. A closing
+summary list ends with its source as the strip, not as a numbered row.
 
-## Families under different titles
+## Families under a title
 
-- Under `side-rail`, the rail under the title carries the slide's supporting content: a comparison's
-  criteria, the takeaways of a chart, picture, figure rows or number panel, and the source strip at
-  its foot; the visual takes columns 5-12. A rail more than 40 % empty makes the title unfit unless
-  `title: side-rail` pins it, and then OF-115 fails the slide.
-- Under `bottom-anchor`, the visual takes the top and the title explains it from below with its last
-  line on the floor; a big number stands on its panel there. A table receives a bottom title only when
-  no other title fits.
-- Under `band`, the body starts below the band and runs to the floor at reading size.
-- A `quote` under `statement` sets the quotation as the slide's sentence and the source as its support
-  line.
+A family keeps its body in the same place under every treatment:
+
+- No treatment moves the title or the body: every one draws in the slide grid's title zone, and
+  the body runs from y 120 to the floor whichever treatment sits over it. What changes is the
+  look over the title (a margin bar, a field band, a heavy rule, a numeral), so a deck's variety
+  comes from the families and the treatments' surfaces, not from content moving around the page.
+- `bottom-anchor` belongs to a page led by its visual; a table never takes it while another
+  title fits.
+- A `quote` under `statement` sets the quotation itself as the slide's sentence, with the source as
+  the support line; the heading of the source slide is not shown.
 
 ## When the compile log names a change
 
-`note:` lines explain each substitution: a family the pack lacks, a variant that cannot be drawn, a
-title moved for fill or for its glyph budget, a pack without a statement title (`ledger has no statement
-title, so the sentence is drawn as a top-rule title`). `variety:` lines name moves made for the deck's
-composition. Read both after every compile. A note means the source asked for something this direction
-does not do; the fix is a different family for that slide, a shorter title, or another tonality.
+`note:` lines explain every substitution: a family the pack lacks, a variant that cannot be drawn,
+a treatment moved for fill or for its glyph budget. Read them after every compile. A note is never
+an error to suppress; it means the source asked for something this direction does not do, and the
+fix is a different family for that slide, a shorter title, or a different tonality chosen through
+`direction-step.md`.

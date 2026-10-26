@@ -13,8 +13,8 @@ import { SKILL_ROUTES } from '../plugin/hooks/lib/routes.mjs';
 // One place that proves a skill is enrolled on every surface a user or the package touches, not only present on disk.
 const ids = skillIds();
 
-test('the plugin folder, the route table and the family list agree on 39 skills and 11 agents', () => {
-  assert.equal(ids.length, 39);
+test('the plugin folder, the route table and the family list agree on 42 skills and 11 agents', () => {
+  assert.equal(ids.length, 42);
   assert.deepEqual(SKILL_ROUTES.map((r) => r.id).sort(), ids);
   assert.equal(agentNames().length, 11);
   for (const a of agentNames()) assert.ok(existsSync(join(PLUGIN, 'agents', `${a}.md`)), a);
@@ -50,7 +50,7 @@ test('doctor --json lists every skill, agent and route, the five engines with th
   assert.equal(code, 0, JSON.stringify(doc.checks.filter((c) => c.status === 'FAIL')));
   assert.deepEqual(doc.skills, ids);
   assert.equal(doc.agents.length, 11);
-  assert.equal(doc.routes.length, 39);
+  assert.equal(doc.routes.length, 42);
   for (const name of ['diagram', 'motion', 'office', 'readme', 'sciviz']) {
     const row = doc.checks.find((c) => c.name === `engine ${name}`);
     assert.ok(row, `engine ${name}`);
@@ -60,7 +60,7 @@ test('doctor --json lists every skill, agent and route, the five engines with th
   for (const label of ['frontend corpus', 'design dataset', 'handoff closure', 'wikify script', 'checker inventory']) {
     assert.equal(doc.checks.find((c) => c.name === label)?.status, 'PASS', label);
   }
-  assert.match(doc.checks.find((c) => c.name === 'skills').detail, /39 shipped, all present in the installed copy/);
+  assert.match(doc.checks.find((c) => c.name === 'skills').detail, /42 shipped, all present in the installed copy/);
 });
 
 test('the installed copy carries every skill, every engine module, the shared libraries and the motion engine, byte for byte', async () => {

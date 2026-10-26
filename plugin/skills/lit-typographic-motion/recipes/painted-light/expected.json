@@ -23,7 +23,7 @@
       "method": 4
     }
   },
-  "base": "a 1536x1024 painting supplied as cover/assets/base.png (the row was measured on the LitFamily robot line-up; QA: --base <png>); any other painting needs its own ART block",
+  "base": "the five-panel painting at test/fixtures/lit-typographic-motion/cover/painted-light-five-panel.png in the LitGravity repository (1536x1024); the README illustration shows seven machines and is not this base; any painting needs its own ART block",
   "assets": [
     {
       "path": "cover/assets/base.png",
@@ -50,6 +50,8 @@
     "idea": "A window of work light walks the sleeping bays while the lead robot breathes and a comet laps its frame.",
     "recipe": "painted-light",
     "recipeReason": "The painting already carries the brand, so the loop relights it instead of drawing over it.",
+    "hero": "The painting the user supplied.",
+    "beat": "A light edge sweeps across the painting once per loop.",
     "brandWord": "LITFAMILY",
     "aspect": "2:1",
     "loopSec": 8,
@@ -89,7 +91,7 @@
       "mustFail": [
         "G1.target"
       ],
-      "defect": "Light drawn as a soft wash: the 24 px light edge widened to 150 px. At this recipe's encode (q83, edge q97 for 18 frames) the encoder keeps the soft edge, so the motion gates read what they read for the recipe itself. The one gate that moves is the 2 MiB size TARGET (about 2.5 to 2.6 MB against 2 063 990 B), so G1.target is the only gate declared; seamLocal wanders 1.91 to 2.01 around the 2.0 TARGET from run to run and stays undeclared. Only look review of the sheet can see the wash itself."
+      "defect": "A 150 px soft light edge: the window reads as a soft wash instead of a moving edge. At this recipe's encode (q83, edge q97 for 18 frames) the encoder keeps the soft edge, so no motion gate sees it: 2026-10-20 it measured median d 0.002198, moving 1.0 and seamLocal 2.013 (other ports 1.91-2.01, inside run-to-run noise of the 2.0 TARGET), against 0.002077, 1.0 and 1.965 at 24 px. What it reliably trips is the 2 MiB size TARGET: 2 596 520 B (other ports 2.50-2.59 MB) against 2 063 990 B. The wash itself is caught by look review on the sheet, not by a gate."
     }
   }
 }

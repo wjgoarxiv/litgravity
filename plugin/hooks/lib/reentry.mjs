@@ -73,6 +73,10 @@ export function resumeNote(plan) {
   ].join('\n');
 }
 
+// Design skills let the user pick the look: the skill asks one `ask_question` round before it builds.
+export const THEME_FIRST = new Set(['lit-pptx', 'lit-docx', 'frontend-ui-ux', 'lit-schematic', 'lit-diagram-drawer', 'readme-studio', 'lit-typographic-motion']);
+const THEME_NOTE = 'Theme first: before building, ask the user with `ask_question` to choose the theme or preset (two to four real options from the skill, the recommended one first), unless the prompt already names one or says "you choose" / "알아서". If nobody can answer (headless), take the recommended option and say so in one line.';
+
 export function activation(hit, conversationId, kind = 'ignite') {
   const id = safeId(conversationId);
   const lines = [
@@ -85,6 +89,9 @@ export function activation(hit, conversationId, kind = 'ignite') {
   ];
   lines.push(HEADLESS_NOTE);
   if (hit.route === 'lit-plan') lines.push(PLAN_REMINDER);
+  if (THEME_FIRST.has(hit.route)) lines.push(THEME_NOTE);
+  // `go` reads the step the brief offered for this conversation, so the collector needs its id.
+  if (hit.route === 'lit-adhd' && id) lines.push(`Run the collector for this conversation: node ${dirname(skillPath('lit-adhd'))}/scripts/rewind.mjs --brief --lang <ko|en> --session ${id}`);
   if (hit.reviewMode) lines.push(`The user forced the ${hit.reviewMode} review mode.`);
   if (kind === 'confirm') {
     lines.push('The prompt has no task text after the keyword and nothing is active or resumable. After reading the skill, ask the user in one line what to run (a task for lit-loop, or a route such as plan or review) and wait for the answer before any other tool.');

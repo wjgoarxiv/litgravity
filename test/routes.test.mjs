@@ -23,7 +23,7 @@ test('every skill folder that ships is enrolled in the route table', () => {
   for (const d of dirs) assert.ok(SKILL_IDS.has(d), `${d} has no route`);
 });
 
-test('all 39 family skills are shipped', () => {
+test('all 42 family skills are shipped', () => {
   const dirs = new Set(readdirSync(join(PLUGIN, 'skills'), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name));
   assert.deepEqual(FAMILY.filter((id) => !dirs.has(id)), []);
 });
@@ -31,7 +31,7 @@ test('all 39 family skills are shipped', () => {
 test('bare lit, continue and restart words', () => {
   assert.deepEqual(
     { ...detectRoute('lit'), keyword: undefined },
-    { route: 'lit-loop', keyword: undefined, bare: true, resume: false, restart: false, direct: false, empty: true },
+    { route: 'lit-loop', keyword: undefined, bare: true, resume: false, restart: false, approve: null, direct: false, empty: true },
   );
   assert.equal(detectRoute('LIT').bare, true);
   const c = detectRoute('lit continue');
@@ -89,6 +89,31 @@ test('skill ids typed as the first word, plain or as a slash command, route dire
   assert.equal(detectRoute('start-work plans/a.md'), null, 'without the slash it is prose');
 });
 
+test('schematic keywords and natural-language intent route to lit-schematic', () => {
+  for (const word of ['schematic', 'pid', 'pfd', 'cutaway', '계통도', '공정도', '모식도', '장치도']) {
+    assert.equal(detectRoute(`lit ${word} of the reactor loop`).route, 'lit-schematic', word);
+  }
+  for (const prompt of [
+    'lit draw a P&ID of the hydrate reactor loop',
+    'lit 논문용 실험 장치 모식도 만들어줘',
+    'lit isometric cutaway of a stirred autoclave',
+    'lit 반응기 단면도',
+    'lit draw the PFD for the absorber section',
+    'lit 공정 계통도 그려줘',
+    'lit 실험 장치 그림 그려줘',
+  ]) {
+    assert.equal(detectRoute(prompt).route, 'lit-schematic', prompt);
+  }
+});
+
+test('schematic near-miss negatives stay with their owners', () => {
+  assert.equal(detectRoute('lit 단면도 데이터로 그래프 그려줘').route, 'lit-loop');
+  assert.equal(detectRoute('lit P&ID 설명 보고서 작성해줘').route, 'lit-loop');
+  assert.equal(detectRoute('lit P&ID 모니터링 대시보드 만들어줘').route, 'frontend-ui-ux');
+  assert.equal(detectRoute('lit fix the database schema migration').route, 'lit-loop');
+  assert.equal(detectRoute('lit diagram the service architecture').route, 'lit-diagram-drawer');
+});
+
 test('film-making tasks route to the motion skill; footage editing does not', () => {
   assert.equal(detectRoute('lit make a lyric video for this song').route, 'lit-typographic-motion');
   assert.equal(detectRoute('lit 영상 만들어줘').route, 'lit-typographic-motion');
@@ -104,14 +129,25 @@ test('every skill is reachable three ways: `lit <id>`, a bare id as the first wo
   }
 });
 
-test('the route words the skill documents reach their skills: wikify, autoresearch, readme, deck and doc words, diagrams, figures, code, structural search', () => {
+test('the route words the skill documents reach their skills: wikify, autoresearch, readme, deck and doc words, diagrams, figures, code, structural search, frontend', () => {
   const want = {
     wikify: 'wikify', wiki: 'wikify', autoresearch: 'autoresearch', readme: 'readme-studio',
     deck: 'lit-pptx', slides: 'lit-pptx', pptx: 'lit-pptx', docx: 'lit-docx',
+    schematic: 'lit-schematic', pid: 'lit-schematic', pfd: 'lit-schematic', cutaway: 'lit-schematic',
     diagram: 'lit-diagram-drawer', 다이어그램: 'lit-diagram-drawer', figure: 'lit-scientific-visualization', plot: 'lit-scientific-visualization',
     code: 'lit-code', tdd: 'lit-code', structural: 'structural-search', codemod: 'structural-search', typecheck: 'lsp',
     motion: 'lit-typographic-motion', film: 'lit-typographic-motion', 영상: 'lit-typographic-motion',
+    frontend: 'frontend-ui-ux', ui: 'frontend-ui-ux',
   };
   for (const [word, id] of Object.entries(want)) assert.equal(detectRoute(`lit ${word} for the project`).route, id, word);
   assert.equal(detectRoute('lit comment out the dead branch').route, 'lit-loop', 'ordinary verbs stay with lit-loop');
+});
+
+test('English build-intent routes to frontend-ui-ux; BI and backend stay out', () => {
+  assert.equal(detectRoute('lit build a landing page for the product').route, 'frontend-ui-ux');
+  assert.equal(detectRoute('lit create a dashboard for the team').route, 'frontend-ui-ux');
+  assert.equal(detectRoute('lit design the homepage layout').route, 'frontend-ui-ux');
+  assert.notEqual(detectRoute('lit build the backend API').route, 'frontend-ui-ux');
+  assert.notEqual(detectRoute('lit build a Grafana dashboard').route, 'frontend-ui-ux');
+  assert.notEqual(detectRoute('lit explain CSS grid').route, 'frontend-ui-ux');
 });

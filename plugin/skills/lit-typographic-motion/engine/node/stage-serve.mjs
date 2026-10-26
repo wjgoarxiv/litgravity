@@ -7,6 +7,7 @@ import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, statSyn
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { EXIT } from "../core/constants.mjs";
+import { readPlate } from "./blender.mjs";
 import { BlockedError } from "./chrome.mjs";
 import { checkFont, fontLocation, fontsDir, loadFontManifest } from "./runtime.mjs";
 
@@ -15,6 +16,9 @@ export const KIT_FILE = fileURLToPath(new URL("../stage/stage-kit.js", import.me
 export const INIT_FILE = fileURLToPath(new URL("../stage/init.js", import.meta.url));
 export const LOOP_KIT_FILE = fileURLToPath(new URL("../stage/loop-kit.js", import.meta.url));
 export const COVER_INIT_FILE = fileURLToPath(new URL("../stage/cover-init.js", import.meta.url));
+// The pinned three.js build and its few addons (engine/vendor/three, MIT), served at /lit/three/ for
+// the 3D route (references/depth.md). Pages import them through an import map; nothing is fetched.
+export const THREE_DIR = fileURLToPath(new URL("../vendor/three/", import.meta.url));
 
 export const CONTENT_TYPES = Object.freeze({
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8",
@@ -179,17 +183,22 @@ const NETWORK_API = /\bnew\s+(WebSocket|WebTransport|RTCPeerConnection|EventSour
 
 /**
  * Scan the stage dir before launch. Throws exit 17 (contract) or 19 (network) naming the file and
- * the thing found; returns { files, rasters, warnings } otherwise.
+ * the thing found; returns { files, rasters, warnings, plate } otherwise (plate: the Blender plate, or null).
  */
 export function scanStage(stageDir) {
   if (!existsSync(path.join(stageDir, "index.html"))) throw new BlockedError(EXIT.STAGE_CONTRACT_ERROR, `STAGE_CONTRACT_ERROR: ${path.join(stageDir, "index.html")} is missing; write the stage page first (references/stage.md)`);
   const files = listStage(stageDir);
   const warnings = [];
   const rasters = [];
+  // A Blender plate and its preview stills are frames the runner wrote and plate.json lists by name
+  // and size; they are not page rasters. Anything not listed is held to the raster limits.
+  const plate = readPlate(stageDir, "plate");
+  const preview = readPlate(stageDir, "plate-preview");
+  const listed = new Set([plate, preview].filter(Boolean).flatMap((p) => p.frames.map((f) => path.join(p.dir, f.name))));
   for (const f of files) {
     const ext = path.extname(f.rel).toLowerCase();
-    if (!CONTENT_TYPES[ext]) warnings.push(`${f.rel}: not a servable type; the page cannot load it`);
-    if (RASTER.includes(ext)) {
+    if (!CONTENT_TYPES[ext] && f.rel !== "scene.py") warnings.push(`${f.rel}: not a servable type; the page cannot load it`);
+    if (RASTER.includes(ext) && !listed.has(f.rel)) {
       const info = rasterInfo(f.real);
       if (!info) throw new BlockedError(EXIT.STAGE_CONTRACT_ERROR, `STAGE_CONTRACT_ERROR: ${f.rel} is not a readable ${ext.slice(1)} image`);
       if (info.animated) throw new BlockedError(EXIT.STAGE_CONTRACT_ERROR, `STAGE_CONTRACT_ERROR: ${f.rel} is an animated image; rasters are textures and stills, never a frame sequence`);
@@ -225,14 +234,14 @@ export function scanStage(stageDir) {
   for (const [size, names] of bySize) {
     if (names.length >= RASTER_LIMITS.flipbook) throw new BlockedError(EXIT.STAGE_CONTRACT_ERROR, `STAGE_CONTRACT_ERROR: ${names.length} rasters of ${size} look like a flipbook; animate the page, not a frame sequence`);
   }
-  return { files, rasters, warnings };
+  return { files, rasters, warnings, plate };
 }
 
 /**
  * The request router for one stage run. Returns { kind: "file", file, type } | { kind: "body", body,
  * type } | { kind: "blocked", reason } | { kind: "missing" }, and records every refusal.
  */
-export function stageRouter({ stageDir, faces }) {
+export function stageRouter({ stageDir, faces, style = null }) {
   const root = realpathSync(stageDir);
   const css = fontsCss(faces);
   const byRoute = new Map(faces.map((f) => [f.route, f.file]));
@@ -251,9 +260,23 @@ export function stageRouter({ stageDir, faces }) {
       return { kind: "blocked" };
     }
     const pathname = decodeURIComponent(parsed.pathname);
+    // Chrome asks for a favicon on its own; the page did not, so it is not a missing file of the page.
+    if (pathname === "/favicon.ico") return { kind: "missing" };
     if (pathname === "/lit/stage-kit.js") return { kind: "file", file: KIT_FILE, type: CONTENT_TYPES[".js"] };
     if (pathname === "/lit/loop-kit.js") return { kind: "file", file: LOOP_KIT_FILE, type: CONTENT_TYPES[".js"] };
     if (pathname === "/lit/fonts.css") return { kind: "body", body: css, type: CONTENT_TYPES[".css"] };
+    if (pathname.startsWith("/lit/three/")) {
+      const rel = pathname.slice("/lit/three/".length);
+      const file = path.join(THREE_DIR, rel);
+      if (rel.split("/").includes("..") || !rel.endsWith(".js") || !existsSync(file)) {
+        missing.push({ url, reason: "not a vendored three.js file" });
+        return { kind: "missing" };
+      }
+      return { kind: "file", file, type: CONTENT_TYPES[".js"] };
+    }
+    // The film's house style (references/studio.md): type, colour and zone tokens, and the shot timeline.
+    if (style && pathname === "/lit/style.css") return { kind: "body", body: style.css, type: CONTENT_TYPES[".css"] };
+    if (style && pathname === "/lit/style.js") return { kind: "body", body: style.js, type: CONTENT_TYPES[".js"] };
     if (byRoute.has(pathname)) return { kind: "file", file: byRoute.get(pathname), type: CONTENT_TYPES[path.extname(pathname)] };
     const rel = pathname === "/" ? "index.html" : pathname.replace(/^\/+/u, "");
     if (rel.split("/").includes("..")) {

@@ -149,12 +149,22 @@
   // ---- WebGL use (exit 11 only when the page asks for it and gets nothing) and canvas text ----
   let usesWebGL = false;
   let webglMissing = false;
+  let webglRenderer = null;
   const getContext = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
     const ctx = getContext.call(this, type, ...rest);
     if (/^(?:webgl2?|experimental-webgl)$/u.test(String(type))) {
       usesWebGL = true;
       if (!ctx) webglMissing = true;
+      else if (!webglRenderer) {
+        // The rung that actually draws (a GPU, or SwiftShader when the GPU rung fell through).
+        try {
+          const info = ctx.getExtension("WEBGL_debug_renderer_info");
+          webglRenderer = String(info ? ctx.getParameter(info.UNMASKED_RENDERER_WEBGL) : ctx.getParameter(ctx.RENDERER));
+        } catch {
+          webglRenderer = "unknown";
+        }
+      }
     }
     return ctx;
   };
@@ -281,7 +291,7 @@
   Object.defineProperty(window, "__litPrepare", { value: prepare, configurable: false, writable: false });
   Object.defineProperty(window, "__litStep", { value: step, configurable: false, writable: false });
   Object.defineProperty(window, "__litStageState", {
-    value: () => ({ violations: violations.slice(), errors: errors.slice(0, 20), usesWebGL, webglMissing, spec: window.litStage ? { width: window.litStage.width, height: window.litStage.height, fps: window.litStage.fps, duration: window.litStage.duration, render: typeof window.litStage.render } : null }),
+    value: () => ({ violations: violations.slice(), errors: errors.slice(0, 20), usesWebGL, webglMissing, webglRenderer, spec: window.litStage ? { width: window.litStage.width, height: window.litStage.height, fps: window.litStage.fps, duration: window.litStage.duration, render: typeof window.litStage.render } : null }),
     configurable: false,
     writable: false,
   });

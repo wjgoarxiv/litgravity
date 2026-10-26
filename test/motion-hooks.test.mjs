@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { sandbox, workspace, runHook, basePayload, turn, injected, PLUGIN } from './helpers.mjs';
+import { sandbox, workspace, runHook, basePayload, turn, injected, PLUGIN, mkdirp } from './helpers.mjs';
 import { detectRoute, motionIntent } from '../plugin/hooks/lib/routes.mjs';
 import { parseMotionCommand } from '../plugin/hooks/lib/motion.mjs';
 import { ENGINE, MOTION_CLI, fakeCoverRun, bumpStillsRound, coverAnswers, writeAnswers } from './motion-helpers.mjs';
@@ -86,7 +86,7 @@ test('motion turn: an unfinished cover points at references/cover.md; a finished
   s.shell(`node "${MOTION_CLI}" cover --out motion-looptest --round 2`);
   const unopened = s.stop();
   assert.ok(held(unopened));
-  assert.match(unopened.json.reason, /never opened with read_file/);
+  assert.match(unopened.json.reason, /never opened with (?:read_file|the image tool)/);
   for (const n of ['sheet', 'poster', 'seam']) s.read(join('motion-looptest', 'stills', `${n}.png`));
   s.read('README.md');
   const dir = join(s.env.XDG_STATE_HOME, 'litgravity', 'sessions');
@@ -157,4 +157,44 @@ test('a new motion prompt re-arms the hold budget but keeps the renders and the 
   const state = JSON.parse(readFileSync(join(dir, ws, `${CONV}.motion.json`), 'utf8'));
   assert.equal(state.holds, 0);
   assert.equal(state.runs.length, 1);
+});
+
+test('done gate: a render from a subfolder with --out . is found by the turn armed at the workspace root', () => {
+  const s = session();
+  const film = mkdirp(join(s.ws.dir, 'film'));
+  const out = fakeCoverRun(film);
+  const file = writeAnswers(out, coverAnswers());
+  lookCommand({ out, round: 1, answersFile: file });
+  bumpStillsRound(out, 2);
+  lookCommand({ out, round: 2, answersFile: file });
+  // The model runs the render from inside <ws>/film with --out .  The Cwd is the film subfolder.
+  const call = (name, args) => runHook('post-tool-use', basePayload(s.ws, { toolCall: { name, args }, stepIdx: 3 }), s.env);
+  call('run_command', { CommandLine: `node "${MOTION_CLI}" cover --out . --round 2`, Cwd: film });
+  // Stop is called from the workspace root — it must still find the render recorded from the subfolder.
+  const dir = join(s.env.XDG_STATE_HOME, 'litgravity', 'sessions');
+  const folders = readdirSync(dir);
+  assert.equal(folders.length, 1, 'only one session folder, not two');
+  const state = JSON.parse(readFileSync(join(dir, folders[0], `${CONV}.motion.json`), 'utf8'));
+  assert.equal(state.runs.length, 1);
+  assert.equal(state.runs[0].out, film, 'out resolved to the film subfolder');
+  for (const n of ['sheet', 'poster', 'seam']) s.read(join('film', 'stills', `${n}.png`));
+  assert.deepEqual(s.stop().json, {}, 'Stop finds the render and allows the turn to end');
+});
+
+test('done gate: shell variables ($OUT, ${HOME}) in recorded commands are expanded before parsing', () => {
+  const { env } = sandbox();
+  const ws = workspace();
+  turn(ws, env, 'lit motion a README cover loop for LOOPTEST', 0);
+  const call = (command) => runHook('post-tool-use', basePayload(ws, {
+    toolCall: { name: 'run_command', args: { CommandLine: command, Cwd: ws.dir } }, stepIdx: 3,
+  }), env);
+  call(`OUT=motion-x; node "${MOTION_CLI}" cover --out $OUT --round 1`);
+  const dir = join(env.XDG_STATE_HOME, 'litgravity', 'sessions');
+  const [folder] = readdirSync(dir);
+  const state = JSON.parse(readFileSync(join(dir, folder, `${CONV}.motion.json`), 'utf8'));
+  assert.equal(state.runs.length, 1);
+  assert.equal(state.runs[0].out, join(ws.dir, 'motion-x'), '$OUT was expanded to motion-x');
+  // Unresolved env vars stay as-is (they need the real shell to expand).
+  const parsed = parseMotionCommand('D=${HOME}/out; node motion.mjs stage --out $D', '/w');
+  assert.equal(parsed.out, '/w/${HOME}/out', 'unassigned env var kept literal');
 });

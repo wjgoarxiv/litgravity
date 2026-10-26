@@ -831,6 +831,7 @@ function comparisonRole(blocks) {
 
 /** The ordered content of a pack slide, captions bound to the visual before them. */
 // Families whose geometry is a chart: a table of numbers there is drawn as one.
+const DISPLAY_FAMILIES = new Set(["statement", "quote", "closing-statement"]);
 const CHART_FAMILIES = new Set(["chart-insight", "full-chart", "kpi-over-chart", "dashboard-grid"]);
 const NUMBER_CELL = /^[+\-−±▲▼△▽]?\s*[\d.,]+\s*(?:%p?|배|x|pt|bp|[가-힣]{1,3}|[A-Za-z]{1,3})?$/u;
 
@@ -998,7 +999,7 @@ function resolvePack(ast, templateObj) {
   const numbering = { figure: 0, table: 0, FIGURE, TABLE };
   const facts = deckFacts(ast);
   const families = pack["layout-families"] || [];
-  const wide = { title: grid.faceWidth(pack.faces.title), display: grid.faceWidth(pack.faces.display) };
+  const wide = { title: (t) => grid.faceWidth(pack.faces.title, t), display: (t) => grid.faceWidth(pack.faces.display, t) };
   let part = 0;
 
   const slides = ast.slides.map((slide) => {
@@ -1046,23 +1047,13 @@ function resolvePack(ast, templateObj) {
     } else if (!families.includes(family)) {
       notes.push(`slide ${n}: ${family} is not a ${pack.id} layout family (${families.join(", ")}); drawn with its own geometry`);
     }
-    let titleOnly = null;
-    if (family === "statement" && !pack.treatments.includes("statement")) {
-      // A pack without a statement title sets the sentence as a top title, the largest it has.
-      titleOnly = ["top-plain-large", "band", "top-rule"].find((t) => pack.treatments.includes(t));
-      if (!titleOnly) throw new Error(`Slide ${n}: ${pack.id} has no statement or top title to set a statement slide with; choose another tonality`);
-      notes.push(`slide ${n}: ${pack.id} has no statement title, so the sentence is drawn as a ${titleOnly} title`);
-      family = "text-column";
-      role = "content";
-    }
     const items = packItems(slide.blocks, numbering, CHART_FAMILIES.has(family));
     const paras = slide.blocks.filter((b) => b.type === "body").flatMap((b) => b.items || []);
     // A closing is not part of a section, so it never carries the part number.
     const closing = grid.VARIANTS.closing.includes(family);
     // An agenda numbers its own rows: a count beside its title reads as a stray section number (spec-v2 Amendments 8).
     const numeral = family === "agenda" ? null : part > 0 && !closing ? part : null;
-    const statementCols = (pack.display || {}).statement === "offset" ? [5, 12] : null;
-    const ctx = { grid: pack.grid, sizes, title: plain(title), hero: pack.hero, decoration, numeral, rail: pack.rail, wide, statementCols, tight: Boolean((pack.tok || {}).tight) };
+    const ctx = { grid: pack.grid, sizes, title: plain(title), hero: pack.hero, decoration, numeral, rail: pack.rail, wide, tight: Boolean((pack.tok || {}).tight) };
     const facts1 = slideFacts(slide.blocks);
     // A quote under a statement title says the quote; the source line becomes the support line.
     let statementText = null;
@@ -1080,8 +1071,11 @@ function resolvePack(ast, templateObj) {
     };
     let allow = grid.familyAllows(family);
     let treatment;
-    if (titleOnly) {
-      treatment = titleOnly;
+    // A statement, a quote and a closing statement sit in the display zone in every pack (the shared
+    // slide grid): the statement title is theirs whether or not the pack lists it among its treatments.
+    const display = DISPLAY_FAMILIES.has(family) && !meta.title && applicable("statement") === true;
+    if (display) {
+      treatment = "statement";
     } else if (!families.includes(family) && !meta.title && !pack.treatments.some((t) => allow.includes(t) && applicable(t) === true)) {
       // A family from outside the pack that takes none of its titles gets the pack's title for its role.
       allow = [pack["role-defaults"][role] || pack.treatments[0], ...grid.familyAllows("text-column")];
@@ -1093,7 +1087,7 @@ function resolvePack(ast, templateObj) {
         applicable, onNote: (note) => notes.push(note),
       });
     }
-    const candidates = meta.title || titleOnly ? [treatment] : [treatment, ...pack.treatments.filter((t) =>
+    const candidates = meta.title || display ? [treatment] : [treatment, ...pack.treatments.filter((t) =>
       t !== treatment && allow.includes(t) && !["statement", "overlay"].includes(t) && applicable(t) === true)];
     return {
       ...base,

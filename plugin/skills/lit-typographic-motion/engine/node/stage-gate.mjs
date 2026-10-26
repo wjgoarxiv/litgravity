@@ -7,7 +7,7 @@ import { auditRecords } from "../core/flash.mjs";
 
 const r = (id, status, detail, extra = {}) => ({ id, status, detail, ...extra });
 
-export const STAGE_GATE = Object.freeze({ durationTolerance: 0.1, nearBlackHoldSec: 2.4, nearBlackEdgeSec: 1 });
+export const STAGE_GATE = Object.freeze({ durationTolerance: 0.1, nearBlackHoldSec: 2.4, nearBlackEdgeSec: 1, flatSpread: 0.02, flatHoldSec: 1, flatEdgeSec: 1, deadBusy: 0.025, deadHoldSec: 0.5, deadOpenSec: 0.4, deadCloseSec: 0.6 });
 
 function flash({ masterFlash, previewFlash, fps }) {
   const master = auditRecords(masterFlash, fps, { loop: false });
@@ -73,9 +73,62 @@ function nearBlack({ frames, fps }) {
     : r("MO-D-03", "PASS", "no empty near-black run longer than 2.4 s");
 }
 
-function webgl({ usesWebGL, renderer }) {
+// An empty frame of any colour: almost every pixel within 0.02 of one luminance (0.5-99.5 %). A
+// cream or white frame with nothing on it is as empty as a black one; MO-D-03 sees only black.
+function flatFrames({ frames, fps }) {
+  if (!frames.length || frames.some((f) => typeof f.luminanceP005 !== "number")) return r("FLAT-FRAME", "N/A", "per-frame spread not recorded");
+  const flat = frames.map((f) => f.luminanceP995 - f.luminanceP005 < STAGE_GATE.flatSpread);
+  const limit = STAGE_GATE.flatHoldSec * fps;
+  const edge = STAGE_GATE.flatEdgeSec * fps;
+  let worst = null;
+  let start = -1;
+  for (let f = 0; f <= flat.length; f++) {
+    if (f < flat.length && flat[f]) {
+      if (start < 0) start = f;
+      continue;
+    }
+    if (start >= 0) {
+      const length = f - start;
+      const allowance = start === 0 || f === flat.length ? edge : 0;
+      if (length > limit + allowance && (!worst || length > worst.length)) worst = { length, from: start };
+      start = -1;
+    }
+  }
+  return worst
+    ? r("FLAT-FRAME", "FAIL", `${(worst.length / fps).toFixed(2)} s of empty frames from ${(worst.from / fps).toFixed(2)} s (nothing but one flat colour; limit ${STAGE_GATE.flatHoldSec} s)`)
+    : r("FLAT-FRAME", "PASS", `no run of empty frames longer than ${STAGE_GATE.flatHoldSec} s`);
+}
+
+// A near-empty frame: fewer than 2.5 % of its 48 px cells carry anything (one dot or one small object
+// on the ground). Measured on round-1 films, a known dead frame sat at 1.1 % and drawn shots at 5 % and
+// up. A run longer than 0.5 s fails; the opening may build from nothing for 0.4 s more, the close
+// may fade for 0.6 s more.
+function deadAir({ frames, fps }) {
+  if (!frames.length || frames.some((f) => typeof f.busy !== "number")) return r("DEAD-AIR", "N/A", "per-frame busy share not recorded");
+  const dead = frames.map((f) => f.busy < STAGE_GATE.deadBusy);
+  const limit = STAGE_GATE.deadHoldSec * fps;
+  let worst = null;
+  let start = -1;
+  for (let f = 0; f <= dead.length; f++) {
+    if (f < dead.length && dead[f]) {
+      if (start < 0) start = f;
+      continue;
+    }
+    if (start >= 0) {
+      const length = f - start;
+      const allowance = (start === 0 ? STAGE_GATE.deadOpenSec * fps : 0) + (f === dead.length ? STAGE_GATE.deadCloseSec * fps : 0);
+      if (length > limit + allowance && (!worst || length > worst.length)) worst = { length, from: start };
+      start = -1;
+    }
+  }
+  return worst
+    ? r("DEAD-AIR", "FAIL", `${(worst.length / fps).toFixed(2)} s of near-empty frames from ${(worst.from / fps).toFixed(2)} s (under ${STAGE_GATE.deadBusy * 100} % of the frame carries anything; limit ${STAGE_GATE.deadHoldSec} s)`)
+    : r("DEAD-AIR", "PASS", `no near-empty run longer than ${STAGE_GATE.deadHoldSec} s`);
+}
+
+function webgl({ usesWebGL, renderer, rung = "software" }) {
   if (!usesWebGL) return r("MO-C-02", "N/A", "the page draws no WebGL");
-  return r("MO-C-02", "PASS", `WebGL on the software rung: ${renderer ?? "renderer unknown"} (labelled software)`);
+  return r("MO-C-02", "PASS", `WebGL on the ${rung} rung: ${renderer ?? "renderer unknown"}${rung === "software" ? " (labelled software)" : ""}`);
 }
 
 function determinism({ determinism: d }) {
@@ -93,7 +146,7 @@ function presence({ exports }) {
 /** Evaluate the stage gate. `extra` carries the sound and text-QA rules computed elsewhere. */
 export function evaluateStageGate(data) {
   const rules = [
-    flash(data), ...floors(data), sizes(data), reducedMotion(data), nearBlack(data), webgl(data), determinism(data), presence(data),
+    flash(data), ...floors(data), sizes(data), reducedMotion(data), nearBlack(data), flatFrames(data), deadAir(data), webgl(data), determinism(data), presence(data),
     ...(data.extraRules ?? []),
   ];
   const failed = rules.filter((x) => x.status === "FAIL").map((x) => x.id);
@@ -106,7 +159,8 @@ export function formatStageReport({ gate, manifest, outputs, round, framesViewed
     "lit-typographic-motion — stage render report",
     `outputs: ${outputs.film} · ${outputs.preview} · ${outputs.poster} · ${outputs.still}${withheld ? "  [WITHHELD: MO-C-03 flash audit failed; exports are diagnostics in withheld/, not deliverables]" : ""}`,
     `format / duration / fps: ${manifest.format} ${manifest.width}x${manifest.height}, ${manifest.durationSec} s (treatment ${manifest.treatmentDurationSec} s) @ ${manifest.fps} fps, ${manifest.frameCount} frames`,
-    `renderer: ${manifest.renderer} (software rung, stage flags: ${manifest.chromeFlags.join(" ")})`,
+    `renderer: ${manifest.renderer} (${manifest.rung ?? "software"} rung, stage flags: ${manifest.chromeFlags.join(" ")})`,
+    ...(manifest.plate ? [`plate: Blender ${manifest.plate.blender}, ${manifest.plate.engine} ${manifest.plate.device}, ${manifest.plate.samples} spp, ${manifest.plate.frames} frames at ${manifest.plate.fps} fps`] : []),
     `sound: ${manifest.sound?.mode ?? "none"}${manifest.sound?.label ? ` (${manifest.sound.label})` : ""}`,
     "",
     `QA gate: ${gate.pass ? "PASS" : "FAIL"}`,

@@ -26,6 +26,8 @@ export const coverTreatment = (over = {}) => ({
   mode: 'cover',
   request: 'A moving cover for the top of the LOOPTEST readme.',
   idea: 'Bars slide one period per loop while a dot circles twice beside a word that never moves.',
+  hero: 'The dot circles its ring and swells at each lap.',
+  beat: 'The dot swells once per lap.',
   recipe: 'own',
   recipeReason: 'A test pattern that has the three speed layers and nothing else.',
   brandWord: 'LOOPTEST',
@@ -65,7 +67,7 @@ export function bumpStillsRound(out, round) {
 export const coverAnswers = (over = {}) => ({
   viewed: ['stills/sheet.png', 'stills/poster.png', 'stills/seam.png'],
   change: 'Cut the light edge from 60 px to 24 px so the encoder keeps the travelling edge.',
-  answers: [1, 2, 3, 4, 5, 6, 7, 8].map((q) => ({
+  answers: [1, 2, 3, 4, 5, 6, 7, 8, 9].map((q) => ({
     q,
     verdict: q === 8 ? 'none' : [6, 7].includes(q) ? 'no' : 'yes',
     frame: q === 2 ? 'stills/seam.png' : 'stills/sheet.png',
@@ -130,32 +132,36 @@ const clone = (v) => JSON.parse(JSON.stringify(v));
 // A short stage film for renderer tests: genre other (three beats), a muted wall panel so sound may be none, and the
 // copy line the fixture pages print.
 const STAGE_FILM = {
-  request: 'render a short check clip for the hallway panel',
+  request: 'render a short simple check clip for the hallway panel',
   genre: 'other',
   path: 'stage',
   pathReason: 'The clip has to show a shape moving and changing, which type alone cannot draw.',
+  style: 'swiss-signal',
+  register: 'minimal',
   idea: 'A single tile drifts across a dark wall, rounds into a lantern and settles under its line.',
   audience: 'People walking past a hallway panel.',
   channel: 'A muted loop on a hallway panel.',
   format: '16:9',
   formatReason: 'The hallway panel is a landscape screen.',
-  durationSec: 4,
+  durationSec: 10,
   beats: [
-    { t0: 0, t1: 1.333, purpose: 'Open on the moving tile.', onScreen: 'One tile drifting over a dark ground.', motion: 'Constant drift with a slow turn.', sound: 'None.' },
-    { t0: 1.333, t1: 2.667, purpose: 'Change the tile.', onScreen: 'The tile rounds into a disc.', motion: 'A timed corner change.', sound: 'None.' },
-    { t0: 2.667, t1: 4, purpose: 'Hold the line.', onScreen: 'The copy line under the disc.', motion: 'Hold.', sound: 'None.' },
+    { t0: 0, t1: 3.333, layout: 'title', hero: 'A tile drifts across the dark ground.', transition: 'cut', purpose: 'Open on the moving tile.', onScreen: 'One tile drifting over a dark ground.', motion: 'Constant drift with a slow turn.', sound: 'None.' },
+    { t0: 3.333, t1: 6.667, layout: 'split', hero: 'The tile rounds into a disc.', transition: 'wipe', purpose: 'Change the tile.', onScreen: 'The tile rounds into a disc.', motion: 'A timed corner change.', sound: 'None.' },
+    { t0: 6.667, t1: 10, layout: 'stage', hero: 'The copy line settles under the disc.', transition: 'end', purpose: 'Hold the line.', onScreen: 'The copy line under the disc.', motion: 'Hold.', sound: 'None.' },
   ],
+  story: { expect: 'A tile drifts.', turn: 'The tile rounds into a lantern.', beat: 1, payoff: 'The line settles under the disc.' },
+  protagonist: { name: 'the lantern tile', kind: 'object', look: 'A square tile in the signal colour that rounds into a disc.', acts: [{ beat: 0, action: 'Drifts across the ground.' }, { beat: 1, action: 'Rounds into a disc.' }, { beat: 2, action: 'Holds under the line.' }] },
   subject: { name: 'Hallway Lantern Night', source: 'invented', specifics: ['A lantern walk held in a school hallway.', 'Each lantern is a paper tile that folds into a disc.'] },
   visualDevices: [{ kind: 'shape', role: 'subject', beats: [0, 1, 2] }, { kind: 'icon', role: 'support', beats: [2] }],
   typePlan: { faces: ['Pretendard'], hierarchy: 'One headline over one caption line.', maxWordsOnScreen: 6 },
-  palette: [{ color: '#101820', role: 'night ground' }, { color: '#f4efe6', role: 'type' }, { color: '#e0a040', role: 'lantern accent' }],
+  palette: [{ color: '#0C0E13', role: 'ground' }, { color: '#E9EBE4', role: 'type' }, { color: '#0F7A82', role: 'signal accent' }],
   sound: { mode: 'none', plan: 'Silent: the panel plays muted.' },
   copy: { source: 'invented', lines: ['Lanterns drift home'] },
   inventions: ['Hallway Lantern Night (the name)', 'the copy line'],
   ambition: 'A drift that never stops, a shape change the eye can follow, and a line that lands and holds.',
 };
 
-export function stageFilm({ fps = 30, copy, sound } = {}) {
+export function stageFilm({ fps = 60, copy, sound } = {}) {
   const t = clone(STAGE_FILM);
   t.fps = fps;
   if (copy) t.copy.lines = copy;

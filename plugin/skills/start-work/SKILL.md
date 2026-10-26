@@ -5,7 +5,7 @@ description: "Execute an approved plans/<slug>.md row by row: failing proof firs
 
 # start-work
 
-`start-work` carries an approved plan from its first open row to its final verification wave. The plan file is the contract and the ledger is the memory. Rows run as written, a row is ticked only with evidence on disk, and any change of scope goes back to the user first. The skill executes. Drafting, approving or redesigning a plan belongs to `lit-plan`, and judging whether a plan is ready belongs to `review-work` in plan mode.
+`start-work` carries an approved plan from its first open row to its final verification wave. The plan file is the contract and the ledger is the memory. Rows run as written, a row is ticked only with evidence on disk, and any change of scope goes back to the user first. The skill executes. Drafting, approving or redesigning a plan belongs to `lit-plan`, judging whether a plan is ready belongs to `review-work` in plan mode, and porting someone else's technique clean-room belongs to `lit-hijack` (which hands its spec to `lit-plan` and its plan to this skill).
 
 ## When this applies
 

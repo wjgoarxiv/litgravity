@@ -1,41 +1,23 @@
-# Interview protocol: scoring a deck request
+# Interview Protocol — PPTX Deep Interview
 
-The interview turns a loose request ("make me a deck about the library's new lending service") into a
-spec that a writer can build from. It runs as a short loop of scored rounds. Each round asks one
-question, aimed at the weakest of four dimensions, and ends with a new ambiguity number. The stage
-file `references/stages/interview.md` is the procedure; this file holds the scoring model, the state
-file, the question bank, the challenge prompts and the spec that comes out.
+## Dimensions (PPTX-Specific)
 
-## Dimensions and weights
+| Dimension | Weight | What It Measures |
+|-----------|--------|------------------|
+| Topic & Purpose | 0.30 | Is the presentation topic unambiguous? Can you state the key message? |
+| Audience & Context | 0.25 | Who is the audience? What do they know? What decision should they make? |
+| Structure & Scope | 0.25 | How many slides? What sections? Which layouts? Cover/TOC/Summary split? |
+| Data & Evidence | 0.20 | What data/tables/charts/images needed? Are sources available? |
 
-| Dimension | Weight | What a score of 1.0 means |
-|---|---|---|
-| Topic and purpose | 0.30 | The topic is one sentence and the key message is a claim a reader could disagree with |
-| Audience and context | 0.25 | The viewers, what they already know, the room or channel and the decision that should follow are all named |
-| Structure and scope | 0.25 | Slide count, sections, the order of the argument and the direction (tonality) are settled |
-| Data and evidence | 0.20 | Every number, table, chart and image the deck needs is either in hand or marked as an invented example |
-
-Score each dimension from 0.0 to 1.0 in steps of 0.05. A dimension with no information at all scores
-0.0; one with a guess the user has not confirmed scores at most 0.4.
-
+## Ambiguity Formula
 ```
-ambiguity = 1 - (topic*0.30 + audience*0.25 + structure*0.25 + data*0.20)
+ambiguity = 1 - (topic × 0.30 + audience × 0.25 + structure × 0.25 + data × 0.20)
 ```
+- `ambiguity ≤ 0.20` → ready to proceed
+- `ambiguity > 0.20` → continue interviewing
 
-- `ambiguity <= 0.20`: the spec can be written.
-- `ambiguity > 0.20`: ask another question.
-
-Worked example. A bakery chain's planning team asks for "a quarterly results deck". Topic 0.7 (results
-for one quarter, key message open), audience 0.5 (executives, decision unknown), structure 0.3 (no
-count, no direction), data 0.4 (figures exist in a spreadsheet, not shared). Ambiguity is
-1 - (0.21 + 0.125 + 0.075 + 0.08) = 0.51. The weakest dimension by weighted gap is structure
-(0.25 x 0.7 = 0.175, against topic 0.09 and audience 0.125), so round 2 asks about structure.
-
-## State file
-
-The interview keeps its state in `.pptx-pipeline/interview-state.json` inside the user's working
-directory:
-
+## State Persistence
+State is stored in `.pptx-pipeline/interview-state.json` in the user's working directory:
 ```json
 {
   "active": true,
@@ -43,90 +25,89 @@ directory:
   "current_ambiguity": 1.0,
   "threshold": 0.20,
   "challenge_modes_used": [],
-  "direction": { "tonality": null, "alternatives": [], "reason": null },
-  "started_at": "<ISO timestamp>"
+  "started_at": "ISO timestamp"
 }
 ```
 
-Append one object per finished round to `rounds`: the round number, the dimension targeted, the
-question, the answer in one line, the four scores and the resulting ambiguity. Evidence worth keeping
-beyond the interview (the analyst's extraction, the final scores table) goes to
-`.litgravity/evidence/<slug>/`, where `<slug>` is the lowercase hyphenated deck topic.
+## Interview Flow
 
-## Round 1: first assessment
+### Round 1: Initial Assessment
+1. Spawn Analyst agent to extract requirements from user's request
+2. Score all 4 dimensions
+3. If ambiguity ≤ 0.20, skip to spec crystallization
+4. If ambiguity > 0.20, present score and ask first question
 
-1. Start the read-only analyst child (`references/agents/analyst.md`) on the user's request and any
-   files they named. It returns the extraction and a first score for each dimension in its message.
-2. Take its scores, apply the weights, and record them as round 1.
-3. When ambiguity is already at or under 0.20, jump to the spec. Otherwise show the four scores in a
-   small table and ask the first question.
+### Rounds 2+: Socratic Questions
+One question per round, targeting the **weakest dimension**.
 
-## Rounds 2 and later: one question each
+**Question styles by dimension:**
+| Dimension | Question Style | Example |
+|-----------|---------------|---------|
+| Topic & Purpose | "What exactly should this communicate?" | "When you say 'project status', what specific milestone or deliverable is this about?" |
+| Audience & Context | "Who needs this and why?" | "Is this for a board meeting where executives need a decision, or an engineering review where details matter?" |
+| Structure & Scope | "How should this be organized?" | "Should this follow the standard cover→TOC→content→summary structure, or do you need a different flow?" |
+| Data & Evidence | "What numbers tell the story?" | "Do you have the actual KPI data, or should the deck include placeholder metrics?" |
 
-Aim at the dimension that costs the most points (weight times the gap to 1.0). Offer a recommended
-default in every question, because `ask_question` can go unanswered in a headless run and the default
-then becomes the answer on record.
+### Challenge Agents (Round Thresholds)
 
-| Dimension | Question shape | Example in context |
-|---|---|---|
-| Topic and purpose | Ask for the claim | "When you say 'results', is the claim that the quarter beat plan, or that one product line needs a fix?" |
-| Audience and context | Ask who decides what | "Is this read by the board before the meeting, or presented to branch managers who will not see the figures first?" |
-| Structure and scope | Offer two concrete shapes | "A 10-slide sequence of cover, agenda, four findings, a decision and a close, or a 6-slide short form?" |
-| Data and evidence | Ask where the numbers live | "Are the monthly figures in a file you can share, or should the deck carry clearly marked example figures?" |
+**Round 3+: Contrarian Mode**
+> "What if the audience already knows this? Would the deck still be valuable?"
 
-## Challenge prompts
+**Round 5+: Simplifier Mode**
+> "Can this be communicated in half the slides? Which slides are padding?"
 
-Each prompt is used once per interview and then the questions go back to the table above.
+**Round 7+: Redesigner Mode**
+> "What if this were a 1-page executive summary instead? Would it lose anything critical?"
 
-| From round | Mode | Prompt |
-|---|---|---|
-| 3 | Contrarian | "If the audience already knows this story, what would they still need from the deck?" |
-| 5 | Simplifier | "Which two slides could be removed without anyone asking where they went?" |
-| 7 | Redesigner | "If this were a one-page summary, which sentence would be lost?" |
+Each challenge mode is used ONCE, then returns to normal Socratic questioning.
 
-Record each used mode in `challenge_modes_used`.
+## Soft Limits
+- **Round 5**: Soft warning — "We're at 5 rounds. Continue or proceed with current clarity?"
+- **Round 10**: Hard cap — "Maximum interview rounds reached. Proceeding with current clarity."
+- **Any round**: User can say "enough", "let's go", "build it" to exit early
 
-## Limits and early exit
-
-- Round 5: ask whether to continue or build with the current clarity.
-- Round 10: stop and build with the current clarity; the spec records the ambiguity that remained.
-- At any round the user can say "enough", "let's go" or "build it", and the interview closes with the
-  unresolved dimensions listed in the spec.
-
-## Output: the spec file
-
-Write `.pptx-pipeline/spec-<slug>.md` when the interview closes:
-
+## Output Spec
+When ambiguity ≤ 0.20 (or early exit / hard cap), write `.pptx-pipeline/spec-{slug}.md`:
 ```markdown
-# Deck spec: <title>
+# PPTX Deck Spec: {title}
 
 ## Metadata
-- Interview rounds: <n>
-- Final ambiguity: <percent>
-- Generated: <timestamp>
+- Interview rounds: {n}
+- Final ambiguity: {score}%
+- Generated: {timestamp}
 
-## Deck configuration
-- Direction: <tonality>, alternatives <two tonalities>, reason <one line> (from the direction card in
-  references/direction-step.md); a legacy or learned template only when the user named it
-- Faces: Pretendard by default; A2Z faces when the user asks for them
-- Slide count: <n>
-- Language: <the user's language; Korean with English technical terms is fine>
+## Deck Configuration
+- Direction: {tonality} with alternatives {two tonalities}, from the direction card (`direction-step.md`); a legacy or learned template only when the user names it
+- Font: {Pretendard | 에이투지체 | Brand Sans | learned}
+- Slide count: {n}
+- Language: {match the user; e.g. Korean with English technical terms}
 
-## Slide-by-slide plan
-### Slide 1: cover
-- Title, date, department, presenter
-### Slide 2: agenda (decks over 5 slides)
-- Items
-### Slides 3..N: content
-- Family from the pack, topic label as title, the claim as the first point, key points
-### Slide N+1: summary or decision
-### Slide N+2: closing
+## Slide-by-Slide Plan
+### Slide 1: Cover
+- Title: ...
+- Date: ...
+- Metadata (department/author): ...
 
-## Data requirements
-- Tables: what data, rows by columns
-- Images: subject, source or "generate", alt text
-- Charts: kind, data source, unit
+### Slide 2: TOC
+- Items: [...]
 
-## Open items
-- Dimensions still below 0.8 and what would settle them
+### Slide 3-N: Content slides
+- Title: ...
+- Layout: content | main
+- Key points: [...]
+
+### Slide N+1: Summary
+- Group 1: ...
+- Group 2: ...
+
+### Slide N+2: Closing
+
+## Data Requirements
+- Tables: [what data, how many rows/columns]
+- Images: [what images, where to get them]
+- Charts: [what charts, data source]
+
+## Style Decisions
+- Bullet hierarchy: [standard | data-heavy | executive]
+- Table style: [compact | matrix | kpi]
 ```

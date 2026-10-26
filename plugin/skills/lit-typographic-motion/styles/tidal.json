@@ -1,0 +1,41 @@
+{
+  "schema": "litgravity.motion-style/v1",
+  "id": "tidal",
+  "name": "Tidal",
+  "summary": "Indigo ground with a slow teal-to-violet flow, off-white type that drifts with it, one coral moment.",
+  "light": false,
+  "typePreset": "tidal",
+  "palette": { "ground": "#0E1420", "surface": "#18223A", "ink": "#E8ECEF", "muted": "#A9B3C1", "signal": "#5FB3C4", "accent": "#E07856", "line": "#3A4660", "stopA": "#124559", "stopB": "#4C3B6E" },
+  "accents": [{ "role": "a warm highlight", "color": "#E8C07A" }, { "role": "a second current", "color": "#7FD6B0" }, { "role": "a far layer", "color": "#B9A3E3" }],
+  "textRoles": ["ink", "muted", "signal", "accent", "ground"],
+  "faces": {
+    "display": { "family": "Archivo", "weight": 700, "stretch": "100%" },
+    "headline": { "family": "Archivo", "weight": 700, "stretch": "100%" },
+    "body": { "family": "Pretendard", "weight": 400 },
+    "label": { "family": "MesloLGS NF", "weight": 400 }
+  },
+  "scale": {
+    "16:9": { "display": 116, "headline": 72, "body": 40, "label": 26 },
+    "9:16": { "display": 112, "headline": 76, "body": 46, "label": 32 }
+  },
+  "leading": { "display": 1.12, "headline": 1.22, "body": 1.6, "label": 1.4 },
+  "motion": {
+    "ease": { "enter": [0.37, 0, 0.63, 1], "move": [0.45, 0, 0.55, 1], "exit": [0.5, 0, 0.75, 0] },
+    "dur": { "micro": 0.25, "move": 0.9, "hero": 1.2, "exit": 0.6 },
+    "stagger": { "letter": 0.04, "word": 0.12, "item": 0.14 },
+    "spring": { "micro": { "zeta": 1, "hz": 2.5 }, "panel": { "zeta": 1, "hz": 1.2 }, "headline": { "zeta": 1, "hz": 1.4 }, "subject": { "zeta": 0.9, "hz": 1 }, "camera": { "zeta": 1, "hz": 0.35 } },
+    "secondary": { "delay": 0.2, "travel": 0.6 },
+    "ambient": { "travel": 0.05 },
+    "push": 0.025
+  },
+  "transitions": ["dissolve", "match", "wipe"],
+  "ground": { "kind": "flow", "stops": ["stopA", "stopB"] },
+  "sound": { "timbre": "felt-strings", "key": "D", "mode": "major", "tempo": 84 },
+  "score": { "genre": "deep-house" },
+  "beds": [
+    { "timbre": "felt-strings", "key": "D", "mode": "major", "tempo": 84 },
+    { "timbre": "glass", "key": "F#", "mode": "minor", "tempo": 76 },
+    { "timbre": "soft-keys", "key": "Bb", "mode": "major", "tempo": 72 }
+  ],
+  "bans": ["a rainbow or hue-cycling ramp", "bloom on the flow", "hard snaps on type", "glitch as texture", "flow so fast that held type smears"]
+}

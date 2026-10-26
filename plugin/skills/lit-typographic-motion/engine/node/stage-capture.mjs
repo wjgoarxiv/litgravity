@@ -1,4 +1,4 @@
-// One stage browser: headless Chrome on the software rung with the stage flag set, the page served
+// One stage browser: headless Chrome on the round's rung (software, or GPU for a 3D film) with the stage flag set, the page served
 // by Fetch interception on http://lit.stage, the virtual-clock init script injected before any page
 // script, and a step/capture pair the renderer calls frame by frame. The master, the determinism
 // replay and the text-QA replay each open their own StageBrowser; none of them ever seeks.
@@ -16,12 +16,12 @@ const withTimeout = (promise, ms, message) => Promise.race([
 ]);
 
 export class StageBrowser {
-  static async open({ stageDir, faces, rasters = [], width, height, seed, profileDir, env = process.env, log = () => {} }) {
+  static async open({ stageDir, faces, style = null, rasters = [], width, height, seed, profileDir, rung = "software", env = process.env, log = () => {} }) {
     const chrome = findChrome(env);
     if (!chrome) throw new BlockedError(EXIT.BLOCKED_NO_CHROME, "BLOCKED_NO_CHROME: Chrome/Chromium not found (set CHROME_PATH or install Google Chrome)");
-    const flags = stageFlags({ width, height });
+    const flags = stageFlags({ width, height, rung });
     const session = await ChromeSession.launch({ chrome, flags, profileDir, routes: () => null });
-    const browser = new StageBrowser(session, { stageDir, faces, width, height, flags, log });
+    const browser = new StageBrowser(session, { stageDir, faces, style, width, height, flags, rung, log });
     try {
       await browser.#attach(seed);
       await browser.#load(rasters);
@@ -32,14 +32,15 @@ export class StageBrowser {
     return browser;
   }
 
-  constructor(session, { stageDir, faces, width, height, flags, log }) {
+  constructor(session, { stageDir, faces, style = null, width, height, flags, rung, log }) {
     this.session = session;
+    this.rung = rung;
     this.width = width;
     this.height = height;
     this.flags = flags;
     this.faces = faces;
     this.log = log;
-    this.router = stageRouter({ stageDir, faces });
+    this.router = stageRouter({ stageDir, faces, style });
     this.served = [];
   }
 

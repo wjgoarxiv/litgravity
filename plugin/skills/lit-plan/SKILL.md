@@ -15,7 +15,7 @@ Hooks police the route. While `lit-plan` is active, a PreToolUse hook refuses ch
 - A `lit` route lands here because the request is a planning request, including plan-then-build requests: plan here, build later with `lit start`.
 - `deep-interview` left a spec in `.litgravity/interview/<slug>-spec.md`, or `lit-crucible` left findings, and the next step is a plan. The spec is the source of truth for requirements, so the interview is not repeated.
 - A brief lacks non-goals, decision boundaries or testable acceptance criteria and the repository cannot supply them: recommend `deep-interview` first instead of inventing requirements. When only one or two forks remain, ask them here (see "Interview the unknowns").
-- Neighbouring routes own these: executing a plan (`start-work`), one small change with its own proof (`litwork`), pressure-testing a brief for risks (`lit-crucible`), open ideation (`lit-brainstorm`).
+- Neighbouring routes own these: executing a plan (`start-work`), one small change with its own proof (`litwork`), pressure-testing a brief for risks (`lit-crucible`), open ideation (`lit-brainstorm`), porting someone else's technique clean-room (`lit-hijack`, which hands its spec to this skill).
 
 ## Inputs and state
 

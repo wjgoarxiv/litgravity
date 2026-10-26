@@ -27,7 +27,9 @@ const isBox = (b) => Array.isArray(b) && b.length === 4 && b.every((v) => typeof
 export function checkAssets({ out, treatment, rasters, coverDir = "cover" }) {
   const file = path.join(out, ASSETS_FILE);
   const needsArt = treatment.recipe === "painted-light";
-  const blockedArt = new BlockedError(EXIT.BLOCKED_ASSET_MISSING, "BLOCKED_ASSET_MISSING: the painted-light recipe needs its base art listed in assets.json ({ path, role: base-art, source: user or generated, sha256, box }); supply or generate the art, never draw a stand-in");
+  // The painted recipe relights a painting the user supplied. Without one the cover takes hero-3d
+  // (or weight-tide, orbit-loop) instead of a stand-in painting drawn for the occasion.
+  const blockedArt = new BlockedError(EXIT.BLOCKED_ASSET_MISSING, "BLOCKED_ASSET_MISSING: the painted-light recipe needs its base art listed in assets.json ({ path, role: base-art, source: user, sha256, box }): a painting the user supplied; without one, take hero-3d (or weight-tide, orbit-loop), never draw or generate a stand-in");
   let assets = [];
   if (existsSync(file)) {
     let doc;
@@ -42,7 +44,7 @@ export function checkAssets({ out, treatment, rasters, coverDir = "cover" }) {
       if (!a || typeof a !== "object") throw invalid(f, "must be an object");
       if (typeof a.path !== "string" || !a.path.startsWith(`${coverDir}/`) || a.path.split("/").includes("..")) throw invalid(`${f}.path`, `must be a path inside ${coverDir}/, relative to the output directory`);
       if (!ASSET_ROLES.includes(a.role)) throw invalid(`${f}.role`, `must be one of ${ASSET_ROLES.join(", ")}`);
-      if (!["user", "generated"].includes(a.source)) throw invalid(`${f}.source`, "must be user (supplied) or generated");
+      if (!["user", "fetched", "generated"].includes(a.source)) throw invalid(`${f}.source`, "must be user (supplied), fetched (by motion.mjs assets --cover) or generated");
       if (!/^[0-9a-f]{64}$/u.test(a.sha256 ?? "")) throw invalid(`${f}.sha256`, "must be the file's SHA-256 (64 hex)");
       if ("box" in a && !isBox(a.box)) throw invalid(`${f}.box`, "must be [x, y, w, h], fractions of the cover, inside it");
       if ("checkBox" in a) {
@@ -62,7 +64,7 @@ export function checkAssets({ out, treatment, rasters, coverDir = "cover" }) {
       if (sha256(readFileSync(real)) !== a.sha256) throw new BlockedError(EXIT.STAGE_CONTRACT_ERROR, `STAGE_CONTRACT_ERROR: ${a.path} does not match its sha256 in assets.json; list it again after changing it`);
     }
   }
-  if (needsArt && !assets.some((a) => a.role === "base-art")) throw blockedArt;
+  if (needsArt && !assets.some((a) => a.role === "base-art" && a.source === "user")) throw blockedArt;
   const listed = new Set(assets.map((a) => a.path));
   for (const r of rasters) {
     const rel = `${coverDir}/${r.rel.split(path.sep).join("/")}`;

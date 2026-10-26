@@ -1,0 +1,199 @@
+{
+  "schema_id": "litfamily.frontend-style/v1",
+  "id": "meadow",
+  "name": "Meadow",
+  "summary": "A warm, approachable register for consumer products: near-white canvas, deep teal accent, a coral second accent, sand as the tint, generous 12 to 18 px radii and soft elevation. Friendly without turning casual where money or health is at stake.",
+  "use_when": [
+    "opt-in only: the brief asks for friendly, warm, approachable, consumer, education, wellness, food or hospitality tone"
+  ],
+  "avoid_when": [
+    "dense all-day work surfaces",
+    "financial or clinical tasks where a casual register costs trust"
+  ],
+  "keywords": [
+    "meadow",
+    "메도우"
+  ],
+  "signature": [
+    "near-white canvas, deep teal accent, coral second accent, sand tint",
+    "12 to 18 px radii with soft elevation",
+    "rounded, generous spacing with tinted bands between sections"
+  ],
+  "forbid": [
+    "hard offset shadows and thick outlines",
+    "more than four accent hue families in one view",
+    "square, ruled compartments (that is computational-brutalism)"
+  ],
+  "fonts": {
+    "text": "Pretendard",
+    "display": "Pretendard",
+    "mono": "JetBrains Mono"
+  },
+  "type": {
+    "scale_px": {
+      "xs": 12,
+      "sm": 13,
+      "md": 14,
+      "base": 16,
+      "lg": 18,
+      "xl": 20,
+      "2xl": 24,
+      "3xl": 30,
+      "4xl": 38,
+      "5xl": 48
+    },
+    "display_px": {
+      "min": 38,
+      "max": 72
+    },
+    "moment_px": {
+      "max": 104
+    },
+    "weights": {
+      "text": 400,
+      "medium": 500,
+      "strong": 620,
+      "display": 700
+    },
+    "tracking_em": {
+      "display": -0.02,
+      "label": 0
+    },
+    "leading": {
+      "body": 1.6,
+      "tight": 1.3,
+      "display_latin": 1.05,
+      "display_korean": 1.18
+    }
+  },
+  "space_px": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64,
+    80,
+    96,
+    128
+  ],
+  "radius_px": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 18,
+    "pill": 999
+  },
+  "shadow": {
+    "raised": "0 1px 2px rgb(27 36 32 / 0.05), 0 4px 12px -4px rgb(27 36 32 / 0.08)",
+    "overlay": "0 18px 44px -12px rgb(27 36 32 / 0.26), 0 2px 6px rgb(27 36 32 / 0.06)"
+  },
+  "motion": {
+    "fast_ms": 120,
+    "ui_ms": 180,
+    "enter_ms": 420,
+    "exit_ms": 160,
+    "ease": "cubic-bezier(0.22, 0.8, 0.24, 1)"
+  },
+  "shape": {
+    "border_px": {
+      "rule": 1,
+      "surface": 1,
+      "control": 1
+    },
+    "surface_line": "line",
+    "control_edge": "control",
+    "elevation": "soft",
+    "offset_px": {
+      "surface": 0,
+      "control": 0
+    },
+    "press": "scale",
+    "meta_font": "text",
+    "meta_case": "none",
+    "display_case": "none",
+    "canvas_pattern": "none",
+    "heading_font": "display",
+    "panel_head": "plain",
+    "section_marks": "none"
+  },
+  "color": {
+    "light": {
+      "canvas": "#fbfbf8",
+      "surface": "#ffffff",
+      "sunken": "#f1f3ee",
+      "ink": "#1b2420",
+      "ink-2": "#46524c",
+      "ink-3": "#5c6a63",
+      "line": "#e2e6df",
+      "line-strong": "#c4cbc1",
+      "control": "#86918b",
+      "accent": "#0f6b6b",
+      "accent-hover": "#0b5858",
+      "on-accent": "#ffffff",
+      "accent-wash": "#ddefee",
+      "accent-ink": "#0d6262",
+      "accent-2": "#c4472f",
+      "accent-2-ink": "#a33a24",
+      "accent-2-wash": "#f8e1d9",
+      "on-accent-2": "#ffffff",
+      "support": "#f4dcc0",
+      "support-ink": "#7a4f1c",
+      "focus": "#0f6b6b",
+      "positive": "#28703a",
+      "positive-wash": "#e0f0e2",
+      "warning": "#8a5a00",
+      "warning-wash": "#f8ecd0",
+      "negative": "#b42f2a",
+      "negative-wash": "#f9e1df",
+      "info": "#2d6293",
+      "info-wash": "#e1ebf5",
+      "chart-1": "#0f6b6b",
+      "chart-2": "#e0a86a",
+      "chart-3": "#46524c",
+      "chart-4": "#9fd0cb",
+      "chart-5": "#b44f6a"
+    },
+    "dark": {
+      "canvas": "#101615",
+      "surface": "#161e1d",
+      "sunken": "#0b1110",
+      "ink": "#eaf0ed",
+      "ink-2": "#b6c2bc",
+      "ink-3": "#93a19a",
+      "line": "#24302d",
+      "line-strong": "#374541",
+      "control": "#63716c",
+      "accent": "#4fbfb4",
+      "accent-hover": "#6dd0c6",
+      "on-accent": "#062120",
+      "accent-wash": "#12302d",
+      "accent-ink": "#67cdc2",
+      "accent-2": "#ef8a6f",
+      "accent-2-ink": "#f29d85",
+      "accent-2-wash": "#3a2018",
+      "on-accent-2": "#2a0f08",
+      "support": "#6b5332",
+      "support-ink": "#f0cfa5",
+      "focus": "#6dd0c6",
+      "positive": "#6cc88a",
+      "positive-wash": "#142a1b",
+      "warning": "#e2b25a",
+      "warning-wash": "#2e2410",
+      "negative": "#f08780",
+      "negative-wash": "#351816",
+      "info": "#86b5e3",
+      "info-wash": "#142233",
+      "chart-1": "#4fbfb4",
+      "chart-2": "#e0a86a",
+      "chart-3": "#b6c2bc",
+      "chart-4": "#2c5a56",
+      "chart-5": "#e07f97"
+    }
+  },
+  "accent_art": "none"
+}

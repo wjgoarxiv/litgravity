@@ -11,6 +11,9 @@ import path from "node:path";
 import { EXIT, GATE, PREVIEW } from "../core/constants.mjs";
 import { FlashDetector, cellsFromRgba, detectSequence, gridFor } from "../core/flash.mjs";
 import { areaDownscale } from "./analysis.mjs";
+import { assetUsed } from "./assets.mjs";
+import { BLENDER } from "./blender.mjs";
+import { addToStills, writeBoard } from "./board.mjs";
 import { BlockedError } from "./chrome.mjs";
 import { findFfmpeg, findFfprobe, findImg2webp, previewRungs, startMaster, encodePreview, probeVideo } from "./encode.mjs";
 import { resolveViewed, asBlocked } from "./pipeline.mjs";
@@ -21,6 +24,8 @@ import { StageBrowser, FramePool, analyzeChecked } from "./stage-capture.mjs";
 import { evaluateStageGate, formatStageReport } from "./stage-gate.mjs";
 import { textQaReplay } from "./stage-qa.mjs";
 import { treatmentSha } from "./done.mjs";
+import { recordHouse } from "./house.mjs";
+import { styleCss, styleScript, readStyle } from "./styles.mjs";
 import { scanStage, stageFonts } from "./stage-serve.mjs";
 import { beatCuts, stillsPlan, writeStills } from "./stills.mjs";
 import { FORMATS, loadTreatment } from "./treatment.mjs";
@@ -33,10 +38,18 @@ const writeJson = (file, value) => {
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 };
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
+/** The house style the page is served (/lit/style.css, /lit/style.js) for this treatment and format. */
+export const styleAssets = (treatment) => {
+  const style = readStyle(treatment.style);
+  return { style, css: styleCss(style, treatment.format), js: styleScript(style, treatment.format, treatment) };
+};
 const percentile = (values, p) => {
   const sorted = [...values].sort((a, b) => a - b);
   return sorted.length ? +sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))].toFixed(1) : null;
 };
+
+/** The beat stills of a stills set, as absolute paths, in beat order. */
+export const beatStillFiles = (out, stills) => stills.index.files.filter((f) => f.kind === "beat").sort((a, b) => a.beat - b.beat).map((f) => path.join(out, f.file));
 
 /** Determinism samples: frame 0, the last frame, each beat's first frame, beat midpoints to 8, at most 16. */
 export function determinismFrames({ beats, fps, frameCount }) {
@@ -83,10 +96,30 @@ function violationExit(state, router) {
   return null;
 }
 
-/** Open a stage browser and check the page's LitStage contract against the treatment. */
+/**
+ * Open a stage browser on the round's rung and check the page's LitStage contract. A 3D film asks for
+ * the GPU rung; when that rung cannot launch or gives the page no WebGL, the round falls back to the
+ * software rung for every browser (master and replays must share one rung) and records a notice.
+ */
 async function openChecked({ label, ctx }) {
+  if (ctx.rung === "gpu") {
+    try {
+      const browser = await openOnRung({ label, ctx });
+      if (!browser.state.webglMissing) return browser;
+      await browser.close();
+      ctx.notices.push("the 3D route asked for the GPU rung and the page got no WebGL there; rendered on the software rung (SwiftShader), slower, same frames");
+    } catch (error) {
+      if (error instanceof BlockedError) throw error;
+      ctx.notices.push(`the 3D route asked for the GPU rung and it did not start (${String(error.message).slice(0, 120)}); rendered on the software rung (SwiftShader), slower, same frames`);
+    }
+    ctx.rung = "software";
+  }
+  return openOnRung({ label, ctx });
+}
+
+async function openOnRung({ label, ctx }) {
   const { stageDir, faces, scan, width, height, treatment, runDir, env, log } = ctx;
-  const browser = await StageBrowser.open({ stageDir, faces, rasters: scan.rasters, width, height, seed: treatment.seed, profileDir: path.join(runDir, `c${process.pid % 100000}${label}`), env, log });
+  const browser = await StageBrowser.open({ stageDir, faces, style: ctx.style, rasters: scan.rasters, width, height, seed: treatment.seed, profileDir: path.join(runDir, `c${process.pid % 100000}${label}`), rung: ctx.rung, env, log });
   const state = browser.state;
   const fail = (message) => new BlockedError(EXIT.STAGE_CONTRACT_ERROR, `STAGE_CONTRACT_ERROR: ${message}`);
   const early = violationExit(state, browser.router);
@@ -97,9 +130,9 @@ async function openChecked({ label, ctx }) {
   else if (!error && spec.render !== "function") error = fail("LitStage.define needs render(t)");
   else if (!error && spec.fps !== (treatment.fps ?? 60)) error = fail(`the page runs at ${spec.fps} fps; the treatment asks for ${treatment.fps ?? 60} (30 only when the treatment says fps: 30)`);
   else if (!error && !(spec.duration > 0)) error = fail("the page's duration must be a positive number of seconds");
-  if (!error && state.webglMissing) error = new BlockedError(EXIT.BLOCKED_NO_WEBGL2, "BLOCKED_NO_WEBGL2: the page asked for a WebGL context and the software rung gave none");
+  if (!error && state.webglMissing) error = new BlockedError(EXIT.BLOCKED_NO_WEBGL2, `BLOCKED_NO_WEBGL2: the page asked for a WebGL context and the ${ctx.rung} rung gave none`);
   if (!error && browser.prepared?.failedFaces?.length) log(`warning: faces that did not load: ${browser.prepared.failedFaces.join(", ")}`);
-  if (error) {
+  if (error && !(ctx.rung === "gpu" && error.code === EXIT.BLOCKED_NO_WEBGL2)) {
     await browser.close();
     throw error;
   }
@@ -139,6 +172,18 @@ async function captureFrames({ browser, pool, fps, frames, width, height, asMast
   }
   await Promise.all(pending);
   return out;
+}
+
+/**
+ * The browser rung: a three.js world asks for the GPU; a Blender film shows its path-traced plate
+ * under HTML type, so its page needs only the software rung, and it needs the plate, all of it.
+ */
+export function stageRung(treatment, scan, out) {
+  if (treatment.render3d !== "blender") return treatment.depth === "3d" ? "gpu" : "software";
+  const want = Math.round(treatment.durationSec * BLENDER.plateFps);
+  if (!scan.plate) throw new BlockedError(EXIT.STAGE_CONTRACT_ERROR, `STAGE_CONTRACT_ERROR: render3d is blender but stage/plate/plate.json is missing or does not match its frames; render the plate first: blender --out ${out} --final (no Blender: set render3d to three and use the GPU rung)`);
+  if (scan.plate.frames.length !== want) throw new BlockedError(EXIT.STAGE_CONTRACT_ERROR, `STAGE_CONTRACT_ERROR: the plate has ${scan.plate.frames.length} frames; a ${treatment.durationSec} s film needs ${want} at ${BLENDER.plateFps} fps (render it again: blender --out ${out} --final)`);
+  return "software";
 }
 
 function renderId(treatment, scan) {
@@ -213,7 +258,7 @@ export async function captureStageFrames({ out, frames, env = process.env, log =
   const faces = stageFonts(env);
   const runDir = path.join(out, ".run");
   mkdirSync(runDir, { recursive: true });
-  const ctx = { stageDir, faces, scan, width, height, treatment, runDir, env, log };
+  const ctx = { stageDir, faces, scan, width, height, treatment, runDir, env, log, style: styleAssets(treatment), rung: stageRung(treatment, scan, out), notices: [] };
   const browser = await openChecked({ label: "x", ctx });
   const pool = new FramePool(2);
   try {
@@ -285,7 +330,7 @@ export async function renderStage({ out, round = 1, stillsOnly = false, env = pr
   const runDir = path.join(out, ".run");
   mkdirSync(runDir, { recursive: true });
   const ffmpeg = findFfmpeg(env);
-  const ctx = { stageDir, faces, scan, width, height, treatment, runDir, env, log };
+  const ctx = { stageDir, faces, scan, width, height, treatment, runDir, env, log, style: styleAssets(treatment), rung: stageRung(treatment, scan, out), notices: [] };
   progress(out, { phase: "open", round, stillsOnly });
   const master = await openChecked({ label: "m", ctx });
   const spec = master.state.spec;
@@ -300,11 +345,30 @@ export async function renderStage({ out, round = 1, stillsOnly = false, env = pr
     if (stillsOnly) {
       const frames = await captureFrames({ browser: master, pool, fps, frames: plan.all, width, height });
       const stills = writeStills({ out, plan, frames: new Map([...frames].map(([f, a]) => [f, a.rgba])), width, height, fps, frameCount, round, stillsOnly: true, path: "stage" });
+      // The board round: the text and style rules run on the board frames before any film is encoded,
+      // and the storyboard is drawn with the verdict on it.
+      progress(out, { phase: "board-check", round, stillsOnly });
+      const replayQa = qa ?? textQaReplay({ pool, stageFiles: scan.files.map((f) => path.basename(f.rel)) });
+      const check = await replayQa({ ctx, fps, frameCount, plan, openBrowser: (label) => openChecked({ label, ctx }), stepChecked });
+      const assetRule = assetUsed(treatment, scan.files);
+      if (assetRule) check.rules.push(assetRule);
+      writeJson(path.join(out, "stills", "check.json"), { rules: check.rules });
+      const boardFile = await writeBoard({ out, treatment, beatFiles: beatStillFiles(out, stills), check, env, log });
+      stills.sha256 = addToStills(out, { file: "stills/board.png", kind: "board", frames: plan.beats }, { sha256 });
       progress(out, { phase: "done", round, stillsOnly });
+      const failed = check.rules.filter((x) => x.status === "FAIL");
+      if (check.exit) return { code: check.exit, message: `${check.message} (board check; the storyboard is ${boardFile})`, stills, renderId: id, check };
+      if (failed.length) {
+        return {
+          code: EXIT.GATE_FAIL_QA,
+          message: `BOARD_CHECK_FAIL: ${failed.map((x) => `${x.id} ${x.detail}`).join("; ")}. Fix the page, render --stills-only again, then look at the board ${boardFile} and every file in ${path.join(out, "stills")}`,
+          stills, renderId: id, check,
+        };
+      }
       return {
         code: EXIT.OK,
-        message: `STILLS_ONLY: look at every file in ${path.join(out, "stills")} (index.json lists them), record the round with look --round ${round}, make the change, then render the film with --round ${round + 1} (no --stills-only)`,
-        stills, renderId: id,
+        message: `STILLS_ONLY: board check PASS; open the storyboard ${boardFile} and every file in ${path.join(out, "stills")} (index.json lists them), record the round with look --round ${round}, make the change, then render the film with --round ${round + 1} (no --stills-only)`,
+        stills, renderId: id, check,
       };
     }
     if (!ffmpeg) {
@@ -350,7 +414,7 @@ export async function renderStage({ out, round = 1, stillsOnly = false, env = pr
       const a = await entry.analysis;
       await encoder.write(a.rgba);
       const flash = detector.push(a.cells);
-      lines.push({ frame: entry.f, artifact: "master", rgbaSha256: a.rgbaSha256, luminanceP995: a.luminanceP995, flash });
+      lines.push({ frame: entry.f, artifact: "master", rgbaSha256: a.rgbaSha256, luminanceP995: a.luminanceP995, luminanceP005: a.luminanceP005, busy: a.busy, flash });
       if (plan.all.has(entry.f)) kept.set(entry.f, a.rgba);
       if (detFrames.includes(entry.f)) detMaster.set(entry.f, a);
       if (entry.f % previewEvery === 0) {
@@ -401,23 +465,27 @@ export async function renderStage({ out, round = 1, stillsOnly = false, env = pr
     };
     const gate = evaluateStageGate({
       masterFlash: lines.map((l) => l.flash), previewFlash: preview.records ? { records: preview.records, fps: preview.rung.fps } : null, fps,
-      probe, width, height, treatment, exports, reducedFrame: plan.reduced, frames: lines, usesWebGL: finalState.usesWebGL, renderer: master.renderer,
-      determinism, extraRules: [...soundAudit.rules, ...(qaResult?.rules ?? [])],
+      probe, width, height, treatment, exports, reducedFrame: plan.reduced, frames: lines, usesWebGL: finalState.usesWebGL, renderer: finalState.webglRenderer, rung: ctx.rung,
+      determinism, extraRules: [...soundAudit.rules, ...(qaResult?.rules ?? []), assetUsed(treatment, scan.files)].filter(Boolean),
     });
     const promoted = promote(out, gate.flashFail);
     const loc = (name) => path.join(promoted.dir, name);
     const stills = writeStills({ out, plan, frames: kept, width, height, fps, frameCount, round, stillsOnly: false, path: "stage", posterFile: existsSync(loc("poster.png")) ? loc("poster.png") : null });
+    await writeBoard({ out, treatment, beatFiles: beatStillFiles(out, stills), check: qaResult, env, log });
+    stills.sha256 = addToStills(out, { file: "stills/board.png", kind: "board", frames: plan.beats }, { sha256 });
+    if (gate.pass && !promoted.withheld) recordHouse(out, { style: treatment.style, path: "stage", format: treatment.format, durationSec: treatment.durationSec });
     const totalSec = (Date.now() - t0) / 1000;
     const manifest = {
       schemaVersion: 1, path: "stage", renderId: id, round, treatmentSha256: treatmentSha(out), format: treatment.format, width, height, fps, durationSec: spec.duration, treatmentDurationSec: treatment.durationSec,
-      frameCount, seed: treatment.seed, renderer: "SwiftShader (software rung)", chromeFlags: master.flags, usesWebGL: finalState.usesWebGL,
+      frameCount, seed: treatment.seed, renderer: finalState.webglRenderer ?? "no WebGL", rung: ctx.rung, chromeFlags: master.flags, usesWebGL: finalState.usesWebGL,
       cuts, stills: { sha256: stills.sha256, poster: plan.poster, reduced: plan.reduced }, posterEncoding: poster,
       geometry: geometryFor(width, height),
+      plate: scan.plate ? { blender: scan.plate.blender, engine: scan.plate.engine, device: scan.plate.device, samples: scan.plate.samples, fps: scan.plate.fps, frames: scan.plate.frames.length } : null,
       sound: { mode: sound.mode, label: sound.label, file: sound.file ? path.relative(out, sound.file) : null, sha256: sound.file ? sha256(readFileSync(sound.file)) : null, lufs: sound.bed?.lufs ?? null },
       preview: { encoder: preview.encoder, rung: preview.rung, attempts: preview.attempts },
       pageErrors: finalState.errors, missingAssets: master.router.missing,
       timing: { frameP50Ms: percentile(frameMs, 0.5), frameP95Ms: percentile(frameMs, 0.95), masterSec: +masterSec.toFixed(1), totalSec: +totalSec.toFixed(1) },
-      warnings: [...scan.warnings, ...master.router.missing.map((m) => `the page asked for a missing file ${m.url} (${m.reason})`)],
+      warnings: [...ctx.notices, ...scan.warnings, ...master.router.missing.map((m) => `the page asked for a missing file ${m.url} (${m.reason})`)],
       generatedAt: new Date().toISOString(),
     };
     writeJson(path.join(out, "manifest.json"), manifest);
@@ -492,7 +560,7 @@ export async function renderStageDetached({ out, round, cli, mode = "stage", env
     }
     try {
       const p = JSON.parse(readFileSync(path.join(runDir, "progress.json"), "utf8"));
-      const phase = `${p.phase}${p.frame !== undefined && p.phase === "master" ? ` ${Math.floor((p.frame / p.frameCount) * 10) * 10}%` : ""}`;
+      const phase = `${p.phase}${p.frame !== undefined && (p.phase === "master" || p.phase === "plate") ? ` ${Math.floor((p.frame / p.frameCount) * 10) * 10}%` : ""}`;
       if (phase !== lastPhase) log(`render: ${phase}`);
       lastPhase = phase;
     } catch {

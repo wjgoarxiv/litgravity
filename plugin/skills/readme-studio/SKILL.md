@@ -36,6 +36,8 @@ Produce a README whose every claim traces to the repository and whose every comm
 
 ## Procedure
 
+**Theme first.** Before building, ask the user to choose the cover and decoration look with one `ask_question` round: two to four real options from `references/decoration-and-navigation.md` (or no cover), the recommended one first with a one-line reason. Skip the question only when the prompt names one or says "you choose" / "알아서". When nobody can answer (headless `agy -p`), take the recommended option, log a `decision` ledger line and say so in one line.
+
 1. **Fact sheet.** Before drafting, write `.litgravity/evidence/readme-studio/facts.md`: name, one-line purpose, supported platforms and runtime versions, install method, entry commands, configuration files and environment variable names, license. Each fact cites its source file. Mirror every reader-visible claim into `.litgravity/evidence/readme-studio/readme-facts.json` (shape in `templates/readme-facts.json`: `claims[]` with `id`, `value` and a relative `source`; `badges[]` with `label`, an absolute `url` and a relative `source`). Open each cited source and compare its meaning with the claim. An unknown claim stays out of the public prose. Versions, badges, passing builds, benchmarks, popularity figures and affiliations come from evidence and are written down only then.
 2. **Structure check.** Read `references/facts-and-assembly.md`, then run the checker with absolute quoted paths:
 

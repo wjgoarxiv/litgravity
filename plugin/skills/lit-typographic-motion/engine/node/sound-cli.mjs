@@ -1,12 +1,14 @@
-// `motion.mjs sound --out <dir>`: build the generated bed from <dir>/treatment.json so it can be
-// heard and its cues checked before the full render. The render rebuilds the same bed at the film's
-// exact frame count and cut times, so the muxed track always matches the picture.
+// `motion.mjs sound --out <dir>`: build the film's score (or a minimal film's generated bed) from
+// <dir>/treatment.json so it can be heard and its cues checked before the full render. The render
+// rebuilds the same track at the film's exact frame count and cut times, so the muxed track always
+// matches the picture.
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { EXIT } from "../core/constants.mjs";
 import { loadBrief, planFromBrief } from "./brief.mjs";
 import { BlockedError } from "./chrome.mjs";
 import { asBlocked } from "./pipeline.mjs";
+import { writeScore } from "./score.mjs";
 import { prepareTrack, writeBed } from "./sound.mjs";
 import { loadTreatment } from "./treatment.mjs";
 
@@ -21,8 +23,19 @@ export function soundTimeline(out, treatment) {
   return { fps, frameCount: Math.round(treatment.durationSec * fps), cutTimes: treatment.beats.slice(1).map((b) => b.t0) };
 }
 
+const scoreLabel = (score) => `score, ${score.genre} in ${score.key}, ${score.tempo} BPM, ${score.stems.filter((x) => x.kind !== "return").length} stems`;
+
 export async function soundCommand({ out }) {
   const treatment = asBlocked(() => loadTreatment(out));
+  if (treatment.sound.mode === "score") {
+    const { fps, frameCount, cutTimes } = soundTimeline(out, treatment);
+    const score = writeScore({ treatment, frameCount, fps, cutTimes, dir: out });
+    const sections = score.sections.map((x) => x.kind).join(" → ");
+    return {
+      code: EXIT.OK,
+      message: `SOUND: ${scoreLabel(score)} (${score.progression}; ${sections}; sidechain ${score.sidechainDb.toFixed(1)} dB; ${score.lufs.toFixed(1)} LUFS, peak ${score.peakDbfs.toFixed(1)} dBFS) in ${score.file}; stems in ${path.join(out, "sound", "stems")}; ${score.cues.length} cues in ${path.join(out, "sound-cues.json")}`,
+    };
+  }
   if (treatment.sound.mode !== "generated") {
     return { code: EXIT.OK, message: `SOUND: mode ${treatment.sound.mode}; nothing to generate (the render ${treatment.sound.mode === "none" ? "adds no track" : "prepares and muxes the track"})` };
   }
@@ -35,13 +48,17 @@ export async function soundCommand({ out }) {
 }
 
 /**
- * The film's track on either path: the generated bed at the film's exact frame count and cuts, a
+ * The film's track on either path: the score or the generated bed at the film's exact frame count and cuts, a
  * supplied or authored track padded or trimmed to the film, or none. Always muxed whatever the
  * audio-analysis tier's state (the Wave 1 renderer dropped a track when that tier was absent).
  */
 export function soundTrackFor({ treatment, out, stageDir = null, frameCount, fps, cutTimes, ffmpeg }) {
   const mode = treatment.sound.mode;
   if (mode === "none") return { mode, file: null, label: "none (asked for)" };
+  if (mode === "score") {
+    const score = writeScore({ treatment, frameCount, fps, cutTimes, dir: out });
+    return { mode, file: score.file, label: scoreLabel(score), bed: score };
+  }
   if (mode === "generated") {
     const bed = writeBed({ treatment, frameCount, fps, cutTimes, dir: out });
     return { mode, file: path.join(out, "sound", "bed.wav"), label: `generated bed, ${bed.timbre} in ${bed.key}, ${bed.tempo} BPM`, bed };

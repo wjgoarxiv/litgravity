@@ -1,0 +1,227 @@
+{
+  "schema_id": "litfamily.frontend-style/v1",
+  "id": "computational-brutalism",
+  "name": "Computational brutalism",
+  "summary": "A retro-futurist instrument register with its structure on show: drafting-film grey over a plotting grid with major lines every five cells, monospaced text and mono headings at real size, square corners, heavy 3 px section rules and 2 px compartments with inverse header bars, coordinate-marked sections, uppercase measurement labels and one hazard-orange signal; in dark mode the same build reads as a phosphor CRT with an amber signal. Flat: no blur, no soft elevation.",
+  "use_when": [
+    "opt-in only: the brief names brutalist, brutalism, computational, retro-futurist, CRT, terminal or telemetry, or the Korean 브루탈리즘, 레트로퓨처 or 터미널 감성",
+    "developer tools, consoles, data instruments, research or engineering products that want a raw, mechanical, high-density voice",
+    "a launch page for a technical product that should read as a spec sheet rather than a brochure"
+  ],
+  "avoid_when": [
+    "the brief asks for warmth, softness, play or a consumer-friendly tone",
+    "long-form reading for a general audience (monospaced body text slows it down)",
+    "the brief says neo-brutalism or neo-brutalist (that is the neo-brutalism style)"
+  ],
+  "keywords": [
+    "computational brutalism",
+    "computational-brutalism",
+    "brutalist",
+    "brutalism",
+    "retro-futurist",
+    "retro-futurism",
+    "retrofuturist",
+    "retrofuturism",
+    "retro futurist",
+    "crt",
+    "terminal aesthetic",
+    "telemetry",
+    "브루탈리즘",
+    "브루탈리스트",
+    "브루탈",
+    "레트로퓨처",
+    "레트로 퓨처",
+    "레트로퓨처리즘",
+    "터미널 감성"
+  ],
+  "signature": [
+    "an exposed plotting grid: a faint 32 px grid with a stronger line every 160 px, and blocks that sit on it",
+    "mono type at real scale: body, headings, figures and the signature moment in JetBrains Mono, the display title in heavy uppercase Pretendard",
+    "raw structure on purpose: 3 px section rules, 2 px compartments in line-strong, panel heads as inverse ink bars, square corners everywhere (status dots stay round)",
+    "measurement and index labels: every section carries a data-coord label on its rule (sheet, grid reference, revision), ui-coord and ui-ruler name real sizes and positions, ui-frame adds registration crosses",
+    "uppercase mono meta: labels, table heads, nav groups, tags and legends in capitals with 0.08 em tracking",
+    "a strong signal colour plus a plotter-blue second accent: hazard orange in light, amber phosphor in dark, on the primary action and the figure that matters; plotter blue on the second series and featured compartments; phosphor green as the support tint",
+    "terminal and CRT detail: a ui-prompt with a static block cursor, ui-scan scanlines on readouts (never over body text), stepped motion (steps(3, end))"
+  ],
+  "forbid": [
+    "rounded corners, pills and soft cards (DS-005 reports any radius off the lock)",
+    "blurred or soft drop shadows and offset shadows (DS-007: the lock declares flat elevation)",
+    "gradients other than the plotting grid, glassmorphism, glow and neon bloom (CF-404 and the slop register report them)",
+    "rainbow charts, more than four accent hue families in one view, or decorative emoji",
+    "scanlines or noise over body text; flicker, blinking cursors or animated scan effects",
+    "decorative fake data: every coordinate, revision, grid reference or unit id must label something on the page",
+    "hiding the structure: borderless floating cards, centred hero text over empty space"
+  ],
+  "fonts": {
+    "text": "JetBrains Mono",
+    "display": "Pretendard",
+    "mono": "JetBrains Mono"
+  },
+  "type": {
+    "scale_px": {
+      "xs": 12,
+      "sm": 13,
+      "md": 14,
+      "base": 16,
+      "lg": 18,
+      "xl": 20,
+      "2xl": 24,
+      "3xl": 30,
+      "4xl": 38,
+      "5xl": 48
+    },
+    "display_px": {
+      "min": 40,
+      "max": 88
+    },
+    "moment_px": {
+      "max": 168
+    },
+    "weights": {
+      "text": 400,
+      "medium": 500,
+      "strong": 700,
+      "display": 820
+    },
+    "tracking_em": {
+      "display": -0.035,
+      "label": 0.08
+    },
+    "leading": {
+      "body": 1.6,
+      "tight": 1.3,
+      "display_latin": 0.98,
+      "display_korean": 1.14
+    }
+  },
+  "space_px": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64,
+    80,
+    96,
+    128
+  ],
+  "radius_px": {
+    "xs": 0,
+    "sm": 0,
+    "md": 0,
+    "lg": 0,
+    "pill": 0
+  },
+  "shadow": {
+    "raised": "none",
+    "overlay": "0 0 0 1px var(--c-ink)"
+  },
+  "motion": {
+    "fast_ms": 80,
+    "ui_ms": 120,
+    "enter_ms": 240,
+    "exit_ms": 100,
+    "ease": "steps(3, end)"
+  },
+  "shape": {
+    "border_px": {
+      "rule": 3,
+      "surface": 2,
+      "control": 2
+    },
+    "surface_line": "line-strong",
+    "control_edge": "control",
+    "elevation": "flat",
+    "offset_px": {
+      "surface": 0,
+      "control": 0
+    },
+    "press": "none",
+    "meta_font": "mono",
+    "meta_case": "uppercase",
+    "display_case": "uppercase",
+    "canvas_pattern": "plot",
+    "heading_font": "mono",
+    "panel_head": "inverse",
+    "section_marks": "coord"
+  },
+  "color": {
+    "light": {
+      "canvas": "#e6e7e3",
+      "surface": "#f4f4f1",
+      "sunken": "#dadbd6",
+      "ink": "#0d0e0d",
+      "ink-2": "#2f322f",
+      "ink-3": "#4d514d",
+      "line": "#c3c5bf",
+      "line-strong": "#3a3d3a",
+      "control": "#666a66",
+      "accent": "#c8370c",
+      "accent-hover": "#a92d09",
+      "on-accent": "#ffffff",
+      "accent-wash": "#f3dccf",
+      "accent-ink": "#a12b07",
+      "accent-2": "#1559b8",
+      "accent-2-ink": "#134e9e",
+      "accent-2-wash": "#dbe6f5",
+      "on-accent-2": "#ffffff",
+      "support": "#cfe6c7",
+      "support-ink": "#1d4a17",
+      "focus": "#c8370c",
+      "positive": "#1d6b2c",
+      "positive-wash": "#d4ead4",
+      "warning": "#734e00",
+      "warning-wash": "#f1e3c0",
+      "negative": "#b0131a",
+      "negative-wash": "#f4d6d4",
+      "info": "#1f4f8a",
+      "info-wash": "#d7e2ef",
+      "chart-1": "#0d0e0d",
+      "chart-2": "#c8370c",
+      "chart-3": "#666a66",
+      "chart-4": "#b4b7b0",
+      "chart-5": "#2f8a3a"
+    },
+    "dark": {
+      "canvas": "#0b0d0b",
+      "surface": "#111411",
+      "sunken": "#070807",
+      "ink": "#c8f5c0",
+      "ink-2": "#a2d39b",
+      "ink-3": "#7eab78",
+      "line": "#1f2a1f",
+      "line-strong": "#44633f",
+      "control": "#557a50",
+      "accent": "#ffb000",
+      "accent-hover": "#ffc233",
+      "on-accent": "#120c00",
+      "accent-wash": "#2a1f05",
+      "accent-ink": "#ffbf3d",
+      "accent-2": "#5aa8ff",
+      "accent-2-ink": "#7dbbff",
+      "accent-2-wash": "#10243a",
+      "on-accent-2": "#06121f",
+      "support": "#173016",
+      "support-ink": "#b6f0ab",
+      "focus": "#ffb000",
+      "positive": "#6fe07a",
+      "positive-wash": "#0f2a12",
+      "warning": "#ffcf5a",
+      "warning-wash": "#2c2307",
+      "negative": "#ff7b6b",
+      "negative-wash": "#331410",
+      "info": "#7cc4ff",
+      "info-wash": "#0e2233",
+      "chart-1": "#c8f5c0",
+      "chart-2": "#ffb000",
+      "chart-3": "#5f8f5a",
+      "chart-4": "#2f452d",
+      "chart-5": "#ff7b6b"
+    }
+  },
+  "accent_art": "instrument"
+}

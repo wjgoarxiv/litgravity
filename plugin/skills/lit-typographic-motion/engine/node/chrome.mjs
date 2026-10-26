@@ -8,7 +8,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { CHROME_ALWAYS, CHROME_RUNGS, EXIT, UNKNOWN_RENDERER } from "../core/constants.mjs";
-import { resolveOnPath } from "../../../../lib/host-exec.mjs";
+import { which } from "./host.mjs";
 
 export class BlockedError extends Error {
   constructor(code, message) {
@@ -28,11 +28,8 @@ const CANDIDATES = {
   win32: [
     "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-    ...(process.env.LOCALAPPDATA ? [path.join(process.env.LOCALAPPDATA, "Google", "Chrome", "Application", "chrome.exe")] : []),
   ],
 };
-
-const onPath = (name) => resolveOnPath(name);
 
 /** Resolve Chrome: $CHROME_PATH, then the platform's usual locations. Returns null when absent. */
 export function findChrome(env = process.env) {
@@ -41,7 +38,7 @@ export function findChrome(env = process.env) {
     if (path.isAbsolute(candidate)) {
       if (existsSync(candidate)) return candidate;
     } else {
-      const found = onPath(candidate);
+      const found = which(candidate);
       if (found) return found;
     }
   }
@@ -49,21 +46,21 @@ export function findChrome(env = process.env) {
 }
 
 export function chromeVersion(chrome) {
-  // chrome.exe is a GUI program on Windows: `--version` prints nothing there and may open a window.
-  if (process.platform === "win32") return "installed (version not probed on Windows)";
   const probe = spawnSync(chrome, ["--version"], { encoding: "utf8", timeout: 15000 });
-  return probe.status === 0 ? probe.stdout.trim() : `unknown (${(probe.stderr || probe.error?.message || "").trim().split("\n")[0]})`;
+  return probe.status === 0 ? probe.stdout.trim() : `unknown (${(probe.stderr || probe.error?.message || "").trim().split(/\r?\n/u)[0]})`;
 }
 
 /**
- * The stage path's flag set (director brief 6d): the software rung only (SwiftShader, CPU raster),
- * the compositor and animation flags that keep a captured frame a function of the page's state,
+ * The stage path's flag set (director brief 6d): the software rung (SwiftShader) by default, or the
+ * platform's GPU rung for a 3D film (WebGL on the GPU; page raster stays on the CPU either way), the compositor and animation flags that keep a captured frame a function of the page's state,
  * sRGB at scale 1, the window at the format's size, no background networking, and a resolver rule
  * that leaves only the synthetic stage origin resolvable.
  */
-export function stageFlags({ width, height }) {
+export function stageFlags({ width, height, rung = "software" }) {
+  const base = rung === "gpu" ? CHROME_RUNGS[process.platform]?.[0]?.filter((f) => f !== "--enable-gpu-rasterization") : CHROME_RUNGS.software;
+  if (!base) throw new Error(`no GPU rung on ${process.platform}`);
   return [
-    ...CHROME_RUNGS.software, "--disable-gpu-rasterization", "--disable-partial-raster",
+    ...base, "--disable-gpu-rasterization", "--disable-partial-raster",
     "--run-all-compositor-stages-before-draw", "--disable-checker-imaging", "--disable-new-content-rendering-timeout",
     "--disable-threaded-animation", "--disable-threaded-scrolling", "--disable-image-animation-resync", "--disable-lcd-text",
     "--force-color-profile=srgb", "--hide-scrollbars", "--mute-audio", "--force-device-scale-factor=1", `--window-size=${width},${height}`,

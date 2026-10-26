@@ -1,0 +1,41 @@
+{
+  "schema": "litgravity.motion-style/v1",
+  "id": "swiss-signal",
+  "name": "Swiss signal",
+  "summary": "Ink ground, bone type, one teal signal and one amber moment; type lands precisely and cuts hard.",
+  "light": false,
+  "typePreset": "swiss-signal",
+  "palette": { "ground": "#0C0E13", "surface": "#171B24", "ink": "#E9EBE4", "muted": "#A4A9AF", "signal": "#0F7A82", "accent": "#D9A441", "line": "#4B5058" },
+  "accents": [{ "role": "state under review", "color": "#E2725B" }, { "role": "state planned", "color": "#9B8CFF" }, { "role": "state done", "color": "#8FC25A" }, { "role": "state in progress", "color": "#5BA8E0" }],
+  "textRoles": ["ink", "muted", "signal", "accent", "ground"],
+  "faces": {
+    "display": { "family": "Archivo", "weight": 900, "stretch": "100%" },
+    "headline": { "family": "Archivo", "weight": 700, "stretch": "100%" },
+    "body": { "family": "Pretendard", "weight": 400 },
+    "label": { "family": "MesloLGS NF", "weight": 400 }
+  },
+  "scale": {
+    "16:9": { "display": 128, "headline": 76, "body": 40, "label": 26 },
+    "9:16": { "display": 120, "headline": 80, "body": 46, "label": 32 }
+  },
+  "leading": { "display": 1.1, "headline": 1.2, "body": 1.55, "label": 1.4 },
+  "motion": {
+    "ease": { "enter": [0.16, 1, 0.3, 1], "move": [0.65, 0, 0.35, 1], "exit": [0.7, 0, 0.84, 0] },
+    "dur": { "micro": 0.15, "move": 0.45, "hero": 0.6, "exit": 0.28 },
+    "stagger": { "letter": 0.025, "word": 0.07, "item": 0.08 },
+    "spring": { "micro": { "zeta": 1, "hz": 4 }, "panel": { "zeta": 0.9, "hz": 2.2 }, "headline": { "zeta": 1, "hz": 2.6 }, "subject": { "zeta": 0.8, "hz": 1.8 }, "camera": { "zeta": 1, "hz": 0.5 } },
+    "secondary": { "delay": 0.15, "travel": 0.6 },
+    "ambient": { "travel": 0.03 },
+    "push": 0.02
+  },
+  "transitions": ["cut", "wipe", "match", "push"],
+  "ground": { "kind": "flat", "grid": true },
+  "sound": { "timbre": "glass", "key": "A", "mode": "minor", "tempo": 104 },
+  "score": { "genre": "house" },
+  "beds": [
+    { "timbre": "glass", "key": "A", "mode": "minor", "tempo": 104 },
+    { "timbre": "pulse-synth", "key": "D", "mode": "minor", "tempo": 112 },
+    { "timbre": "soft-keys", "key": "C", "mode": "major", "tempo": 96 }
+  ],
+  "bans": ["glow or bloom on type", "an accent colour with no role", "centred fade-in as the only move", "overshoot or bounce on type", "particles as decoration", "gradients behind type"]
+}

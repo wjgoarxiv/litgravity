@@ -428,18 +428,28 @@ const FACES = {
   "A2Z Medium": { font: "에이투지체 5 Medium", bold: false },
   "A2Z Bold": { font: "에이투지체 7 Bold", bold: false },
   "A2Z Black": { font: "에이투지체 9 Black", bold: false },
+  // A Latin-only face: Hangul and other East Asian text in its runs is set in Pretendard.
+  "JetBrains Mono Regular": { font: "JetBrains Mono", bold: false, ea: "Pretendard" },
+  "JetBrains Mono Bold": { font: "JetBrains Mono", bold: true, ea: "Pretendard" },
 };
-const DECORATIONS = ["accent-rule", "hairline-rule", "header-band", "rail-fill", "colour-field", "caption-band", "column-hairlines", "box-outline", "mark-underline", "numeral"];
+const DECORATIONS = ["accent-rule", "hairline-rule", "header-band", "rail-fill", "colour-field", "caption-band", "column-hairlines", "box-outline", "mark-underline", "numeral", "grid-marks"];
 const SLIDE_ROLES = ["content", "data", "data-takeaway", "sequence", "image", "statement", "reference", "definition"];
 const FILL_POLICIES = ["distribute", "step-up", "anchor-visual", "change-family"];
 // How a pack carries its display slides: the device on a type-led cover, around a statement,
 // behind a big number and under a closing's next step (`display.index` adds the part index to
 // section slides).
 const DISPLAY_DEVICES = {
-  cover: ["plain", "drench", "plate", "rail", "band", "figures", "rules", "numeral"],
-  statement: ["open", "drench", "rules", "plate", "offset"],
+  cover: ["plain", "drench", "plate", "rail", "band", "figures", "rules", "numeral", "geometry"],
+  statement: ["open", "drench", "rules", "plate", "offset", "geometry"],
   number: ["field", "tint", "outline"],
   closing: ["band", "box", "rules"],
+};
+// Allowances a pack may claim from the gate, each a bounded value (see craft_extras.py). The accent
+// limits only widen: four hue families pass every slide by default, so a pack may allow five or six.
+const QA_ALLOWANCES = {
+  "accent-families": (v) => Number.isInteger(v) && v >= 5 && v <= 6,
+  "display-accent-families": (v) => Number.isInteger(v) && v >= 5 && v <= 6,
+  "offset-shadow": (v) => typeof v === "boolean",
 };
 // Contrast pairs every pack must meet (text pairs 4.5:1, large marks 3:1).
 const CONTRAST_PAIRS = [["ink", "ground", 4.5], ["ink", "surface", 4.5], ["ink-muted", "ground", 4.5], ["ink-muted", "surface", 4.5],
@@ -473,9 +483,12 @@ function validatePack(pack, file) {
   for (const key of ["faces", "faces-a2z"]) {
     if (key === "faces-a2z" && pack[key] == null) continue;
     const faces = pack[key] || {};
+    // A Latin-only face may set the display roles; body text always stays in a Korean face.
     for (const role of FACE_KEYS) {
-      need(FACES[faces[role]] && (key === "faces-a2z" || /^Pretendard /u.test(faces[role])), `${key}.${role} must name a bundled face${key === "faces-a2z" ? "" : " (Pretendard Regular or Bold)"}`);
+      const own = key === "faces-a2z" || /^Pretendard /u.test(faces[role]) || (role !== "body" && FACES[faces[role]] && FACES[faces[role]].ea);
+      need(FACES[faces[role]] && own, `${key}.${role} must name a bundled face${key === "faces-a2z" ? "" : role === "body" ? " (Pretendard Regular or Bold)" : " (Pretendard Regular or Bold, or JetBrains Mono Regular or Bold)"}`);
     }
+    need(!(FACES[faces.body] && FACES[faces.body].ea), `${key}.body must be a face that sets Hangul`);
     const distinct = new Set(FACE_KEYS.map((r) => faces[r]));
     need(distinct.size <= 3, `${key} uses ${distinct.size} faces; at most 3`);
     need(new Set([...distinct].map((f) => String(f).split(" ")[0])).size <= 2, `${key} mixes more than two families`);
@@ -497,10 +510,32 @@ function validatePack(pack, file) {
   }
   need(["presented", "reading"].includes(pack.ramp), "ramp must be presented or reading");
   need(typeof pack.hero === "boolean", "hero must be true or false");
+  // A report pack reads at its density step; a bold pack (a pitch, a launch, a campaign) may set presented type.
+  // Any pack may take the hero step on its cover and statements. Either way the words stay in the slide grid's
+  // zones: the register and the hero step change size, never place.
+  const register = pack.register == null ? "report" : pack.register;
+  need(["report", "bold"].includes(register), "register must be report or bold");
+  need(register === "bold" || pack.ramp === "reading", "presented type needs register: bold; a report pack keeps ramp: reading");
   need(Number.isInteger(pack.density) && pack.density >= 1 && pack.density <= 10, "density must be an integer 1-10");
   need(Number.isInteger(pack.variance) && pack.variance >= 4 && pack.variance <= 10, "variance must be an integer 4-10");
   need(pack.radius === 0 || pack.radius === 6, "radius must be 0 or 6");
   need(["border", "fill", "fill+border"].includes(pack.edge), "edge must be border, fill or fill+border");
+  // A heavier border and a hard offset shadow (zero blur) under surfaces; the shadow needs the border.
+  const weight = pack["edge-weight"];
+  need(weight == null || (typeof weight === "number" && weight >= 0.5 && weight <= 4), "edge-weight must be 0.5-4 pt");
+  const shadow = pack.shadow;
+  if (shadow != null) {
+    need(typeof shadow === "object" && typeof shadow.offset === "number" && shadow.offset >= 3 && shadow.offset <= 10, "shadow.offset must be 3-10 pt");
+    need(shadow && PALETTE_ROLES.includes(shadow.colour), "shadow.colour must name a palette role");
+    need(pack.edge !== "fill", "a shadow needs a bordered edge (border or fill+border)");
+  }
+  need(pack["edge-colour"] == null || PALETTE_ROLES.includes(pack["edge-colour"]), "edge-colour must name a palette role");
+  // What the gate allows this pack beyond the default craft floor (read by craft_extras.py).
+  const qa = pack.qa || {};
+  need(typeof qa === "object" && !Array.isArray(qa), "qa must be a map");
+  for (const k of Object.keys(qa)) need(QA_ALLOWANCES[k], `unknown qa allowance "${k}" (known: ${Object.keys(QA_ALLOWANCES).join(", ")})`);
+  for (const [k, ok] of Object.entries(QA_ALLOWANCES)) if (qa[k] != null) need(ok(qa[k]), `qa.${k} is out of range`);
+  need(!qa["offset-shadow"] || shadow != null, "qa.offset-shadow needs a shadow");
   const treatments = isList(pack.treatments) ? pack.treatments : [];
   need(treatments.length >= 3 && treatments.length <= 5, "treatments must list 3-5 title treatments");
   for (const t of treatments) need(grid.TREATMENTS.includes(t), `unknown treatment "${t}" (known: ${grid.TREATMENTS.join(", ")})`);
@@ -514,6 +549,10 @@ function validatePack(pack, file) {
     need(treatments.includes(t) && grid.FAMILIES[f] && grid.FAMILIES[f].allow.includes(t), `structure.${f} must be a treatment of the pack that the family allows`);
   }
   for (const d of pack.decoration || []) need(DECORATIONS.includes(d), `unknown decoration "${d}"`);
+  // Grid marks sit in the top margin on the ground: a band or a filled rail there would cover them.
+  if ((pack.decoration || []).includes("grid-marks")) {
+    need(!treatments.includes("band") && !(pack.decoration || []).includes("rail-fill"), "grid-marks needs the top margin on the ground (no band treatment, no rail-fill)");
+  }
   need(pack.rail == null || ["surface", "field"].includes(pack.rail), "rail must be surface or field");
   const display = pack.display || {};
   need(typeof display === "object" && !Array.isArray(display), "display must be a map");
@@ -634,12 +673,22 @@ function loadTonality(id, options = {}) {
   if (!pack.canvas.includes(canvas)) {
     throw new Error(`Tonality "${pack.id}" supports ${pack.canvas.join(", ")}, not canvas ${canvas}`);
   }
-  const tok = grid.densityTokens(density, pack.ramp);
-  const g = grid.makeGrid(canvas, tok.grid);
+  // Only a bold register sets presented type; a report pack reads at its density step.
+  const tok = grid.densityTokens(density, pack.register === "bold" ? pack.ramp : "reading");
+  const g = grid.makeGrid(canvas);
   // Pretendard by default; the A2Z map only when the source asks for it (`faces: a2z`).
   const wantsA2z = String(options.faces || "").toLowerCase() === "a2z" && pack["faces-a2z"];
   const faceMap = wantsA2z ? pack["faces-a2z"] : pack.faces;
   const faces = Object.fromEntries(FACE_KEYS.map((role) => [role, FACES[faceMap[role]]]));
+  // The deck may add decoration kinds to the pack's own list and turn the hero step off (`hero: false`,
+  // the calm opt-out); both arrive as front-matter strings.
+  const extra = String(options.decoration || "").split(",").map((d) => d.trim()).filter(Boolean);
+  for (const d of extra) if (!DECORATIONS.includes(d)) throw new Error(`decoration "${d}" is not a known kind (${DECORATIONS.join(", ")})`);
+  const decoration = [...new Set([...(pack.decoration || []), ...extra])];
+  if (decoration.includes("grid-marks") && (pack.treatments.includes("band") || decoration.includes("rail-fill"))) {
+    throw new Error(`grid-marks needs the top margin on the ground (no band treatment, no rail-fill); tonality "${pack.id}" has one`);
+  }
+  const hero = String(options.hero).toLowerCase() === "false" || options.hero === false ? false : pack.hero;
   const P = pack.palette;
   const template = {
     name: pack.name,
@@ -662,6 +711,8 @@ function loadTonality(id, options = {}) {
     capabilities: { font_roles: {} },
     pack: {
       ...pack,
+      decoration,
+      hero,
       legacy: false,
       capabilities: [],
       faces,

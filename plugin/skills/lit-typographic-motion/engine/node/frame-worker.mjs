@@ -1,8 +1,9 @@
 // One frame-analysis worker: decode a captured PNG to RGBA and analyse it off the capture thread
-// (the SHA-256 of the decoded RGBA, the flash-audit cells on the frame's own grid, the 99.5th
-// percentile luminance). The capture loop steps the next frame while a pool of these decodes.
+// (the SHA-256 of the decoded RGBA, the flash-audit cells on the frame's own grid, the 0.5th and
+// 99.5th percentile luminance, the busy-cell share for DEAD-AIR). The capture loop steps the next
+// frame while a pool of these decodes.
 import { parentPort } from "node:worker_threads";
-import { analyzeFrame } from "./analysis.mjs";
+import { analyzeFrame, busyShare } from "./analysis.mjs";
 import { decodePng } from "./png.mjs";
 
 parentPort.on("message", ({ id, png, width, height }) => {
@@ -14,9 +15,10 @@ parentPort.on("message", ({ id, png, width, height }) => {
     }
     const rgba = image.channels === 4 ? image.pixels : toRgba(image.pixels, image.channels);
     // A stage frame is opaque: analyzeFrame's alpha-as-ink count is meaningless here and is dropped.
-    const { cells, luminanceP995, rgbaSha256 } = analyzeFrame(rgba, width, height);
+    const { cells, luminanceP995, luminanceP005, rgbaSha256 } = analyzeFrame(rgba, width, height);
+    const busy = busyShare(rgba, width, height);
     const buffer = rgba.buffer.slice(rgba.byteOffset, rgba.byteOffset + rgba.byteLength);
-    parentPort.postMessage({ id, rgba: buffer, cells, luminanceP995, rgbaSha256 }, [buffer, cells.R.buffer, cells.G.buffer, cells.B.buffer]);
+    parentPort.postMessage({ id, rgba: buffer, cells, luminanceP995, luminanceP005, rgbaSha256, busy }, [buffer, cells.R.buffer, cells.G.buffer, cells.B.buffer]);
   } catch (error) {
     parentPort.postMessage({ id, error: error.message });
   }

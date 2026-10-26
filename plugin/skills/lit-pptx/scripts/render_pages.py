@@ -22,6 +22,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 
@@ -35,6 +36,35 @@ def _windows_soffice() -> str | None:
     return None
 
 
+def profile_fonts(source: Path, profile: Path) -> list[Path]:
+    """LibreOffice ignores fonts embedded in a .pptx, so copy each embedded part into the private
+    profile's font folder before converting. OpenType and TrueType parts are kept; any other part
+    (EOT, obfuscated) is skipped."""
+    if source.suffix.lower() != ".pptx":
+        return []
+    target = profile / "user" / "fonts"
+    written = []
+    try:
+        with zipfile.ZipFile(source) as package:
+            for name in package.namelist():
+                if not (name.startswith("ppt/fonts/") and name.endswith(".fntdata")):
+                    continue
+                data = package.read(name)
+                if data[:4] == b"OTTO":
+                    ext = ".otf"
+                elif data[:4] in (b"\x00\x01\x00\x00", b"true"):
+                    ext = ".ttf"
+                else:
+                    continue
+                target.mkdir(parents=True, exist_ok=True)
+                path = target / f"{Path(name).stem}{ext}"
+                path.write_bytes(data)
+                written.append(path)
+    except zipfile.BadZipFile:
+        return []
+    return written
+
+
 def to_pdf(source: Path, out_dir: Path) -> tuple[Path | None, str]:
     if source.suffix.lower() == ".pdf":
         return source, "input is already PDF"
@@ -42,6 +72,7 @@ def to_pdf(source: Path, out_dir: Path) -> tuple[Path | None, str]:
     if not soffice:
         return None, "LibreOffice (soffice) is not on PATH"
     with tempfile.TemporaryDirectory(prefix="litgravity-soffice-") as profile:
+        profile_fonts(source, Path(profile))
         result = subprocess.run(
             [
                 soffice,

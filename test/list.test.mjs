@@ -23,7 +23,7 @@ test('list --json carries the same rows for tools, and every engine named belong
   const out = collect();
   list({ flags: { json: true }, print: out.print });
   const doc = JSON.parse(out.text());
-  assert.equal(doc.skills.length, 39);
+  assert.equal(doc.skills.length, 42);
   assert.equal(doc.agents.length, 11);
   const runtimes = new Set(runtimeModules().map((m) => m.name));
   for (const r of doc.skills) if (r.engine) assert.ok(runtimes.has(r.engine), `${r.id} → ${r.engine}`);

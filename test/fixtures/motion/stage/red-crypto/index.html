@@ -18,7 +18,7 @@
   // A value from unseeded entropy, different in every Chrome process, painted into the frame.
   const drawn = crypto.getRandomValues(new Uint32Array(1))[0];
   LitStage.define({
-    width: 1920, height: 1080, fps: 30, duration: 4,
+    width: 1920, height: 1080, fps: 60, duration: 10,
     render() {
       const panel = document.getElementById("panel");
       panel.style.background = `hsl(${(drawn * 11) % 360} 75% 50%)`;

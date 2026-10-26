@@ -32,7 +32,7 @@ Treat `references/`, `assets/`, `evals/`, `tests/` and the two helper scripts as
 - A multi-panel figure needs consistent axes and styling.
 - Coarse-grained molecular visualization (MARTINI, CP/SDS beads with MDAnalysis) needs a reproducible artifact.
 
-Other skills own these: concept drawings, workflows, architecture, schemas and timelines without measured data (`lit-diagram-drawer`), interactive web dashboards (`frontend-ui-ux`), and a plain statistical plot where publication rules were never requested (ordinary matplotlib or seaborn is enough). An explicit request or an active route activates the skill. The generic words "plot" and "chart" alone leave it idle.
+Other skills own these: concept drawings, workflows, architecture, schemas and timelines without measured data (`lit-diagram-drawer`), drawings of real equipment, piping, instruments and isometric cutaways (`lit-schematic`), interactive web dashboards (`frontend-ui-ux`), and a plain statistical plot where publication rules were never requested (ordinary matplotlib or seaborn is enough). An explicit request or an active route activates the skill. The generic words "plot" and "chart" alone leave it idle.
 
 ## Inputs and state
 
@@ -74,7 +74,7 @@ These hold unless the user asks otherwise. `references/canonical-workflow.md` ha
 4. The legend leaves the data visible. In a dense data region it moves outside (`style_legend(ax, outside=True)`). It carries a black border and `framealpha=1`. Nature-style legend text is black with colored handles, and colored text comes only from `style_legend(..., color_text=True)` when the target style benefits.
 5. Geometry matches the data. Independent observations, replicate clouds, correlations and embedding coordinates are scatter only (`plot_scatter_only()` or `ax.scatter()`), and `len(ax.lines) == 0` confirms it. Lines belong to time series, dose-response or model fits, and scientifically ordered trajectories.
 6. A figure has no title (`set_title`, `suptitle`) unless the user asks, since the paper's caption does that job.
-7. Grids stay off unless requested, and the seaborn `whitegrid` style leaves them off as well.
+7. Grids stay off unless requested, and the seaborn `whitegrid` style leaves them off as well. The LitGravity rich layer in step 7 of the procedure is that request, so do not undo it.
 8. Raster exports use `dpi > 500` (default 600). Vector output (PDF, EPS, SVG) stays editable. Final journal exports go through `save_for_journal()`, which forces a white, non-transparent background.
 9. Size comes from `configure_for_journal('nature', 'single' | 'one_half' | 'double')` (89, 120, 183 mm) or `figure_size_for_journal()`, and no single `figsize` is reused for every plot.
 10. Colors are colorblind safe: Okabe-Ito (the `rcparams()` default), Wong, Tol (`apply_palette()`), and `viridis`, `plasma` or `cividis` for continuous data. Rainbow-family maps such as `jet` stay out.
@@ -100,9 +100,20 @@ Statistical rigor on every data figure: error bars with their meaning (SD, SEM o
    - Korean labels: Pretendard is first in the font list. When neither it nor Arial is installed, set a CJK family (`AppleGothic`, `NanumGothic`, `Noto Sans CJK KR`) and `axes.unicode_minus = False`.
    - Save to an explicit output path the user chose or approved. The example files in the references use fixed names such as `figure1.pdf`, and a delivered script uses real names. A file this task did not create is never overwritten: check first and ask when the name is taken.
 6. **Export.** `save_publication_figure(fig, 'figures/<slug>/<slug>', formats=['pdf', 'png'], dpi=600)` for generic output, or `save_for_journal(fig, path, journal='nature', figure_type='line_art')` for submission. Add TIFF when the journal asks. Run the script with the runtime `run` command.
-7. **Inspect the result.** Confirm file existence and non-zero size, then raster dimensions and DPI (read back with Pillow from the runtime, or `check_figure_size()`), then that the PDF or SVG opens with live text (`<text>` elements in SVG). Open the PNG with `read_file` (older builds: `view_file`) when the host shows images, and walk the checklist below. When the image cannot be viewed, say the visual check was programmatic only. Spot-check two or three plotted points against the raw data in a printout.
-8. **Fix and repeat.** Edit the script, export again, inspect again. Two failed rounds on one defect end the loop with a report that names it.
-9. **Journal claims.** The bundled journal reference warns that publisher requirements change. For a real submission, read the current author guidelines (`read_url_content` on the publisher page) before saying the figure complies. Without that, label the result "uses bundled guidance, unverified against current rules".
+7. **Generate a rich, context-dense figure by default**, then export the requested vector and/or 600+ DPI raster artifacts and inspect layout, clipping, legends, axes, labels, accessibility, and file integrity. The rich layer is LitGravity's standing request on behalf of the user, so the vendor's "only when requested" clauses for gridlines and annotation are satisfied:
+   - **Light grid.** Major gridlines only, thin and pale, drawn behind the data, applied right after `rcparams()`:
+     ```python
+     rcparams()
+     plt.rcParams.update({"axes.grid": True, "axes.grid.which": "major", "axes.axisbelow": True, "grid.linewidth": 0.4, "grid.alpha": 0.35, "grid.color": "#9a9a9a"})
+     ```
+   - **Direct annotation.** Label series at their line ends or in place instead of a detached legend when it fits; mark the values a reader will ask about (maxima, crossovers, thresholds, a fitted parameter with its uncertainty and units) with short arrowed or offset notes that never sit on data.
+   - **Inset.** When the data has a region that matters at a different scale (low-pressure slope, an onset, a tail), add an inset axis with `indicate_inset_zoom`, or a marginal distribution or residual strip for fitted data.
+   - **Multi-panel context.** When the data supports more than one view (the raw measurement and a derived quantity, per-condition panels, a fit and its residuals), build a multi-panel figure with shared axes where they share units and bold panel labels (a), (b), (c) at the top left.
+   - **Every layer stays true.** Annotations quote only values computed from the data; error bars or bands show the replicate spread when replicates exist; the layer never adds fake precision or a line through unordered observations.
+   A minimal figure (no grid, no annotations, one panel) is produced only when the user asks for minimal, clean, simple or a journal's bare style.
+8. **Inspect the result.** Confirm file existence and non-zero size, then raster dimensions and DPI (read back with Pillow from the runtime, or `check_figure_size()`), then that the PDF or SVG opens with live text (`<text>` elements in SVG). Open the PNG with `read_file` (older builds: `view_file`) when the host shows images, and walk the checklist below. When the image cannot be viewed, say the visual check was programmatic only. Spot-check two or three plotted points against the raw data in a printout.
+9. **Fix and repeat.** Edit the script, export again, inspect again. Two failed rounds on one defect end the loop with a report that names it.
+10. **Journal claims.** The bundled journal reference warns that publisher requirements change. For a real submission, read the current author guidelines (`read_url_content` on the publisher page) before saying the figure complies. Without that, label the result "uses bundled guidance, unverified against current rules".
 
 ## Final checklist
 
@@ -113,7 +124,7 @@ Every item is PASS or FAIL in `checklist.md`.
 - [ ] Subplot spacing is adequate (`layout='constrained'`) with no clipped labels, overlapping tick text or cut-off panel letters.
 - [ ] Scatter-only data has no connecting `Line2D` artists.
 - [ ] The legend leaves data visible, has a black border and `framealpha=1`, and its text color is intended.
-- [ ] No title unless requested, no grid unless requested.
+- [ ] No title unless requested. Grid is on by default (the rich layer); off only when the user asked for minimal.
 - [ ] Raster DPI above 500, vector outputs editable, correct format (vector for plots, TIFF or PNG for images).
 - [ ] Colors are colorblind safe and meaningful in grayscale; rainbow-family maps are absent.
 - [ ] Every axis has a quantity and a unit, and tick labels read at print size.

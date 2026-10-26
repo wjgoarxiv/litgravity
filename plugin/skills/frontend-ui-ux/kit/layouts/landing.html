@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="{{lang: en or ko}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{Product}} — {{one-line value}}</title>
+  <meta name="description" content="{{one sentence for search results}}">
+  <link rel="stylesheet" href="ui/tokens.css">
+  <link rel="stylesheet" href="ui/components.css">
+  <!-- Page-specific rules go in their own file and use only var(--…) tokens and ui-* classes. -->
+</head>
+<body>
+  <!-- Landing starter (kit/layouts/landing.html). Keep the order unless the brief says otherwise;
+       delete a section the brief does not ask for rather than filling it with filler. Replace every
+       {{slot}}; the interface probe reports any slot left behind (DS-006). -->
+  <a class="ui-skip" href="#main">{{Skip to content}}</a>
+  <header class="ui-sitebar">
+    <div class="ui-container ui-sitebar__inner">
+      <a class="ui-brand" href="#top" aria-label="{{Product}} home">
+        <!-- A 20 px mark drawn on the 4 px grid in var(--c-ink) and var(--c-accent), or text only. -->
+        {{Product}}
+      </a>
+      <nav class="ui-sitenav" aria-label="{{Primary}}">
+        <a href="#how">{{How it works}}</a>
+        <a href="#features">{{Features}}</a>
+        <a href="#pricing">{{Pricing}}</a>
+        <a href="#faq">{{FAQ}}</a>
+        <a class="ui-btn ui-btn--primary ui-btn--sm" href="#pricing">{{Primary action}}</a>
+      </nav>
+      <details class="ui-menu">
+        <summary aria-label="{{Open menu}}">{{Menu}}</summary>
+        <div class="ui-menu__panel">
+          <a href="#how">{{How it works}}</a>
+          <a href="#features">{{Features}}</a>
+          <a href="#pricing">{{Pricing}}</a>
+          <a href="#faq">{{FAQ}}</a>
+          <a class="ui-btn ui-btn--primary" href="#pricing">{{Primary action}}</a>
+        </div>
+      </details>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero: one focal element. The h1 says what the product does for whom in at most three
+         lines at 1440 px; the art column carries the style's accent art (field-notes: an original
+         pixel motif made with scripts/pixel-art.mjs) or a real product view built from kit parts. -->
+    <section class="ui-hero ui-wash" id="top">
+      <div class="ui-container ui-split">
+        <div class="ui-hero__copy">
+          <p class="ui-label">{{who it is for, lowercase, five words at most}}</p>
+          <h1 class="ui-display">{{What it does, in the reader's words}}</h1>
+          <p class="ui-lead">{{Two sentences: the job it takes off their hands and the result they see.}}</p>
+          <div class="ui-cluster">
+            <a class="ui-btn ui-btn--primary" href="#pricing">{{Primary action}}</a>
+            <a class="ui-btn" href="#how">{{Secondary action}}</a>
+          </div>
+          <p class="ui-meta">{{The one fact that removes the main hesitation (trial length, card policy).}}</p>
+        </div>
+        <!-- The signature moment (house-styles.md section 6): the one bold thing on this page, chosen
+             for its content and recorded in design.lock.json. It sits in the first screen; for a
+             type set piece or a full-width composition move data-ui-moment to that element, or use
+             ui-hero--stage to give the art the larger column. -->
+        <div class="ui-hero__art ui-glow" data-ui-moment="{{moment kind from design.lock.json}}">
+          {{the signature moment: accent art for the locked style (house-styles.md sections 5 and 6) on real content}}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-section" id="how" aria-labelledby="how-title">
+      <div class="ui-container">
+        <div class="ui-section-head">
+          <h2 class="ui-h2" id="how-title">{{How it works}}</h2>
+          <p class="ui-lead">{{One sentence that frames the steps.}}</p>
+        </div>
+        <ol class="ui-steps">
+          <li><h3 class="ui-h3">{{Step one}}</h3><p class="ui-muted">{{What the user does and what they get.}}</p></li>
+          <li><h3 class="ui-h3">{{Step two}}</h3><p class="ui-muted">{{…}}</p></li>
+          <li><h3 class="ui-h3">{{Step three}}</h3><p class="ui-muted">{{…}}</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Features: alternate the split side once at most, and show each claim with a real kit
+         component (a ui-table, a ui-panel with figures) instead of an icon-topped card grid. -->
+    <section class="ui-section ui-section--sunken" id="features" aria-labelledby="features-title">
+      <div class="ui-container ui-stack ui-stack--loose">
+        <div class="ui-section-head">
+          <h2 class="ui-h2" id="features-title">{{What it does for them}}</h2>
+        </div>
+        <div class="ui-split ui-split--top">
+          <div class="ui-stack">
+            <h3 class="ui-h3">{{Feature one, as an outcome}}</h3>
+            <p class="ui-body ui-muted">{{How it works, with one concrete detail.}}</p>
+            <ul class="ui-checklist">
+              <li>{{specific capability}}</li>
+              <li>{{specific capability}}</li>
+            </ul>
+          </div>
+          <div class="ui-panel">{{a small real view: ui-table, ui-stat or ui-list with believable data labelled as an example}}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- A colour band between sections: its text takes the band's own ink (ui-band, house-styles.md section 2). -->
+    <section class="ui-section ui-band ui-band--accent-2" aria-label="{{Customer story}}">
+      <div class="ui-container">
+        <figure class="ui-quote">
+          <blockquote><p>{{A specific quote with a concrete before and after.}}</p></blockquote>
+          <figcaption><strong>{{Name}}</strong><span>{{Role, organisation, place}}</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="ui-section" id="pricing" aria-labelledby="pricing-title">
+      <div class="ui-container">
+        <div class="ui-section-head">
+          <h2 class="ui-h2" id="pricing-title">{{Pricing}}</h2>
+          <p class="ui-lead">{{What every plan includes and how billing works.}}</p>
+        </div>
+        <div class="ui-plans">
+          <article class="ui-plan">
+            <div class="ui-stack ui-stack--tight"><h3 class="ui-h3">{{Plan}}</h3><p class="ui-meta">{{Who it is for}}</p></div>
+            <div class="ui-plan__price">{{price}} <small>{{per period}}</small></div>
+            <ul class="ui-checklist"><li>{{included}}</li><li>{{included}}</li></ul>
+            <a class="ui-btn" href="#top">{{Plan action}}</a>
+          </article>
+          <article class="ui-plan ui-plan--featured">
+            <div class="ui-stack ui-stack--tight"><h3 class="ui-h3">{{Plan}}</h3><p class="ui-meta">{{Who it is for}}</p></div>
+            <div class="ui-plan__price">{{price}} <small>{{per period}}</small></div>
+            <ul class="ui-checklist"><li>{{included}}</li><li>{{included}}</li></ul>
+            <a class="ui-btn ui-btn--primary" href="#top">{{Plan action}}</a>
+          </article>
+          <article class="ui-plan">
+            <div class="ui-stack ui-stack--tight"><h3 class="ui-h3">{{Plan}}</h3><p class="ui-meta">{{Who it is for}}</p></div>
+            <div class="ui-plan__price">{{price}} <small>{{per period}}</small></div>
+            <ul class="ui-checklist"><li>{{included}}</li><li>{{included}}</li></ul>
+            <a class="ui-btn" href="#top">{{Plan action}}</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-section" id="faq" aria-labelledby="faq-title">
+      <div class="ui-container ui-split ui-split--top">
+        <div class="ui-stack">
+          <h2 class="ui-h2" id="faq-title">{{Questions}}</h2>
+          <p class="ui-muted">{{Where to ask anything else.}}</p>
+        </div>
+        <div>
+          <details class="ui-disclosure"><summary>{{Question}}</summary><p>{{Answer}}</p></details>
+          <details class="ui-disclosure"><summary>{{Question}}</summary><p>{{Answer}}</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ui-footer">
+    <div class="ui-container ui-cluster" style="justify-content: space-between">
+      <p><strong>{{Product}}</strong></p>
+      <p class="ui-meta">{{Legal line}}</p>
+    </div>
+  </footer>
+</body>
+</html>

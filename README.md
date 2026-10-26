@@ -12,13 +12,25 @@
 <a href="https://github.com/wjgoarxiv/litgravity/stargazers"><img src="https://img.shields.io/github/stars/wjgoarxiv/litgravity?style=flat" alt="GitHub stars" /></a>
 </p>
 
-<p align="center"><a href="#install"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> Install</a> &nbsp; <a href="#demo"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> Demo</a> &nbsp; <a href="#safety-and-uninstall"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> Safety</a> &nbsp; <a href="#quick-start">Quick start</a> &nbsp; <a href="#what-you-get">What you get</a> &nbsp; <a href="#what-agy-limits-today">agy limits</a> &nbsp; <a href="./README_ko-KR.md">한국어</a></p>
+<p align="center"><a href="#install"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> Install</a> &nbsp; <a href="#demo"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> Demo</a> &nbsp; <a href="#safety-and-uninstall"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> Safety</a> &nbsp; <a href="#quick-start">Quick start</a> &nbsp; <a href="#what-you-can-make">What you can make</a> &nbsp; <a href="#what-you-get">What you get</a> &nbsp; <a href="#what-agy-limits-today">agy limits</a> &nbsp; <a href="./README_ko-KR.md">한국어</a></p>
 
 ## Demo
 
 What ignition looks like, captured from the real hook and status line on this Mac: the typed prompt, the injected route note, and the status line carrying the lit-loop map.
 
 <!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="Terminal capture. The prompt reads lit add a --shout flag that prints the greeting in capitals, with a test. The hook answers with the LIT mark and LIT IGNITED · lit-loop, names the lit-loop skill file to read first, and notes that tool events go to the conversation ledger. Below, the status line shows the model, the context gauge at 42 percent, the lit-loop chip with its clock, and the PIN through RECORD map with PIN lit." /></p>
+
+## What you can make
+
+Each picture is a real output made on this Mac. The `lit-adhd` brief was drawn by its collector over three real agy conversations; the others were made by each skill's own engine from the skill's worked example, the same engine agy calls when you ask in a conversation.
+
+| Picture | Skill | What it shows |
+|---|---|---|
+| <img src="./docs/assets/litgravity/showcase/deck-themes.webp" width="480" alt="The same Korean deck about a logistics platform in four tonalities: a dark night cover with an amber year, a navy cover with four KPI figures, a cobalt cover on cream, and a teal cover; below each, the matching chart slide with a native bar chart of monthly shipments, two bullet takeaways and a data table." /> | `lit-pptx` | One deck in four of its tonalities. Charts and KPI rows stay native and editable, Pretendard is embedded, and each deck passed the gate for overflow, contrast and empty slides. |
+| <img src="./docs/assets/litgravity/showcase/pid-dosing-skid.webp" width="480" alt="P&amp;ID of a sodium hypochlorite dosing skid on a framed sheet: a storage tank TK-101 with level transmitter and alarm, duty and standby metering pumps P-101A and P-101B behind filters and check valves, a relief valve PSV-101 back to the tank, a flow loop FE-101, FT-101 and FIC-101 signalling the pump, a legend, notes and a title block." /> | `lit-schematic` | A P&amp;ID with ISA-5.1 tags, line numbers, a legend and a title block. Its checker passed: no text on a line, no line through a symbol, no loose end. |
+| <img src="./docs/assets/litgravity/showcase/schematics.webp" width="480" alt="Two drawings side by side: an isometric cutaway of a shell-and-tube heat exchanger with copper tube bundle, baffles and saddle supports, each part labelled; and a journal-style two-panel figure of an adsorption rig, panel a a flow diagram with gas cylinders, mass flow controllers, an oven column and a mass spectrometer, panel b the column itself with adsorbent bed and thermocouples." /> | `lit-schematic` | The same skill drawing equipment as an isometric cutaway and as a two-panel figure for a paper. |
+| <img src="./docs/assets/litgravity/showcase/motion-film.webp" width="480" alt="Four frames of a 12-second film in one dark house style: a ring drawing on beside the Korean line 작게 시작해서 끝까지, a bar chart beside One clock for every frame, a line through points beside 한 화면에 한 가지 생각, and a grid of teal and amber tiles over Same house, every film." /> | `lit-typographic-motion` | Four frames of a 12-second film from a one-line Korean request. The skill wrote a treatment first, rendered it frame by frame with a sound bed, and its gate checked flashes, legibility and the loop. |
+| <img src="./docs/assets/litgravity/showcase/adhd-brief-en.webp" width="480" alt="The lit adhd brief in a dark chat pane: a headline counting three sessions, two active cards for a P&amp;ID and a landing page with what each wrote and its next step, a table row for an ended deck session, a roadmap line, and a box with the recommended next step." /> | `lit-adhd` | Type `lit adhd` after a scattered day: one brief of what you asked, what got written, what is still running and one real next step. |
 
 ## Why LitGravity
 
@@ -97,15 +109,17 @@ When the terminal narrows, the extras give way first and the route and the conte
 [LIT] | GF3.8 | ctx [#--] 42%/1049k | [LIT] . lit-loop 2:20 | [PIN] = RED . - GREEN . - VERIFY . - REVIEW . - RECORD .
 ```
 
+Some moments change the look of the row. While `lit adhd` (or `lit-rewind`, the skill typed whole or after `/`, or the skill the model loads by itself) is the route, every cell turns its own colour of a slow rainbow. When the turn ends on a question, a typed approval, a BLOCKED report or a goal that needs a decision, the row turns amber and reads `⚠ YOUR TURN · <why>` until you type. During `lit review work` the five lanes (goal, qa, quality, security, context) appear as each reports, in its own colour with its verdict mark and a count such as `2/5`. A plan or goal finished during the route shows `✦ DONE ✦` for twenty seconds. agy repaints the line when it chooses, so every look is static, and `NO_COLOR` keeps the labels in plain text.
+
 ## What you get
 
-**39 skills**, each a dense agy skill read on demand, with the references, scripts, templates and engines it needs inside its own folder. agy loads only the first 24,000 bytes of a `SKILL.md`, so the long material sits in the skill's `references/` folder and the skill names the file to open.
+**42 skills**, each a dense agy skill read on demand, with the references, scripts, templates and engines it needs inside its own folder. agy loads only the first 24,000 bytes of a `SKILL.md`, so the long material sits in the skill's `references/` folder and the skill names the file to open.
 
 A lit turn runs the same routine through these parts. A bigger change gets a written plan first, the work is built row by row with tests under a goal record that outlives one conversation, a second look reviews it before anything merges, research shows its sources, documents and prose read clean, and the turn ends with a handoff the next conversation reads:
 
 | Part | Contents | Role |
 |---|---|---|
-| 39 skills | Dense agy skills with their references, scripts and engines | Plan, build, check, research, write, hand off |
+| 42 skills | Dense agy skills with their references, scripts and engines | Plan, build, check, research, write, hand off |
 | 11 agents | Child agents agy starts under their type names | Plan, execute, verify, review, Korean prose |
 | 6 hooks | Run at session start, each turn, each tool call, and the stop gate | Route `lit`, hold unfinished turns, ledger every tool |
 

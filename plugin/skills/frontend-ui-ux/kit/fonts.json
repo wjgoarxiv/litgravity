@@ -1,0 +1,22 @@
+{
+  "schema_id": "litfamily.frontend-kit-fonts/v1",
+  "note": "The kit reuses font files that sibling skills in this plugin already ship. design-lock.mjs copies them into the project only after their sha256 matches the value recorded here, so a build never fetches a font.",
+  "fonts": [
+    {
+      "family": "Pretendard",
+      "file": "PretendardVariable.woff2",
+      "source": "../../lit-diagram-drawer/assets/fonts/PretendardVariable.woff2",
+      "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4",
+      "weight": "45 920",
+      "licence": { "file": "Pretendard-OFL.txt", "source": "../../lit-diagram-drawer/assets/fonts/OFL.txt", "sha256": "b04538c9abec39a3db75108cf0af0fd9c77032fe8aa2cf38345b4d250e98e38e" }
+    },
+    {
+      "family": "JetBrains Mono",
+      "file": "JetBrainsMono-wght-latin.woff2",
+      "source": "../../lit-typographic-motion/fonts/jetbrains-mono/JetBrainsMono-wght-latin.woff2",
+      "sha256": "18be452724bfdc236c074ca94a249a7f41a86752c7d04ab258ce9ed5651f6a7e",
+      "weight": "100 800",
+      "licence": { "file": "JetBrainsMono-OFL.txt", "source": "../../lit-typographic-motion/fonts/jetbrains-mono/OFL.txt", "sha256": "403581b69dac5cff4079205e01c6b467e56af449ecbd7247693ddb1baafa005b" }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema": "litgravity.motion-style/v1",
+  "id": "terminalcore",
+  "name": "Terminalcore",
+  "summary": "A navy terminal: phosphor type that appears at typing speed, one signal hue, hard cuts, nothing eases.",
+  "light": false,
+  "typePreset": "terminalcore",
+  "palette": { "ground": "#05070A", "surface": "#0C1116", "ink": "#39FF6A", "muted": "#7C8B93", "signal": "#39FF6A", "line": "#1E2A33" },
+  "accents": [{ "role": "a warning line", "color": "#FFB23F" }, { "role": "an error line", "color": "#FF6B6B" }, { "role": "a path or a link", "color": "#6CA8FF" }],
+  "textRoles": ["ink", "muted", "signal", "ground"],
+  "faces": {
+    "display": { "family": "VT323", "weight": 400 },
+    "headline": { "family": "VT323", "weight": 400 },
+    "body": { "family": "VT323", "weight": 400 },
+    "label": { "family": "MesloLGS NF", "weight": 400 }
+  },
+  "hangul": { "family": "Galmuri9", "weight": 400 },
+  "scale": {
+    "16:9": { "display": 126, "headline": 81, "body": 45, "label": 36 },
+    "9:16": { "display": 117, "headline": 81, "body": 54, "label": 36 }
+  },
+  "leading": { "display": 1.1, "headline": 1.2, "body": 1.5, "label": 1.4 },
+  "motion": {
+    "ease": { "enter": [0, 0, 1, 1], "move": [0, 0, 1, 1], "exit": [0, 0, 1, 1] },
+    "dur": { "micro": 0.1, "move": 0.3, "hero": 0.5, "exit": 0.1 },
+    "stagger": { "letter": 0.0455, "word": 0.18, "item": 0.25 },
+    "spring": { "micro": { "zeta": 1, "hz": 6 }, "panel": { "zeta": 1, "hz": 4 }, "headline": { "zeta": 1, "hz": 4 }, "subject": { "zeta": 1, "hz": 3 }, "camera": { "zeta": 1, "hz": 1 } },
+    "secondary": { "delay": 0.1, "travel": 0.6 },
+    "ambient": { "travel": 0.02 },
+    "push": 0
+  },
+  "transitions": ["cut", "wipe"],
+  "ground": { "kind": "flat", "panel": "surface" },
+  "sound": { "timbre": "pulse-synth", "key": "E", "mode": "minor", "tempo": 120 },
+  "score": { "genre": "tech-house" },
+  "beds": [
+    { "timbre": "pulse-synth", "key": "E", "mode": "minor", "tempo": 120 },
+    { "timbre": "glass", "key": "B", "mode": "minor", "tempo": 132 },
+    { "timbre": "pulse-synth", "key": "A", "mode": "minor", "tempo": 100 }
+  ],
+  "bans": ["falling code rain", "purple-cyan neon haze", "glitch running continuously", "an accent hue with no role", "pixel type too small to read", "eased type"]
+}

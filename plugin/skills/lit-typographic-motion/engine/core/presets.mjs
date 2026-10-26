@@ -82,7 +82,7 @@ export const AUTO_PICK = Object.freeze([
 
 const escape = (text) => text.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 
-function matchesKeyword(text, keyword, korean) {
+export function matchesKeyword(text, keyword, korean) {
   const pattern = korean
     ? new RegExp(`(?<![\\p{L}\\p{N}])${escape(keyword)}`, "u")
     : new RegExp(`(?<![\\p{L}\\p{N}])${escape(keyword)}(?![\\p{L}\\p{N}])`, "iu");

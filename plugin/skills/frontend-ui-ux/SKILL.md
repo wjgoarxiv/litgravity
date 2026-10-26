@@ -54,9 +54,20 @@ Words and limits for each mode live in `references/craft-floor.md` section 3.
 
 ## Procedure
 
+**Theme first.** Before building, ask the user to choose the house style with one `ask_question` round: two to four real options from `design-lock.mjs match` (field-notes, graphite, computational-brutalism and the other styles in `references/house-styles.md`), plus the density (rich by default, calm on request), the recommended one first with a one-line reason. Skip the question only when the prompt names one or says "you choose" / "알아서". When nobody can answer (headless `agy -p`), take the recommended option, log a `decision` ledger line and say so in one line.
+
 1. **Inspect and choose the lane.** Read repository guidance, manifests, routes, tokens, primitives and test gates; take a narrow and a wide look at the existing UI when one exists. Record which conventions must be preserved and which deviations the work requires.
 
 2. **Direction and inventory.** Follow `references/production-interview.md` for any material ambiguity and keep each answer across turns. Capture a compact direction (audience, task, qualities, one non-goal) and a finite inventory: routes, regions, components, interactions, states (loading, empty, error, success, disabled, offline, permission, ready) and viewports. Open `references/taste-direction.md` when direction is disputed or undecided.
+
+   For a new page or screen, lock the look before writing markup, then read `references/house-styles.md` for the class catalogue:
+
+   ```bash
+   FRONTEND_UIUX_SKILL_ROOT="<directory containing the selected installed SKILL.md>"
+   node "$FRONTEND_UIUX_SKILL_ROOT/scripts/design-lock.mjs" init --family <landing|workspace|settings> [--style <field-notes|graphite|meadow|computational-brutalism|neo-brutalism>] [--brief "<the request>"] [--density calm] --moment <kind> --moment-note "<what it is>" --dir "<project>" --scaffold
+   ```
+
+   When a new brief supplies no visual direction, apply `references/default-editorial-pixel.json` without asking: a read-once page locks `field-notes`, a work surface locks `graphite`. Omitting `--style` applies these family defaults unless the request names a register by a style keyword (`design-lock.mjs match "<request>"` shows the pick). The lock is rich by default: a tighter section rhythm, texture, a second accent family (`--c-accent-2`), colour bands, a two-accent wash and an atmosphere glow, with up to four accent hue families per view; it locks `density: calm` only when the request asks for a minimal, calm, quiet or restrained page. Build with the kit's `ui-*` classes and `var(--…)` tokens only. Every page also carries one signature moment chosen for its content (house-styles.md section 6): bold on a read-once page (`hero-composition`, `type-set-piece`, `data-moment`, `diagram`, `motion-detail`, `interactive-object`), small on a work surface (`chart`, `empty-state`, `header-detail`). Record it in the lock, mark that element `data-ui-moment="<kind>"`, and DS-008 fails a page without it.
 
 3. **Prompt-to-implementation coverage.** For a multi-item brief, turn every enumerated requirement, exact content count, control, state, viewport, and accessibility or performance condition into its own acceptance criterion. A working page leaves an omitted item unsatisfied. Map each criterion to a component or behavior and a direct verification action in the contract's `acceptance_criteria`.
 
@@ -91,7 +102,7 @@ Run steps 1, 2 and 6 against the existing code and any rendered page, with every
 
 ### Focused references (open lazily)
 
-`references/craft-floor.md` and `references/slop-register.md` (always), `references/adaptive-layout.md`, `references/brand-and-imagery.md`, `references/composition.md`, `references/creative-directions.md`, `references/evidence-review.md`, `references/implementation-platforms.md`, `references/inclusive-interface.md`, `references/interaction-motion.md`, `references/motion-guide.md`, `references/operating-lanes.md`, `references/performance-delivery.md`, `references/product-direction.md`, `references/redesign-playbook.md`, `references/system-foundations.md`, `references/taste-direction.md`, `references/visual-language.md`, `references/visual-reconstruction.md`. The preserved full contract is `references/complete-contract.md`; load it for a schema, activation or install question.
+`references/craft-floor.md` and `references/slop-register.md` (always), `references/house-styles.md` (before markup on a new page or screen), `references/adaptive-layout.md`, `references/brand-and-imagery.md`, `references/composition.md`, `references/creative-directions.md`, `references/evidence-review.md`, `references/implementation-platforms.md`, `references/inclusive-interface.md`, `references/interaction-motion.md`, `references/motion-guide.md`, `references/operating-lanes.md`, `references/performance-delivery.md`, `references/product-direction.md`, `references/redesign-playbook.md`, `references/system-foundations.md`, `references/taste-direction.md`, `references/visual-language.md`, `references/visual-reconstruction.md`. The preserved full contract is `references/complete-contract.md`; load it for a schema, activation or install question.
 
 ### Canonical library router
 

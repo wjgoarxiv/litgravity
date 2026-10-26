@@ -47,17 +47,21 @@ export function analyzeFrame(bytes, width, height, { keepMask = false } = {}) {
     B[i] /= n;
   }
   const target = GATE.nearBlackPercentile * width * height;
+  const low = (1 - GATE.nearBlackPercentile) * width * height;
   let seen = 0;
   let p995 = 1;
+  let p005 = null;
   for (let i = 0; i < HIST; i++) {
     seen += hist[i];
+    if (p005 === null && seen >= low) p005 = i / HIST;
     if (seen >= target) {
       p995 = (i + 1) / HIST;
       break;
     }
   }
   const rgbaSha256 = createHash("sha256").update(bytes).digest("hex");
-  return { inkPx, mask, cells: { R, G, B }, luminanceP995: +p995.toFixed(5), rgbaSha256 };
+  // The 0.5 % and 99.5 % luminance: their spread is what the empty-frame rules read (MO-D-03, FLAT-FRAME).
+  return { inkPx, mask, cells: { R, G, B }, luminanceP995: +p995.toFixed(5), luminanceP005: +(p005 ?? 0).toFixed(5), rgbaSha256 };
 }
 
 /** Area-average downscale of RGBA8 (display-referred, like ffmpeg's area filter). */
@@ -106,3 +110,63 @@ export function resizeMask(mask, sw, sh, dw, dh) {
   }
   return out;
 }
+
+// RICH-FILL: the frame cut into 4 x 3 regions. A dense reference frame (a full dashboard) measured
+// 0.57 or more in every region; round-3 films with an empty right half measured 0.00-0.10 there.
+export const FILL_GRID = Object.freeze({ cols: 4, rows: 3 });
+
+/** The busyShare of each region of the FILL_GRID, row by row. */
+export function regionFill(rgba, width, height) {
+  const out = [];
+  const rw = Math.floor(width / FILL_GRID.cols);
+  const rh = Math.floor(height / FILL_GRID.rows);
+  for (let r = 0; r < FILL_GRID.rows; r++) {
+    for (let c = 0; c < FILL_GRID.cols; c++) {
+      const sub = new Uint8Array(rw * rh * 4);
+      for (let y = 0; y < rh; y++) {
+        const from = ((r * rh + y) * width + c * rw) * 4;
+        sub.set(rgba.subarray(from, from + rw * 4), y * rw * 4);
+      }
+      out.push(busyShare(sub, rw, rh));
+    }
+  }
+  return out;
+}
+
+/**
+ * Share of 48 px cells that carry something (DEAD-AIR): a cell is busy when its luma varies (sd > 6)
+ * or its mean sits more than 16 levels off the frame's ground, the most common luma smoothed over
+ * +-3 levels. Sampled on a 3 px lattice; an opaque RGBA frame in, a 0..1 share out.
+ */
+export function busyShare(rgba, width, height, { cell = 48, step = 3 } = {}) {
+  const hist = new Uint32Array(256);
+  for (let y = 0; y < height; y += step) for (let x = 0; x < width; x += step) hist[luma8(rgba, (y * width + x) * 4)] += 1;
+  let ground = 0;
+  let best = -1;
+  for (let i = 0; i < 256; i++) {
+    let s = 0;
+    for (let k = Math.max(0, i - 3); k <= Math.min(255, i + 3); k++) s += hist[k];
+    if (s > best) [best, ground] = [s, i];
+  }
+  let busy = 0;
+  let cells = 0;
+  for (let cy = 0; cy + cell <= height; cy += cell) {
+    for (let cx = 0; cx + cell <= width; cx += cell) {
+      let s = 0;
+      let s2 = 0;
+      let n = 0;
+      for (let y = cy; y < cy + cell; y += step) for (let x = cx; x < cx + cell; x += step) {
+        const l = luma8(rgba, (y * width + x) * 4);
+        s += l;
+        s2 += l * l;
+        n += 1;
+      }
+      const mean = s / n;
+      if (Math.sqrt(Math.max(0, s2 / n - mean * mean)) > 6 || Math.abs(mean - ground) > 16) busy += 1;
+      cells += 1;
+    }
+  }
+  return cells ? busy / cells : 0;
+}
+
+const luma8 = (p, o) => Math.round(0.299 * p[o] + 0.587 * p[o + 1] + 0.114 * p[o + 2]);

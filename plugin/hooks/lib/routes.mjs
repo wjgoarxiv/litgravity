@@ -5,6 +5,7 @@ export const SKILL_ROUTES = [
   { id: 'lit-loop', when: 'bare `lit`, or a multi-step task that needs criteria, tests and proof' },
   { id: 'litgoal', when: 'set, check or close a finish line that outlives this conversation' },
   { id: 'litwork', when: 'ship one contained change with proof: implement, fix, land' },
+  { id: 'lit-hijack', when: 'port the know-how from someone else\'s published work into your own skill or system, clean-room' },
   { id: 'lit-plan', when: 'plan before code; the turn writes plans/<slug>.md and nothing else' },
   { id: 'lit-brainstorm', when: 'open ideation: spread out on options, score a shortlist, hand off' },
   { id: 'deep-interview', when: 'the request is vague or broad and needs questions first' },
@@ -30,12 +31,14 @@ export const SKILL_ROUTES = [
   { id: 'readme-studio', when: 'write or refresh a README from repository facts' },
   { id: 'lit-docx', when: 'a Word document, or DOCX/PDF converted to Markdown (needs Python)' },
   { id: 'lit-pptx', when: 'a slide deck (needs Python)' },
+  { id: 'lit-schematic', when: 'a P&ID, PFD, equipment layout, journal apparatus figure or isometric cutaway of real hardware' },
   { id: 'lit-scientific-visualization', when: 'a publication-ready figure from data' },
   { id: 'lit-diagram-drawer', when: 'an architecture, workflow or timeline diagram' },
   { id: 'lit-typographic-motion', when: 'a short film, kinetic type, lyric video or a seamless README cover loop' },
   { id: 'autoresearch', when: 'a budgeted experiment loop against a metric' },
   { id: 'structural-search', when: 'find or rewrite code by syntax shape' },
   { id: 'browser-drive', when: 'the answer only exists inside a running web page' },
+  { id: 'lit-adhd', when: 'cross-session brief: what each recent session was asked, did and waits on, with progress gauges' },
   { id: 'lit-team', when: 'two or more child agents behind one durable team packet' },
   { id: 'autoconference', when: 'a budgeted research conference: parallel researchers, review, synthesis' },
   { id: 'rules', when: 'which rules, AGENTS.md files and skills agy loads, and in what order' },
@@ -44,11 +47,18 @@ export const SKILL_ROUTES = [
 ];
 
 export const SKILL_IDS = new Set(SKILL_ROUTES.map((r) => r.id));
+// Skill ids that are another name for a skill: typed whole, slashed or after `lit`, they take its route.
+export const SKILL_ALIASES = { 'lit-rewind': 'lit-adhd' };
+const skillId = (word) => (SKILL_IDS.has(word) ? word : SKILL_ALIASES[word]);
 
 // The word after a leading `lit` picks the route: a word below, or any skill id typed whole (`lit debugging …`,
 // `lit comment-checker …`); anything else falls back to lit-loop.
 export const KEYWORD_ROUTES = {
   loop: 'lit-loop',
+  hijack: 'lit-hijack',
+  hijacking: 'lit-hijack',
+  '하이재킹': 'lit-hijack',
+  '하이잭': 'lit-hijack',
   plan: 'lit-plan',
   work: 'litwork',
   goal: 'litgoal',
@@ -73,6 +83,8 @@ export const KEYWORD_ROUTES = {
   ideate: 'lit-brainstorm',
   idea: 'lit-brainstorm',
   ideas: 'lit-brainstorm',
+  adhd: 'lit-adhd',
+  rewind: 'lit-adhd',
   team: 'lit-team',
   conference: 'autoconference',
   rules: 'rules',
@@ -93,11 +105,21 @@ export const KEYWORD_ROUTES = {
   pptx: 'lit-pptx',
   ppt: 'lit-pptx',
   docx: 'lit-docx',
+  schematic: 'lit-schematic',
+  pid: 'lit-schematic',
+  pfd: 'lit-schematic',
+  cutaway: 'lit-schematic',
+  '계통도': 'lit-schematic',
+  '공정도': 'lit-schematic',
+  '모식도': 'lit-schematic',
+  '장치도': 'lit-schematic',
   diagram: 'lit-diagram-drawer',
   '다이어그램': 'lit-diagram-drawer',
   '도식': 'lit-diagram-drawer',
   figure: 'lit-scientific-visualization',
   plot: 'lit-scientific-visualization',
+  frontend: 'frontend-ui-ux',
+  ui: 'frontend-ui-ux',
   code: 'lit-code',
   tdd: 'lit-code',
   structural: 'structural-search',
@@ -128,8 +150,54 @@ export function motionIntent(task) {
   return FILM_COMPOUND.test(text) || (VIDEO_NOUN.test(text) && MAKE_VERB.test(text));
 }
 
+// Physical schematics: P&IDs, PFDs, apparatus figures, isometric cutaways. A strong noun names a drawing and routes
+// alone; a weak noun needs a draw or make verb. Interface deliverables and chart nouns stay with their owners.
+const SCHEMATIC_STRONG = /\bp\s?&\s?i\s?ds?\b|\bpfds?\b|\bbfds?\b|piping\s+(?:and|&)\s+instrumentation|process\s+flow\s+(?:diagram|sheet)s?|block\s+flow\s+diagrams?|\bplot\s+plans?\b|equipment\s+layouts?|experimental\s+(?:set\s?up|apparatus)|\bcut\s?aways?\b|컷어웨이|배관\s?계장도|계장도|공정\s?흐름도|공정도|모식도|장치도|실험\s?장치|피앤아이디|배치도|계통도|단면도/iu;
+const SCHEMATIC_WEAK = /\bschematics?\b|\bisometric\b|\bapparatus\b|사시도|개략도|아이소메트릭|도면/iu;
+const SCHEMATIC_CHART = /차트|그래프|\b(?:charts?|graphs?|plots?(?!\s+plans?\b))\b/iu;
+const SCHEMATIC_DRAW_VERB = /\b(?:draw|drawing|drew|sketch|sketching|illustrate|illustrating|render|rendering|redraw)\b|그려|그리|그림|도식|작도/iu;
+const SCHEMATIC_INTERFACE = /\b(?:dashboards?|landing\s?pages?|web\s?pages?|websites?|homepages?|web\s?apps?|apps?|screens?|admin\s?(?:panel|console)|user\s?interface|ui)\b|대시보드|웹사이트|랜딩|페이지|화면|앱/iu;
+const SCHEMATIC_MAKE_VERB = /\b(?:make|making|create|creating|design|designing|build|lay\s?out)\b|만들|만드/iu;
+const SCHEMATIC_OFFICE = /보고서|발표자료|슬라이드|문서|\b(?:reports?|slides?|presentations?|documents?)\b/iu;
+export function schematicIntent(task) {
+  const text = String(task ?? '');
+  if (SCHEMATIC_CHART.test(text)) return false;
+  if (SCHEMATIC_INTERFACE.test(text) && !SCHEMATIC_DRAW_VERB.test(text)) return false;
+  if (SCHEMATIC_OFFICE.test(text) && !SCHEMATIC_DRAW_VERB.test(text)) return false;
+  if (SCHEMATIC_STRONG.test(text)) return true;
+  return SCHEMATIC_WEAK.test(text) && (SCHEMATIC_DRAW_VERB.test(text) || SCHEMATIC_MAKE_VERB.test(text));
+}
+
+// A slide count beside a slide noun ("덱 10장", "a 10-slide deck") asks for the deck without a making verb.
+const SLIDE_COUNT = /\d+\s?장|\b\d+[\s-]?slides?\b/u;
+const SLIDE_NOUN = /덱|슬라이드|발표자료|프레젠테이션|피티|\bdecks?\b|\bslides?\b|\bpresentations?\b/iu;
+const OFFICE_VERB = /만들|작성|써|쓰|뽑아|정리|\b(?:make|create|write|draft|prepare|build)\b/iu;
+const PHOTO_NOT_SLIDE = /사진|이미지|보정|편집|촬영|\bphotos?\b|\bimages?\b/iu;
+export function deckIntent(task) {
+  const text = String(task ?? '');
+  if (PHOTO_NOT_SLIDE.test(text)) return false;
+  const counted = SLIDE_COUNT.test(text) && SLIDE_NOUN.test(text);
+  return counted || (SLIDE_NOUN.test(text) && OFFICE_VERB.test(text));
+}
+
+// An English build-intent task ("build a landing page", "create a dashboard") goes to frontend-ui-ux.
+// The verb and noun halves are both required so "build an API" or "design the schema" stay inert.
+// Korean verbs (만들, 디자인, 꾸미, etc.) with a surface noun (화면, 페이지, 대시보드, 인터페이스) also route.
+const UI_BUILD_VERB = /\b(?:build|create|make(?!\s+sure\b)|implement|code|develop)\b/u;
+const UI_PAGE_NOUN = /\b(?:landing\s?page|web\s?page|website|web\s?site|homepage|home\s?page|dashboard|admin\s?(?:panel|console|ui)|settings\s?(?:page|screen)|(?:sign\s?up|log\s?in|checkout|pricing|profile|onboarding)\s?(?:page|screen|form|flow)|user\s?interface|web\s?ui|front\s?end|ui)\b/u;
+const UI_DESIGN_VERB = /\b(?:re)?(?:design(?:ing|ed)?|styl(?:e|ing|ed)|skin(?:ning)?|theme|theming)\b|\b(?:mock\s?-?up|lay\s?out|polish(?:ing)?|revamp)\b|디자인|만들|만드|개편|꾸미|꾸며|다듬|배치|구성/u;
+const UI_SURFACE_NOUN = /\b(?:ui|ux|interface|screen|page|view|component|layout|dashboard|css|styling|stylesheet|typography|palette|dark\s?mode|responsive)\b|화면|페이지|인터페이스|레이아웃|대시보드|컴포넌트|스타일|테마|다크\s?모드|반응형|디자인\s?시스템|사이드바|푸터|툴바|위젯/u;
+const NON_INTERFACE_BUILD = /\b(?:grafana|kibana|datadog|metabase|looker|tableau|power\s?bi|backend|back\s?end|api|endpoint|docker|image|cli|migration|schema)\b/iu;
+export function frontendIntent(task) {
+  const text = String(task ?? '');
+  if (NON_INTERFACE_BUILD.test(text)) return false;
+  if (UI_BUILD_VERB.test(text) && UI_PAGE_NOUN.test(text)) return true;
+  return UI_DESIGN_VERB.test(text) && UI_SURFACE_NOUN.test(text);
+}
+
 const RESTART_WORDS = new Set(['new', 'restart']);
 const CONTINUE_WORDS = new Set(['continue', 'resume']);
+const APPROVE_WORDS = new Set(['approve', 'deny']);
 const SEPARATORS = /^[\s:,.!?]+/;
 const firstWord = (s) => (/^([^\s:,.!?]+)/.exec(s)?.[1] ?? '').toLowerCase();
 
@@ -157,17 +225,23 @@ export function detectRoute(prompt) {
       word = firstWord(rest);
     }
     const resume = !restart && CONTINUE_WORDS.has(word);
+    const approve = !restart && !resume && APPROVE_WORDS.has(word);
     const bare = !restart && (word === '' || (resume && rest.slice(word.length).trim() === ''));
-    const route = KEYWORD_ROUTES[word] ?? (SKILL_IDS.has(word) ? word : undefined);
-    const base = { keyword: route ? word : null, bare, resume, restart, direct: false, empty: word === '' || (resume && rest.slice(word.length).trim() === '') };
-    if (!route && !bare && !resume && motionIntent(rest)) return { route: 'lit-typographic-motion', ...base, keyword: null };
+    const route = KEYWORD_ROUTES[word] ?? skillId(word);
+    const base = { keyword: route ? word : null, bare, resume, restart, approve: approve ? word : null, direct: false, empty: word === '' || (resume && rest.slice(word.length).trim() === '') };
+    if (!route && !bare && !resume) {
+      if (schematicIntent(rest)) return { route: 'lit-schematic', ...base, keyword: null };
+      if (motionIntent(rest)) return { route: 'lit-typographic-motion', ...base, keyword: null };
+      if (deckIntent(rest)) return { route: 'lit-pptx', ...base, keyword: null };
+      if (frontendIntent(rest)) return { route: 'frontend-ui-ux', ...base, keyword: null };
+    }
     const hit = { route: route ?? 'lit-loop', ...base };
     if (hit.route === 'review-work') {
       hit.reviewMode = REVIEW_MODES[firstWord(rest.slice(word.length).replace(SEPARATORS, ''))] ?? null;
     }
     return hit;
   }
-  if (lower.startsWith('lit') && SKILL_IDS.has(lower)) return { route: lower, keyword: null, bare: false, resume: false, restart: false, direct: true, empty: false };
-  if (SKILL_IDS.has(lower) && slash) return { route: lower, keyword: null, bare: false, resume: false, restart: false, direct: true, empty: false };
+  const id = skillId(lower);
+  if (id && (lower.startsWith('lit') || slash)) return { route: id, keyword: null, bare: false, resume: false, restart: false, direct: true, empty: false };
   return null;
 }

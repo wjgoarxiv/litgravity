@@ -13,31 +13,32 @@
 // chrome-driver.mjs (CHROME_PATH overrides). The browser is only resized, opened, read, hovered
 // (CF-506) and screenshotted; nothing is clicked, pressed or submitted.
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, realpathSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { ChromeSession, probeChrome } from "./chrome-driver.mjs";
+import { measureLock } from "./interface-probe-lock.mjs";
 import { measureInterface, readHover } from "./interface-probe-page.mjs";
 import { BLOCKED_REASON, EXIT, LIMITS, MATRIX, RULES, SEVERITY_ORDER } from "./interface-probe-rules.mjs";
 import { staticProbe } from "./interface-probe-static.mjs";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-const COMMAND_TIMEOUT_MS = 30_000;
 
 export function parseArgs(argv) {
-  const options = { target: null, out: null, static: false, json: false, viewports: null };
+  const options = { target: null, out: null, static: false, json: false, viewports: null, lock: null };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--out") options.out = argv[++index];
     else if (arg === "--static") options.static = true;
     else if (arg === "--json") options.json = true;
+    else if (arg === "--lock") options.lock = argv[++index];
     else if (arg === "--viewports") options.viewports = argv[++index]?.split(",").map((value) => value.trim()).filter(Boolean);
     else if (!arg.startsWith("--") && options.target === null) options.target = arg;
     else throw new Error(`unknown argument ${arg}`);
   }
-  if (!options.target) throw new Error("usage: interface-probe.mjs <page.html | directory | URL> [--out <dir>] [--static] [--viewports ids] [--json]");
+  if (!options.target) throw new Error("usage: interface-probe.mjs <page.html | directory | URL> [--out <dir>] [--static] [--viewports ids] [--lock design.lock.json] [--json]");
   return options;
 }
 
@@ -69,20 +70,29 @@ function startServer(root) {
   });
 }
 
-async function probeViewport(chrome, url, viewport, outDir) {
+async function probeViewport(chrome, url, viewport, outDir, lock) {
   let tab = null;
   try {
     tab = await chrome.newTab();
     await tab.setup(viewport);
     await tab.open(url, LIMITS.settleMs);
     const hover = RULES["CF-506"]?.threshold;
-    const options = { rules: RULES, limits: LIMITS, touch: viewport.touch, pass: viewport.pass, hoverSample: hover && viewport.id === hover.viewport ? hover.sample : 0 };
-    let measured = await tab.evaluate(measureInterface, options);
+    // A lock with offset elevation is the recorded neo-brutalist register CF-403 accepts.
+    const probeOpts = { rules: RULES, limits: LIMITS, touch: viewport.touch, pass: viewport.pass, hoverSample: hover && viewport.id === hover.viewport ? hover.sample : 0, register: lock?.elevation === "offset" ? "neo-brutalist" : null, density: lock?.density ?? null };
+    let measured = await tab.evaluate(measureInterface, probeOpts);
     // A page still loading after the settle wait gets exactly one more wait, then counts as unsettled.
     if (measured.ready === "loading") {
       await new Promise((resolveWait) => setTimeout(resolveWait, LIMITS.settleMs));
-      measured = await tab.evaluate(measureInterface, options);
+      measured = await tab.evaluate(measureInterface, probeOpts);
       if (measured.ready === "loading") return { viewport: viewport.id, error: "page did not settle" };
+    }
+    if (lock) {
+      const locked = await tab.evaluate(measureLock, { rules: RULES, limits: LIMITS, lock, pass: viewport.pass });
+      if (locked.error) measured.notVerified.push({ rule: "DS-001", reason: `design-lock pass failed: ${locked.error.slice(0, 120)}` });
+      else {
+        measured.findings.push(...(locked.findings ?? []));
+        measured.notVerified.push(...(locked.notVerified ?? []));
+      }
     }
     const path = join(outDir, "screenshots", `${viewport.id}.png`);
     let shot = true;
@@ -170,22 +180,45 @@ export function decideExit({ findings, viewportsRun, blockedReason }) {
   return { exitCode: EXIT.clean, blockedReason: null };
 }
 
+// The design lock beside the page (or named by --lock) turns on the DS-* rules. A lock that cannot
+// be parsed is reported but does not block the rest of the probe.
+function findLock(options, target) {
+  const candidates = [options.lock, target.root, target.sourceRoot && dirname(target.sourceRoot)]
+    .filter(Boolean).map((dir) => join(dir, "design.lock.json"));
+  for (const path of candidates) {
+    if (!existsSync(path)) continue;
+    try {
+      const lock = JSON.parse(readFileSync(path, "utf8"));
+      if (lock.schema_id !== "litfamily.design-lock/v1" || typeof lock.style !== "string") return { lock: null, path, error: "design.lock.json is not a litfamily.design-lock/v1 file" };
+      return { lock, path, error: null };
+    } catch (error) {
+      return { lock: null, path, error: `design.lock.json unreadable: ${error.message}` };
+    }
+  }
+  return { lock: null, path: null, error: null };
+}
+
 export async function runProbe(options) {
   const started = Date.now();
   const target = resolveTarget(options.target);
   const outDir = resolve(options.out ?? mkdtempSync(join(tmpdir(), "litgravity-interface-probe-")));
   mkdirSync(join(outDir, "screenshots"), { recursive: true });
   const matrix = options.viewports ? MATRIX.filter((viewport) => options.viewports.includes(viewport.id)) : MATRIX;
+  const lockState = findLock(options, target);
+  const lock = lockState.lock;
   const manifest = {
     url: target.url ?? (target.sourceRoot ? pathToFileURL(target.sourceRoot).href : null),
     viewports_run: [],
     browser_version: null,
     zoom_emulation: "viewport-halved",
+    design_lock: null,
     not_verified: [],
     screenshots: [],
     exit_code: EXIT.blocked,
     blocked_reason: null,
   };
+  if (lock) manifest.design_lock = { path: lockState.path, style: lock.style, family: lock.family ?? null };
+  else manifest.not_verified.push({ rule: "DS-001", reason: lockState.error ?? "no design.lock.json beside the page; lock conformance not checked" });
   const findings = [];
 
   const driver = options.static || target.missing ? null : probeChrome();
@@ -209,7 +242,7 @@ export async function runProbe(options) {
           continue;
         }
         const passStarted = Date.now();
-        const result = await probeViewport(chrome, url, viewport, outDir);
+        const result = await probeViewport(chrome, url, viewport, outDir, lock);
         if (result.error) {
           manifest.not_verified.push({ rule: "*", viewport: viewport.id, reason: result.error.slice(0, 160) });
           continue;

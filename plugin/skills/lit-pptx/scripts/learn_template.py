@@ -20,7 +20,7 @@ import os as _os
 import sys as _sys
 
 _sys.dont_write_bytecode = True  # the installed skill directory stays read-only
-_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", "..", "lib"))
 from office_runtime_bootstrap import ensure_runtime  # noqa: E402
 
 ensure_runtime(["defusedxml"])

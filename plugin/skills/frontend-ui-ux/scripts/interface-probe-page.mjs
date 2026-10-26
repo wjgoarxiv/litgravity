@@ -698,8 +698,10 @@ export function measureInterface(options) {
       const cluster = clusters.find((entry) => hueDistance(entry.h, tone.h) <= th.hueToleranceDeg);
       if (cluster) cluster.count += 1; else clusters.push({ h: tone.h, count: 1, el });
     }
-    if (clusters.length > th.maxClusters) {
-      add("CF-205", { selector: clusters.map((entry) => selectorOf(entry.el)).slice(0, 3).join(" | "), value: `${clusters.length} saturated hue clusters (${clusters.map((entry) => `${Math.round(entry.h)}°`).join(", ")})`, threshold: `≤ ${th.maxClusters}` });
+    // Rich is the default register; a lock recorded as calm keeps the single-accent limit.
+    const limit = options.density === "calm" ? th.calmMaxClusters : th.maxClusters;
+    if (clusters.length > limit) {
+      add("CF-205", { selector: clusters.map((entry) => selectorOf(entry.el)).slice(0, 3).join(" | "), value: `${clusters.length} saturated hue clusters (${clusters.map((entry) => `${Math.round(entry.h)}°`).join(", ")})`, threshold: `≤ ${limit}` });
     }
   }
 
@@ -800,7 +802,7 @@ export function measureInterface(options) {
   }
 
   // ---- CF-403: hard offset shadow outside an evidenced register ----------------------------------
-  if (on("CF-403")) {
+  if (on("CF-403") && options.register !== "neo-brutalist") {
     const th = t("CF-403");
     const hard = shown.filter((el) => shadowsOf(styleOf(el).boxShadow).some((s) => !s.inset && s.blur === 0 && s.spread === 0 && (Math.abs(s.x) > th.hairlinePx || Math.abs(s.y) > th.hairlinePx) && s.color));
     const bordered = hard.filter((el) => { const style = styleOf(el); return style.borderTopStyle === "solid" && px(style.borderTopWidth) >= th.registerBorderPx; });
@@ -1124,10 +1126,21 @@ export function measureInterface(options) {
 
   // ---- slop register: surfaces and type ---------------------------------------------------------
   const clippedToText = (style) => /text/u.test(`${style.backgroundClip} ${style.webkitBackgroundClip ?? ""}`);
+  // One gradient headline in the palette's own hues is craft. The reflex is a violet stop, the
+  // effect repeated across the page, or a stop the text cannot be read on.
   if (on("SLOP-009")) {
-    for (const el of textElements) {
-      const style = styleOf(el);
-      if (clippedToText(style) && /gradient\(/u.test(style.backgroundImage)) add("SLOP-009", { selector: selectorOf(el), value: `"${snippet(el, 30)}" filled with a gradient`, threshold: "solid text colour" });
+    const th = t("SLOP-009");
+    const violet = t("SLOP-008");
+    const filled = textElements.filter((el) => clippedToText(styleOf(el)) && /gradient\(/u.test(styleOf(el).backgroundImage));
+    for (const el of filled) {
+      const stops = colorsIn(styleOf(el).backgroundImage);
+      const surface = solidBehind(el);
+      const floor = px(styleOf(el).fontSize) >= th.largeFontPx ? th.largeStopContrast : th.minStopContrast;
+      const weakest = surface && stops.length ? Math.min(...stops.map((c) => ratio(blend(c, surface), surface))) : null;
+      const reason = stops.some((c) => spread(c) >= violet.minChannelSpread && hsl(c).h >= violet.hueMin && hsl(c).h <= violet.hueMax) ? "a violet stop"
+        : filled.length > th.maxElements ? `${filled.length} gradient-filled text elements`
+        : weakest !== null && weakest < floor ? `a stop at ${round(weakest)}:1` : null;
+      if (reason) add("SLOP-009", { selector: selectorOf(el), value: `"${snippet(el, 30)}" filled with a gradient (${reason})`, threshold: `≤ ${th.maxElements} gradient headline, palette hues, every stop ≥ ${floor}:1` });
     }
   }
   let bannedHue = false;
@@ -1150,12 +1163,18 @@ export function measureInterface(options) {
   }
   let blob = false;
   if (on("SLOP-011")) {
+    const blobs = [];
     for (const el of shown) {
       const style = styleOf(el);
       if (!/(absolute|fixed)/u.test(style.position) || !/radial-gradient/u.test(style.backgroundImage)) continue;
       if ((el.innerText ?? "").trim() || el.querySelector("img,svg,video,canvas,input,select,textarea,button,a[href]")) continue;
       const faint = Number(style.opacity) < t("SLOP-011").maxOpacity || colorsIn(style.backgroundImage).every((c) => c.a < t("SLOP-011").maxOpacity);
-      if (faint) { blob = true; candidate("SLOP-011", { selector: selectorOf(el), value: "unbound faint radial gradient" }); }
+      if (faint) blobs.push(el);
+    }
+    // One atmosphere layer is craft; scattered floating blobs are the generic decoration.
+    if (blobs.length >= t("SLOP-011").minCount) {
+      blob = true;
+      for (const el of blobs) candidate("SLOP-011", { selector: selectorOf(el), value: `unbound faint radial gradient (${blobs.length} on the page)` });
     }
   }
   if (on("SLOP-012") && (blob || bannedHue)) {
@@ -1204,8 +1223,8 @@ export function measureInterface(options) {
       }
     }
     for (const entry of scopes.values()) {
-      const hit = entry.b.length >= 1 ? entry.b : entry.a.length >= th.minCount ? entry.a : entry.c.length >= th.minCount ? entry.c : null;
-      if (hit) add("SLOP-015", { selector: selectorOf(hit[0]), value: `${hit.length} rounded element(s) with a coloured accent stripe`, threshold: `< ${th.minCount} per scope (inset form: none)` });
+      const hit = entry.b.length >= th.insetMinCount ? entry.b : entry.a.length >= th.minCount ? entry.a : entry.c.length >= th.minCount ? entry.c : null;
+      if (hit) add("SLOP-015", { selector: selectorOf(hit[0]), value: `${hit.length} rounded element(s) with a coloured accent stripe`, threshold: `< ${th.minCount} per scope (inset form: < ${th.insetMinCount})` });
     }
   }
   const declaredFaces = new Map();
@@ -1444,6 +1463,8 @@ export function measureInterface(options) {
     for (const svg of shown.filter((el) => el.matches("svg"))) {
       const r = svg.getBoundingClientRect();
       if (r.width < th.minSizePx || r.height < th.minSizePx || svg.querySelector("pattern")) continue;
+      // A drawing that names what it shows is an authored illustration; the generic stack is unnamed.
+      if (svg.querySelector(":scope > title") || ((svg.getAttribute("role") === "img") && (svg.getAttribute("aria-label")?.trim() || svg.hasAttribute("aria-labelledby")))) continue;
       const shapes = [...svg.querySelectorAll("rect,circle,ellipse,polygon")];
       const fills = new Set(shapes.map((shape) => getComputedStyle(shape).fill).filter((fill) => fill && !/^(none|transparent|rgba\(0, 0, 0, 0\))$/u.test(fill)));
       if (shapes.length >= th.minShapes && fills.size >= th.minFills && svg.querySelectorAll("text,tspan").length <= th.maxText) candidate("SLOP-051", { selector: selectorOf(svg), value: `${shapes.length} primitives in ${fills.size} fills` });

@@ -14,6 +14,7 @@
 
 const path = require("path");
 const G = require("./grid-resolver");
+const SG = require("./slide-grid");
 const { runtimeRequire } = require("./runtime-require");
 const { looksLikeKpi } = require("./layout-resolver");
 
@@ -36,9 +37,9 @@ function packStyle(pack) {
     pack, P, sizes: pack.tok.sizes, tok: pack.tok, grid: pack.grid, faces: pack.faces,
     deco: new Set(pack.decoration || []),
     // Heavier faces set wider: the advance estimate grows with the weight so frames hold their lines.
-    wide(role = "body") { return G.faceWidth(pack.faces[role]); },
-    ems(text, role) { return G.textEms(text) * this.wide(role); },
-    lines(text, w, size, role) { return G.lineCount(text, w / this.wide(role), size); },
+    wide(role = "body", text) { return G.faceWidth(pack.faces[role], text); },
+    ems(text, role) { return G.textEms(text) * this.wide(role, text); },
+    lines(text, w, size, role) { return G.lineCount(text, w / this.wide(role, text), size); },
     colour: (role) => shared().hex(P[role] || P.ink),
     // Tracking is a percentage of the size; Hangul body text is never tracked.
     tracking(face, size) {
@@ -76,7 +77,7 @@ function balanced(S, text, w, size, role, room = Infinity) {
   if (/\*\*/u.test(s)) return s;
   const lines = S.lines(s, w, size, role);
   if (lines < 2) return s;
-  const per = w / S.wide(role) / size;
+  const per = w / S.wide(role, s) / size;
   const set = G.balanceLines(s, lines, per);
   // A set ending on one word gets a line more when the frame holds it and that ends on two.
   const widow = (t) => t.includes("\n") && !/ /u.test(t.slice(t.lastIndexOf("\n") + 1));
@@ -112,7 +113,7 @@ function packText(slide, S, text, box, o = {}) {
   text = String(text == null ? "" : text).replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gu, (_, label, url) => { links.push([label, url]); return label; });
   if (o.balance) text = balanced(S, text, box.w, size, faceRole, Math.floor(box.h / (size * (o.lineSpacing || 1.15)) + 0.01));
   else if (!o.title && faceRole !== "numeral") {
-    text = G.keepLines(text, box.w / S.wide(faceRole) / size, Math.floor(box.h / (size * (o.lineSpacing || G.leading(plainText(text)))) + 0.01));
+    text = G.keepLines(text, box.w / S.wide(faceRole, plainText(text)) / size, Math.floor(box.h / (size * (o.lineSpacing || G.leading(plainText(text)))) + 0.01));
   }
   const tracking = o.tracking != null ? o.tracking : S.tracking(faceRole, size);
   const base = { fontFace: face.font, fontSize: size, color: o.colour || S.colour("ink"), bold: Boolean(face.bold || o.bold),
@@ -137,11 +138,15 @@ function packText(slide, S, text, box, o = {}) {
 
 function packRect(slide, S, box, o = {}) {
   const radius = o.radius || 0;
+  // In a pack with hard edges a block of the field (a band, a plate, a rail) carries the border too.
+  if (S.pack.shadow && o.fill === "field" && !o.line && box.w >= 24 && box.h >= 24) o = { ...o, line: S.pack["edge-colour"] || "line", lineWidth: S.pack["edge-weight"] };
   slide.addShape(radius ? "roundRect" : "rect", {
     x: IN(box.x), y: IN(box.y), w: IN(box.w), h: IN(box.h),
     ...(radius ? { rectRadius: IN(radius) } : {}),
     fill: o.fill ? { color: S.colour(o.fill), transparency: o.alpha || 0 } : { type: "none" },
     line: o.line ? { color: S.colour(o.line), width: o.lineWidth || 0.75 } : { type: "none" },
+    // A hard offset shadow: no blur, fully opaque, down and to the right.
+    ...(o.shadow && S.pack.shadow ? { shadow: { type: "outer", blur: 0, offset: S.pack.shadow.offset, angle: 45, color: S.colour(S.pack.shadow.colour).replace("#", ""), opacity: 1 } } : {}),
     ...(o.name ? { objectName: o.name } : {}),
   });
 }
@@ -149,11 +154,21 @@ function packRect(slide, S, box, o = {}) {
 /** A surface (card, box, panel) in the pack's edge treatment and radius. */
 function surfaceRect(slide, S, box, fill = "surface") {
   const edge = S.pack.edge;
+  // A shadowed surface is filled, so its shadow never shows through it.
+  const shadow = S.pack.shadow || null;
   packRect(slide, S, box, {
-    fill: edge === "border" ? null : fill,
-    line: edge === "fill" ? null : "line",
+    fill: edge === "border" && !shadow ? null : edge === "border" ? "ground" : fill,
+    line: edge === "fill" ? null : S.pack["edge-colour"] || "line",
+    lineWidth: S.pack["edge-weight"],
     radius: S.pack.radius,
+    shadow,
   });
+}
+
+/** A pack with a hard shadow draws every box with its border and shadow (filled, `fill` when given). */
+function hardEdge(S, fill) {
+  if (!S.pack.shadow) return {};
+  return { line: S.pack["edge-colour"] || "line", lineWidth: S.pack["edge-weight"], shadow: S.pack.shadow, ...(fill ? { fill } : {}) };
 }
 
 // ── Content atoms ───────────────────────────────────────────────────────────
@@ -265,8 +280,8 @@ function measureTable(item, w, S, state) {
   const minRow = S.tok.rowMin * (state.anchor ? 1.25 : 1);
   // Rows are measured at the face's natural line (about 1.45 of the size with its gap), which is
   // what office renderers lay a cell out at; a smaller estimate lets rows grow past the frame.
-  const rowH = (cells, size) => Math.max(minRow, ...cells.map((t, i) => G.textHeight(plainText(t), (widths[i] || w) - cell * 2, size, 1.45) + cell * 2));
-  const heights = [rowH(headers, header), ...rows.map((r) => rowH(r, data))];
+  const rowH = (cells, size, role) => Math.max(minRow, ...cells.map((t, i) => G.textHeight(plainText(t), ((widths[i] || w) - cell * 2) / S.wide(role, plainText(t)), size, 1.45) + cell * 2));
+  const heights = [rowH(headers, header, "label"), ...rows.map((r) => rowH(r, data, "body"))];
   const tableH = heights.reduce((a, b) => a + b, 0);
   return { kind: "table", heights, widths, header, data, tableH, h: tableH + captionHeight(item.caption, w, S) };
 }
@@ -421,9 +436,9 @@ function textAt(paras, R, S, state, o = {}) {
 function visualWithText(ctx, visuals, texts, share, o = {}) {
   const { S, state, Z } = ctx;
   const out = [];
-  // A visual alone (its takeaways in the rail, or none): a table opens its rows; on the compact step a
+  // A visual alone (no takeaways): a table opens its rows; on the compact step a
   // chart carries its values under it.
-  if (!texts.length) return ((S.tok.tight && !ctx.railValues && valuesUnder(visuals, Z, S, state)) || openRows(stack(visuals, Z, S, state).placed, Z, S));
+  if (!texts.length) return ((S.tok.tight && valuesUnder(visuals, Z, S, state)) || openRows(stack(visuals, Z, S, state).placed, Z, S));
   if (!visuals.length) return stack(texts, Z, S, state).placed;
   // Takeaways too short for their column give the visual columns: a narrower column wraps them onto more
   // lines and a wider chart or picture grows, down to a three-column takeaway (spec-v2 Amendments 8).
@@ -478,16 +493,17 @@ function visualWithText(ctx, visuals, texts, share, o = {}) {
     // The strip closes the column once the visual's own height is settled.
     if (col.strip && col.end <= col.R.bottom + 0.5 && v.bottom > col.end) t.placed.push(...col.strip.placed.map((q) => ({ ...q, strip: true })));
     // A table keeps its own height, so beside it a short takeaway leaves the body half empty. When
-    // that band is over the density cap and the takeaway fits under the table, it goes there, its
-    // points side by side in two columns so they read as notes on the table above them.
+    // that band is over the density cap and the takeaway fits under the table, it goes there as notes on
+    // the table above: points that pair off side by side in two columns, an odd count down one column at the
+    // reading measure, so neither column stops a point short of the other.
     if (v.placed.every((p) => !p.flex) && (Z.bottom - Math.max(v.bottom, t.bottom)) / (Z.bottom - Z.y) > S.tok.cap) {
       const top = stack(visuals, Z, S, state);
       const below = { ...Z, y: top.bottom + state.blockGap };
       const paras = texts.flatMap(itemParas);
       const half = Math.ceil(paras.length / 2);
-      const notes = paras.length >= 2
+      const notes = paras.length >= 2 && paras.length % 2 === 0
         ? splitRegion(S, below, 0.5).map((R, i) => textAt(i ? paras.slice(half) : paras.slice(0, half), R, S, state))
-        : stack(texts, below, S, state).placed;
+        : [textAt(paras, region(S, Z.a, Math.min(Z.b, Z.a + 8), below.y, below.bottom), S, state)];
       const end = Math.max(...notes.map((q) => q.y + q.h));
       if (end <= Z.bottom) {
         // Still short of the density band: the table's rows open up first (half the room, at most
@@ -565,7 +581,7 @@ function takeawayColumn(ctx, texts, visuals, full, visualBottom) {
 }
 
 /**
- * A table standing alone in its region (its takeaways in a side title's rail) opens its rows, at most one
+ * A table standing alone in its region (no takeaways beside it) opens its rows, at most one
  * minimum row height each, while the region leaves more than the density band empty under it.
  */
 function openRows(placed, Z, S) {
@@ -618,13 +634,13 @@ const PLANS = {
     const items = ctx.items;
     // Running text keeps its measure: cols 1-9 on the presented ramp, 1-7 on the reading ramp.
     const limit = S.tok.ramp === "presented" ? 9 : 7;
-    const R = ctx.cls === "side" ? Z : region(S, Z.a, Math.min(Z.b, Z.a + limit - 1), Z.y, Z.bottom);
+    const R = region(S, Z.a, Math.min(Z.b, Z.a + limit - 1), Z.y, Z.bottom);
     const { visuals, texts } = sortItems(items);
     if (visuals.length && texts.length) return visualWithText(ctx, visuals, texts, 7 / 12);
     const placed = stack(items, R, S, state).placed;
     // Two to five points that each open with a bold head, and that leave the body more than the
     // density band empty, read as rows: the head in its own column, the point beside it.
-    const ents = !visuals.length && ctx.cls !== "side" ? entries(texts.flatMap(itemParas)) : [];
+    const ents = !visuals.length ? entries(texts.flatMap(itemParas)) : [];
     // Groups of sub-points under bold heads, held to one reading measure narrower than the body,
     // run in two columns instead: the measure stays and the body is used across.
     const groups = ents.length >= 2 && ents.every((e) => e.head && !e.rest && e.children.length);
@@ -652,7 +668,8 @@ const PLANS = {
   "text-two-column"(ctx) {
     const { S, state, Z } = ctx;
     const { columns, texts, visuals } = sortItems(ctx.items);
-    if (columns) return stack([columns, ...visuals], Z, S, state).placed;
+    // Points after the columns are the slide's takeaways: they run under both columns.
+    if (columns) return stack([columns, ...visuals, ...texts], Z, S, state).placed;
     const paras = texts.flatMap(itemParas);
     const [l, r] = splitRegion(S, Z, 0.5);
     // Break at a section boundary nearest to half the height.
@@ -728,8 +745,6 @@ const PLANS = {
 
   "sidebar-note"(ctx) {
     const { S, state, Z } = ctx;
-    // The note stands in a side title's rail: the main points take the body.
-    if (ctx.railNote) return PLANS["text-column"](ctx);
     const { texts, visuals } = sortItems(ctx.items);
     // The note is the fenced main-box, else a last text block after the main one; a lone text block is the main.
     const note = texts.find((t) => t.type === "main-box") || (texts.length > 1 ? texts[texts.length - 1] : null);
@@ -852,7 +867,7 @@ const PLANS = {
     const kpi = visuals.find((v) => v.type === "kpi-table" && looksLikeKpi(v.content || {}, { basis: true }));
     if (!kpi) return PLANS["table-insight"](ctx);
     const others = visuals.filter((v) => v !== kpi);
-    if (ctx.cls === "side" || Z.b - Z.a + 1 < 10 || (state.anchor && ctx.cls === "top")) {
+    if (Z.b - Z.a + 1 < 10 || (state.anchor && !S.pack.shadow)) {
       // Under a side title, or when the values take the room, they run down the body as rows:
       // the value, then what it measures.
       const cards = shared().kpiCards(kpi.content).slice(0, 6);
@@ -864,12 +879,13 @@ const PLANS = {
       if (restTexts.length) out.push(...stack(restTexts, { ...Z, y: rowsZone.bottom + state.blockGap }, S, state).placed);
       return out;
     }
-    const top = ctx.cls === "bottom" ? Z.y + 72 : Z.y;
+    const top = Z.y;
     const cardsPlan = stack([kpi, ...others, ...texts], { ...Z, y: top }, S, state);
-    // On the compact step a row of cards with its takeaways under it stops high on the page. The
-    // figures then run as rows down the first seven columns (value, label, basis), the caption at
-    // their foot, and the takeaways stand beside them.
-    if (S.tok.tight && texts.length && !others.length && (ctx.cls === "bottom" || (Z.bottom - cardsPlan.bottom) / (Z.bottom - Z.y) > S.tok.cap)) {
+    // A row of cards with its takeaways under it that stops high on the page: the figures then run as
+    // rows down the first seven columns (value, label, basis), the caption at their foot, and the
+    // takeaways stand beside them. A pack with hard shadows keeps its cards: the bordered, shadowed card
+    // is that pack's figure.
+    if (texts.length && !others.length && !S.pack.shadow && (Z.bottom - cardsPlan.bottom) / (Z.bottom - Z.y) > S.tok.cap) {
       const cards = shared().kpiCards(kpi.content).slice(0, 6);
       const [fR, tR] = splitRegion(S, Z, 7 / 12);
       const capH = kpi.caption ? captionHeight(kpi.caption, fR.w, S) + 6 : 0;
@@ -938,17 +954,12 @@ const PLANS = {
     const capH = table.caption ? captionHeight(table.caption, nR.w, S) + 6 : 0;
     const blockH = size * 1.15 + 12 + labelH + capH;
     const out = [];
-    // The number opens the body, its evidence beside it or under it. Under a bottom title the
-    // number sits on the visual zone's floor, next to the title that explains it.
-    const y = ctx.cls === "bottom" ? Z.bottom - blockH : Z.y;
+    // The number opens the body, its evidence beside it or under it.
+    const y = Z.y;
     if (texts.length) {
       const R = tR ? region(S, tR.a + 1, tR.b, Z.y, Z.bottom)
-        : ctx.cls === "bottom" ? { ...Z, bottom: y - state.blockGap } : { ...Z, y: Z.y + blockH + state.blockGap };
-      const evidence = stack(texts, R, S, { ...state, stepped: true });
-      // Beside a number on the floor the evidence ends level with the number block, so it reads
-      // with the number instead of hanging above it at the top of the page.
-      const lift = tR && ctx.cls === "bottom" ? Math.max(0, Math.min(y + blockH, Z.bottom) - evidence.bottom) : 0;
-      out.push(...evidence.placed.map((q) => ({ ...q, y: q.y + lift })));
+        : { ...Z, y: Z.y + blockH + state.blockGap };
+      out.push(...stack(texts, R, S, { ...state, stepped: true }).placed);
     }
     out.push({ kind: "number", value, label, size, labelSize, x: nR.x, y, w: nR.w, h: size * 1.15 + 12 + labelH, limit: Z.bottom });
     if (table.caption) out.push({ kind: "caption", item: { content: table.caption }, x: nR.x, y: y + size * 1.15 + 12 + labelH + 6, w: nR.w, h: capH - 6, limit: Z.bottom });
@@ -1009,9 +1020,12 @@ const PLANS = {
   },
 
   comparison(ctx) {
-    const { S, state, Z } = ctx;
+    const { S, state } = ctx;
     const { columns, texts, visuals } = sortItems(ctx.items);
     if (visuals.length && !columns) return visualWithText(ctx, visuals, texts, 7 / 12);
+    // Beside written columns the loose points are the slide's takeaways: they run under the rows.
+    const notes = columns && texts.length ? measureText(texts.flatMap(itemParas), ctx.Z.w, S, state) : null;
+    const Z = notes ? { ...ctx.Z, bottom: ctx.Z.bottom - notes.h - state.blockGap } : ctx.Z;
     let halves;
     if (columns) halves = columns.columns.map((col) => (col || []).filter(isText).flatMap(itemParas));
     else {
@@ -1032,8 +1046,7 @@ const PLANS = {
     const LABEL = /^([^:：]{1,24})[:：]\s*(.+)$/u;
     const isLabel = (t) => { const m = LABEL.exec(plainText(t)); return Boolean(m) && m[1].trim().split(/\s+/u).length <= 3; };
     let criteria = null;
-    // Under a side title the criteria go to the rail at any density (spec-v2 Amendments 7).
-    if ((S.tok.tight || ctx.rail) && sides.length === 2 && sides.every((sd) => sd.items.length && sd.items.every(isLabel))) {
+    if (S.tok.tight && sides.length === 2 && sides.every((sd) => sd.items.length && sd.items.every(isLabel))) {
       const n = Math.max(...sides.map((sd) => sd.items.length));
       const sets = Array.from({ length: n }, (_, r) => [...new Set(sides.map((sd) => sd.items[r] && LABEL.exec(plainText(sd.items[r]))[1].trim()).filter(Boolean))]);
       const labels = sets.map((set) => set.join(" / "));
@@ -1043,12 +1056,9 @@ const PLANS = {
         for (const sd of sides) sd.items = sd.items.map((t) => LABEL.exec(plainText(t))[2]);
       }
     }
-    // Under a side title the criteria stand in the rail, level with their rows, and the two sides take
-    // the body beside it; the rows then start under the title's last line and end above the rail's strip.
-    const inRail = Boolean(criteria && ctx.rail);
-    const floor = inRail ? Math.min(Z.bottom, ctx.rail.bottom) : Z.bottom;
-    const critR = inRail ? { ...ctx.rail, bottom: floor } : criteria ? region(S, Z.a, Z.a + 1, Z.y, Z.bottom) : null;
-    const parts = criteria && !inRail ? splitRegion(S, region(S, Z.a + 2, Z.b, Z.y, Z.bottom), 0.5) : splitRegion(S, Z, 0.5);
+    const floor = Z.bottom;
+    const critR = criteria ? region(S, Z.a, Z.a + 1, Z.y, Z.bottom) : null;
+    const parts = criteria ? splitRegion(S, region(S, Z.a + 2, Z.b, Z.y, Z.bottom), 0.5) : splitRegion(S, Z, 0.5);
     const headSize = bodySize(S, state, "lead");
     // Up to three rows of short points are set a step or two larger when that still keeps a dozen
     // glyphs a line and fits the body; a two-row comparison otherwise holds a third of the page.
@@ -1073,10 +1083,9 @@ const PLANS = {
       });
       top = Z.y + headH + 30;
     }
-    if (inRail) top = Math.max(top, ctx.rail.y);
     // Parallel points share a row, so they are read across; the rows run down to the floor.
     const n = Math.max(...sides.map((sd) => sd.items.length));
-    const labelH = (r) => (criteria ? G.textHeight(criteria[r], critR.w / S.wide("title"), itemSize) : 0);
+    const labelH = (r) => (criteria ? G.textHeight(criteria[r], critR.w / S.wide("title", criteria[r]), itemSize) : 0);
     // Measured on the lines the text frame will set (word by word), so a narrow side keeps its lines.
     const sideH = (t, i) => {
       const w = parts[i].w / S.wide("body");
@@ -1085,18 +1094,18 @@ const PLANS = {
     const rowH = Array.from({ length: n }, (_, r) => Math.max(labelH(r), ...sides.map((sd, i) => (sd.items[r] ? sideH(sd.items[r], i) : 0))));
     const pitch = rowPitch(n, Math.max(...rowH), { y: top, bottom: floor }, state.groupGap, Math.max(112, Math.max(...rowH) + 72));
     // On the compact step each row starts one even gap under the one before (rows of two and three
-    // lines alike). The gap opens up to a seventh of the body so four short rows reach the floor, and
-    // never ends the rows higher than a pitch of the tallest row plus 48 pt would.
+    // lines alike). The gap opens up to a fifth of the body so four one-line rows across the full body
+    // width reach the floor, and never ends the rows higher than a pitch of the tallest row plus 48 pt would.
     const sum = rowH.reduce((a, b) => a + b, 0);
     const reach = n > 1 ? ((n - 1) * (Math.max(...rowH) + 48) + rowH[n - 1] - sum) / (n - 1) : 0;
-    const gap = n > 1 ? Math.max(state.groupGap, Math.min(Math.max(48, (floor - Z.y) / 7, reach), (floor - top - sum) / (n - 1))) : 0;
+    const gap = n > 1 ? Math.max(state.groupGap, Math.min(Math.max(48, (floor - Z.y) / 5, reach), (floor - top - sum) / (n - 1))) : 0;
     const ys = rowH.map((_, r) => (S.tok.tight ? top + rowH.slice(0, r).reduce((a, b) => a + b, 0) + r * gap : top + r * pitch));
     for (let r = 0; r < n; r++) {
       const y = ys[r];
       if (r > 0 && (S.deco.has("hairline-rule") || S.deco.has("column-hairlines"))) {
         out.push({ decor: true, kind: "rect", x: Z.x, y: y - Math.min(18, (y - ys[r - 1] - rowH[r - 1]) / 2), w: Z.w, h: 0.5, fill: "line" });
       }
-      if (criteria) out.push({ kind: "text", paras: [{ kind: "text", text: criteria[r], inset: 0, h: labelH(r), gap: 0 }], size: itemSize, x: critR.x, y, w: critR.w, h: labelH(r), limit: floor, bold: true, rail: inRail });
+      if (criteria) out.push({ kind: "text", paras: [{ kind: "text", text: criteria[r], inset: 0, h: labelH(r), gap: 0 }], size: itemSize, x: critR.x, y, w: critR.w, h: labelH(r), limit: floor, bold: true });
       sides.forEach((sd, i) => {
         if (!sd.items[r]) return;
         const h = sideH(sd.items[r], i);
@@ -1104,6 +1113,7 @@ const PLANS = {
       });
     }
     if (S.deco.has("column-hairlines")) out.push(columnHairline(S, parts[1], Z));
+    if (notes) out.push({ ...notes, x: Z.x, y: Z.bottom + state.blockGap, limit: ctx.Z.bottom });
     return out;
   },
 
@@ -1137,23 +1147,28 @@ const PLANS = {
         // The same readable measure as the stacked rows (S4.4; the gate counts spaces as characters). That
         // measure at body size leaves the body's right columns empty, so what happens is set a step up (lead)
         // when the rows still fit: the measure grows with the size and reaches across (spec-v2 Amendments 7).
-        const at = (size) => {
+        // `flush` sets what happens against the body's right edge and gives the step's name the columns
+        // between, so a body-size measure still reaches across when the lead step does not fit.
+        const at = (size, flush = false) => {
           const restW = Math.min(Z.x + Z.w - restX, (korean ? 26 : 35) * size);
+          const rx = flush ? Z.x + Z.w - restW : restX;
+          const headW = rx - S.grid.gutter - headR.x;
           const rows = steps.map((st) => {
-            const hh = G.textHeight(st.head, headR.w, headSize);
+            const hh = G.textHeight(st.head, headW, headSize);
             const rh = st.rest ? G.textHeight(st.rest, restW, size) : 0;
             return { num: st.n, head: st.head, rest: st.rest, hh, rh, h: Math.max(numSize * 1.15, hh, rh) };
           });
           const tallest = Math.max(...rows.map((r) => r.h));
           const pitch = rowPitch(rows.length, tallest, Z, state.groupGap, tallest + 48);
           rows.forEach((r, i) => { r.y = Z.y + i * pitch; });
-          return { kind: "rows", rows, x: Z.x, numW, textX: headR.x, textW: headR.w, restX, restW, head: headSize, rest: size, numSize, pitch, rule: true,
+          return { kind: "rows", rows, x: Z.x, numW, textX: headR.x, textW: headW, restX: rx, restW, head: headSize, rest: size, numSize, pitch, rule: true,
             y: Z.y, h: (rows.length - 1) * pitch + rows[rows.length - 1].h, limit: Z.bottom };
         };
         const body = at(restSize);
         if ((Z.x + Z.w - (restX + body.restW)) / Z.w > 0.25) {
           const lead = at(S.sizes.lead);
           if (lead.y + lead.h <= Z.bottom + 0.5) return [lead];
+          return [at(restSize, true)];
         }
         return [body];
       }
@@ -1168,7 +1183,6 @@ const PLANS = {
       rows.forEach((r, i) => { r.y = Z.y + i * pitch; });
       return [{ kind: "rows", rows, x: Z.x, numW, textX, textW, head: headSize, rest: restSize, numSize, pitch, rule: true, y: Z.y, h: (rows.length - 1) * pitch + rows[rows.length - 1].h, limit: Z.bottom }];
     };
-    if (ctx.cls === "side") return withNotes(asRows());
     const slots = equalParts(S, Z, steps.length);
     const placedSteps = steps.map((s, i) => {
       const R = slots[i];
@@ -1248,7 +1262,7 @@ const PLANS = {
     const M = wide ? region(S, Z.a, Z.b - 4, Z.y, Z.bottom) : Z;
     const notesH = texts.length && !wide ? stack(texts, Z, S, state).bottom - Z.y + state.blockGap : 0;
     const mBottom = M.bottom - notesH;
-    const labelCols = ctx.cls === "side" || wide ? 1 : 2;
+    const labelCols = wide ? 1 : 2;
     const labels = region(S, M.a, M.a + labelCols - 1, M.y, mBottom);
     const grid = region(S, M.a + labelCols, M.b, M.y, mBottom);
     const capH = table.caption ? captionHeight(table.caption, grid.w, S) + 6 : 0;
@@ -1284,13 +1298,13 @@ const PLANS = {
     const by = paras.find((p) => /^[—–-]\s*/u.test(plainText(p.text)));
     const said = paras.filter((p) => p !== by).map((p) => p.text).join(" ");
     const markW = S.grid.span(1, 1).w;
-    const R = region(S, Math.min(Z.b, Z.a + 1), Math.max(Z.a + 1, Z.b - (ctx.cls === "side" ? 0 : 2)), Z.y + 24, Z.bottom);
+    const R = region(S, Math.min(Z.b, Z.a + 1), Math.max(Z.a + 1, Z.b - 2), Z.y + 24, Z.bottom);
     const size = S.sizes.title;
     const h = G.textHeight(plainText(said), R.w, size, 1.3);
     const blockH = h + (by ? 18 + S.sizes.label * 1.4 : 0);
     // Beside a side title the quote is the slide's display element: it sits in the middle of the
     // body, as a statement does, instead of at the top of an empty page.
-    const y = ctx.cls === "side" ? Math.max(R.y, Math.round(Z.y + (Z.bottom - Z.y - blockH) / 2)) : R.y;
+    const y = R.y;
     return [{ kind: "quote", text: said, by: by ? plainText(by.text) : "", size, x: R.x, w: R.w, y, h: blockH, textH: h, markX: Z.x, markW, limit: Z.bottom }];
   },
 
@@ -1340,16 +1354,22 @@ const PLANS = {
     const size = visuals.length === 1 && visuals[0].type === "image" && visuals[0].imageSize;
     if (S.tok.tight && size && size.width / size.height >= 2 && Z.b - Z.a + 1 >= 8) {
       const cap = captionHeight(visuals[0].caption, Z.w, S);
-      for (const [share, n] of [[0.5, 2], [0.5, 3], [0.42, 3], [0.36, 3]]) {
+      for (const [share, n] of [[0.5, 2], [0.45, 2], [0.5, 3], [0.42, 3], [0.36, 3]]) {
         const figH = Math.min(Math.round(Z.w * size.height / size.width) + cap, Math.round((Z.bottom - Z.y) * share));
         place({ ...Z, bottom: Z.y + figH });
-        const cols = defsInColumns(defs, { ...Z, y: Z.y + figH + state.blockGap }, n);
+        // Measured at their closest step first: whether the terms fit under the figure is not a question of
+        // how far they may then open to fill the room.
+        const under = { ...Z, y: Z.y + figH + state.blockGap };
+        let cols = defsInColumns(defs, under, n, false);
         // The source strip closes the shortest column when it fits there.
         const last = cols.reduce((m, q) => (q.y + q.h < m.y + m.h ? q : m));
         const strip = ctx.strip ? stripPlacements(ctx.strip, { ...Z, x: last.x, w: last.w }, S) : null;
         const closes = strip && last.y + last.h * 1.1 + S.tok.block + strip.h <= Z.bottom;
         // A figure across the body is wider at 130 pt than it stands beside its terms at full column height.
         if (figH - cap >= 130 && cols.every((q) => q.y + q.h * 1.1 <= Z.bottom) && (!strip || closes)) {
+          // Then the terms open over the room left above the strip, when they still fit there.
+          const roomy = defsInColumns(defs, { ...under, bottom: strip ? Z.bottom - strip.h - S.tok.block : Z.bottom }, n);
+          if (roomy.every((q) => q.y + q.h * 1.05 <= (strip ? Z.bottom - strip.h - S.tok.block : Z.bottom))) cols = roomy;
           return [...out, ...cols.map((q) => ({ ...q, limit: Z.bottom - q.h * 0.1 })), ...(strip ? strip.placed.map((q) => ({ ...q, strip: true })) : [])];
         }
         out.length = 0;
@@ -1398,14 +1418,18 @@ const PLANS = {
 
     // The terms split between two columns at the entry that brings the first nearest half the height (three
     // columns: the cuts that keep the tallest column lowest).
-    function defsInColumns(list, R, n = 2) {
+    function defsInColumns(list, R, n = 2, open = true) {
       const ents = entries(list);
       const flat = (part) => part.flatMap((e) => [{ kind: e.kind === "section" ? "section" : "bullet", text: e.head ? `**${e.head}** ${e.rest}`.trim() : e.rest },
         ...e.children.map((c) => ({ kind: "child", text: c }))]);
       const cols = equalParts(S, R, n);
       const fits = (st) => cols.every((C) => C.y + measureText(flat(ents), C.w, S, st).h / n <= C.bottom);
-      // Terms keep a 12 pt step between them when the columns hold it, else the item gap.
-      const gapped = fits({ ...state, itemGap: Math.max(state.itemGap, 12) }) ? { ...state, itemGap: Math.max(state.itemGap, 12) } : state;
+      // Terms keep a 12 pt step between them when the columns hold it, else the item gap. Terms that leave
+      // more than the density band empty under them open the step, up to 36 pt, while the columns hold it.
+      const at = (g) => ({ ...state, itemGap: Math.max(state.itemGap, g) });
+      const loose = (st) => (C) => (C.bottom - C.y - measureText(flat(ents), C.w, S, st).h / n) / (C.bottom - C.y) > S.tok.cap;
+      let gapped = fits(at(12)) ? at(12) : state;
+      if (open && gapped !== state && cols.every(loose(gapped))) gapped = [36, 30, 24, 18].map(at).find(fits) || gapped;
       const tall = (part) => (part.length ? measureText(flat(part), cols[0].w, S, gapped).h : 0);
       if (n === 3 && ents.length >= 3) {
         let best = null;
@@ -1630,8 +1654,8 @@ function figureRows(cards, Z, S, state, spread = null) {
 }
 
 /**
- * A big-number slide as a data panel: the panel takes seven of twelve columns beside a top or bottom
- * title (five of eight beside a rail) down to the zone's floor. With two to four figures (a KPI table
+ * A big-number slide as a data panel: the panel takes seven of twelve columns under the title down to
+ * the zone's floor. With two to four figures (a KPI table
  * whose second body row gives each figure's basis) the panel holds one row per figure: the value at
  * title size, its label and its basis beside it. One figure is set at title size with its label on a
  * panel as tall as they are. The
@@ -1644,7 +1668,7 @@ function numberPanel(ctx, table, texts) {
   const c = table.content || {};
   const cards = shared().kpiCards(c).slice(0, 6).filter((k) => plainText(k.value));
   const device = S.pack.display.number;
-  const [pR, eR] = texts.length ? splitRegion(S, Z, ctx.cls === "side" ? 5 / 8 : 7 / 12) : [Z, null];
+  const [pR, eR] = texts.length ? splitRegion(S, Z, 7 / 12) : [Z, null];
   const pad = Math.max(18, S.tok.pad);
   const inner = pR.w - pad * 2;
   const panelH = pR.bottom - pR.y;
@@ -1882,8 +1906,8 @@ function drawPlaced(slide, S, p, ctx) {
     return;
   }
   if (p.kind === "box") {
-    if (p.outline) packRect(slide, S, p, { line: "ink", lineWidth: 1 });
-    else if (p.tint) packRect(slide, S, p, { fill: "accent-tint", radius: S.pack.radius });
+    if (p.outline) packRect(slide, S, p, { line: "ink", lineWidth: S.pack["edge-weight"] || 1, ...hardEdge(S, "ground") });
+    else if (p.tint) packRect(slide, S, p, { fill: "accent-tint", radius: S.pack.radius, ...hardEdge(S) });
     else surfaceRect(slide, S, p);
     return;
   }
@@ -1909,7 +1933,7 @@ function drawPlaced(slide, S, p, ctx) {
     return;
   }
   if (p.kind === "callout") {
-    packRect(slide, S, p, { fill: "accent-tint", radius: S.pack.radius });
+    packRect(slide, S, p, { fill: "accent-tint", radius: S.pack.radius, ...hardEdge(S) });
     packText(slide, S, plainText(c), { x: p.x + p.pad, y: p.y + p.pad, w: p.w - p.pad * 2, h: p.h - p.pad * 2 },
       { size: p.size, bold: true, colour: S.colour("accent-deep") });
     return;
@@ -2179,7 +2203,7 @@ function drawPackTable(slide, S, c, p, title) {
   const border = (ri) => {
     const last = ri === rows.length - 1;
     switch (t.rules) {
-      case "grid": return [hair, hair, hair, hair];
+      case "grid": return Array(4).fill(S.pack["edge-weight"] ? { type: "solid", pt: S.pack["edge-weight"], color: S.colour(S.pack["edge-colour"] || "line") } : hair);
       case "booktabs": return [ri === -1 ? heavy(1) : none, none, ri === -1 ? heavy(0.5) : last ? heavy(1) : none, none];
       case "top-bottom": return [ri === -1 ? hair : none, none, last ? hair : ri === -1 ? hair : none, none];
       case "header-rule": return [none, none, ri === -1 ? heavy(2) : none, none];
@@ -2190,7 +2214,7 @@ function drawPackTable(slide, S, c, p, title) {
   };
   const cellMargin = [IN(6), IN(6), IN(6), IN(6)];
   // Cell text that wraps is broken at spaces here, as in body text (see G.keepLines).
-  const keep = (text, ci, ri, size, role) => G.keepLines(text, ((p.widths[ci] || p.w) - 12) / S.wide(role) / size,
+  const keep = (text, ci, ri, size, role) => G.keepLines(text, ((p.widths[ci] || p.w) - 12) / S.wide(role, text) / size,
     Math.floor(((p.heights[ri + 1] || 0) - 12) / (size * 1.45) + 0.01));
   const tableRows = [headers.map((h, ci) => ({
     text: keep(plainText(h), ci, -1, p.header, "label"),
@@ -2226,15 +2250,13 @@ function overflows(placed) {
 
 /**
  * The zones of one treatment frame: body Z, the class and where the empty band is measured from.
- * Nothing is set beside a bottom title: a text block there stops the page reading as that treatment.
- * The rail under a side title is another matter: it carries the slide's supporting content (see railOf).
+ * Every treatment's body is the shared body zone under the title zone, so the class is "top".
  */
 function zonesOf(frame, S) {
   const t = frame.title;
-  const cls = frame.id === "side-rail" ? "side" : frame.id === "bottom-anchor" ? "bottom" : "top";
   if (!frame.body) return { cls: "none" };
   const Z = region(S, frame.body.a, frame.body.b, frame.body.y, frame.body.bottom);
-  return { cls, Z, bandTop: cls === "bottom" ? Z.y : Math.min(t.y + t.h, Z.y) };
+  return { cls: "top", Z, bandTop: Math.min(t.y + t.h, Z.y) };
 }
 
 /**
@@ -2280,112 +2302,18 @@ function stripPlacements(lines, Z, S) {
   ] };
 }
 
-// Families that pair a visual with its takeaways: under a side title the takeaways may stand in the rail
-// and the visual takes the body (a table opens its rows; how full the body ends up still decides the title).
-const RAIL_TAKEAWAYS = new Set(["chart-insight", "full-chart", "table-insight", "figure-academic", "image-split",
-  "kpi-row", "big-number", "kpi-over-chart", "dashboard-grid", "photo-grid", "figure-pair", "asymmetric-feature"]);
-// A rail more empty than this, from the title down, costs the slide the side rail (spec-v2 Amendments 7).
+// A column more empty than this, beside a longer one, costs the slide its title (spec-v2 Amendments 7).
 const RAIL_EMPTY = 0.4;
-
-/**
- * The rail under a side title: columns 1-4 from just under the title frame (which keeps a spare line for
- * a title that wraps once more than estimated) to the floor. It holds the slide's supporting content: the
- * source strip at its foot, the takeaways of a visual when they fit, a comparison's criteria labels level
- * with their rows.
- */
-function railOf(frame, S) {
-  const t = frame.title;
-  const s = S.grid.span(1, 4);
-  // `top` is where the rail's empty share is measured from: the title frame's foot, as the gate reads it.
-  return { a: 1, b: 4, x: s.x, w: s.w, y: Math.ceil(t.y + t.h + S.tok.group), top: t.y + t.h, bottom: G.ZONE.floor };
-}
-
-/** The largest empty stretch of the rail under the title frame as a share of its height (rail placements only). */
-function railBand(rail, placed) {
-  let gap = 0;
-  let cursor = rail.top;
-  for (const q of placed.filter((p) => p.rail && !p.decor).sort((a, b) => a.y - b.y)) {
-    gap = Math.max(gap, q.y - cursor);
-    cursor = Math.max(cursor, q.y + q.h);
-  }
-  return Math.max(gap, rail.bottom - cursor) / Math.max(1, rail.bottom - rail.top);
-}
 
 function planSlide(spec, frame, S, items) {
   const z = zonesOf(frame, S);
   if (spec.lead && spec.family !== "summary-box-list") items = [{ type: "main-box", content: spec.lead }, ...items];
   if (z.cls === "none") return { placed: [], band: 0, applied: [], before: 0, z };
   const full = z.Z;
-  const rail = z.cls === "side" ? railOf(frame, S) : null;
-  const railPlaced = [];
   const taken = takeStrip(spec, items);
-  // The source strip: at the rail's foot under a side title; else offered to a takeaway column beside a
-  // visual, and across the body's foot when no column takes it.
-  let lines = taken.lines;
+  // The source strip: offered to a takeaway column beside a visual, and across the body's foot when no column takes it.
+  const lines = taken.lines;
   items = taken.items;
-  if (lines.length && rail) {
-    const strip = stripPlacements(lines, rail, S);
-    railPlaced.push(...strip.placed.map((q) => ({ ...q, rail: true })));
-    rail.bottom -= strip.h + S.tok.block;
-    lines = [];
-  }
-  // A visual's takeaways stand in the rail when they fit there, a chart's values table under them; the
-  // visual then takes the body. Takeaways that leave the rail more than RAIL_EMPTY empty at body size are
-  // set a step up (lead) when they fit: the rail is a display column, the one place the compact step
-  // sets text above body size.
-  if (rail && RAIL_TAKEAWAYS.has(spec.family) && !spec.stacked) {
-    const { texts, visuals } = sortItems(items);
-    const paras = texts.filter((t) => t.type !== "main-box").flatMap(itemParas);
-    // A table keeps its own height: its takeaways leave the body only when the table, its rows opened,
-    // still fills the body to the density band.
-    const fills = () => {
-      // Figure rows and number panels spread to the floor; so do charts and pictures.
-      if (["kpi-row", "big-number"].includes(spec.family) || visuals.some((v) => v.type !== "kpi-table" || (v.content || {}).chart)) return true;
-      const alone = openRows(stack(visuals, full, S, { stepped: false, itemGap: S.tok.item, groupGap: S.tok.group, blockGap: S.tok.block }).placed, full, S);
-      return (full.bottom - contentBottom(alone, full.y)) / (full.bottom - full.y) <= S.tok.cap;
-    };
-    if (visuals.length && paras.length && fills()) {
-      const state = { stepped: false, itemGap: S.tok.item, groupGap: S.tok.group, blockGap: S.tok.block };
-      const sets = [S.sizes.body, S.sizes.lead].map((size) => {
-        const m = { ...measureText(paras, rail.w, S, state, { size }), x: rail.x, y: rail.y, limit: rail.bottom, rail: true };
-        const values = S.tok.tight ? chartValues(visuals, rail, S, state, rail.y + m.h) : null;
-        const set = [m, ...(values ? [{ ...values, rail: true }] : [])];
-        return { set, fits: set.every((q) => q.y + q.h <= rail.bottom + 0.5), band: railBand({ ...rail, bottom: G.ZONE.floor }, [...set, ...railPlaced]) };
-      }).filter((x) => x.fits);
-      // Body size when it fills the rail; else whichever size leaves the rail least empty.
-      const pick = sets.find((x) => x.band <= RAIL_EMPTY) || sets.reduce((a, b) => (b.band < a.band ? b : a), sets[0]);
-      if (pick) {
-        // Takeaways that still leave a quarter of the rail empty share that room between them, at most a
-        // sixth of the rail a gap (spec-v2 Amendments 8): the rail reads as one column down to its source.
-        const [m] = pick.set;
-        const breaks = m.paras.filter((para, i) => i > 0 && para.kind !== "child");
-        const room = rail.bottom - S.tok.block - (pick.set[pick.set.length - 1].y + pick.set[pick.set.length - 1].h);
-        if (pick.band > 0.25 && pick.set.length === 1 && breaks.length && room > 0) {
-          const per = Math.min(room / (breaks.length + 1), (G.ZONE.floor - rail.top) / 6);
-          for (const para of breaks) para.gap += per;
-          m.h += per * breaks.length;
-        }
-        railPlaced.push(...pick.set);
-        items = items.filter((i) => !(isText(i) && i.type !== "main-box"));
-      }
-    }
-  }
-  // A sidebar note is the slide's supporting content: under a side title it stands in the rail, at lead size
-  // when it fits there (spec-v2 Amendments 8).
-  if (rail && spec.family === "sidebar-note") {
-    const texts = sortItems(items).texts;
-    const note = texts.find((t) => t.type === "main-box") || (texts.length > 1 ? texts[texts.length - 1] : null);
-    if (note) {
-      const state = { stepped: false, itemGap: S.tok.item, groupGap: S.tok.group, blockGap: S.tok.block };
-      const paras = itemParas(note).map((p) => ({ ...p, kind: p.kind === "child" ? "child" : "text" }));
-      const m = [S.sizes.lead, S.sizes.body].map((size) => ({ ...measureText(paras, rail.w, S, state, { size }), x: rail.x, y: rail.y, limit: rail.bottom, rail: true, note: true }))
-        .find((q) => q.y + q.h <= rail.bottom + 0.5);
-      if (m) {
-        railPlaced.push(m);
-        items = items.filter((i) => i !== note);
-      }
-    }
-  }
   const across = lines.length ? stripPlacements(lines, full, S) : null;
   const tok = S.tok;
   const plan = (spec.stacked && PLANS[STACKS[spec.family]]) || PLANS[spec.family] || PLANS["text-column"];
@@ -2395,15 +2323,14 @@ function planSlide(spec, frame, S, items) {
   const zone = () => (across && !offer ? { ...full, bottom: full.bottom - across.h - S.tok.block } : full);
   // A later run (another fill state) that leaves the offered strip is refused like an overflow.
   const run = (settle = false) => {
-    const ctx = { spec, S, state, Z: zone(), cls: z.cls, family: spec.family, items, rail, strip: offer ? lines : null,
-      railValues: railPlaced.some((q) => q.item && q.item.values), railNote: railPlaced.some((q) => q.note) };
+    const ctx = { spec, S, state, Z: zone(), family: spec.family, items, strip: offer ? lines : null };
     const placed = plan(ctx);
     const lost = offer && !placed.some((q) => q.strip);
     if (lost && settle) {
       offer = false;
       return run();
     }
-    return { placed, lost, bottom: contentBottom(placed.filter((q) => !q.rail), zone().y) };
+    return { placed, lost, bottom: contentBottom(placed, zone().y) };
   };
   const band = (o) => Math.max(0, Math.min(1, (zone().bottom - o.bottom) / Math.max(1, zone().bottom - z.bandTop)));
   let out = run(true);
@@ -2450,15 +2377,10 @@ function planSlide(spec, frame, S, items) {
     fillColumn(short, floor, S, state);
     short = shortColumn([...out.placed, ...(across && !offer ? across.placed : [])], floor, S);
   }
-  // On a rail drawn in the field colour, what stands in it is set in the field's ink.
-  const field = (frame.decor || []).some((d) => d.kind === "rail" && d.role === "field");
-  const placed = [...out.placed, ...railPlaced, ...(across && !offer ? across.placed : [])].map((q) => (q.rail && field ? { ...q, onField: true } : q));
+  const placed = [...out.placed, ...(across && !offer ? across.placed : [])];
   const overflow = overflows(placed);
-  const railEmpty = rail ? railBand({ ...rail, bottom: G.ZONE.floor }, placed) : 0;
-  // A quote or statement beside a rail is a display slide: its rail holds the title alone by design.
-  const display = ["quote", "statement"].includes(spec.family);
-  return { ...out, placed, band: band(out), before, applied, z, overflow, rail: railEmpty, short: short.share,
-    unfit: overflow || (railEmpty > RAIL_EMPTY && !display) || short.share > RAIL_EMPTY };
+  return { ...out, placed, band: band(out), before, applied, z, overflow, short: short.share,
+    unfit: overflow || short.share > RAIL_EMPTY };
 }
 
 /** The frame of a treatment for this slide (a quote under a statement title says the quote). */
@@ -2474,8 +2396,8 @@ function frameFor(spec, treatment) {
  * on and a large one past about a third of the deck, so filling never collapses a deck into one look. The variance dial keeps the number of
  * distinct treatments under its maximum.
  */
-// A bottom title is for a chart, a picture, a big number, a row of figures or a timeline axis that takes
-// the zone above it (S2.5), not for a table.
+// The bottom-anchor style (the title frame closed by a heavy rule) is for a slide led by a chart, a picture,
+// a big number, a row of figures or a timeline axis (S2.5), not for a table.
 const drawn = (spec) => ["big-number", "kpi-row", "timeline"].includes(spec.family) || (spec.items || []).some((i) => (i.type === "kpi-table" && (i.content || {}).chart) || i.type === "image" || i.type === "image-grid");
 
 function chooseTreatment(spec, S, deck) {
@@ -2485,9 +2407,8 @@ function chooseTreatment(spec, S, deck) {
   // Titles that fit come first; a table goes under a bottom title only when nothing else fits it.
   const fit = tries.filter((x) => !x.plan.unfit);
   const proper = fit.filter((x) => x.t !== "bottom-anchor" || drawn(spec));
-  // When every title leaves the slide unfit, the one that overflows least and leaves its rail or a column least
-  // empty stands (an overflowing or empty-rail plan came first by order before).
-  const badness = (x) => (x.plan.overflow ? 10 : 0) + Math.max(0, x.plan.rail - RAIL_EMPTY) + Math.max(0, (x.plan.short || 0) - RAIL_EMPTY);
+  // When every title leaves the slide unfit, the one that overflows least and leaves a column least empty stands.
+  const badness = (x) => (x.plan.overflow ? 10 : 0) + Math.max(0, (x.plan.short || 0) - RAIL_EMPTY);
   const pool = proper.length ? proper : fit.length ? fit : [...tries].sort((m, n) => badness(m) - badness(n));
   const first = pool[0];
   if (first.t === options[0] && first.plan.band <= S.tok.cap && first.t !== deck.prev && (deck.count[first.t] || 0) < deck.limit) return first;
@@ -2599,6 +2520,8 @@ function spreadTreatments(choices, S, pack, slideCount) {
   const layoutOf = (t, plan) => `${ZONE_OF[t]}/${partitionOf(plan, S)}`;
   // The check also fails a deck where one layout covers more than 40 % of those slides, so while
   // one does, a slide of that layout moves to a title that gives a layout still under the share.
+  // A title style never moves the body (every treatment shares the title zone), so any slide whose
+  // source leaves its title open may take another here, not only a data slide.
   const shareCap = 0.4 * counted.length;
   for (let guard = 0; guard < counted.length; guard++) {
     const keys = {};
@@ -2611,7 +2534,7 @@ function spreadTreatments(choices, S, pack, slideCount) {
     for (const spec of counted) {
       const current = choices.get(spec);
       const from = layoutOf(current.t, current.plan);
-      if (!movable(spec) || keys[from] < 2 || (!short && from !== topKey)) continue;
+      if (keys[from] < 2 || (!short && from !== topKey)) continue;
       for (const t of spec.candidates || []) {
         if (t === current.t || (t === "bottom-anchor" && !drawn(spec))) continue;
         const inUse = new Set([...choices.values()].map((c) => c.t));
@@ -2620,8 +2543,10 @@ function spreadTreatments(choices, S, pack, slideCount) {
         const to = layoutOf(t, plan);
         if (plan.unfit || plan.band > Math.max(S.tok.cap, current.plan.band) || to === from) continue;
         // A move that adds a layout comes first; else one that relieves the crowded layout.
-        if (short ? keys[to] : (keys[to] || 0) + 1 > shareCap) continue;
-        const loss = plan.band - current.plan.band + (from === topKey && crowded ? -1 : 0);
+        const adds = short && !keys[to];
+        const relieves = crowded && from === topKey && (keys[to] || 0) + 1 <= shareCap;
+        if (!adds && !relieves) continue;
+        const loss = plan.band - current.plan.band - (adds ? 2 : 0) - (relieves ? 1 : 0);
         if (!best || loss < best.loss) best = { spec, t, plan, loss, added: !keys[to] };
       }
     }
@@ -2713,13 +2638,15 @@ function drawnBoxes(p, S) {
  */
 function partitionOf(plan, S) {
   const Z = plan.z && plan.z.Z;
-  // What stands in a side title's rail is part of the title zone, as the check reads it.
-  const placed = (plan.placed || []).filter((q) => !q.decor && !q.rail);
+  const placed = (plan.placed || []).filter((q) => !q.decor);
   if (!Z || !placed.length) return "one";
   const all = placed.flatMap((q) => drawnBoxes(q, S)).filter((b) => b.w > 0 && b.h > 0);
   const cards = all.filter((b) => b.card);
   const inCard = (b) => cards.some((c) => c !== b && b.x + b.w / 2 >= c.x - 1 && b.x + b.w / 2 <= c.x + c.w + 1 && b.y + b.h / 2 >= c.y - 1 && b.y + b.h / 2 <= c.y + c.h + 1);
-  const blocks = all.filter((b) => !inCard(b));
+  // A one-line caption or source on the body floor is the slide's foot, not a column (as the gate reads it).
+  const body = SG.zone(S.grid.canvas, "content", "body");
+  const floor = body.y + body.h;
+  const blocks = all.filter((b) => !inCard(b) && !(!b.card && b.h <= 16 && b.y + b.h >= floor - 2));
   if (!blocks.length) return "one";
   const bodyW = S.grid.W - 2 * S.grid.margin;
   let narrow = blocks.filter((b) => b.w < 0.7 * bodyW);
@@ -2764,7 +2691,7 @@ const TEXT_KINDS = new Set(["text", "caption", "callout", "box", "panel"]);
 const SHORT_KINDS = new Set([...TEXT_KINDS, "image"]);
 function shortColumn(placed, floor, S) {
   const flat = (list) => list.flatMap((q) => (q.kind === "group" ? flat(q.parts) : [q]));
-  const owners = flat(placed.filter((q) => !q.decor && !q.rail));
+  const owners = flat(placed.filter((q) => !q.decor));
   // A matrix's cells are drawn whole on the page, whatever its composition estimate reads of them.
   const boxesOf = (q) => (q.kind === "matrix" ? q.cells.map((c) => ({ x: c.x, y: c.y, w: c.w, h: c.h })) : drawnBoxes(q, S));
   // A chart's values table under its takeaways belongs to their column.
@@ -2848,9 +2775,11 @@ function fillColumn(short, floor, S, state) {
 /** Families whose visual may take its takeaways under it across the body, and the plan that does. */
 const STACKS = { "table-insight": "ledger-table", "chart-insight": "full-chart" };
 
-/** The composition title zone of each treatment (S15). */
-const ZONE_OF = { "top-rule": "top", "top-plain-large": "top", "kicker-numeral": "top", "side-rail": "side", band: "band",
-  "bottom-anchor": "bottom", overlay: "overlay", statement: "none" };
+/**
+ * The composition title zone of each treatment (S15). Every treatment styles the one title frame of the
+ * slide grid, so a slide's title "zone" in its signature is its treatment, as the gate reads it.
+ */
+const ZONE_OF = Object.fromEntries(G.TREATMENTS.map((t) => [t, t]));
 
 // ── Content, cover and section slides ───────────────────────────────────────
 
@@ -2868,7 +2797,7 @@ function renderContent(slide, spec, S, ctx, chosen) {
   const items = spec.items || [];
   if (!f.image) drawDecor(slide, S, f.decor);
   if (f.numeral) {
-    packText(slide, S, f.numeral.text, f.numeral, { face: "numeral", size: f.numeral.size, colour: S.colour("accent"), lineSpacing: 1.15 });
+    packText(slide, S, f.numeral.text, f.numeral, { face: "numeral", size: f.numeral.size, colour: S.colour("accent"), lineSpacing: 1.15, align: f.numeral.align, name: "numeral@kicker" });
   }
   const dctx = { sourceDir: ctx.sourceDir, title: spec.title };
   let ink = t.colour;
@@ -2884,15 +2813,8 @@ function renderContent(slide, spec, S, ctx, chosen) {
   } else if (f.support) {
     const text = spec.supportText || spec.lead || items.filter(isText).flatMap(itemParas).map((p) => plainText(p.text)).join(" ");
     const supportH = text ? G.textHeight(plainText(text), f.support.w, S.sizes.body) : 0;
-    // A tall statement with a support line moves up so the line ends on the body floor.
-    const over = f.support.y + supportH - G.ZONE.floor;
-    if (over > 0) {
-      const dy = Math.min(over, t.y - G.ZONE.top);
-      t.y -= dy;
-      f.support.y -= dy;
-    }
     ink = statementDevice(slide, S, f, supportH);
-    if (text) packText(slide, S, text, { ...f.support, h: supportH }, { colour: S.colour(ink === "on-field" ? "on-field" : "ink-muted") });
+    if (text) packText(slide, S, text, { ...f.support, h: supportH }, { colour: S.colour(ink === "on-field" ? "on-field" : "ink-muted"), name: "support@statement" });
   } else if (f.body) {
     const plan = chosen.plan;
     if (plan.before > S.tok.cap || plan.band > S.tok.cap) {
@@ -2903,46 +2825,45 @@ function renderContent(slide, spec, S, ctx, chosen) {
   }
   packText(slide, S, chosen.t === "statement" && spec.statementText ? spec.statementText : spec.title, t, {
     // Every title that wraps is set in balanced lines, never ending on one word.
-    face: t.face, size: t.size, colour: S.colour(ink), lineSpacing: 1.15, title: true, name: `title@${chosen.t}`, balance: true,
+    face: t.face, size: t.size, colour: S.colour(ink), lineSpacing: t.lineSpacing || 1.15, valign: t.valign, title: true, name: `title@${chosen.t}`, balance: true,
   });
 }
 
 /**
  * What carries a statement, from the pack's display keys: nothing (open), the field over the whole
- * page (drench), the field under the sentence from just above it to the foot (plate), a hairline
- * above the sentence and one under its support line (rules), or a rail beside a sentence set off
- * the left edge (offset). Returns the colour role the sentence takes.
+ * page (drench), the field from just above the sentence's zone to the page foot (plate), a hairline
+ * above the sentence and one under its support line (rules), the primaries' composition in the side
+ * zone (geometry), or the rail colour filling the side zone (offset). The sentence stays in the display
+ * title zone whichever it is. Returns the colour role the sentence takes.
  */
 function statementDevice(slide, S, f, supportH) {
   const g = S.grid;
   const t = f.title;
+  const side = SG.zone(g.canvas, "display", "side");
   const device = (S.pack.display || {}).statement || "open";
   if (device === "drench") {
     packRect(slide, S, { x: 0, y: 0, w: g.W, h: g.H }, { fill: "field" });
     return "on-field";
   }
   if (device === "plate") {
-    // The sentence moves down onto a plate that bleeds off three edges and covers less than half
-    // of the page, so the white above stays the page and the plate reads as the sentence's ground.
-    // A sentence too tall to sit that low keeps the open page.
-    const top = Math.round((376 - t.h / 2) / 6) * 6;
-    if (top - 24 < 282 || top + t.h + 24 + supportH > G.ZONE.floor) return t.colour;
-    f.support.y += top - t.y;
-    t.y = top;
-    packRect(slide, S, { x: 0, y: top - 24, w: g.W, h: g.H - top + 24 }, { fill: "field" });
+    packRect(slide, S, { x: 0, y: t.y - 24, w: g.W, h: g.H - t.y + 24 }, { fill: "field" });
     return "on-field";
   }
   if (device === "rules") {
+    // The rules follow the sentence centred in its zone, not the zone's edges.
     const full = g.span(1, 12);
-    const below = supportH ? f.support.y + supportH + 24 : t.y + t.h + 30;
-    packRect(slide, S, { x: full.x, y: t.y - 30, w: full.w, h: 0.75 }, { fill: "line" });
+    const top = t.y + (t.h - t.textH) / 2;
+    const below = supportH ? f.support.y + supportH + 24 : top + t.textH + 30;
+    packRect(slide, S, { x: full.x, y: top - 30, w: full.w, h: 0.75 }, { fill: "line" });
     packRect(slide, S, { x: full.x, y: below, w: full.w, h: 0.75 }, { fill: "line" });
     return t.colour;
   }
+  if (device === "geometry") {
+    geometry(slide, S, side);
+    return t.colour;
+  }
   if (device === "offset") {
-    // The rail stops a column short of the sentence, so the gap between them is part of the grid,
-    // and at the body floor, so the footer zone stays the page's.
-    packRect(slide, S, { x: 0, y: 0, w: t.x - g.gutter / 2 - g.pitch, h: G.ZONE.floor }, { fill: S.pack.rail === "field" ? "field" : "surface" });
+    packRect(slide, S, { ...side, h: G.ZONE.floor }, { fill: S.pack.rail === "field" ? "field" : "surface" });
     return t.colour;
   }
   return t.colour;
@@ -2952,12 +2873,48 @@ function metaLine(meta) {
   return [meta.date, meta.department, meta.presenter].filter(Boolean).join("  ·  ");
 }
 
-/** Cover title at cover-max, stepping down to display when it would run past `maxLines`. */
-function coverTitle(S, text, w, maxLines, start = S.sizes.cover) {
-  let size = start;
-  let lines = S.lines(plainText(text), w, size, "display");
-  if (lines > maxLines) { size = S.sizes.display; lines = S.lines(plainText(text), w, size, "display"); }
-  return { size, h: Math.ceil(lines * size * 1.1) };
+/**
+ * The cover's words, the same places in every tonality (slide-grid cover zones): the meta line in the
+ * header zone, the title standing on the title zone's foot at the largest step that fits it (from the
+ * hero step while the pack's hero is on), and the
+ * subtitle in the subtitle zone. A device only paints what lies behind or beside them.
+ */
+function coverWords(slide, spec, S, meta, o = {}) {
+  const Z = SG.zones(S.grid.canvas).cover;
+  const soft = S.colour(o.soft || "ink-muted");
+  const line = metaLine(meta);
+  if (line) packText(slide, S, line, Z.header, { size: S.sizes.label, colour: S.colour(o.meta || o.soft || "ink-muted"), lineSpacing: 1.2, name: "header@cover" });
+  if (meta.subtitle) {
+    const size = G.textHeight(meta.subtitle, Z.subtitle.w, S.sizes.lead) <= Z.subtitle.h ? S.sizes.lead : S.sizes.body;
+    packText(slide, S, meta.subtitle, Z.subtitle, { name: "subtitle@cover", size, colour: soft });
+  }
+  const steps = [...new Set([o.start || (S.pack.hero ? S.sizes.hero : S.sizes.cover), S.sizes.cover, S.sizes.display])].sort((a, b) => b - a);
+  const fits = (z) => S.lines(plainText(spec.title), Z.title.w, z, "display") * z * 1.1 <= Z.title.h;
+  const size = steps.find(fits) || S.sizes.display;
+  packText(slide, S, spec.title, Z.title, { face: "display", size, colour: S.colour(o.ink || "ink"), lineSpacing: 1.1, title: true, balance: true, valign: "bottom", name: "title@cover" });
+}
+
+/** A row of keys over short labels in the cover's strip zone (the deck's parts or its headline figures), under a hairline. */
+function coverStrip(slide, S, parts) {
+  const g = S.grid;
+  const Z = SG.zones(g.canvas).cover.strip;
+  const row = parts.slice(0, 4);
+  const cols = equalParts(S, region(S, 1, 12, Z.y, Z.y + Z.h), row.length);
+  packRect(slide, S, { x: Z.x, y: Z.y - 9, w: Z.w, h: 0.75 }, { fill: "line" });
+  row.forEach(([key, text], i) => {
+    const R = cols[i];
+    const k = [S.sizes.title, S.sizes.lead].find((z) => S.ems(key, "numeral") * z * 1.1 <= R.w) || S.sizes.body;
+    packText(slide, S, key, { x: R.x, y: Z.y, w: R.w, h: k * 1.15 }, { face: "numeral", size: k, colour: S.colour(i === 0 ? "accent" : "ink"), lineSpacing: 1.15 });
+    const top = Z.y + k * 1.32 + 4;
+    packText(slide, S, text, { x: R.x, y: top, w: R.w, h: Math.max(S.sizes.body * 1.4, Z.y + Z.h - top) }, { size: S.sizes.body, colour: S.colour("ink-muted") });
+  });
+}
+
+/** The deck's parts, else its headline figures, as strip entries. */
+function stripParts(facts) {
+  if ((facts.index || []).length >= 2) return facts.index.map((name, i) => [String(i + 1).padStart(2, "0"), name]);
+  if ((facts.figures || []).length >= 2) return facts.figures.map((f) => [f.value, f.label]);
+  return [];
 }
 
 function coverImage(slide, box, src, sourceDir) {
@@ -2975,80 +2932,41 @@ function croppedTo(file, box) {
   return { x: IN(box.x), y: IN(box.y), w: IN(box.w), h: IN(box.w * ratio), sizing: { type: "cover", w: IN(box.w), h: IN(box.h) } };
 }
 
+/** The field behind the title zone and what stands on it, from `top` down to 6 pt under the title's foot. */
+function titleField(slide, S, top) {
+  const T = SG.zones(S.grid.canvas).cover.title;
+  packRect(slide, S, { x: 0, y: top, w: S.grid.W, h: T.y + T.h + 6 - top }, { fill: "field" });
+}
+
 /**
- * A type-led cover drawn with the pack's display device: the field over the whole page with the
- * title anchored low (drench), a field plate under the title (plate), a journal title page between
- * rules (rules), or the plain page. The rail, band, figures and numeral devices draw the pack's
- * cover of that name when the deck holds what it needs.
+ * A type-led cover drawn with the pack's display device. Every device leaves the words where
+ * coverWords puts them and paints only around them: the field over the whole page (drench), a field
+ * plate from over the title to the page foot (plate), a journal page between rules (rules), the
+ * composition in the side zone (geometry), or the plain page.
  */
 const TYPE_COVERS = {
   drench(slide, spec, S, meta) {
-    const g = S.grid;
-    packRect(slide, S, { x: 0, y: 0, w: g.W, h: g.H }, { fill: "field" });
-    const line = metaLine(meta);
-    if (line) packText(slide, S, line, { ...g.span(1, 8), y: 36, h: 24 }, { size: S.sizes.label, colour: S.colour("on-field"), lineSpacing: 1.2 });
-    const span = g.span(1, 11);
-    const { size, h } = coverTitle(S, spec.title, span.w, 3, S.pack.hero ? S.sizes.hero : S.sizes.cover);
-    const sub = g.span(1, 8);
-    const subH = meta.subtitle ? G.textHeight(meta.subtitle, sub.w, S.sizes.lead) + 18 : 0;
-    // The title block ends just above the footer zone, so the field holds the title from below.
-    const y = Math.round((456 - subH - h) / 6) * 6;
-    if (meta.subtitle) packText(slide, S, meta.subtitle, { ...sub, y: y + h + 18, h: subH - 18 }, { name: "subtitle@cover", size: S.sizes.lead, colour: S.colour("on-field") });
-    packText(slide, S, spec.title, { ...span, y, h }, { face: "display", size, colour: S.colour("on-field"), lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
+    packRect(slide, S, { x: 0, y: 0, w: S.grid.W, h: S.grid.H }, { fill: "field" });
+    coverWords(slide, spec, S, meta, { ink: "on-field", soft: "on-field", start: S.pack.hero ? S.sizes.hero : S.sizes.cover });
   },
   plate(slide, spec, S, meta) {
-    // The plate covers a little under half the page, so the white above it stays the page's ground.
-    const g = S.grid;
-    const top = 288;
-    packRect(slide, S, { x: 0, y: top, w: g.W, h: g.H - top }, { fill: "field" });
-    const line = metaLine(meta);
-    if (line) packText(slide, S, line, { ...g.span(1, 8), y: 36, h: 24 }, { size: S.sizes.label, colour: S.colour("ink-muted"), lineSpacing: 1.2 });
-    const span = g.span(1, 10);
-    const { size, h } = coverTitle(S, spec.title, span.w, 2);
-    const y = top + 30;
-    if (meta.subtitle && y + h + 18 + S.sizes.body * 1.4 <= 462) {
-      const sub = g.span(1, 8);
-      packText(slide, S, meta.subtitle, { ...sub, y: y + h + 18, h: G.textHeight(meta.subtitle, sub.w, S.sizes.body) }, { name: "subtitle@cover", colour: S.colour("on-field") });
-    }
-    packText(slide, S, spec.title, { ...span, y, h }, { face: "display", size, colour: S.colour("on-field"), lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
+    // The plate runs from over the title to the page foot; the meta line stays on the ground above it.
+    const top = SG.zones(S.grid.canvas).cover.title.y - 24;
+    packRect(slide, S, { x: 0, y: top, w: S.grid.W, h: S.grid.H - top }, { fill: "field" });
+    coverWords(slide, spec, S, meta, { ink: "on-field", soft: "on-field", meta: "ink-muted" });
   },
   rules(slide, spec, S, meta) {
-    const g = S.grid;
-    const full = g.span(1, 12);
-    const span = g.span(1, 10);
-    const top = 96;
-    packRect(slide, S, { x: full.x, y: top, w: full.w, h: 2 }, { fill: "ink" });
-    const { size, h } = coverTitle(S, spec.title, span.w, 3);
-    const y = top + 30;
-    const ruleY = y + h + 24;
-    packRect(slide, S, { x: full.x, y: ruleY, w: full.w, h: 0.75 }, { fill: "line" });
-    // Under the rule, as on a journal's title page: who presents, then where and when, in one frame.
-    const place = [meta.department, meta.date].filter(Boolean).join("  ·  ");
-    const runs = [
-      ...(meta.presenter ? [{ text: meta.presenter, options: { fontFace: S.faces.title.font, fontSize: S.sizes.lead, bold: true, color: S.colour("ink"), breakLine: Boolean(place) } }] : []),
-      ...(place ? [{ text: place, options: { fontFace: S.faces.label.font, fontSize: S.sizes.label, color: S.colour("ink-muted") } }] : []),
-    ];
-    let at = ruleY + 18;
-    if (runs.length) {
-      // A frame as tall as an office renderer sets two lines of mixed sizes (about 1.5 of each).
-      const hh = (meta.presenter ? S.sizes.lead * 1.5 : 0) + (place ? S.sizes.label * 1.5 : 0);
-      slide.addText(runs, { x: IN(span.x), y: IN(at), w: IN(span.w), h: IN(hh), align: "left", valign: "top", margin: [0, 0, 0, 0], lineSpacingMultiple: 1.2 });
-      at += hh;
-    }
-    if (meta.subtitle) packText(slide, S, meta.subtitle, { ...span, y: at + 18, h: G.textHeight(meta.subtitle, span.w, S.sizes.label, 1.3) }, { name: "subtitle@cover", size: S.sizes.label, colour: S.colour("ink-muted"), lineSpacing: 1.3 });
-    packText(slide, S, spec.title, { ...span, y, h }, { face: "display", size, lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
+    const Z = SG.zones(S.grid.canvas).cover;
+    packRect(slide, S, { x: Z.strip.x, y: Z.title.y - 18, w: Z.strip.w, h: 2 }, { fill: "ink" });
+    packRect(slide, S, { x: Z.strip.x, y: Z.strip.y - 9, w: Z.strip.w, h: 0.75 }, { fill: "line" });
+    coverWords(slide, spec, S, meta);
+  },
+  geometry(slide, spec, S, meta) {
+    geometry(slide, S, SG.zones(S.grid.canvas).cover.side);
+    coverWords(slide, spec, S, meta);
   },
   plain(slide, spec, S, meta) {
-    const g = S.grid;
-    const span = g.span(1, 9);
-    const { size, h } = coverTitle(S, spec.title, span.w, 3);
-    if (meta.subtitle) {
-      const sub = g.span(1, 8);
-      packText(slide, S, meta.subtitle, { ...sub, y: 144 + h + 24, h: G.textHeight(meta.subtitle, sub.w, S.sizes.lead) }, { name: "subtitle@cover", size: S.sizes.lead, colour: S.colour("ink-muted") });
-    }
-    const line = metaLine(meta);
-    if (line) packText(slide, S, line, { ...g.span(1, 6), y: 438, h: 24 }, { size: S.sizes.label, colour: S.colour("ink-muted"), lineSpacing: 1.2 });
-    packText(slide, S, spec.title, { ...span, y: 144, h }, { face: "display", size, lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
+    coverWords(slide, spec, S, meta);
   },
 };
 
@@ -3063,333 +2981,178 @@ const COVERS = {
     return (TYPE_COVERS[device] || TYPE_COVERS.plain)(slide, spec, S, meta);
   },
   "cover-split-field"(slide, spec, S, meta) {
-    const g = S.grid;
-    const x = g.colX(8) - g.gutter / 2;
-    packRect(slide, S, { x, y: 0, w: g.W - x, h: g.H }, { fill: "field" });
+    const side = SG.zones(S.grid.canvas).cover.side;
+    packRect(slide, S, side, { fill: "field" });
     if (spec.cover.numeral) {
-      const s = g.span(9, 12);
+      const s = S.grid.span(side.a, side.b);
       packText(slide, S, spec.cover.numeral, { ...s, y: 384, h: S.sizes.title * 1.15 }, { face: "numeral", size: S.sizes.title, colour: S.colour("on-field"), lineSpacing: 1.15 });
     }
-    splitText(slide, spec, S, meta, 6);
+    coverWords(slide, spec, S, meta);
   },
   "cover-split-image"(slide, spec, S, meta) {
-    const g = S.grid;
-    const x = g.colX(8) - g.gutter / 2;
-    coverImage(slide, { x, y: 0, w: g.W - x, h: g.H }, spec.cover.image, spec.sourceDir);
-    splitText(slide, spec, S, meta, 6);
+    coverImage(slide, SG.zones(S.grid.canvas).cover.side, spec.cover.image, spec.sourceDir);
+    coverWords(slide, spec, S, meta);
   },
   "cover-full-image"(slide, spec, S, meta) {
     const g = S.grid;
     coverImage(slide, { x: 0, y: 0, w: g.W, h: g.H }, spec.cover.image, spec.sourceDir);
-    const span = g.span(1, 8);
-    // The panel is as tall as the title and its meta line and stands on the page foot (bleeding off it,
-    // so the sample tag sits inside it, clear of its edge); the picture keeps the rest of the page.
-    const { size, h } = coverTitle(S, spec.title, span.w, 2, S.sizes.display);
-    const line = [meta.subtitle, metaLine(meta)].filter(Boolean).join("  ·  ");
-    const lineH = line ? G.textHeight(line, span.w, S.sizes.label, 1.3) : 0;
-    const y = Math.round(G.ZONE.floor - 24 - (line ? lineH + 18 : 0) - h);
-    packRect(slide, S, { x: 0, y: y - 24, w: span.x + span.w + 24, h: g.H - y + 24 }, { fill: "field", alpha: 12 });
-    packText(slide, S, spec.title, { ...span, y, h }, { face: "display", size, colour: S.colour("on-field"), lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
-    if (line) packText(slide, S, line, { ...span, y: y + h + 18, h: lineH }, { size: S.sizes.label, colour: S.colour("on-field"), lineSpacing: 1.3 });
+    // A translucent field panel under the words' columns, the full page height; the picture keeps the side zone.
+    const side = SG.zones(g.canvas).cover.side;
+    packRect(slide, S, { x: 0, y: 0, w: side.x, h: g.H }, { fill: "field", alpha: 12 });
+    coverWords(slide, spec, S, meta, { ink: "on-field", soft: "on-field" });
   },
   "cover-band"(slide, spec, S, meta) {
-    const g = S.grid;
-    packRect(slide, S, { x: 0, y: 0, w: g.W, h: 216 }, { fill: "field" });
-    const span = g.span(1, 10);
-    const { size, h } = coverTitle(S, spec.title, span.w, 2, S.sizes.display);
-    packText(slide, S, spec.title, { ...span, y: Math.max(48, 180 - h), h }, { face: "display", size, colour: S.colour("on-field"), lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
-    const subH = meta.subtitle ? G.textHeight(meta.subtitle, g.span(1, 8).w, S.sizes.lead) : 0;
-    if (meta.subtitle) packText(slide, S, meta.subtitle, { ...g.span(1, 8), y: 252, h: subH }, { name: "subtitle@cover", size: S.sizes.lead, colour: S.colour("ink-muted") });
-    // Under the band, the deck's parts (else its headline figures) run across the page as the
-    // issue's contents, between a hairline and the meta line.
-    const parts = (spec.cover.index || []).length >= 2 ? spec.cover.index.map((name, i) => [String(i + 1).padStart(2, "0"), name])
-      : (spec.cover.figures || []).length >= 2 ? spec.cover.figures.map((f) => [f.value, f.label]) : [];
-    if (parts.length) {
-      const top = Math.max(300, 252 + subH + 36);
-      const cols = equalParts(S, region(S, 1, 12, top, 420), Math.min(parts.length, 4));
-      packRect(slide, S, { x: g.margin, y: top - 18, w: g.span(1, 12).w, h: 0.75 }, { fill: "line" });
-      parts.slice(0, 4).forEach(([key, text], i) => {
-        const R = cols[i];
-        const k = [S.sizes.title, S.sizes.lead].find((z) => S.ems(key, "numeral") * z * 1.1 <= R.w) || S.sizes.lead;
-        packText(slide, S, key, { x: R.x, y: top, w: R.w, h: k * 1.15 }, { face: "numeral", size: k, colour: S.colour("accent"), lineSpacing: 1.15 });
-        packText(slide, S, text, { x: R.x, y: top + k * 1.15 + 8, w: R.w, h: G.textHeight(text, R.w, S.sizes.body) }, { size: S.sizes.body });
-      });
-    }
-    const line = metaLine(meta);
-    if (line) packText(slide, S, line, { ...g.span(1, 8), y: 438, h: 24 }, { size: S.sizes.label, colour: S.colour("ink-muted"), lineSpacing: 1.2 });
+    // The header band deepened behind the title; the subtitle and the deck's parts sit on the ground under it.
+    titleField(slide, S, 0);
+    const parts = stripParts(spec.cover || {});
+    if (parts.length) coverStrip(slide, S, parts);
+    coverWords(slide, spec, S, meta, { ink: "on-field", meta: "on-field" });
   },
   "cover-numeral"(slide, spec, S, meta) {
-    const g = S.grid;
-    const n = spec.cover.numeral;
-    // A number is never the display element: title size at most (spec-v2 Amendments 5).
-    const numeral = S.sizes.title;
-    packText(slide, S, n, { ...g.span(1, 8), y: 96, h: numeral * 1.15 }, { face: "numeral", size: numeral, colour: S.colour("accent"), lineSpacing: 1.15 });
-    const span = g.span(1, 9);
-    const { size, h } = coverTitle(S, spec.title, span.w, 3, S.sizes.display);
-    const y = 96 + numeral * 1.1 + 24;
-    packText(slide, S, spec.title, { ...span, y, h }, { face: "display", size, lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
-    const line = metaLine(meta);
-    if (line) packText(slide, S, line, { ...g.span(1, 6), y: 438, h: 24 }, { size: S.sizes.label, colour: S.colour("ink-muted"), lineSpacing: 1.2 });
+    // A number is never the display element: title size at most (spec-v2 Amendments 5). It stands in the
+    // side zone level with the title zone's top.
+    const Z = SG.zones(S.grid.canvas).cover;
+    const s = S.grid.span(Z.side.a, Z.side.b);
+    packText(slide, S, spec.cover.numeral, { ...s, y: Z.title.y, h: S.sizes.title * 1.15 }, { face: "numeral", size: S.sizes.title, colour: S.colour("accent"), align: "right", lineSpacing: 1.15 });
+    coverWords(slide, spec, S, meta);
   },
   "cover-index"(slide, spec, S, meta) {
-    const g = S.grid;
-    const span = g.span(1, 6);
-    const { size, h } = coverTitle(S, spec.title, span.w, 4, S.sizes.display);
-    packText(slide, S, spec.title, { ...span, y: 144, h }, { face: "display", size, lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
-    const list = g.span(8, 12);
-    // The part names run from the title's top down to the meta line, at most 96 pt apart.
-    const pitch = Math.min(96, (438 - 144) / Math.max(1, spec.cover.index.length - 1));
-    packRect(slide, S, { x: list.x - 12, y: 144, w: 0.75, h: pitch * spec.cover.index.length }, { fill: "line" });
-    spec.cover.index.forEach((name, i) => {
-      packText(slide, S, `${String(i + 1).padStart(2, "0")}  ${name}`, { ...list, y: 144 + i * pitch, h: G.textHeight(name, list.w, S.sizes.lead, 1.3) }, { size: S.sizes.lead, colour: S.colour("ink"), lineSpacing: 1.3 });
-    });
-    const line = metaLine(meta);
-    if (line) packText(slide, S, line, { ...span, y: 438, h: G.textHeight(line, span.w, S.sizes.label, 1.3) }, { size: S.sizes.label, colour: S.colour("ink-muted"), lineSpacing: 1.3 });
+    coverStrip(slide, S, stripParts({ index: spec.cover.index }));
+    coverWords(slide, spec, S, meta);
   },
   "cover-figures"(slide, spec, S, meta) {
-    const g = S.grid;
-    const span = g.span(1, 9);
-    const { size, h } = coverTitle(S, spec.title, span.w, 2, S.sizes.display);
-    // The figures sit between the title and the meta line, with a hairline above them; the title
-    // is drawn last, so the slide's first shape is an unnamed one that carries the family.
-    const figs = spec.cover.figures.slice(0, 4);
-    // The row stands in the middle of the room between the title and the meta line.
-    const rowH = S.sizes.title * 1.3 + 6 + S.sizes.body * 1.4;
-    const top = Math.max(240, 96 + h + 36, Math.round((96 + h + 438 - rowH) / 2 / 6) * 6);
-    const parts = equalParts(S, region(S, 1, 12, top, top + 120), figs.length);
-    packRect(slide, S, { x: g.margin, y: top - 18, w: g.span(1, 12).w, h: 0.75 }, { fill: "line" });
-    figs.forEach((f, i) => {
-      const R = parts[i];
-      const v = [S.sizes.title, S.sizes.lead, S.sizes.body].find((s) => S.ems(f.value, "numeral") * s * 1.1 <= R.w) || S.sizes.body;
-      packText(slide, S, f.value, { x: R.x, y: top, w: R.w, h: v * 1.15 }, { face: "numeral", size: v, colour: S.colour(i === 0 ? "accent" : "ink"), lineSpacing: 1.15 });
-      packText(slide, S, f.label, { x: R.x, y: top + v * 1.3 + 6, w: R.w, h: S.sizes.body * 1.4 }, { size: S.sizes.body, colour: S.colour("ink-muted"), lineSpacing: 1.3 });
-    });
-    const line = metaLine(meta);
-    if (line) packText(slide, S, line, { ...g.span(1, 6), y: 438, h: 24 }, { size: S.sizes.label, colour: S.colour("ink-muted"), lineSpacing: 1.2 });
-    packText(slide, S, spec.title, { ...span, y: 96, h }, { face: "display", size, lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
+    coverStrip(slide, S, stripParts({ figures: spec.cover.figures }));
+    coverWords(slide, spec, S, meta);
   },
   "cover-rail"(slide, spec, S, meta) {
-    const g = S.grid;
-    const rail = g.span(1, 4);
-    packRect(slide, S, { x: 0, y: 0, w: rail.x + rail.w + g.gutter / 2, h: g.H }, { fill: "field" });
-    const side = g.span(1, 3);
-    const lines = [meta.department, meta.presenter, meta.date].filter(Boolean);
-    lines.forEach((l, i) => packText(slide, S, l, { ...side, y: 402 + i * 24, h: 22 }, { size: S.sizes.label, colour: S.colour("on-field"), lineSpacing: 1.2 }));
-    const span = g.span(5, 12);
-    const { size, h } = coverTitle(S, spec.title, span.w, 3);
-    packText(slide, S, spec.title, { ...span, y: 144, h }, { face: "display", size, lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
-    if (meta.subtitle) packText(slide, S, meta.subtitle, { ...span, y: 144 + h + 24, h: G.textHeight(meta.subtitle, span.w, S.sizes.lead) }, { name: "subtitle@cover", size: S.sizes.lead, colour: S.colour("ink-muted") });
+    // The rail is the left margin in the field, the page's height; the words keep their zones.
+    packRect(slide, S, { x: 0, y: 0, w: 12, h: S.grid.H }, { fill: "field" });
+    coverWords(slide, spec, S, meta);
   },
 };
 
-/** Title and meta in columns 1-k beside a field or image (the split covers). */
-function splitText(slide, spec, S, meta, k) {
-  const g = S.grid;
-  const span = g.span(1, k);
-  const { size, h } = coverTitle(S, spec.title, span.w, 4, S.sizes.display);
-  packText(slide, S, spec.title, { ...span, y: 144, h }, { face: "display", size, lineSpacing: 1.1, title: true, balance: true, name: "title@cover" });
-  if (meta.subtitle) packText(slide, S, meta.subtitle, { ...span, y: 144 + h + 24, h: G.textHeight(meta.subtitle, span.w, S.sizes.body) }, { name: "subtitle@cover", colour: S.colour("ink-muted") });
-  const line = metaLine(meta);
-  if (line) packText(slide, S, line, { ...span, y: 438, h: G.textHeight(line, span.w, S.sizes.label, 1.3) }, { size: S.sizes.label, colour: S.colour("ink-muted"), lineSpacing: 1.3 });
-}
-
 /**
- * Section slides carry a part number and the part title. The title frame keeps the statement
- * frame (cols 1-10, centred in the body height) on every variant but the rail and the index, so a
- * section reads as one more statement-sized title and its frame repeats across the deck. A part
- * number shows only when the deck says how many parts there are; a section without one opens with
- * its first lines instead (see sectionOpener).
+ * Section slides use the display zones (slide-grid), the same in every tonality: the part number in
+ * the header zone, the part title centred in the title zone, and what the part opens with (its slide
+ * titles, or their first lines) in the support zone. A part number shows only when the deck says how
+ * many parts there are; without one the title takes the cover step (the hero step in a hero tonality).
+ * A variant paints only the device around the words.
  */
 const SECTIONS = {
   "section-field"(slide, spec, S) {
     const g = S.grid;
     packRect(slide, S, { x: 0, y: 0, w: g.W, h: g.H }, { fill: "field" });
-    sectionTitle(slide, spec, S, { colour: "on-field", numeralColour: "on-field" });
+    sectionWords(slide, spec, S, { onField: true });
   },
   "section-numeral"(slide, spec, S) {
     // With the agenda known, the numeral's page is the index page: the title is never alone on it.
     if (spec.parts && ((spec.cover || {}).index || []).length >= 2) { sectionIndex(slide, spec, S); return; }
-    sectionTitle(slide, spec, S, { hero: true });
+    sectionWords(slide, spec, S);
   },
   "section-rule"(slide, spec, S) {
     if (showsIndex(spec, S)) { sectionIndex(slide, spec, S); return; }
-    if (!spec.parts) { sectionOpener(slide, spec, S, { rule: true }); return; }
-    const full = S.grid.span(1, 12);
-    sectionTitle(slide, spec, S, { numeral: false, under: (box) => {
-      packRect(slide, S, { x: full.x, y: box.y + box.h + 18, w: full.w, h: 0.75 }, { fill: "line" });
-    } });
+    const Z = SG.zones(S.grid.canvas).display;
+    packRect(slide, S, { ...S.grid.span(1, 12), y: Z.support.y - 12, h: 0.75 }, { fill: "line" });
+    sectionWords(slide, spec, S);
   },
   "section-band"(slide, spec, S) {
-    // The header band deepened to y 216; the title opens the ground under it. With the deck's part
-    // index the band carries that index (this part marked) and the title stands without a numeral.
+    // The header band deepened to hold the header zone. With the deck's part index the band carries that
+    // index (this part marked) in place of the part number.
     const g = S.grid;
-    packRect(slide, S, { x: 0, y: 0, w: g.W, h: 216 }, { fill: "field" });
+    const Z = SG.zones(g.canvas).display;
+    packRect(slide, S, { x: 0, y: 0, w: g.W, h: Z.header.y + Z.header.h + 6 }, { fill: "field" });
     const index = showsIndex(spec, S);
-    if (index) {
-      const h = S.sizes.body * 1.4;
-      partIndex(slide, S, spec, { ...g.span(1, 12), y: 216 - 36 - h }, true);
-    }
-    // Under a band that carries the index, the title is a statement over what the part opens with.
-    if (index) sectionOpener(slide, spec, S, { top: 252, centre: 351 });
-    else sectionTitle(slide, spec, S, { top: 240 });
+    if (index) partIndex(slide, S, spec, Z.header, true);
+    sectionWords(slide, spec, S, { headerOnField: true, numeral: !index });
   },
   "section-rail"(slide, spec, S) {
-    const g = S.grid;
-    const rail = g.span(1, 4);
-    packRect(slide, S, { x: 0, y: 0, w: rail.x + rail.w + g.gutter / 2, h: g.H }, { fill: "field" });
-    const numeral = S.sizes.title;
-    if (spec.parts) partNumeral(slide, S, spec, { ...g.span(1, 3), y: 216, h: numeral * 1.15 }, numeral, "on-field");
-    else if ((spec.contents || []).length) {
-      // No part count: the rail names what the section opens with, one entry under the next at lead size
-      // with a step between them, so the list reads as the part's contents and not as one wrapped block.
-      const w = g.span(1, 3).w;
-      let y = 216;
-      for (const entry of spec.contents) {
-        const h = G.textHeight(entry, w, S.sizes.lead, 1.3);
-        packText(slide, S, entry, { ...g.span(1, 3), y, h }, { size: S.sizes.lead, colour: S.colour("on-field"), lineSpacing: 1.3 });
-        y += h + S.tok.group;
-      }
-    }
-    const span = g.span(5, 12);
-    const display = S.sizes.display;
-    const h = Math.ceil(S.lines(plainText(spec.title), span.w, display, "display") * display * 1.15);
-    packText(slide, S, spec.title, { ...span, y: Math.round((303 - h / 2) / 6) * 6, h }, { face: "display", size: display, lineSpacing: 1.15, title: true, balance: true, name: "title@section" });
+    packRect(slide, S, { x: 0, y: 0, w: 12, h: S.grid.H }, { fill: "field" });
+    sectionWords(slide, spec, S);
   },
   "section-image"(slide, spec, S) {
-    // The panel stands on the page foot (bleeding off it) and is as tall as the part number and the title.
+    // A translucent field panel under the words' columns, the page's height; the picture keeps the side zone.
     const g = S.grid;
     coverImage(slide, { x: 0, y: 0, w: g.W, h: g.H }, spec.cover.image, spec.sourceDir);
-    const s = g.span(1, 7);
-    const display = S.sizes.display;
-    const h = Math.ceil(S.lines(plainText(spec.title), s.w, display, "display") * display * 1.15);
-    const y = Math.round(G.ZONE.floor - 18 - h);
-    const numY = y - 24;
-    packRect(slide, S, { x: 0, y: (spec.parts ? numY : y) - 18, w: s.x + s.w + 24, h: g.H - (spec.parts ? numY : y) + 18 }, { fill: "field", alpha: 12 });
-    if (spec.parts) packText(slide, S, String(spec.part).padStart(2, "0"), { ...s, y: numY, h: S.sizes.label * 1.4 }, { size: S.sizes.label, colour: S.colour("on-field"), lineSpacing: 1.3 });
-    packText(slide, S, spec.title, { ...s, y, h }, { face: "display", size: display, colour: S.colour("on-field"), lineSpacing: 1.15, title: true, balance: true, name: "title@section" });
+    packRect(slide, S, { x: 0, y: 0, w: SG.zones(g.canvas).display.side.x, h: g.H }, { fill: "field", alpha: 12 });
+    sectionWords(slide, spec, S, { onField: true });
   },
 };
 
-function sectionTitle(slide, spec, S, o = {}) {
-  if (!spec.parts) return sectionOpener(slide, spec, S, o);
-  const g = S.grid;
-  const span = g.span(1, 10);
-  const display = S.sizes.display;
-  const h = Math.ceil(S.lines(plainText(spec.title), span.w, display, "display") * display * 1.15);
-  // The part number is set at title size: a number never takes the display step.
-  const size = S.sizes.title;
-  const numeralH = o.numeral === false ? 0 : size * 1.15 + 12;
-  // Centred in the body height like a statement, and never above `top` with its numeral.
-  const y = Math.max(228, (o.top || 0) + numeralH, Math.round((303 - h / 2) / 6) * 6);
-  if (o.numeral !== false) {
-    partNumeral(slide, S, spec, { ...g.span(1, spec.parts ? 6 : 3), y: y - numeralH, h: size * 1.15 }, size, o.numeralColour || "accent");
-  }
-  const box = { ...span, y, h };
-  // Anything drawn with the title (a rule under it) goes first, so the title stays the last shape.
-  if (o.under) o.under(box);
-  packText(slide, S, spec.title, box, { face: "display", size: display, colour: S.colour(o.colour || "ink"), lineSpacing: 1.15, title: true, balance: true, name: "title@section" });
-  return box;
+function sectionWords(slide, spec, S, o = {}) {
+  const Z = SG.zones(S.grid.canvas).display;
+  const ink = S.colour(o.onField ? "on-field" : "ink");
+  const soft = S.colour(o.onField ? "on-field" : "ink-muted");
+  if (spec.parts && o.numeral !== false) partNumeral(slide, S, spec, Z.header, S.sizes.title, o.onField || o.headerOnField ? "on-field" : "accent");
+  // A numbered part sets its title at the display step; an unnumbered one at the cover step, down to display to fit.
+  const steps = spec.parts ? [S.sizes.display] : [...new Set([S.pack.hero ? S.sizes.hero : S.sizes.cover, S.sizes.cover, S.sizes.display])].sort((a, b) => b - a);
+  const fits = (z) => S.lines(plainText(spec.title), Z.title.w, z, "display") * z * 1.1 <= Z.title.h;
+  const size = steps.find(fits) || S.sizes.display;
+  sectionSupport(slide, spec, S, Z.support, ink, soft);
+  packText(slide, S, spec.title, Z.title, { face: "display", size, colour: ink, lineSpacing: 1.1, title: true, balance: true, valign: "middle", name: "title@section" });
 }
 
 /**
- * A section the deck gives no part count (one section, no agenda): the title at the cover step (the
- * hero step in a hero tonality) as a statement centred in the body, and under it the titles of the
- * slides the section opens, so the page says what comes next instead of showing a bare count. With
- * `rule` the pack's hairline runs between them; `top` and `centre` place it under a band.
+ * What an unnumbered section opens with, in the support zone: one row per opened slide (its title, then
+ * up to two of its first lines) when the slides carry body lines, else their titles one to a line. Lines
+ * and then rows drop until the preview fits the zone.
  */
-function sectionOpener(slide, spec, S, o = {}) {
-  const g = S.grid;
-  const span = g.span(1, 10);
-  const size = S.pack.hero ? S.sizes.hero : S.sizes.cover;
-  const h = Math.ceil(S.lines(plainText(spec.title), span.w, size, "display") * size * 1.1);
-  const onField = o.colour === "on-field";
-  const digest = spec.digest || [];
-  if (digest.some((d) => d.lines.length)) return sectionDigestPage(slide, spec, S, o, { span, size, h, digest, onField });
-  const text = (spec.contents || []).join("\n");
-  const lead = S.sizes.lead;
-  const ch = text ? G.textHeight(text, span.w, lead, 1.4) : 0;
-  const gap = text ? (o.rule ? 60 : 30) : 0;
-  const y = Math.max(o.top || 0, Math.round(((o.centre || 303) - (h + gap + ch) / 2) / 6) * 6);
-  if (text && o.rule) packRect(slide, S, { ...g.span(1, 12), y: y + h + 30, h: 0.75 }, { fill: "line" });
-  if (text) packText(slide, S, text, { ...span, y: y + h + gap, h: ch }, { size: lead, colour: S.colour(onField ? "on-field" : "ink-muted"), lineSpacing: 1.4 });
-  const box = { ...span, y, h };
-  packText(slide, S, spec.title, box, { face: "display", size, colour: S.colour(o.colour || "ink"), lineSpacing: 1.1, title: true, balance: true, name: "title@section" });
-  return box;
-}
-
-/**
- * A section with no part count whose slides carry body lines: the title on the upper body, and under
- * a hairline what the section opens with, one row per slide (its title, then its first lines) spread
- * down to the body floor, so the page previews the part instead of standing as a title alone.
- */
-function sectionDigestPage(slide, spec, S, o, d) {
-  const g = S.grid;
+function sectionSupport(slide, spec, S, Z, ink, soft) {
   const head = S.sizes.lead;
   const body = S.sizes.body;
-  // The preview starts at the margin and is the widest column span within 70 % of the page and about 70
-  // characters of body text (spec-v2 Amendments 7): Korean 8 columns, English 6 on the 16:9 compact grid.
-  const korean = G.isKorean(d.digest.map((e) => e.title + e.lines.join("")).join(""));
-  const cap = Math.min(0.7 * g.W, 70 * body * (korean ? 0.94 : 0.5));
-  let k = 12;
-  while (k > 1 && g.span(1, k).w > cap) k--;
-  const right = g.span(1, k);
-  const ink = S.colour(d.onField ? "on-field" : "ink");
-  const soft = S.colour(d.onField ? "on-field" : "ink-muted");
-  // Each opened slide shows up to two of its lines (a preview, not a copy); lines and then entries
-  // drop until the preview fits between the title and the body floor.
-  const gap = 24;
-  const room = G.ZONE.floor - Math.max(o.top || 0, G.ZONE.body) - d.h - 54;
+  const digest = (spec.digest || []).filter((d) => d.lines.length);
+  if (!digest.length) {
+    const text = (spec.contents || []).join("\n");
+    if (text) packText(slide, S, text, Z, { size: head, colour: soft, lineSpacing: 1.4 });
+    return;
+  }
+  // About 70 characters of body text at most (spec-v2 Amendments 7): the widest column span inside the zone under that.
+  const korean = G.isKorean(digest.map((e) => e.title + e.lines.join("")).join(""));
+  const cap = 70 * body * (korean ? 0.94 : 0.5);
+  let k = Z.b;
+  while (k > Z.a && S.grid.span(Z.a, k).w > cap) k--;
+  const span = S.grid.span(Z.a, k);
+  const gap = 12;
   const build = (entries, per) => entries.map((e) => {
     const text = e.lines.slice(0, per).join("\n");
-    const headH = G.textHeight(e.title, right.w, head, 1.3);
-    const textH = text ? G.textHeight(plainText(text), right.w, body) : 0;
-    return { ...e, text, headH, textH, h: headH + (text ? 6 + textH : 0) };
+    const headH = G.textHeight(e.title, span.w, head, 1.3);
+    const textH = text ? G.textHeight(plainText(text), span.w, body) : 0;
+    return { ...e, text, headH, textH, h: headH + (text ? 4 + textH : 0) };
   });
   const height = (rows) => rows.reduce((a, r) => a + r.h, 0) + gap * (rows.length - 1);
   let rows = null;
-  for (let n = d.digest.length; n >= 1 && !rows; n--) {
+  for (let n = digest.length; n >= 1 && !rows; n--) {
     for (let per = 2; per >= 1; per--) {
-      const tried = build(d.digest.slice(0, n), per);
-      if (height(tried) <= room) { rows = tried; break; }
+      const tried = build(digest.slice(0, n), per);
+      if (height(tried) <= Z.h) { rows = tried; break; }
     }
   }
-  if (!rows) rows = build(d.digest.slice(0, 1), 1);
-  const sum = rows.reduce((a, r) => a + r.h, 0);
-  // Title, hairline and preview form one block centred in the body (under `top` when a band sits
-  // above), like a statement that says what the part holds.
-  const total = d.h + 54 + sum + gap * (rows.length - 1);
-  const y = Math.max(o.top || 0, G.ZONE.body, Math.round(((o.centre || 303) - total / 2) / 6) * 6);
-  const listTop = y + d.h + 54;
-  packRect(slide, S, { ...g.span(1, 12), y: listTop - 18, h: 0.75 }, { fill: d.onField ? "on-field" : "line" });
-  let at = listTop;
+  if (!rows) rows = build(digest.slice(0, 1), 0);
+  let at = Z.y;
   for (const r of rows) {
-    packText(slide, S, r.title, { ...right, y: at, h: r.headH }, { size: head, bold: true, colour: ink, lineSpacing: 1.3 });
-    if (r.text) packText(slide, S, r.text, { ...right, y: at + r.headH + 6, h: r.textH }, { size: body, colour: soft });
+    packText(slide, S, r.title, { ...span, y: at, h: r.headH }, { size: head, bold: true, colour: ink, lineSpacing: 1.3 });
+    if (r.text) packText(slide, S, r.text, { ...span, y: at + r.headH + 4, h: r.textH }, { size: body, colour: soft });
     at += r.h + gap;
   }
-  const box = { ...d.span, y, h: d.h };
-  packText(slide, S, spec.title, box, { face: "display", size: d.size, colour: S.colour(o.colour || "ink"), lineSpacing: 1.1, title: true, balance: true, name: "title@section" });
-  return box;
 }
 
 /**
- * A section in a deck with an agenda, set as its index page: the part numeral at the hero step over
- * the part title on the left, and the agenda down the right columns, one part a line spread over the
- * body, a hairline above each and a heavier accent rule above this part, which is set in the accent.
+ * A section in a deck with an agenda, set as its index page: the part number in the header zone over the
+ * part title, and the agenda down the side zone, one part a line from the title zone's top, a hairline
+ * above each and a heavier accent rule above this part, which is set in the accent.
  */
 function sectionIndex(slide, spec, S) {
-  const g = S.grid;
-  const left = g.span(1, 6);
-  const right = g.span(8, 12);
+  const Z = SG.zones(S.grid.canvas).display;
+  const right = S.grid.span(Z.side.a, Z.side.b);
   const names = spec.cover.index;
   const lead = S.sizes.lead;
   const rowH = lead * 1.4;
   const label = (name, i) => `${String(i + 1).padStart(2, "0")}   ${name}`;
   const heights = names.map((name, i) => G.textHeight(label(name, i), right.w, lead, 1.4));
   const sum = heights.reduce((a, h) => a + h, 0);
-  const after = Math.max(24, Math.min(96 - rowH, (G.ZONE.floor - G.ZONE.body - sum) / Math.max(1, names.length - 1)));
+  const floor = Z.support.y + Z.support.h;
+  const after = Math.max(12, Math.min(60 - rowH, (floor - Z.title.y - sum) / Math.max(1, names.length - 1)));
   const listH = sum + (names.length - 1) * after;
-  const listY = Math.max(G.ZONE.body, Math.round(303 - listH / 2));
+  const listY = Z.title.y + 12;
   const quiet = S.colour("ink-muted");
   const runs = [];
   let ruleY = listY - 12;
@@ -3406,16 +3169,10 @@ function sectionIndex(slide, spec, S) {
   // The gap goes before each part after the first, so the frame ends on the last line.
   slide.addText(runs, { x: IN(right.x), y: IN(listY), w: IN(right.w), h: IN(listH), align: "left", valign: "top", margin: [0, 0, 0, 0],
     lineSpacing: +rowH.toFixed(1) });
-  const size = S.sizes.title;
-  const display = S.sizes.display;
-  const h = Math.ceil(S.lines(plainText(spec.title), left.w, display, "display") * display * 1.15);
-  const blockH = size * 1.15 + 24 + h;
-  const y = Math.round((303 - blockH / 2) / 6) * 6;
-  partNumeral(slide, S, spec, { ...left, y, h: size * 1.15 }, size, "accent");
-  packText(slide, S, spec.title, { ...left, y: y + size * 1.15 + 24, h }, { face: "display", size: display, lineSpacing: 1.15, title: true, balance: true, name: "title@section" });
+  sectionWords(slide, spec, S);
 }
 
-/** The part number as the agenda writes it ("03"), followed by the part count when it is known. */
+/** The part number as the agenda writes it ("03"), followed by the part count when it is known, standing on the box's foot. */
 function partNumeral(slide, S, spec, box, size, colour) {
   const face = S.faces.numeral;
   const base = { fontFace: face.font, bold: Boolean(face.bold), color: S.colour(colour) };
@@ -3425,14 +3182,14 @@ function partNumeral(slide, S, spec, box, size, colour) {
   // The count is a step below the number, so the number stays the display element.
   if (spec.parts) runs.push({ text: ` / ${pad(spec.parts)}`, options: { ...base, fontSize: S.sizes.title, color: S.colour(colour === "on-field" ? "on-field" : "ink-muted") } });
   slide.addText(runs, { x: IN(box.x), y: IN(box.y), w: IN(box.w), h: IN(box.h), align: "left", valign: "bottom", margin: [0, 0, 0, 0],
-    lineSpacing: +(size * 1.15).toFixed(1) });
+    lineSpacing: +(size * 1.15).toFixed(1), objectName: "header@section" });
 }
 
 function showsIndex(spec, S) {
   return Boolean((S.pack.display || {}).index && spec.parts && ((spec.cover || {}).index || []).length >= 2);
 }
 
-/** The deck's parts in one line, numbered as in the agenda; this section's part bold in the accent. */
+/** The deck's parts in one line, numbered as in the agenda; this section's part bold in the accent, on the box's foot. */
 function partIndex(slide, S, spec, box, onField = false) {
   const size = S.sizes.body;
   const quiet = onField ? mix(S.P["on-field"], S.P.field, 0.3) : S.P["ink-muted"];
@@ -3445,13 +3202,50 @@ function partIndex(slide, S, spec, box, onField = false) {
       color: current ? S.colour(onField ? "on-field" : "accent") : shared().hex(quiet),
     } });
   });
-  const text = runs.map((r) => r.text).join("");
-  const h = G.textHeight(text, box.w, size, 1.4);
-  slide.addText(runs, { x: IN(box.x), y: IN(box.y), w: IN(box.w), h: IN(h), align: "left", valign: "top", margin: [0, 0, 0, 0],
-    lineSpacing: +(size * 1.4).toFixed(1) });
+  slide.addText(runs, { x: IN(box.x), y: IN(box.y), w: IN(box.w), h: IN(box.h), align: "left", valign: "bottom", margin: [0, 0, 0, 0],
+    lineSpacing: +(size * 1.4).toFixed(1), objectName: "header@section" });
 }
 
 /** The sample-data tag in the footer zone, on the grid's left edge, in the pack's colours. */
+/**
+ * The grid shown on purpose: a tick and a two-digit number over each column start in the top margin,
+ * and the slide's place in the deck at the right, all in the label face and the muted ink.
+ */
+function gridMarks(slide, S, n, total) {
+  const g = S.grid;
+  const size = S.sizes.source;
+  const y = 12;
+  for (let a = 1; a <= 12; a++) {
+    const x = g.colX(a);
+    packRect(slide, S, { x, y, w: 0.75, h: size * 1.2 }, { fill: "line", name: "grid-mark" });
+    if (a < 11) packText(slide, S, String(a).padStart(2, "0"), { x: x + 4, y, w: g.col - 4, h: size * 1.2 }, { face: "label", size, colour: S.colour("ink-muted"), lineSpacing: 1.2, name: "grid-mark" });
+  }
+  const index = `[${String(n).padStart(2, "0")}/${String(total).padStart(2, "0")}]`;
+  const right = g.span(11, 12);
+  packText(slide, S, index, { ...right, y, h: size * 1.2 }, { face: "label", size, colour: S.colour("ink"), align: "right", lineSpacing: 1.2, name: "grid-mark index" });
+}
+
+/**
+ * Elementary geometry in the primaries, in a region of the page that holds no text: a square in the
+ * surface colour, a circle in the accent, a bar in the ink and a triangle in the field, one per cell
+ * of a two-by-two grid, so no shape overlaps another or the text.
+ */
+function geometry(slide, S, region) {
+  const cw = region.w / 2;
+  const ch = region.h / 2;
+  const d = Math.min(cw, ch);
+  const cell = (i, j) => ({ x: region.x + i * cw, y: region.y + j * ch });
+  const shape = (kind, box, fill) => slide.addShape(kind, { x: IN(box.x), y: IN(box.y), w: IN(box.w), h: IN(box.h), fill: { color: S.colour(fill) }, line: { type: "none" } });
+  const a = cell(0, 0);
+  shape("rect", { x: a.x, y: a.y, w: cw, h: ch }, "accent-tint");
+  const b = cell(1, 0);
+  shape("ellipse", { x: b.x + (cw - d) / 2, y: b.y + (ch - d) / 2, w: d, h: d }, "accent");
+  const c = cell(0, 1);
+  shape("rect", { x: c.x + cw * 0.38, y: c.y, w: cw * 0.24, h: ch }, "ink");
+  const e = cell(1, 1);
+  shape("triangle", { x: e.x, y: e.y + (ch - d), w: cw, h: d }, "field");
+}
+
 function packNotice(slide, S, text) {
   const label = plainText(text);
   const size = S.sizes.source;
@@ -3537,11 +3331,13 @@ async function renderPack(resolved, templateObj, outputPath) {
       // Nothing unnamed was drawn (a statement alone): an empty marker carries the family.
       slide.addShape("rect", { x: IN(S.grid.margin), y: IN(G.ZONE.top), w: 0, h: 0, fill: { type: "none" }, line: { type: "none" }, objectName: `family@${spec.family}` });
     }
+    // The marks read on the ground; a statement page may be drenched in the field, so it goes without.
+    if (spec.kind === "content" && chosenBy[spec.index] !== "statement" && S.deco.has("grid-marks")) gridMarks(slide, S, spec.index + 1, (resolved.slides || []).length);
     if (notice) packNotice(slide, S, notice);
   }
   for (const line of log) console.log(line);
   console.log(`Treatments: ${Object.entries(chosenBy).map(([i, t]) => `${Number(i) + 1}:${t}`).join(" ")}`);
-  await writeWithEastAsianFaces(pptx, S.faces.body.font, outputPath);
+  await writeWithEastAsianFaces(pptx, S.faces.body.font, outputPath, Object.values(S.faces).filter((f) => f.ea), Boolean(S.pack.shadow));
   return outputPath;
 }
 
@@ -3550,10 +3346,21 @@ async function renderPack(resolved, templateObj, outputPath) {
  * Chart text otherwise carries only a Latin face, and a renderer sets Hangul axis labels in
  * whatever system font it finds. Korean runs are tagged ko-KR on the way (see writeTagged).
  */
-async function writeWithEastAsianFaces(pptx, face, outputPath) {
-  await shared().writeTagged(pptx, outputPath, (name, xml) => (/^ppt\/(charts\/chart\d+|theme\/theme\d+)\.xml$/u.test(name)
-    ? xml.replace(/<a:ea typeface=""\/>/gu, `<a:ea typeface="${face}"/>`).replace(/(<a:latin typeface="([^"]*)"\/>)(?!<a:ea)/gu, `$1<a:ea typeface="$2"/>`)
-    : xml));
+async function writeWithEastAsianFaces(pptx, face, outputPath, latinOnly = [], hardShadows = false) {
+  await shared().writeTagged(pptx, outputPath, (name, xml) => {
+    if (/^ppt\/(charts\/chart\d+|theme\/theme\d+)\.xml$/u.test(name)) {
+      xml = xml.replace(/<a:ea typeface=""\/>/gu, `<a:ea typeface="${face}"/>`).replace(/(<a:latin typeface="([^"]*)"\/>)(?!<a:ea)/gu, `$1<a:ea typeface="$2"/>`);
+    }
+    // A Latin-only face names its East Asian face for the Hangul in its runs.
+    if (/^ppt\/(slides\/slide\d+|charts\/chart\d+)\.xml$/u.test(name)) {
+      for (const f of latinOnly) xml = xml.split(`<a:ea typeface="${f.font}"`).join(`<a:ea typeface="${f.ea}"`);
+    }
+    // pptxgenjs reads a blur of 0 as "unset" and writes its default; a pack's shadow is drawn with none.
+    if (hardShadows && /^ppt\/slides\/slide\d+\.xml$/u.test(name)) {
+      xml = xml.replace(/(<a:outerShdw\b[^>]*?\bblurRad=")\d+"/gu, '$10"');
+    }
+    return xml;
+  });
 }
 
 module.exports = { renderPack, PLANS, COVERS, SECTIONS };

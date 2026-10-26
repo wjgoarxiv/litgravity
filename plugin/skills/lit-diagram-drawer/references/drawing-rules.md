@@ -66,7 +66,7 @@ A decision node lists every outcome in `data-outcomes`, pipe-separated, with at 
 ## Color, accent and casing (the OF checks)
 
 - OF-201 `CLUSTER_GAP_RATIO`: the gap between node clusters is a required multiple of the gap inside a cluster. A diagram where groups blur into one mass blocks.
-- OF-202 `ACCENT_COUNT`: accent families. Three families advise, four or more block. Stay with one or two focal accents.
+- OF-202 `ACCENT_COUNT`: accent families. Three to five, each tied to a role, pass; six or more block. A minimal diagram stays with one or two focal accents.
 - OF-203 `LABEL_CASE`: Latin labels in Title Case with small connecting words advise. Prefer sentence case for Latin text.
 - OF-204 `LABEL_OVERFLOW`: a measured label wider than its box blocks. Edge labels stay outside this check, so inspect them in the rendered image.
 

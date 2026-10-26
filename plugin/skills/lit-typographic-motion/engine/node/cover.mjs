@@ -28,7 +28,6 @@ import { encodePng, rgbaToRgb } from "./png.mjs";
 import { rasterInfo, scanStage, stageFonts } from "./stage-serve.mjs";
 import { STILLS_DIR, INDEX_FILE } from "./stills.mjs";
 import { findDwebp } from "./webp.mjs";
-import { describeSpawn } from "../../../../lib/host-exec.mjs";
 
 export const COVER_STAGE = "cover";
 export const COVER_OUTPUTS = Object.freeze(["cover.webp", "cover.gif", "poster.png"]);
@@ -62,14 +61,14 @@ export function encodeCover({ files, fps, encode, out, env = process.env }) {
   if (img2webp && dwebp) {
     const file = path.join(out, "cover.webp");
     const r = spawnSync(img2webp, img2webpArgs({ files, fps, encode, out: file }), { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
-    if (r.status !== 0) throw new Error(`img2webp failed (${describeSpawn(r)})`);
+    if (r.status !== 0) throw new Error(`img2webp failed: ${(r.stderr || r.error?.message || "").trim().split("\n").slice(-1)[0]}`);
     return { file, encoder: "img2webp" };
   }
   const gifski = which("gifski", env);
   if (gifski) {
     const file = path.join(out, "cover.gif");
     const r = spawnSync(gifski, ["--fps", String(fps), "--quality", "90", "--repeat", "0", "-o", file, ...files], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
-    if (r.status !== 0) throw new Error(`gifski failed (${describeSpawn(r)})`);
+    if (r.status !== 0) throw new Error(`gifski failed: ${(r.stderr || r.error?.message || "").trim().split("\n").slice(-1)[0]}`);
     return { file, encoder: "gifski" };
   }
   throw new BlockedError(EXIT.BLOCKED_NO_COVER_ENCODER, "BLOCKED_NO_COVER_ENCODER: install libwebp (img2webp and dwebp) or gifski; a cover is never an MP4");
@@ -214,9 +213,21 @@ export async function renderCover({ out, round = 1, env = process.env, log = () 
   let replay;
   let sought;
   const order = seekOrder(times.length, treatment.seed || 20261020);
+  let rung = treatment.recipe === "hero-3d" ? "gpu" : "software";
+  const notices = [];
   try {
-    const open = (label) => CoverBrowser.open({ stageDir, faces, width: pw, height: ph, scale: COVER.captureScale, profileDir: path.join(runDir, `chrome-${label}`), env, log });
-    const a = await open("master");
+    const open = (label) => CoverBrowser.open({ stageDir, faces, width: pw, height: ph, scale: COVER.captureScale, profileDir: path.join(runDir, `chrome-${label}`), rung, env, log });
+    let a;
+    try {
+      a = await open("master");
+    } catch (error) {
+      // The 3D hero asks for the GPU rung; when it cannot start or draw there, all three passes take
+      // the software rung (they must share one) and the report says so.
+      if (rung !== "gpu" || error.code === EXIT.BLOCKED_NO_CHROME || error.code === EXIT.STAGE_NETWORK_REQUEST || error.code === EXIT.STAGE_NONDETERMINISTIC) throw error;
+      notices.push(`the 3D hero asked for the GPU rung and it failed there (${String(error.message).slice(0, 120)}); rendered on the software rung (SwiftShader), slower, same frames`);
+      rung = "software";
+      a = await open("master");
+    }
     try {
       master = await capturePass({ browser: a, pool, times, dir: dirs.frames, prefix: "f", width: w, height: h });
       await capturePass({ browser: a, pool, times, dir: dirs.masks, prefix: "m", mask: true, width: w, height: h });
@@ -291,12 +302,12 @@ export async function renderCover({ out, round = 1, env = process.env, log = () 
   });
   const indexed = stills.finish(sheetFile);
   writeFileSync(path.join(out, "poster.png"), readFileSync(path.join(stills.dir, "poster.png")));
-  const report = formatCoverReport(gate, { strict: true });
+  const report = `${formatCoverReport(gate, { strict: true })}${notices.map((n) => `warning: ${n}\n`).join("")}`;
   writeFileSync(path.join(out, "gate-report.txt"), report);
   const manifest = {
     schema: "litgravity.motion-cover/v1", mode: "cover", round, recipe: treatment.recipe,
     treatmentSha256: sha256(readFileSync(path.join(out, "treatment.json"))), stillsSha256: indexed.sha256,
-    page: treatment.page, size: treatment.out, scale: COVER.captureScale, fps: treatment.fps, frames: times.length, frameMs: ms,
+    page: treatment.page, size: treatment.out, scale: COVER.captureScale, rung, warnings: notices, fps: treatment.fps, frames: times.length, frameMs: ms,
     encoder: encoded.encoder, encode: treatment.encode, file: path.basename(encoded.file), bytes: statSync(encoded.file).size, captureSec,
     gate: { pass: gate.pass, target: gate.target, medianD: gate.medianD, movingFrac: gate.movingFrac, longestStillSec: gate.longestStillSec, spike: gate.spike, seamLocal: gate.seamLocal, gates: gate.gates },
   };
@@ -342,7 +353,7 @@ export async function renderCoverWindow({ out, round = 1, window: [t0, t1], env 
   mkdirSync(dir, { recursive: true });
   const [w, h] = treatment.out;
   const pool = new CoverPool();
-  const browser = await CoverBrowser.open({ stageDir, faces, width: treatment.page[0], height: treatment.page[1], scale: COVER.captureScale, profileDir: path.join(out, ".run", "cover-window-chrome"), env, log });
+  const browser = await CoverBrowser.open({ stageDir, faces, width: treatment.page[0], height: treatment.page[1], scale: COVER.captureScale, profileDir: path.join(out, ".run", "cover-window-chrome"), rung: treatment.recipe === "hero-3d" ? "gpu" : "software", env, log });
   try {
     await capturePass({ browser, pool, times: [...new Set(picks.map((p) => p.index))].map((i) => [i, i / treatment.frames]), dir, prefix: "f", width: w, height: h });
   } finally {

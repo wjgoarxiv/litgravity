@@ -1,163 +1,148 @@
 # Chalk
 
 Chalk is a good teacher's board after someone has tidied it. Steps are numbered because they really
-happen in order, one idea per slide is marked as the thing to learn and worked through with numbers,
-and the definition or the common mistake stands in its own fenced box at the side. Corners are soft
-(radius 6), the ground is a cool near-white, the board itself is a deep green rail, and a warm rust
-accent points at what is being taught. The rhythm is deliberate: explain, show, try, check.
+happen in order, one idea per slide is marked as the thing to learn and worked through with its
+numbers, and the definition or the
+common mistake sits in its own fenced box at the side. Surfaces have soft corners, the ground is a
+cool near-white, and a warm rust accent always points at what is being taught. The rhythm is
+deliberate: explain, show, try, check.
 
-## When to choose it
+## When to use it
 
 Choose Chalk for lectures, tutorials, onboarding sessions and training, where the audience has to be
-able to do something afterwards. The pack carries eleven families, four of them built for teaching:
-`step-diagram` and `process` for sequences, `method` for a formula with its symbols, and
-`sidebar-note` for the definition or the trap. It climbs the list when the source holds equations,
-definitions or a "how it works" sequence of three or more steps.
+able to do something afterwards. It is the first candidate for the lecture deck type and a good
+second for a research talk given as a tutorial. It climbs the list when the source contains
+equations, definitions or a "how it works" sequence of three or more steps, which are exactly the
+slides its numbered and sidebar families are built for.
 
-The pack file names the mismatch: decision decks. A board of numbered steps in front of executives
-reads as padding and slows the ask; Ledger or Signal fit that room. Dense data reviews also fit
-badly, because the families favour a few explained items over many numbers on one page.
+## When it is the wrong choice
+
+Chalk is wrong for decision decks. A board of numbered steps in front of executives reads as padding
+and slows the ask; Ledger or Signal fit that room. It is also a poor match for a dense data review,
+because its families favour a few explained items over many numbers on one page, and for
+image-led portfolios, where Atlas lets pictures carry the slides.
 
 ## Tokens
 
+These values are read from the pack file `pack.yaml` of the `chalk` tonality.
+
 | Token | Value |
 |---|---|
-| ground / surface | #FAFBFC / #EEF2F5 |
-| ink / ink-muted / line | #1F2933 / #4E5A66 / #CBD3DA |
-| accent / accent-deep / accent-tint | #9A3412 / #6B2409 / #FCEBE0 |
-| field / on-field | #1F3B33 / #FFFFFF |
-| positive / negative | #1E7A3F / #B3261E |
-| series | #9A3412, #1F3B33, #4E5A66, #2E6A8E |
-| faces | Pretendard Bold for display, title and numerals, Pretendard Regular for body and labels; `faces: a2z` moves display and titles to A2Z Bold and numerals to A2Z Black |
-| tracking (title / display) | -1 % / -1 % of the size |
-| density / variance | 10 / 6 (up to 4 title treatments, all four of the pack) |
+| ground / surface | `#FAFBFC` / `#EEF2F5` |
+| ink / ink-muted | `#1F2933` / `#4E5A66` |
+| line | `#CBD3DA` |
+| accent / accent-deep / accent-tint | `#9A3412` / `#6B2409` / `#FCEBE0` |
+| field / on-field | `#1F3B33` / `#FFFFFF` |
+| positive / negative | `#1E7A3F` / `#B3261E` |
+| series | `#9A3412`, `#1F3B33`, `#4E5A66`, `#2E6A8E` |
+| faces | Pretendard Bold for display, title and numerals, Pretendard Regular for body and labels; `faces: a2z` swaps to A2Z Bold display and titles, A2Z Black numerals |
+| ramp / hero | compact (body 13 pt, labels 11, sources 9) / hero step (60 pt) on cover and statement titles that fit, off with `hero: false`; figures at most title size |
+| density / variance | 10 / 6 |
 | radius / edge | 6 / fill |
-| rail | `field`: the side rail is a filled board in the field colour with the title in white |
-| table | header in accent-tint with accent-deep bold text, hairline row rules, no banding, bold totals |
-| chart | hairline gridlines, direct labels, accent on the highlighted series |
-| image | no frame |
-| decoration | accent-rule, mark-underline, rail-fill, numeral |
-| fill-order | distribute, step-up, change-family, anchor-visual |
+| rail | the side rail is a field-coloured fill |
+| table | header row in the accent tint with deep-accent bold text, hairline rules between rows, no banding, numbers right-aligned, totals bold |
+| chart | hairline gridlines, direct labels, accent on the item that matters and muted colours on the rest |
+| decoration | accent rule, marked term underline, rail fill, numeral |
 
-Of the four decoration entries, `accent-rule` (the short bar under a `top-rule` title), `rail-fill`
-(the green board) and the numerals are drawn. The marked term is set by writing the word between
-double asterisks in the title: `## 표준편차를 **읽는** 두 가지 방법` colours that word in the accent
-(`mark-underline` is accepted by the pack validator and draws nothing of its own).
+The marked-term underline is listed in the pack but the engine does not draw it yet, so mark the
+term
+in the wording for now.
 
-## Titles by family
+## Treatments by slide role
 
-The role defaults: sequences `kicker-numeral`, content, data and references `top-rule`, data with a
-takeaway, images and definitions `side-rail`, statements `statement`. The pack's `structure` entry draws
-a `comparison` under `side-rail`, so the criteria stand on the board; that choice survives the deck's
-share limit for one title. Each family narrows the role default to what it allows:
-
-| Family | Default title | Then, in pack order |
-|---|---|---|
-| `step-diagram` | `top-rule` | none |
-| `process` | `top-rule` | `side-rail` |
-| `method` | `side-rail` | `top-rule` |
-| `sidebar-note` | `top-rule` | `kicker-numeral`, `side-rail` |
-| `comparison` | `side-rail` | `top-rule` |
-| `image-split` | `side-rail` | `top-rule` |
-| `quote` | `statement` | `top-rule` |
-| `agenda` | `top-rule` | `kicker-numeral`, `side-rail` |
-| `statement` | `statement` | none |
-| `text-column` | `top-rule` | `kicker-numeral`, `side-rail` |
-| `table-insight` | `top-rule` | `side-rail` |
-
-`kicker-numeral` needs a part number from a section slide and stays out of `step-diagram`, `process` and
-`agenda`, which have numerals of their own; it appears on `sidebar-note` and `text-column` pages that
-follow a section. A `title: top-rule` pin after `layout:` gives a `method` slide the full width its
-definitions need. A deck of eight slides or more needs three treatments (OF-110), so plan one
-`comparison` or `method` slide for the rail, step slides for the top rule and a quote for the statement.
+Sequences take `kicker-numeral`, where the step or part number stands right of the title, in the accent. Text
+and data slides take `top-rule` with its short accent bar, chart and image slides with a takeaway
+take `side-rail`, definitions take `side-rail`, a comparison sets its criteria as row heads in the body under a
+`side-rail` title (the pack's `structure`), and a pull quote takes `statement`. When a slide's own
+treatment would leave the body half empty, the engine tries the other treatments its family allows
+and keeps the one that fills best, within the number of treatments the variance dial allows. A
+`title: top-rule` line under `layout:` pins a slide to a treatment; the lecture example does that
+for
+a method slide whose definitions need the full width. An agenda carries no numeral (OF-119), so a
+chalk deck whose only kicker was its agenda needs a step or sidebar slide under `kicker-numeral` to
+keep three treatments (OF-110), and a sidebar note set across the top adds one more top-title slide
+in a grid, which can carry top/grid past 40 % of the content slides (OF-111).
 
 ## Families and variants
 
-- `step-diagram`: numbered steps, each with its action and a worked value; `process` for a flow.
-- `method`: a formula at title size in accent-deep, with the meaning of each symbol below it.
-- `sidebar-note`: the explanation with a fenced `::: main-box` for the definition or the trap.
-- `comparison`: two ideas students confuse; criteria labels (`대상:`, `기호:`) move to the board rail.
-- `image-split`, `quote`, `agenda`, `statement`, `text-column`, `table-insight` as listed above.
-- Covers `cover-rail`, `cover-typographic`, `cover-numeral`; sections `section-numeral`,
-  `section-rail`; closings `closing-summary-list` (recap and exercise) and `closing-ask`.
+- `step-diagram`: numbered steps across the body, each with its action and detail.
+- `process`: the same steps when they read as a flow rather than a procedure.
+- `method`: a formula with the meaning of each symbol under it.
+- `sidebar-note`: the explanation with a fenced box for the definition or the trap.
+- `comparison`: two ideas students confuse, side by side row by row.
+- `image-split`: a worked example with its figure.
+- `quote`: a line worth remembering, set as a statement.
+- `agenda`: what the session covers, numbered.
+- `statement`: a pull quote or the lesson's rule, kept for a display-led deck the user asks for.
+- `text-column`: an explanation at reading measure.
+- `table-insight`: a small table with the pattern spelled out beside it.
 
-Display devices: the cover is a `rail`, the board-green rail with the topic beside it; a statement is
-`drench`, written on the board with the whole slide in the field green; a section numeral reads as a
-part of the whole ("03 / 04") when the deck has an agenda, and becomes the index page; a big number sits
-on the accent tint; a closing's rows are keyed by their dates and the next step sits in a tinted box.
+Covers are `cover-rail`, `cover-typographic` and `cover-numeral`. Sections are `section-numeral` and
+`section-rail`. Closings are `closing-summary-list` (the recap plus the exercise) and `closing-ask`.
+
+Display slides. The typographic cover is the board-green rail with the topic name beside it. A
+statement is written on the board: the whole slide in the field green, the quoted line in white. A section
+numeral reads as the part of the whole ("03 / 04") when the deck has an agenda. A closing's rows are
+keyed by their dates, and the next step sits in a tinted box on the body floor.
 
 ## Do
 
-- Number only what happens in order or what is a real part of the session.
-- Put every definition and every common mistake in a sidebar box, where students find it again.
-- Give each worked example the actual arithmetic with a sample value at each step.
-- Title each slide with what it teaches ("신뢰구간 계산 네 단계") and put the rule in the first body line.
-- End with what was learnt and what to practise, with a due date.
+Use numbers only for things that happen in order or for real parts of the session. Put every
+definition and every common mistake in a sidebar box, where students can find it again. Give each
+worked example the actual arithmetic, step by step, with a sample value at each step. Title each
+slide with what it teaches ("신뢰구간 계산 네 단계"), and put the rule in the first line of the body. End with what was learnt and what to practise,
+with a due date.
 
 ## Avoid
 
-- More than one marked term per slide.
-- Numerals on points that are not a sequence.
-- Definitions buried in bullet lists instead of the sidebar.
-- A sentence as a title.
-
-## Failure patterns
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| `fill: slide 2 band 0.51 -> 0.42 (distribute)`; QA reports OF-109 (45 % empty) | a `sidebar-note` with two short groups and a one-line note | give each group three points and the note two lines, or choose `step-diagram` |
-| a comparison drawn under `top-rule`, 41 % of the page empty | the points carry no `label:` prefix, so the board rail has nothing to hold | prefix every point on both sides with a short label of at most three words |
-| step slides stay under `top-rule` after a section slide | `step-diagram` and `process` do not allow `kicker-numeral` | accept it; the step numerals are the markers |
-| median empty band 0.21 over 2 slides (limit 0.20) | a comparison with four short rows | add a fifth row with a full phrase on each side |
-| OF-114 on "평균은 중요하다" | the title states a rule | title it "평균의 의미" and open the body with the rule |
+Avoid more than one marked term per slide; two underlines mean neither is the point. Avoid numerals
+on points that are not a sequence. Do not bury a definition inside a bullet list. Avoid a sentence
+as a title; the slide names the topic and the body states the rule.
 
 ## Two worked slides
 
-Four steps, each with an action and a sample value, so the slide can be followed without the speaker.
-A step that begins with `1.` takes that number; `·` separates the action from its example.
+A step slide spells out each action, its detail and a worked value, so the steps fill the body and
+can be followed without the speaker.
 
 ```markdown
 ---
 layout: step-diagram
 
-## 표준편차 계산 네 단계
+## 95% 신뢰구간 계산 네 단계
 
-- **1. 평균 구하기** 모든 값을 더해 개수로 나눈다 · 예: 점수 60, 70, 70, 80, 90의 평균은 74점
-- **2. 편차 구하기** 각 값에서 평균을 뺀다 · 예: −14, −4, −4, 6, 16
-- **3. 분산 구하기** 편차를 제곱해 더하고 개수로 나눈다 · 예: (196 + 16 + 16 + 36 + 256) ÷ 5 = 104
-- **4. 제곱근 취하기** 분산의 제곱근이 표준편차다 · 예: √104 ≈ 10.2점
+- **1. 평균 구하기** 표본 값의 합을 n으로 나눈다 · 예: 키 표본 25명, 평균 168cm
+- **2. 표준편차 구하기** 편차 제곱의 평균에 제곱근을 씌운다 · 예: 10cm
+- **3. 표준오차 구하기** 표준편차를 √n으로 나눈다 · 예: 10 ÷ 5 = 2cm
+- **4. 구간 만들기** 평균 ± 1.96 × 표준오차 · 예: 164.1-171.9cm
 ---
 ```
 
-A comparison whose five labelled rows stand on the board rail; both sides keep the same labels, so
-the rail names each row once.
+A sidebar slide names each wrong reading and why it fails, and keeps the right reading in the box;
+the title labels the topic.
 
 ```markdown
 ---
-layout: comparison
+layout: sidebar-note
+title: top-rule
 
-## 모분산과 표본분산 비교
+## 신뢰구간 해석의 흔한 오류 두 가지
 
-:::: columns 1fr 1fr
-::: col
-- **모분산**
-  (1) 대상: 모집단 전체의 값을 알 때 쓴다
-  (2) 나누는 수: 자료의 개수 n
-  (3) 기호: σ²
-  (4) 예: 한 학년 전체 240명의 키
-  (5) 읽는 법: 집단의 실제 흩어짐이다
+- **참값이 이 구간 안에 있을 확률이 95%라는 읽기**
+  (1) 참값은 정해진 하나의 수라서 확률로 말하지 않는다
+  (2) 확률은 구간을 만드는 방법에 붙는 말이다
+- **학생의 95%가 이 구간 안에 있다는 읽기**
+  (1) 구간은 평균에 대한 것이고 개인 값의 범위가 아니다
+  (2) 개인 값의 범위는 표준편차로 따로 말한다
+
+::: main-box
+같은 방법으로 구간을 100번 만들면 약 95개가 참값을 담는다고 읽는다
 :::
-::: col
-- **표본분산**
-  (1) 대상: 표본으로 모집단을 추정할 때 쓴다
-  (2) 나누는 수: 자료의 개수보다 하나 작은 n − 1
-  (3) 기호: s²
-  (4) 예: 그 학년에서 뽑은 30명의 키
-  (5) 읽는 법: 모집단 값의 추정치다
-:::
-::::
+
+- **확인 질문** 표본을 100명으로 늘리면 구간 폭은 어떻게 바뀌는가 (답: 절반)
 ---
 ```
 
-Both slides compile under `tonality: chalk` after a generic cover (drawn as `cover-rail`) and pass
-`qa_deck.py`. The class, the scores and the figures are invented.
+## Examples
+
+`06-lecture-chalk-ko.md` and `12-research-tutorial-chalk-en.md` both use the pack defaults (density
+10, variance 6).

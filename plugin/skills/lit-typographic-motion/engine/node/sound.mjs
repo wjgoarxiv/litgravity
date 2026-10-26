@@ -11,7 +11,6 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fnv1a32, mulberry32 } from "../core/util.mjs";
-import { describeSpawn } from "../../../../lib/host-exec.mjs";
 
 export const SOUND = Object.freeze({
   sampleRate: 48000,
@@ -29,6 +28,7 @@ export const SOUND = Object.freeze({
   fadeSec: 0.05,
 });
 
+export { TABLE as WAVETABLE_SIZE };
 export const TEMPO_RANGE = Object.freeze([60, 160]);
 const PITCH = { C: 0, "C#": 1, Db: 1, D: 2, "D#": 3, Eb: 3, E: 4, F: 5, "F#": 6, Gb: 6, G: 7, "G#": 8, Ab: 8, A: 9, "A#": 10, Bb: 10, B: 11 };
 export const KEYS = Object.freeze({ pitchClasses: Object.freeze(Object.keys(PITCH)), modes: Object.freeze(["major", "minor"]) });
@@ -87,6 +87,13 @@ export function normalizePalette(palette) {
   return { timbre, key, mode, tempo };
 }
 
+/**
+ * Sounds an on-screen event can make (treatment `sound.events`): a tap (a small click with a pitched
+ * body: a key, a latch, a drop landing), a hit (the cut hit), a whoosh (air ending on the event) and a
+ * chime (two notes of the key: something completes).
+ */
+export const EVENT_SOUNDS = Object.freeze(["tap", "hit", "whoosh", "chime"]);
+
 const CUE_WORDS = [
   ["hit", /\b(?:hits?|impacts?|cuts?|stabs?|accents?)\b|타격|히트|컷|강세/iu],
   ["rise", /\b(?:rises?|rising|risers?|swells?|swelling|builds?|building|build-?ups?|lifts?|lifting)\b|상승|고조|빌드업/iu],
@@ -105,8 +112,11 @@ const nearest = (times, t, within) => {
   return best;
 };
 
-/** Accent cues, each measured against the beat boundary or cut it serves. */
-export function planCues({ beats = [], durationSec, cutTimes = [] }) {
+/**
+ * Accent cues, each measured against the beat boundary or cut it serves, plus one `event` cue per
+ * on-screen event at its own time (it never snaps to a cut: it follows the picture).
+ */
+export function planCues({ beats = [], durationSec, cutTimes = [], events = [] }) {
   const cues = [];
   const clampT = (t) => Math.min(durationSec, Math.max(0, t));
   beats.forEach((beat, beatIndex) => {
@@ -128,6 +138,12 @@ export function planCues({ beats = [], durationSec, cutTimes = [] }) {
       }
     }
   });
+  for (const e of Array.isArray(events) ? events : []) {
+    if (!EVENT_SOUNDS.includes(e?.kind) || !(e.t >= 0 && e.t < durationSec)) continue;
+    const beatIndex = Math.max(0, beats.findIndex((b) => e.t >= Number(b.t0) && e.t < Number(b.t1)));
+    const cut = nearest(cutTimes, e.t, Infinity);
+    cues.push({ kind: "event", sound: e.kind, t: round4(e.t), beatIndex, target: round4(e.t), delta: 0, on: String(e.on ?? ""), fromCut: cut === null ? null : round4(Math.abs(e.t - cut)) });
+  }
   cues.sort((a, b) => a.t - b.t || a.beatIndex - b.beatIndex);
   return cues;
 }
@@ -265,7 +281,8 @@ export function decodeWav(buffer) {
 
 // ---- synthesis ----
 const TABLE = 4096;
-function wavetable(harmonics) {
+/** A normalized single-cycle table of additive partials (TABLE + 1 samples, wrapped). */
+export function wavetable(harmonics) {
   const t = new Float32Array(TABLE + 1);
   let peak = 0;
   for (let i = 0; i < TABLE; i++) {
@@ -317,7 +334,7 @@ export function buildBed({ treatment, frameCount, fps, cutTimes = [] }) {
   const sampleCount = Math.round((frameCount * sr) / fps);
   const durationSec = sampleCount / sr;
   const beats = Array.isArray(treatment?.beats) ? treatment.beats : [];
-  const cues = planCues({ beats, durationSec, cutTimes });
+  const cues = planCues({ beats, durationSec, cutTimes, events: treatment?.sound?.events });
   const rand = mulberry32(fnv1a32(`${treatment?.request ?? ""}|${palette.timbre}|${palette.key}|${palette.mode}|${palette.tempo}`));
   const L = new Float64Array(sampleCount);
   const R = new Float64Array(sampleCount);
@@ -446,22 +463,58 @@ export function buildBed({ treatment, frameCount, fps, cutTimes = [] }) {
       }
     }
   };
-  for (const cue of cues) {
-    if (cue.kind === "hit") {
-      const s0 = Math.round(cue.t * sr);
-      const len = Math.min(sampleCount - s0, Math.round(0.6 * sr));
+  // An on-screen event: a sound shaped like what the picture does at that frame.
+  const eventSound = (cue) => {
+    const s0 = Math.round(cue.t * sr);
+    if (cue.sound === "tap") {
+      const len = Math.min(sampleCount - s0, Math.round(0.3 * sr));
+      const hz = midiHz(tonic + 24 + (palette.mode === "major" ? 7 : 3));
       let f = 0;
-      const c = onePole(voice.accent.kind === "bell" ? 6000 : 1800, sr);
-      let ph = 0;
+      const c = onePole(4500, sr);
       for (let i = 0; i < len; i++) {
         const t = i / sr;
         f += c * (rand() * 2 - 1 - f);
-        ph += (2 * Math.PI * (50 + 90 * Math.exp(-t / 0.02))) / sr;
-        const v = 0.55 * Math.exp(-t / 0.12) * f + 0.5 * Math.exp(-t / 0.22) * Math.sin(ph);
+        const v = 1.2 * Math.exp(-t / 0.008) * f + 0.6 * Math.exp(-t / 0.07) * Math.sin(2 * Math.PI * hz * t);
         L[s0 + i] += v;
-        R[s0 + i] += v;
+        R[s0 + i] += v * 0.9;
       }
-      if (voice.accent.kind === "bell") strike(cue.t, [tonic + 12], 0.6, 0.12);
+    } else if (cue.sound === "whoosh") {
+      const start = Math.max(0, s0 - Math.round(0.4 * sr));
+      const tail = Math.min(sampleCount, s0 + Math.round(0.08 * sr));
+      let f = 0;
+      for (let s = start; s < tail; s++) {
+        const u = s < s0 ? (s - start) / Math.max(1, s0 - start) : 1 - (s - s0) / Math.max(1, tail - s0);
+        f += onePole(300 + 3200 * u, sr) * (rand() * 2 - 1 - f);
+        const v = 0.5 * u * u * f;
+        L[s] += v * (1 - 0.4 * u);
+        R[s] += v * (0.6 + 0.4 * u);
+      }
+    } else if (cue.sound === "chime") {
+      strike(cue.t, [tonic + 12], 1.2, 0.09);
+      strike(cue.t + 0.09, [tonic + 19], 1.2, 0.08);
+    } else {
+      hitAt(cue.t);
+    }
+  };
+  const hitAt = (t0) => {
+    const s0 = Math.round(t0 * sr);
+    const len = Math.min(sampleCount - s0, Math.round(0.6 * sr));
+    let f = 0;
+    const c = onePole(voice.accent.kind === "bell" ? 6000 : 1800, sr);
+    let ph = 0;
+    for (let i = 0; i < len; i++) {
+      const t = i / sr;
+      f += c * (rand() * 2 - 1 - f);
+      ph += (2 * Math.PI * (50 + 90 * Math.exp(-t / 0.02))) / sr;
+      const v = 0.55 * Math.exp(-t / 0.12) * f + 0.5 * Math.exp(-t / 0.22) * Math.sin(ph);
+      L[s0 + i] += v;
+      R[s0 + i] += v;
+    }
+    if (voice.accent.kind === "bell") strike(t0, [tonic + 12], 0.6, 0.12);
+  };
+  for (const cue of cues) {
+    if (cue.kind === "hit") {
+      hitAt(cue.t);
     } else if (cue.kind === "rise") {
       const s0 = Math.round(cue.start * sr);
       const s1 = Math.min(sampleCount, Math.round(cue.t * sr));
@@ -476,6 +529,8 @@ export function buildBed({ treatment, frameCount, fps, cutTimes = [] }) {
         L[s] += v * (1 - 0.3 * u);
         R[s] += v * (0.7 + 0.3 * u);
       }
+    } else if (cue.kind === "event") {
+      eventSound(cue);
     } else {
       const third = palette.mode === "major" ? 4 : 3;
       strike(cue.t, [tonic - 12, tonic, tonic + third, tonic + 7], voice.accent.decay, 0.1);
@@ -490,20 +545,61 @@ export function buildBed({ treatment, frameCount, fps, cutTimes = [] }) {
     R[sampleCount - 1 - i] *= g;
   }
 
-  // Loudness to -16 LUFS through a soft limiter under -2 dBFS; quantized as the WAV will be.
+  const { left, right, lufs } = masterTo(L, R);
+  return { left, right, sampleCount, palette, cues, lufs: +lufs.toFixed(2), peakDbfs: +samplePeakDbfs([left, right]).toFixed(2), loudnessMethod: "BS.1770-4" };
+}
+
+/**
+ * The master stage every built track ends in: loudness to -16 LUFS through a lookahead limiter under
+ * -2 dBFS, quantized as the WAV will be. Returns the channels, the gain applied and the loudness.
+ *
+ * The limiter turns the gain down smoothly before a peak (5 ms lookahead, both channels linked, 80 ms
+ * release) instead of bending the waveform. A waveshaper adds harmonics the AAC encode turns into
+ * overshoot: one film's score sat at -2.1 dBFS in the WAV and decoded at +0.4 dBFS from the mux.
+ */
+export function masterTo(L, R) {
+  const sampleCount = L.length;
   const ceiling = 10 ** (-2.1 / 20);
-  const knee = 0.5 * ceiling;
-  const limit = (x) => {
-    const a = Math.abs(x);
-    return a <= knee ? x : Math.sign(x) * (knee + (ceiling - knee) * Math.tanh((a - knee) / (ceiling - knee)));
-  };
+  const ahead = Math.round(0.005 * SOUND.sampleRate);
+  const release = 1 - Math.exp(-1 / (0.08 * SOUND.sampleRate));
   const q = (v) => Math.round(Math.max(-1, Math.min(1, v)) * 32767) / 32767;
   const render = (gain) => {
+    // need[s]: the gain that keeps sample s under the ceiling; held[s]: the lowest need in the next
+    // `ahead` samples (a monotonic deque); then the release lets it rise slowly; then a moving average
+    // over `ahead` samples reaches every held value before its peak, so the result never exceeds need.
+    const need = new Float32Array(sampleCount);
+    for (let s = 0; s < sampleCount; s++) {
+      const a = Math.max(Math.abs(L[s]), Math.abs(R[s])) * gain;
+      need[s] = a > ceiling ? ceiling / a : 1;
+    }
+    const held = new Float32Array(sampleCount);
+    const deque = new Int32Array(sampleCount + ahead + 1);
+    let head = 0;
+    let tail = 0;
+    let next = 0;
+    for (let s = 0; s < sampleCount; s++) {
+      for (; next < Math.min(sampleCount, s + ahead + 1); next++) {
+        while (tail > head && need[deque[tail - 1]] >= need[next]) tail--;
+        deque[tail++] = next;
+      }
+      while (deque[head] < s) head++;
+      held[s] = need[deque[head]];
+    }
+    let env = 1;
+    const smooth = new Float32Array(sampleCount);
+    for (let s = 0; s < sampleCount; s++) {
+      env = Math.min(held[s], env + (1 - env) * release);
+      smooth[s] = env;
+    }
     const l = new Float32Array(sampleCount);
     const r = new Float32Array(sampleCount);
+    // The averaging window starts full of unity gain; the hard ceiling below catches the first 5 ms.
+    let win = ahead;
     for (let s = 0; s < sampleCount; s++) {
-      l[s] = q(limit(L[s] * gain));
-      r[s] = q(limit(R[s] * gain));
+      win += smooth[s] - (s >= ahead ? smooth[s - ahead] : 1);
+      const g = win / ahead;
+      l[s] = q(Math.max(-ceiling, Math.min(ceiling, L[s] * gain * g)));
+      r[s] = q(Math.max(-ceiling, Math.min(ceiling, R[s] * gain * g)));
     }
     return [l, r];
   };
@@ -516,7 +612,7 @@ export function buildBed({ treatment, frameCount, fps, cutTimes = [] }) {
     [left, right] = render(gain);
     lufs = integratedLoudness([left, right]);
   }
-  return { left, right, sampleCount, palette, cues, lufs: +lufs.toFixed(2), peakDbfs: +samplePeakDbfs([left, right]).toFixed(2), loudnessMethod: "BS.1770-4" };
+  return { left, right, gain, lufs };
 }
 
 export function writeBed({ treatment, frameCount, fps, cutTimes = [], dir }) {
@@ -560,7 +656,7 @@ export function prepareTrack({ ffmpeg, input, frameCount, fps, dir, name = "trac
   const r = spawnSync(ffmpeg, ["-y", "-hide_banner", "-loglevel", "error", "-i", input, "-vn", "-ac", "2", "-ar", String(sr), "-c:a", "pcm_s16le", "-f", "wav", tmp], { encoding: "utf8" });
   if (r.status !== 0 || !existsSync(tmp)) {
     rmSync(tmp, { force: true });
-    throw new SoundError("sound.file", `audio file could not be decoded (${describeSpawn(r)})`);
+    throw new SoundError("sound.file", `audio file could not be decoded: ${(r.stderr || r.error?.message || "").trim().split("\n").pop()}`);
   }
   let src;
   try {
@@ -622,6 +718,8 @@ export function auditMuxed({ ffmpeg, ffprobe = null, film, videoDurationSec, mod
   const peak = samplePeakDbfs(channels);
   const head = rmsRuns(channels);
   const lufs = integratedLoudness(channels);
+  // A generated bed and a score are built here to the loudness target; a supplied track is only reported.
+  const built = mode === "generated" || mode === "score";
   const rules = [{ id: "SOUND-STREAM", status: "PASS", detail: `audio stream present (${mode})` }];
   const dd = Math.abs(duration - videoDurationSec);
   rules.push({ id: "SOUND-DURATION", status: dd <= SOUND.durationToleranceSec ? "PASS" : "FAIL", detail: `audio ${duration.toFixed(3)} s vs video ${Number(videoDurationSec).toFixed(3)} s (limit ±${SOUND.durationToleranceSec} s)` });
@@ -629,14 +727,14 @@ export function auditMuxed({ ffmpeg, ffprobe = null, film, videoDurationSec, mod
   const headBad = head > SOUND.silenceMaxSec;
   rules.push({
     id: "SOUND-HEAD",
-    status: headBad ? (mode === "generated" ? "FAIL" : "WARN") : "PASS",
+    status: headBad ? (built ? "FAIL" : "WARN") : "PASS",
     detail: `longest run below ${SOUND.silenceDbfs} dBFS RMS in the first ${SOUND.silenceHeadSec} s: ${head.toFixed(2)} s (limit ${SOUND.silenceMaxSec} s)`,
   });
   const inRange = Number.isFinite(lufs) && Math.abs(lufs - SOUND.targetLufs) <= SOUND.lufsTolerance;
   rules.push({
     id: "SOUND-LOUDNESS",
-    status: mode === "generated" ? (inRange ? "PASS" : "WARN") : "PASS",
-    detail: `integrated ${Number.isFinite(lufs) ? lufs.toFixed(2) : "-inf"} LUFS (BS.1770-4${mode === "generated" ? `, target ${SOUND.targetLufs} ± ${SOUND.lufsTolerance}` : ", reported"})`,
+    status: built ? (inRange ? "PASS" : "WARN") : "PASS",
+    detail: `integrated ${Number.isFinite(lufs) ? lufs.toFixed(2) : "-inf"} LUFS (BS.1770-4${built ? `, target ${SOUND.targetLufs} ± ${SOUND.lufsTolerance}` : ", reported"})`,
   });
-  return { rules, exitCode: headBad && mode === "generated" ? 20 : null };
+  return { rules, exitCode: headBad && built ? 20 : null };
 }

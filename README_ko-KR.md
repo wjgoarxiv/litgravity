@@ -12,13 +12,25 @@
 <a href="https://github.com/wjgoarxiv/litgravity/stargazers"><img src="https://img.shields.io/github/stars/wjgoarxiv/litgravity?style=flat" alt="GitHub 스타" /></a>
 </p>
 
-<p align="center"><a href="#설치"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> 설치</a> &nbsp; <a href="#데모"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> 데모</a> &nbsp; <a href="#안전과-제거"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> 안전</a> &nbsp; <a href="#빠른-시작">빠른 시작</a> &nbsp; <a href="#들어-있는-것">들어 있는 것</a> &nbsp; <a href="#지금-agy가-막아-두는-것">agy의 한계</a> &nbsp; <a href="./README.md">English</a></p>
+<p align="center"><a href="#설치"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> 설치</a> &nbsp; <a href="#데모"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> 데모</a> &nbsp; <a href="#안전과-제거"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> 안전</a> &nbsp; <a href="#빠른-시작">빠른 시작</a> &nbsp; <a href="#만들-수-있는-것">만들 수 있는 것</a> &nbsp; <a href="#들어-있는-것">들어 있는 것</a> &nbsp; <a href="#지금-agy가-막아-두는-것">agy의 한계</a> &nbsp; <a href="./README.md">English</a></p>
 
 ## 데모
 
 `lit`을 치면 무엇이 도는지, 이 Mac의 실제 훅과 상태 표시줄에서 가져왔습니다. 친 프롬프트, 끼워 넣은 경로 안내, lit-loop 지도를 단 상태 표시줄 순서입니다.
 
 <!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="터미널 갈무리. 프롬프트는 lit add a --shout flag that prints the greeting in capitals, with a test. 훅은 LIT 표시와 LIT IGNITED · lit-loop로 답하고, 먼저 읽을 lit-loop 스킬 파일을 알리고, 도구 기록이 대화 ledger에 남는다고 안내합니다. 아래 상태 표시줄에는 모델, 42퍼센트 컨텍스트 게이지, 시계가 달린 lit-loop 칩, PIN이 켜진 PIN부터 RECORD까지의 지도가 보입니다." /></p>
+
+## 만들 수 있는 것
+
+아래 그림은 모두 이 Mac에서 나온 실제 결과물입니다. `lit-adhd` 브리프는 실제 agy 대화 세 개를 수집기가 읽어 그렸고, 나머지는 각 스킬의 예제를 그 스킬의 엔진이 만든 것입니다. 대화에서 요청할 때 agy가 부르는 엔진과 같습니다.
+
+| 그림 | 스킬 | 보여 주는 것 |
+|---|---|---|
+| <img src="./docs/assets/litgravity/showcase/deck-themes.webp" width="480" alt="물류 플랫폼을 다룬 같은 한국어 덱을 네 가지 톤으로 그린 그림. 호박색 연도가 있는 어두운 표지, KPI 네 개가 있는 남색 표지, 크림 바탕의 코발트 표지, 청록 표지가 있고, 각 표지 아래에 월별 화물 막대 차트와 요점 두 줄, 데이터 표가 있는 차트 슬라이드가 있습니다." /> | `lit-pptx` | 한 덱을 네 가지 톤으로 만든 모습입니다. 차트와 KPI 줄은 편집할 수 있는 원본 그대로이고, Pretendard가 들어 있으며, 넘침·대비·빈 슬라이드 검사를 통과했습니다. |
+| <img src="./docs/assets/litgravity/showcase/pid-dosing-skid.webp" width="480" alt="차아염소산나트륨 주입 스키드의 P&amp;ID. 레벨 전송기와 경보가 달린 저장 탱크 TK-101, 필터와 체크 밸브 뒤의 주·예비 정량 펌프 P-101A와 P-101B, 탱크로 돌아가는 안전 밸브 PSV-101, 펌프로 신호를 보내는 FE-101·FT-101·FIC-101 유량 루프, 범례, 노트, 표제란이 있습니다." /> | `lit-schematic` | ISA-5.1 태그, 라인 번호, 범례, 표제란을 갖춘 P&amp;ID입니다. 선 위 글자, 기호를 지나는 선, 끊긴 선이 없다는 검사를 통과했습니다. |
+| <img src="./docs/assets/litgravity/showcase/schematics.webp" width="480" alt="두 그림. 구리 튜브 다발과 배플, 새들 받침이 보이는 셸앤튜브 열교환기 등각 절단도에 부품 이름이 달려 있고, 옆에는 논문용 두 패널 흡착 장치 그림이 있습니다. a는 가스 실린더, 질량 유량 조절기, 오븐 안의 컬럼, 질량 분석기의 흐름도, b는 흡착층과 열전대가 있는 컬럼입니다." /> | `lit-schematic` | 같은 스킬이 장치를 등각 절단도로, 그리고 논문용 두 패널 그림으로 그린 예입니다. |
+| <img src="./docs/assets/litgravity/showcase/motion-film.webp" width="480" alt="어두운 한 가지 스타일로 된 12초 영상의 네 장면. 작게 시작해서 끝까지 옆에 그려지는 고리, One clock for every frame 옆의 막대 차트, 한 화면에 한 가지 생각 옆의 점을 잇는 선, Same house, every film 위의 청록과 호박색 타일." /> | `lit-typographic-motion` | 한 줄짜리 한국어 요청으로 만든 12초 영상의 네 장면입니다. 스킬이 먼저 트리트먼트를 쓰고, 사운드와 함께 한 프레임씩 렌더링한 뒤, 깜빡임·가독성·루프 검사를 거쳤습니다. |
+| <img src="./docs/assets/litgravity/showcase/adhd-brief-ko.webp" width="480" alt="어두운 대화 창에 뜬 lit adhd 브리프. 세션 세 개를 세는 제목, P&amp;ID와 랜딩 페이지를 만들던 진행 중 카드 두 장과 각각 쓴 파일, 다음 단계, 끝난 덱 세션 한 줄짜리 표, 로드맵 한 줄, 추천 다음 단계 상자가 있습니다." /> | `lit-adhd` | 정신없던 하루 끝에 `lit adhd`를 입력하면 요청한 것, 쓴 것, 아직 돌고 있는 것, 실제로 할 수 있는 다음 단계 하나를 한 장으로 보여 줍니다. |
 
 ## 왜 LitGravity인가
 
@@ -97,15 +109,17 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 [LIT] | GF3.8 | ctx [#--] 42%/1049k | [LIT] . lit-loop 2:20 | [PIN] = RED . - GREEN . - VERIFY . - REVIEW . - RECORD .
 ```
 
+몇몇 순간에는 줄의 모양이 바뀝니다. `lit adhd`가 경로일 때는 칸마다 색이 다른 느린 무지개가 됩니다. `lit-rewind`로 부르든, 스킬 이름을 그대로 치거나 `/` 뒤에 치든, 모델이 스스로 스킬을 불러오든 똑같습니다. 턴이 질문, 승인 요청, BLOCKED 보고로 끝나거나 목표가 결정을 기다리면, 줄이 호박색이 되고 다시 입력할 때까지 `⚠ YOUR TURN · <이유>`를 띄웁니다. `lit review work`가 도는 동안에는 다섯 레인(goal, qa, quality, security, context)이 보고하는 대로 레인마다 제 색과 판정 표시를 달고 나타나며, `2/5` 같은 수도 함께 보입니다. 경로가 도는 사이 계획이나 목표가 끝나면 `✦ DONE ✦`이 20초 동안 뜹니다. agy는 줄을 다시 그리는 때를 스스로 정하므로 모든 모양은 멈춰 있는 그림이고, `NO_COLOR`에서도 표시 글자는 평문으로 남습니다.
+
 ## 들어 있는 것
 
 모든 lit 턴은 같은 순서를 따릅니다. 큰 변경은 첫 편집 전에 계획으로 적습니다. 작업은 그 계획에 맞춰 테스트와 실제 화면 확인으로 검증합니다. 합치기 전에는 두 번째 눈이 검토합니다. 조사는 출처를 밝히고, 문서와 글은 깔끔하게 읽히며, 턴은 다음 대화가 읽을 인계 메모로 끝납니다. 아래 스킬, 에이전트, 훅, 엔진은 그 순서의 부품으로, 필요할 때 읽습니다.
 
-**스킬 39개.** 각 스킬은 필요할 때 읽는 agy 스킬로, 필요한 참고 문서, 스크립트, 템플릿, 엔진을 자기 폴더 안에 갖고 있습니다. agy는 `SKILL.md`의 앞 24,000바이트만 불러오므로 긴 내용은 스킬의 `references/` 폴더에 두고, 스킬이 열 파일을 알려 줍니다.
+**스킬 42개.** 각 스킬은 필요할 때 읽는 agy 스킬로, 필요한 참고 문서, 스크립트, 템플릿, 엔진을 자기 폴더 안에 갖고 있습니다. agy는 `SKILL.md`의 앞 24,000바이트만 불러오므로 긴 내용은 스킬의 `references/` 폴더에 두고, 스킬이 열 파일을 알려 줍니다.
 
 | 부분 | 내용 | 역할 |
 |---|---|---|
-| 스킬 39개 | 참고 문서, 스크립트, 엔진을 담은 agy 스킬 | 계획, 구현, 확인, 조사, 작성, 인계 |
+| 스킬 42개 | 참고 문서, 스크립트, 엔진을 담은 agy 스킬 | 계획, 구현, 확인, 조사, 작성, 인계 |
 | 에이전트 11개 | agy가 타입 이름으로 시작하는 하위 에이전트 | 계획, 실행, 검증, 검토, 한국어 글 |
 | 훅 6개 | 세션 시작, 매 턴, 매 도구 호출, 종료 게이트에서 실행 | `lit` 라우팅, 미완 턴 붙잡기, 도구 ledger 기록 |
 

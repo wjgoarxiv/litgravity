@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, lstatSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { PLUGIN_ROOT, sessionFile, toolName, toolArgs, workspaceOf } from './common.mjs';
+import { PLUGIN_ROOT, sessionFile, sessionPath, toolName, toolArgs, workspaceOf } from './common.mjs';
 import { SHELL_TOOLS, targetPaths } from './policy.mjs';
 
 // The lit-typographic-motion done gate. A motion turn ends when the skill's own done-check says the film or cover is
@@ -11,12 +11,30 @@ import { SHELL_TOOLS, targetPaths } from './policy.mjs';
 // a render that never produced its manifest reads as "no full render has finished", and the hold names that.
 export const MOTION_ROUTE = 'lit-typographic-motion';
 export const MOTION_MAX_HOLDS = 2;
-const COMMAND = /\bmotion\.mjs["']?\s+(stage|make|cover-gate|cover|gate|sound|look|stills|sheet|video|perf)\b([^\n;&|]*)/;
+const COMMAND = /\bmotion\.mjs["']?\s+(stage|make|cover-gate|cover|gate|sound|look|stills|sheet|video|perf|assets|styles|scaffold|blender)\b([^\n;&|]*)/;
 const IMAGE = /\.(png|jpe?g|webp|gif)$/i;
 const MAX_VIEWED = 2000;
 const DONE_MODULE = join(PLUGIN_ROOT, 'skills', MOTION_ROUTE, 'engine', 'node', 'done.mjs');
 
 const statePath = (payload) => sessionFile(payload)?.replace(/\.json$/, '.motion.json') ?? null;
+
+// The model often works inside the film folder (`cd film && motion.mjs stage --out .`). That folder
+// hashes to a different session path than the workspace root where the turn was armed, so
+// recordMotionTool and evaluateMotionStop walk up the directory tree to find the nearest state file.
+export function nearestMotionState(payload) {
+  const primary = statePath(payload);
+  if (primary && existsSync(primary)) return primary;
+  const id = payload.conversationId;
+  let dir = resolve(workspaceOf(payload));
+  for (;;) {
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+    const candidate = sessionPath(dir, id)?.replace(/\.json$/, '.motion.json');
+    if (candidate && existsSync(candidate)) return candidate;
+  }
+  return primary;
+}
 
 function isLink(p) {
   try {
@@ -27,7 +45,7 @@ function isLink(p) {
 }
 
 export function readMotion(payload) {
-  const file = statePath(payload);
+  const file = nearestMotionState(payload);
   if (!file || !existsSync(file)) return null;
   try {
     const s = JSON.parse(readFileSync(file, 'utf8'));
@@ -38,7 +56,7 @@ export function readMotion(payload) {
 }
 
 function writeMotion(payload, state) {
-  const file = statePath(payload);
+  const file = nearestMotionState(payload);
   if (!file || isLink(file) || isLink(dirname(file))) return state;
   mkdirSync(dirname(file), { recursive: true });
   const tmp = `${file}.tmp-${process.pid}`;
@@ -55,9 +73,20 @@ export function armMotionTurn(payload, now = Date.now()) {
 
 const unquote = (v) => v?.replace(/^["']|["']$/g, '');
 
+// Expand `$VAR` set in the same command line (e.g. `D=out; motion.mjs stage --out $D`). The model
+// often runs `--out $D` inside a film folder where D was assigned earlier in a compound command.
+function expandVars(text) {
+  const assigns = new Map();
+  for (const m of String(text).matchAll(/\b([A-Z_][A-Z0-9_]*)=("[^"]*"|'[^']*'|[^\s;&|]+)/g)) {
+    assigns.set(m[1], unquote(m[2]));
+  }
+  return String(text).replace(/\$([A-Z_][A-Z0-9_]*)/g, (_, k) => assigns.get(k) ?? `$${k}`);
+}
+
 /** One `motion.mjs <mode> ...` command line as { mode, out, round, stillsOnly }, or null. */
 export function parseMotionCommand(command, cwd) {
-  const m = COMMAND.exec(String(command ?? ''));
+  const expanded = expandVars(String(command ?? ''));
+  const m = COMMAND.exec(expanded);
   if (!m) return null;
   const tokens = [...m[2].matchAll(/"[^"]*"|'[^']*'|[^\s]+/g)].map((t) => unquote(t[0]));
   const values = {};

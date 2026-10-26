@@ -1,0 +1,107 @@
+# Neo-Brutalism: loud on purpose. Thick black borders, hard offset shadows with no blur, flat
+# saturated fills (yellow cards, a pink accent, a blue band) and heavy type on a warm cream ground.
+# Wrong for formal reports, academic talks, sensitive topics, dense reviews and decks under a
+# corporate brand guide.
+id: neo-brutalism
+name: Neo-Brutalism
+version: "1.0.0"
+intent: "Pitches, launches and demo days: bold fills, black borders, hard shadows."
+canvas: ["16:9", "4:3"]
+
+# Pretendard by default; the A2Z map below applies only when the source asks (faces: a2z).
+faces:
+  display: Pretendard Bold
+  title: Pretendard Bold
+  body: Pretendard Regular
+  label: Pretendard Bold
+  numeral: Pretendard Bold
+faces-a2z:
+  display: A2Z Black
+  title: A2Z Black
+  body: Pretendard Regular
+  label: Pretendard Bold
+  numeral: A2Z Black
+
+palette:
+  ground: "#FFF5E1"
+  surface: "#FFD43B"
+  ink: "#111111"
+  ink-muted: "#3A3A3A"
+  line: "#111111"
+  accent: "#D81B5C"
+  accent-deep: "#6B0F2E"
+  accent-tint: "#FFC9DA"
+  field: "#2F4BFF"
+  on-field: "#FFFFFF"
+  positive: "#137A43"
+  # The accent is pink-red, so a loss keeps the ink colour and carries its ▼ sign instead.
+  negative: "#111111"
+  series: ["#D81B5C", "#2F4BFF", "#111111", "#137A43"]
+
+# A bold register: presented type and the hero step, filling the same zones every pack uses.
+register: bold
+ramp: presented
+hero: true
+type-voice:
+  title-tracking: -2
+  display-tracking: -3
+
+density: 10
+variance: 7
+radius: 0
+# Every surface: a filled card with a 2.5 pt black border and a 6 pt black shadow, no blur.
+edge: fill+border
+edge-weight: 2.5
+edge-colour: ink
+shadow:
+  offset: 6
+  colour: ink
+
+treatments: [top-plain-large, band, kicker-numeral, statement, bottom-anchor]
+role-defaults:
+  content: top-plain-large
+  data: band
+  data-takeaway: top-plain-large
+  sequence: band
+  image: bottom-anchor
+  statement: statement
+  reference: band
+  definition: band
+
+decoration: [colour-field, numeral]
+layout-families: [big-number, kpi-row, comparison, process, step-diagram, chart-insight, table-insight, image-split, summary-box-list, agenda, quote, statement]
+# Display slides: the device a type-led cover, a statement, a big number and a closing's next step
+# are drawn with (see references/layout-families.md, "Display slides").
+display:
+  cover: plate
+  statement: drench
+  number: field
+  closing: box
+covers: [cover-typographic, cover-split-field, cover-numeral]
+sections: [section-field, section-numeral]
+closings: [closing-ask, closing-decision-box, closing-statement]
+
+table:
+  header: surface
+  header-ink: ink
+  rules: grid
+  banding: none
+  totals: bold
+  protagonist: accent-tint
+chart:
+  gridlines: none
+  labels: direct
+  highlight: series-order
+image:
+  frame: hairline
+
+fill-order: [step-up, change-family, anchor-visual, distribute]
+# What the gate allows this pack beyond the default craft floor (see references/anti-slop-checklist.md).
+qa:
+  offset-shadow: true
+avoid:
+  - blurred or soft shadows (the shadow is a hard offset or nothing)
+  - thin hairlines beside the 2.5 pt borders
+  - more than three fill colours on one slide
+  - muted grey text on the yellow surface below 4.5:1
+  - this look for grief, safety, HR or financial-loss topics

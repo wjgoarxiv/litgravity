@@ -37,7 +37,7 @@ palette:
   series: ["#9A3412", "#1F3B33", "#4E5A66", "#2E6A8E"]
 
 ramp: reading
-hero: false
+hero: true
 type-voice:
   title-tracking: -1
   display-tracking: -1

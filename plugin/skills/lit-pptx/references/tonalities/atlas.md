@@ -1,152 +1,139 @@
 # Atlas
 
 Atlas is a picture book with good captions. Photographs bleed to the edge or take most of the body,
-titles sit on a dark panel over the picture or under it, and the words stay short and calm while
-carrying what each picture needs: what, where, when and how much. The palette is quiet on purpose, a
-near-black ink and one muted navy, because the photographs bring the colour. Every picture carries a
-numbered caption with its source, which keeps the deck honest about what the reader is looking at.
+titles sit on a dark panel over a full-bleed picture or in the slide grid's title zone above it, and the words stay calm but carry the
+facts each picture needs: what, where, when and how much. The
+palette is quiet on purpose, a near-black ink and one muted navy, because the photographs bring the
+colour. Every picture carries a numbered caption and its source, which keeps the deck honest about
+what the reader is looking at.
 
-## When to choose it
+## When to use it
 
 Use Atlas when the evidence is visual: product reports, portfolios, site and field visits,
-renovation or construction progress, exhibitions. Ten families are listed and five of them are built
-on pictures (`image-full`, `image-split`, `photo-grid`, `figure-pair`, `asymmetric-feature`), so the
-direction pays off when about a third of the slides hold a real image or a screenshot. It suits a
-client or a review panel who judges by seeing, with short narrative text between the pictures.
+renovation or construction progress, exhibitions. It is the first candidate for the image-led deck
+type and moves up whenever a third or more of the slides hold an image or a screenshot. It works for
+a client or a review panel who judges by seeing, and it suits short narrative text between pictures.
 
-The pack file says what breaks it: few real images. A look built around pictures turns into empty
-boxes without them, so a text or number deck belongs in Ledger, Gazette or Signal. Long tables sit
-awkwardly here because the table style is light and the families give the room to images.
+## When it is the wrong choice
+
+Atlas fails without real images. A pack built around pictures turns into grey boxes when the
+source has none, so for a text or number deck pick Ledger, Gazette or Signal. It keeps a
+statement for the one claim a picture deck needs, but a deck that lives on one-line claims belongs
+in Signal or Studio. Long tables also sit awkwardly here, because its table style is light and its
+families give
+the room to images.
 
 ## Tokens
 
+These values are read from the pack file `pack.yaml` of the `atlas` tonality.
+
 | Token | Value |
 |---|---|
-| ground / surface | #FFFFFF / #F3F4F5 |
-| ink / ink-muted / line | #1A1D21 / #555B63 / #D6D9DD |
-| accent / accent-deep / accent-tint | #2B4C7E / #1B2F4E / #E6ECF4 |
-| field / on-field | #1A1D21 / #FFFFFF |
-| positive / negative | #1E7A3F / #B3261E |
-| series | #2B4C7E, #555B63, #8A6A2E, #3E7A5A |
-| faces | Pretendard Regular for display, body, label and numerals, Pretendard Bold for titles; `faces: a2z` moves display and numerals to A2Z Light |
-| tracking (title / display) | 0 % / -1 % of the size |
-| density / variance | 10 / 7 (up to 5 title treatments, all five of the pack) |
+| ground / surface | `#FFFFFF` / `#F3F4F5` |
+| ink / ink-muted | `#1A1D21` / `#555B63` |
+| line | `#D6D9DD` |
+| accent / accent-deep / accent-tint | `#2B4C7E` / `#1B2F4E` / `#E6ECF4` |
+| field / on-field | `#1A1D21` / `#FFFFFF` |
+| positive / negative | `#1E7A3F` / `#B3261E` |
+| series | `#2B4C7E`, `#555B63`, `#8A6A2E`, `#3E7A5A` |
+| faces | title Pretendard Bold, body, label, display and numerals Pretendard Regular; `faces: a2z` swaps display and numerals to A2Z Light |
+| ramp / hero | compact (body 13 pt, labels 11, sources 9) / hero step (60 pt) on cover and statement titles that fit, off with `hero: false`; figures at most title size |
+| density / variance | 10 / 7 |
 | radius / edge | 0 / fill |
-| table | no header fill, a bold ink header, hairline row rules, no banding, bold totals |
-| chart | hairline gridlines, direct labels, accent on the highlighted series |
+| table | light grid: no header fill, bold ink header, hairline rows, no banding, numbers right-aligned, totals bold |
+| chart | hairline gridlines, direct labels, accent on the item that matters |
 | image | no frame |
-| decoration | caption-band, hairline-rule, colour-field |
-| fill-order | anchor-visual, change-family, distribute, step-up |
+| decoration | caption band, hairline rule, colour field |
 
-The compact ramp applies (body 13 pt, label 11, title 26, display 36, cover 44). A picture family
-spreads the picture over most of the body, so type size rarely decides the page; the caption sets at
-label size under its picture and the source stays inside the caption after a bar.
+## Treatments by slide role
 
-## Titles by family
-
-The role defaults: images `overlay`, data with a takeaway `bottom-anchor`, content, references and
-definitions `side-rail`, data and sequences `top-plain-large`, statements `statement`. The `overlay`
-frame is a field panel at 88 % opacity over the lower left of a full-bleed picture (columns 1-7,
-starting at y 324), with the title at y 348 and the caption at y 432; only `image-full` takes it.
-`title: top-plain-large` after `layout:` pins one slide, provided the family allows it.
-
-| Family | Default title | Then, in pack order |
-|---|---|---|
-| `image-full` | `overlay` | none |
-| `image-split` | `bottom-anchor` | `side-rail`, `top-plain-large` |
-| `photo-grid` | `bottom-anchor` | `top-plain-large` |
-| `figure-pair` | `bottom-anchor` | `side-rail` |
-| `asymmetric-feature` | `bottom-anchor` | `top-plain-large` |
-| `kpi-row` | `top-plain-large` | `bottom-anchor`, `side-rail` |
-| `comparison` | `top-plain-large` (numbers) / `side-rail` (arguments) | `bottom-anchor`, `side-rail`, `top-plain-large` |
-| `timeline` | `top-plain-large` | `bottom-anchor` |
-| `text-column` | `side-rail` | `top-plain-large` |
-| `statement` | `statement` | none |
+Image slides take `overlay`, where the title sits on a dark panel over a full-bleed photograph.
+Charts and figures with a takeaway take `bottom-anchor`, the title closed by a heavy rule over a
+visual that takes the body's full height. Text, reference and definition slides take `side-rail`, data and
+sequences take `top-plain-large`, and a pull quote takes `statement` on the dark field over the
+whole page (a plate under half the page left its top half open). The
+engine starts from the role's treatment and, when
+the body would stay half empty, tries the others the family allows and keeps the one that fills,
+within the variance cap. A `title: <treatment>` line under `layout:` pins one slide, provided the
+family allows it; `image-full` only ever takes `overlay`.
 
 ## Families and variants
 
-- `image-full`: one picture across the slide with the title and caption on its panel.
-- `image-split`: a large image beside three to five short facts.
-- `photo-grid`: two or three images in a row with one line under them.
-- `figure-pair`: before and after, or two places, with one line of evidence.
-- `asymmetric-feature`: one image or number with the larger share of the width.
-- `kpi-row`: two to six numbers that prove the pictures, each with a basis row.
-- `comparison`, `timeline`, `text-column`: options, dated next steps and the short narrative that
-  links picture groups.
-- Covers `cover-full-image`, `cover-split-image`, `cover-typographic`; sections `section-image`,
-  `section-field`; closings `closing-contact-split`, `closing-ask`.
+- `image-full`: one photograph across the whole slide with the title on its panel.
+- `image-split`: a large image beside three or four short facts about it.
+- `photo-grid`: up to three images in a row, with one line under them.
+- `figure-pair`: before and after, or two places, side by side with one line of evidence.
+- `asymmetric-feature`: one image or number given most of the width, with short evidence.
+- `kpi-row`: two to four numbers that prove the pictures, each with a basis row and a sourced caption.
+- `comparison`: two options or two problems, row by row.
+- `timeline`: dated next steps on one axis.
+- `text-column`: the short narrative that opens or links the picture sections.
 
-A cover takes no image block of its own. The engine reads the first image on any content slide of the
-deck, so put the picture on a slide and the cover finds it; `cover-full-image` puts a panel as tall as
-the title and its meta line on the page foot, so the picture keeps the rest. A section needs its own
-image on the section slide for `section-image`.
+Covers are `cover-full-image` (it takes the first image in the deck; the title's panel is only as
+tall as the title and its meta line and stands on the foot of the page, so the picture keeps the rest), `cover-split-image` and
+`cover-typographic`. Sections are `section-image` and `section-field`. Closings are
+`closing-contact-split` and `closing-ask`. A cover takes no image block of its own; put the picture
+on a content slide and the cover finds it.
 
-Display devices: without a picture the typographic cover is a `plate`, a dark field from y 288 to the
-foot with the title in at most two lines, like a caption under a photograph that is absent; a pull
-quote is `drench`, the whole page in the field with the quotation in white; a big number sits on the
-accent tint; a closing's next step runs as a dark `band` above the footer, and `closing-contact-split`
-holds each row's date or amount on a field beside the rows.
+Display slides. Without a picture, the typographic cover puts the title on a dark plate over the
+lower part of the page, like a caption under a photograph that is not there. A pull quote fills the
+page with the dark field, the quotation in the middle. A closing's rows carry their dates or amounts at title size, and the next step runs in a dark
+band above the footer.
 
 ## Do
 
-- Give every photograph a numbered caption with its source: `![도 2. 오후 3시의 창가 | 출처: 예시 이미지](assets/example-b.png)`.
-- Let one image dominate each slide and write the facts next to it in short lines, each with a number,
-  a date or a place; the first fact carries the claim.
-- Title each slide with a label (place, subject, period).
-- Keep narrative slides brief and use them to move between picture groups.
-- End with the ask and the dated next step.
+Give every photograph a numbered caption with its source. Let one image dominate each slide, and
+write the facts about it next to it in short lines, with a number, a date or a place in each. Title
+each slide with a label (place, subject, period) and let the first fact carry the claim. Keep the
+narrative slides brief and use them to move from one group of pictures to the next. End with the ask
+and the dated next step.
 
 ## Avoid
 
-- Text laid straight on a photograph; the panel carries the words.
-- Images in card frames and rows of more than three images.
-- Grey sample boxes in a delivered deck.
-- Claims in titles; the caption or the first fact of the picture that proves them carries the claim.
-
-## Failure patterns
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| `Compilation error: Slide 2: no atlas treatment (overlay, bottom-anchor, side-rail, top-plain-large, statement) fits the image-full family (overlay) on this slide; choose another layout family or tonality` | `image-full` without an image | add the picture or use a text family |
-| `note: slide 1: cover-full-image cannot be drawn (the deck has no image)` then `drawn as cover-typographic` | no content slide holds a picture | add one, or name `cover-typographic` |
-| `note: slide 1: section-image cannot be drawn (the section slide has no image)`, drawn as `section-field` | the picture sits on another slide | put the image on the section slide |
-| a fourth image disappears from a `photo-grid` | the family draws up to three images | split into two slides |
-| a picture with no number under it | the alt text is empty, so no caption exists | write the alt text as the caption |
+Avoid text placed straight on a photograph without the panel, images in card frames, and more than
+three images in one row. Never deliver a deck with grey sample boxes in place of the real pictures.
+Keep the `statement` family for a pull quote; claims belong in the first fact or the caption of the
+picture that proves them, never in the title.
 
 ## Two worked slides
 
-One picture across the page with its label title and caption on the panel; the caption states what
-the picture shows and when it was taken.
+An image-split slide puts the picture first and five short facts beside it, the claim in the first,
+so the reader gets the evidence without a paragraph.
 
 ```markdown
 ---
-layout: image-full
+layout: image-split
 
-## 재개관 후 동부분관 열람실
+## 재개관 첫 주 창가 좌석 이용 현황
 
-![도 1. 거리 쪽으로 열린 열람실, 2026년 9월 촬영 | 출처: 예시 이미지](assets/example-a.png)
+![도 2. 오후 3시의 창가 좌석 | 출처: 예시 이미지](assets/example-b.png)
+
+- **요약** 창가 좌석은 개관부터 마감까지 하루 종일 차 있다
+- **좌석 수** 창가 좌석을 24석에서 56석으로 늘렸다
+- **점유율** 재개관 첫 주 오후 점유율이 92%였다
+- **조명** 창가에 차양을 달아 오후 눈부심 민원이 없었다
+- **동선** 서가를 벽 쪽으로 옮겨 통로 폭이 1.2m에서 1.8m가 됐다
 ---
 ```
 
-Three pictures side by side with one sentence under them that states the common finding. The
-engine numbers the captions (도 2, 도 3, 도 4) in the deck's language.
+A figure pair shows the change, and the lines under both pictures state it with its basis.
 
 ```markdown
 ---
-layout: photo-grid
+layout: figure-pair
 
-## 열람실 세 구역 공사 후 모습
+## 공사 전후 어린이실 좌석 배치
 
-![도 2. 창가 좌석 구역 | 출처: 예시 이미지](assets/example-a.png)
+![도 3. 공사 전 어린이실 | 출처: 예시 이미지](assets/example-b.png)
 
-![도 3. 어린이 열람 구역 | 출처: 예시 이미지](assets/example-b.png)
+![도 4. 공사 후 어린이실 | 출처: 예시 이미지](assets/example-b.png)
 
-![도 4. 토론실 구역 | 출처: 예시 이미지](assets/example-c.png)
-
-- 세 구역 모두 공사 전보다 좌석이 늘었고 동선이 넓어졌다
+- 공사 전후의 어린이실은 같은 방으로 보이지 않는다
+- 낮은 서가와 계단식 좌석으로 동시 착석이 18명에서 40명으로 늘었다
+- 주말 어린이실 이용은 하루 평균 95명에서 160명이 됐다 (예시)
 ---
 ```
 
-Both slides compile under `tonality: atlas` after a generic `layout: cover` (drawn as
-`cover-full-image` from the deck's first picture) and pass `qa_deck.py`. The image files are the three
-bundled example pictures; the library and its figures are invented.
+## Examples
+
+`08-image-led-atlas-ko.md` uses the pack defaults (density 10, variance 7).

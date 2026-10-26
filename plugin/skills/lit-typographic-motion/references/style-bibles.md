@@ -1,130 +1,141 @@
-# Style bibles for the type path
+# Style bibles
 
-Before any scene is chosen, a type-path film commits to one look: a ground, a type colour, one signal,
-three type voices, how type moves, which shader passes run and in what order, the grid it sits on, and a
-short list of things it must never do. The engine keeps each preset as data in `engine/core/presets.mjs`
-(palette hexes, voices, motion tokens, pass order and pass parameters), and the gate reads the same object.
-This page explains why each preset looks the way it does, so a choice between them can be argued.
+A style bible is the one page that decides how a film looks before any scene is written: the
+palette, the three type voices, the motion vocabulary, the shader passes and their order, the
+layout grid, what to avoid, and what makes this film its own. The type engine carries each preset as
+data (`engine/core/presets.mjs`), and the house styles carry the same palettes for the stage path
+(`styles/<id>.json`, `studio.md`); this page is the reasoning behind that data. The treatment's
+`style` decides the preset on the type path, so the brief leaves `style` out; under a bare `lit`, state
+the style and the rule that chose it in one sentence.
 
-When the user asked for a direction, write the film's own short bible in the reply using the template
-below. Under a bare `lit` route, one sentence naming the preset and the reason is enough.
+## Template
 
-## Template for a film's own bible
-
-| Part | What to decide |
+| Part | Decide |
 | --- | --- |
-| Idea | One sentence: what the film says and the one image it leaves behind |
-| Palette | Ground, type colour, one signal hue, at most one rare accent, each named by its role |
-| Voices | Display for titles and hooks, body for running text (with its Hangul face), machine for figures, data and credits |
-| Motion tone | Named tokens for how type lands, how long it holds and how a shot ends; no per-shot curve invention |
-| Passes | Which look passes run, their order and strength |
-| Grid | Columns, gutter, margin, baseline, and where the eye enters each shot |
-| Anti-slop | Three to five moves this film refuses |
-| Originality | The metaphor, rhythm or single accent moment that belongs to this brief alone |
+| Idea | One sentence: what the film says and the single image it leaves. |
+| Palette | A ground, one type colour, one signal hue; a rich film (the default) adds the style's accents, each for one role, and a minimal one at most one rare accent. Name every colour by role. |
+| Three voices | Display (titles, hooks), body (running text; Hangul body for Korean), machine (data, credits, counters). |
+| Motion tone | Named tokens only: how type lands, how long it holds, how a shot ends. No per-shot curves. |
+| Passes | Which look-library passes run, in which order, and how strongly. |
+| Grid | Columns, gutter, margin, baseline; where the eye enters each shot. |
+| Anti-slop | Three to five things this film must not do. |
+| Originality | What is this brief's own: its metaphor, its rhythm, its one accent moment. |
 
-## How a preset is picked (MO-B-00)
+## Auto-pick (MO-B-00)
 
-An explicit `style` in the brief always wins. Without one, `pickPreset` scans the brief's text (its shots,
-title and request) against a short keyword table, top row first, and takes the first whole-word hit.
-Latin keywords need word boundaries on both sides and ignore case; a Korean keyword only has to start a
-token, so it can carry a particle but can never match the tail of a longer word.
+Checked in order, first match wins, whole words only (a Korean keyword must start a token, so it
+never matches the tail of a longer word). A style the request names always wins, then the project's
+house style. The treatment validator applies the same table to the request and the copy, plus the
+`paper` row on the stage path (`studio.md`).
 
-| Keywords in the brief | Preset |
+| The brief mentions | Preset |
 | --- | --- |
-| 터미널, CRT, 해커, terminal, hacker, crt | terminalcore |
-| 물결, 파도, 잔잔한, 흐름, gradient, wave, tide, calm | tidal |
-| no hit | swiss-signal |
+| 터미널, CRT, 해커 / terminal, hacker | terminalcore |
+| 물결, 파도, 잔잔한, 흐름 / gradient, wave, tide, calm | tidal |
+| anything else | swiss-signal |
 
-Words such as system, status or flow were left out on purpose: they turn up in billing systems, design
-systems and workflows that have nothing to do with a terminal or the sea. The report prints the reason,
-for example `agent default (brief mentions "파도")`, and calls the style user-specified only when the
-user's request names the preset.
+System, status and flow are deliberately not keywords: they appear in payment systems, design
+systems and workflows that have nothing to do with a terminal or a tide.
 
-## swiss-signal, the default
+## swiss-signal (default)
 
-**Palette.** Ink ground `#0C0E13`, bone type `#E9EBE4`, a single teal signal `#0F7A82`, an amber accent
-`#D9A441` saved for one moment, and graphite `#4B5058` for hairlines only. Bone on ink measures about 16:1.
-Teal on ink is roughly 3.8:1: enough for large type (32 px, or 25 px at weight 700) and for marks, too
-little for small text, which therefore stays bone.
+**Palette.** Ink ground `#0C0E13`; bone type `#E9EBE4`; one teal signal `#0F7A82`; one amber
+accent `#D9A441` for a single moment; graphite `#4B5058` for hairlines only. Bone on ink is 16:1.
+Teal on ink is 3.8:1, which clears the 3:1 large-type floor but not 4.5:1, so teal type must be at
+least 32 px (25 px at 700 weight) or a mark, never small text.
 
-**Voices.** Display is Archivo 900 in three static width instances (75, 100, 125); width changes step
-between instances and never interpolate. Hangul display uses Pretendard Bold, with Pretendard Regular as
-the lighter weight step. Body is Archivo 400 with Pretendard Regular. The machine voice is MesloLGS NF
-(Hangul falls back to Pretendard Regular).
+**Voices.** Display: Archivo in static width steps (75, 100, 125) at 900, stepping width, never
+interpolating; Hangul display in the Pretendard Bold file. Body: Archivo 400 / Pretendard Regular.
+Machine: MesloLGS NF for annotations, credits and figures.
 
-**Motion.** A slam takes 0.18 s on a hard deceleration and lands on the downbeat; the entrance never
-scales below 0.95. After a slam the type holds still for 0.6 to 0.9 s. Shots change on hard cuts with no
-easing. There is no spring and no bounce: the reference is printed matter.
+**Motion.** `slam`: 180 ms on the deceleration curve cubic-bezier(0.16, 1, 0.3, 1), landing on the
+downbeat, entrance scale never below 0.95. `hold`: 0.6–0.9 s of stillness after a slam. `cut`: a
+hard cut with no easing between shots. No spring, no bounce: print is precise, not playful.
 
-**Passes.** `swiss-grid` draws the hairline rules of a 12-column grid (guides stay off in every export),
-then `dither` lays a Bayer 4x4 pattern at strength 0.3 for an engraved texture. The post chain adds light
-grain, a soft vignette and a hint of chromatic aberration. Bloom and halation are zero: glow on bone type
-reads as cheap, and the teal is too dark to bloom anyway.
+**Passes.** swiss-grid (hairline rules that make the grid visible) then dither (Bayer 4x4 at about
+0.3 strength, an engraved-print texture). Grain, vignette and a little chromatic aberration come
+from the post chain. No bloom: glow on bone type reads as cheap.
 
-**Grid.** 12 columns, 24 px gutter, 96 px margin, 8 px baseline. Compositions are asymmetric: type hangs
-from a column edge, annotations sit beside the headline, and large areas stay empty.
+**Grid.** 12 columns, 24 px gutter, 96 px margin, 8 px baseline. Asymmetric: type sits on the left
+column edge, annotations beside the headline rather than stacked under it, generous empty space.
 
-**Refuses.** Centred fade-ins as the only move, one easing curve for everything, glitch without a reason
-on the beat, a second hue, bloom, and holds so long that the film seems to stall.
+**Anti-slop.** Centered fade-ins as the only move; one ease for everything; glitch without a beat
+reason; any second hue; bloom; a hold so long it reads as a stall.
 
-**Originality.** Borrow the structure (one ground, one signal, one rare accent) and never the colours of a
-known title sequence. The metaphor of each shot comes from this brief.
+**Originality.** Borrow the pattern (one ground, one signal, one rare accent), never a known
+film's colours. Each shot gets this brief's own metaphor.
 
 ## terminalcore
 
-**Palette.** Navy ground `#05070A`, panel `#0C1116` for the window chrome, one signal hue per film
-(phosphor green `#39FF6A` by default, electric blue `#2FB6FF` with `signalHue: "blue"`) that also becomes
-the type colour, and status grey `#7C8B93`. On a flat ground green reaches about 15:1 and grey about 5.7:1.
-The crt vignette and scanlines darken the window corners enough to pull grey under 4.5:1, so labels and
-readouts near the corners use the signal hue and grey stays on strokes and central text.
+**Palette.** Navy ground `#05070A`; panel `#0C1116` for window chrome; one signal hue per film,
+phosphor green `#39FF6A` (default) or electric blue `#2FB6FF`, never both; status grey `#7C8B93`.
+Green on navy is 15:1 and grey on navy 5.7:1 on a flat ground. The crt vignette and scanlines
+darken the window corners below 4.5:1 for grey, so the chrome label and the readout there are set in
+the signal hue; grey stays on strokes and on text nearer the centre.
 
-**Voices.** Display is VT323 for Latin with Galmuri9 for Hangul, a pixel face that is only drawn at whole
-multiples of its 9 px grid and never below 36 px. The body uses VT323 with Pretendard Regular for Hangul.
-Machine readouts use MesloLGS NF, and the window chrome is labelled in Silkscreen. VT323 and Galmuri never
-share one status line cell for cell.
+**Voices.** Display: Galmuri9 for Hangul (pixel type at whole multiples of its 9 px grid, at least
+36 px) with VT323 for Latin. Machine: MesloLGS NF for readouts. Chrome labels: Silkscreen. Galmuri
+and VT323 never share a status line cell for cell.
 
-**Motion.** Characters type in at 22 per second, linearly, because a terminal has no easing. The first
-0.25 s of a shot may boot-flicker at the capped crt amplitude, which counts as one event. Cuts land on
-downbeats and nothing overshoots.
+**Motion.** `type-in`: characters appear at the terminal's rate (22 per second), linear, with no
+easing, because a terminal does not ease. `boot-flicker`: the first 250 ms of a shot flicker at the
+capped CRT amplitude, counted as one event. Hard cuts on downbeats. Nothing overshoots.
 
-**Passes.** Four, in this order: `terminal-ui` (window chrome, two meters, a log readout and a caret
-blinking at 1.2 Hz), `crt` (scanlines, curvature 0.06, triad mask, flicker amplitude 0.03), `dither`
-(2 px cells) and `glitch` (at most 0.5 hits per second, each hit held two frames over at most 12 % of the
-frame). With four passes the shared event budget, two events in any second of a shot, is the limit that
-actually bites.
+**Passes.** terminal-ui (window chrome, meters, readout) then crt (scanlines, curvature, capped
+flicker) then dither (Bayer 4x4, 2 px cells) then glitch (rare, at most 0.5 hits per second, each hit
+one band for two frames). This is the only preset with four passes, so the per-shot event budget
+(two events in any second) is the real limit.
 
-**Grid.** One thin-bordered window on a flat field, no drop shadow, with text snapped to a 14x24 px
+**Grid.** One thin-bordered window on a flat field, no depth or shadow; text aligned to the
 character grid so it never drifts against the chrome.
 
-**Refuses.** Falling code rain, purple and cyan neon haze, continuous glitching, two signal hues, and
-pixel type too small to read.
+**Anti-slop.** Falling code rain; purple-cyan neon haze; glitch running continuously; two signal
+hues; pixel type too small to read.
 
-**Originality.** The window, meters and readout are drawn by the engine itself and imitate no real
-operating system or terminal application.
+**Originality.** The window, meters and readout are this engine's own drawings, not a copy of a
+real operating system or terminal app.
 
 ## tidal
 
-**Palette.** Indigo ground `#0E1420`, off-white type `#E8ECEF`, gradient stops deep teal `#124559` and
-violet `#4C3B6E`, and coral `#E07856` as punctuation for a single moment. Off-white stays above 8:1 on every
-stop, so type may sit anywhere on the flow without a scrim. Tidal has no signal hue of its own: the teal
-stop is its saturated cluster for the accent check, and marks such as bars and the pen head use the type
-colour.
+**Palette.** Indigo ground `#0E1420`; off-white type `#E8ECEF`; gradient stops deep teal `#124559`
+and violet `#4C3B6E`; coral `#E07856` as punctuation in one moment only. Off-white clears 8:1 on
+every stop, so type can sit anywhere on the flow without a scrim.
 
-**Voices.** Display is Archivo 700 at normal width only, calm and mostly still, with Pretendard Bold for
-Hangul. Body is Archivo 400 with Pretendard Regular. MesloLGS NF appears only for small credits.
+**Voices.** Display: Archivo 700 at normal width, calm and mostly still; Hangul in the Pretendard
+Bold file. Body: Pretendard Regular. Machine: MesloLGS NF for small credits only.
 
-**Motion.** Type drifts in position and opacity over two to four seconds on a symmetric ease, in step with
-the background's slow flow, so type and ground read as one system. A surge punch of 0.3 s marks a tidal
-surge. The film flows continuously instead of holding and snapping.
+**Motion.** `drift`: position and opacity on cubic-bezier(0.37, 0, 0.63, 1) over 2–4 s, matching the
+gradient's slow flow so type and background move as one system. `surge-punch`: 300 ms on the slam
+curve, timed to a tidal surge. Continuous flow, not hold-and-snap.
 
-**Passes.** `tidal-gradient` (a domain-warped flow mixing the stops, four octaves, at most two surges per
-second with attack and decay of at least 0.1 s), then `swiss-grid` with its guides off, then `glitch` at
-0.5 hits per second or less, used as punctuation.
+**Passes.** tidal-gradient (a domain-warped flow mixing the stops, one or two soft surges per shot)
+then swiss-grid (rules only, guides off) then glitch at 0.5 hits per second or less, as punctuation.
 
-**Grid.** The swiss-signal grid. Centred compositions are fine here, because the ground itself moves.
+**Grid.** The swiss-signal grid; centred compositions are allowed here because the ground moves.
 
-**Refuses.** Rainbow or hue-cycling ramps, bloom on the gradient, glitch as a texture, and a flow so fast
-that held type smears.
+**Anti-slop.** A rainbow or hue-cycling ramp; bloom on the gradient; glitch as texture; flow so
+fast that held type smears.
 
-**Originality.** The flow field is seeded per shot from the run seed, so two films never share one, and
-the stops stay within two or three restrained colours chosen for the brief.
+**Originality.** The flow field is seeded per shot, so no two films share one; stops are chosen for
+the brief within two or three restrained colours.
+
+## paper (stage path only)
+
+**Palette.** Warm paper ground `#F3EEE5`; near-black ink `#1D1B18`; muted `#5B564E` for second lines;
+one terracotta signal `#B0452A`; one blue accent `#2B5D8E` for a single moment; line `#C9BFAE` for
+drawn strokes. Ink on paper is 14.9:1, muted 6.3:1, signal 4.9:1.
+
+**Voices.** Pretendard throughout (700 for display and headline, 400 for body), MesloLGS NF for small
+labels. Hangul and Latin share one face, so mixed lines keep one colour of type.
+
+**Motion.** Soft springs: panels settle at damping 0.8, the subject may bounce at 0.6, type never
+overshoots. Entrances on a quint-like ease-out, exits shorter and on an ease-in.
+
+**Grid.** The shared layout zones (`studio.md`), generous margins, drawings in line weight rather than
+fills.
+
+**Anti-slop.** Drop shadows that float type; neon or glow; gradients on type; more than two saturated
+colours on screen; bouncy type.
+
+**Originality.** The drawing carries the film: hand-drawn lines, paper cut-outs, small diagrams. The
+ground stays plain so the drawing reads.

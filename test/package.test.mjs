@@ -50,6 +50,19 @@ test('READMEs: both languages, the seven-member cover and family picture, instal
   for (const f of ['AGENTS.md', 'CHANGELOG.md', 'RELEASE_CHECKLIST.md', 'LICENSE']) assert.ok(statSync(join(ROOT, f)).size > 100, f);
 });
 
+test('READMEs: the gallery shows real outputs, each image present, described and small', () => {
+  const shared = ['deck-themes', 'pid-dosing-skid', 'schematics', 'motion-film'];
+  for (const [f, anchor, brief] of [['README.md', '#what-you-can-make', 'adhd-brief-en'], ['README_ko-KR.md', '#만들-수-있는-것', 'adhd-brief-ko']]) {
+    const text = readFileSync(join(ROOT, f), 'utf8');
+    assert.ok(text.includes(`href="${anchor}"`), `${f}: nav link to the gallery`);
+    for (const name of [...shared, brief]) {
+      const rel = `docs/assets/litgravity/showcase/${name}.webp`;
+      assert.match(text, new RegExp(`src="\\./${rel.replace(/[./]/g, '\\$&')}" width="\\d+" alt="[^"]{60,}"`), `${f}: ${name} with alt text`);
+      assert.ok(statSync(join(ROOT, rel)).size < 100_000, `${rel} stays under 100 KB`);
+    }
+  }
+});
+
 // The repository is renamed to litgravity before the first publish; GitHub redirects the old name.
 test('first publish: package metadata, README badges and links point at wjgoarxiv/litgravity', () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));

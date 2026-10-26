@@ -163,7 +163,7 @@ test('lit-team shows one lane mark per member and the live and reported counts',
   assert.match(strip(render(f, { task_count: 2 }, { width: 240 })), /✓●◌✗ 1 lane · 1\/4 reported .*│ bg 2/);
 });
 
-test('host extras: waiting state in the warning colour, quota reset, cost, git from vcs, title', () => {
+test('host extras: waiting state as YOUR TURN in amber, quota reset, cost, git from vcs, title', () => {
   const f = fixture();
   const out = render(f, {
     agent_state: 'waiting_for_input',
@@ -173,7 +173,8 @@ test('host extras: waiting state in the warning colour, quota reset, cost, git f
     conversation_title: 'HUD polish',
   }, { width: 240 });
   const text = strip(out);
-  assert.ok(out.includes('\u001b[1;38;5;178m⚠ your turn\u001b[0m'));
+  assert.ok(out.includes('\u001b[1;38;2;255;176;32m⚠ YOUR TURN\u001b[0m'), 'the waiting label in amber');
+  assert.ok(out.includes('\u001b[38;2;255;176;32mgit feat/hud'), 'the whole row takes the amber paint');
   assert.match(text, /quota \[▌░\]28% ↻ 2h5m/);
   assert.match(text, /\$0\.43/);
   assert.match(text, /git feat\/hud \+3 ↑1/);

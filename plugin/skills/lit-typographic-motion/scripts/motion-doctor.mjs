@@ -2,19 +2,18 @@
 // The MO-A-44 doctor probes for lit-typographic-motion, printed on every doctor run: Chrome,
 // ffmpeg with the preview rung, the WebGL2 renderer string from a real headless probe, the
 // software-GL / unknown-renderer warning, the pre-warm state naming what is missing and the command
-// that fixes it, and the cover encoder (img2webp and dwebp, or the gifski fallback) that cover mode
-// needs. Read-only: it never installs, and the probe's Chrome profile is a unique temporary
+// that fixes it, the cover encoder (img2webp and dwebp, or the gifski fallback) that cover mode
+// needs, and the house styles every film is built from. Read-only: it never installs, and the probe's Chrome profile is a unique temporary
 // directory removed on exit.
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveOnPath } from "../../../lib/host-exec.mjs";
+import { which } from "../engine/node/host.mjs";
 
-export const USAGE = "usage: motion-doctor.mjs [--json]\nlit-typographic-motion doctor (LitGravity): six readiness probes, read-only\n";
+export const USAGE = "usage: motion-doctor.mjs [--json]\nlit-typographic-motion doctor (LitGravity): seven readiness probes, read-only\n";
 
-const which = (name, env) => resolveOnPath(name, { env });
 const versionOf = (tool, env) => {
   const probe = spawnSync(tool, ["-version"], { encoding: "utf8", env });
   return probe.status === 0 ? (/\d+\.\d+(?:\.\d+)?/u.exec(probe.stdout || probe.stderr)?.[0] ?? "unknown") : "unknown";
@@ -28,6 +27,17 @@ export function coverProbe(env = process.env) {
   const gifski = which("gifski", env);
   if (gifski) return { ok: true, line: `gifski at ${gifski}: covers fall back to GIF (img2webp${img2webp ? "" : " missing"}, dwebp${dwebp ? "" : " missing"})` };
   return { ok: false, line: "BLOCKED_NO_COVER_ENCODER: install libwebp (img2webp, dwebp) or gifski; cover renders stop with exit 21" };
+}
+
+/** The house styles (styles/*.json): each one valid, with the default named. */
+export async function stylesProbe() {
+  const { STYLE_IDS, DEFAULT_STYLE, readStyle } = await import("../engine/node/styles.mjs");
+  try {
+    for (const id of STYLE_IDS) readStyle(id);
+    return { ok: true, line: `${STYLE_IDS.length} house styles valid (${STYLE_IDS.map((id) => (id === DEFAULT_STYLE ? `${id} default` : id)).join(", ")}); see them with motion.mjs styles --out <dir>` };
+  } catch (error) {
+    return { ok: false, line: `a house style is invalid: ${error.message}` };
+  }
 }
 
 export async function probes({ env = process.env } = {}) {
@@ -63,6 +73,7 @@ export async function probes({ env = process.env } = {}) {
   const status = runtimeStatus({ env });
   out.prewarm = { ok: status.ready, line: status.ready ? `ready — ${formatStatus(status).slice(1, 3).join("; ")}` : `NOT READY — missing: ${status.missing.join("; ")}; run ${INSTALL_COMMAND}`, detail: formatStatus(status) };
   out.cover = coverProbe(env);
+  out.styles = await stylesProbe();
   return out;
 }
 
@@ -74,6 +85,7 @@ export function formatProbes(p) {
     `MOTION_SOFTWARE_GL: ${p.software.line}`,
     `MOTION_PREWARM: ${p.prewarm.line}`,
     `MOTION_COVER: ${p.cover.line}`,
+    `MOTION_STYLES: ${p.styles.line}`,
   ];
 }
 

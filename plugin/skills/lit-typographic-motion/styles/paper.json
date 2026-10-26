@@ -1,0 +1,41 @@
+{
+  "schema": "litgravity.motion-style/v1",
+  "id": "paper",
+  "name": "Paper",
+  "summary": "A warm paper ground, near-black ink, one terracotta signal and one blue moment; soft springs, hand-drawn calm.",
+  "light": true,
+  "typePreset": null,
+  "palette": { "ground": "#F3EEE5", "surface": "#E6DED0", "ink": "#1D1B18", "muted": "#5B564E", "signal": "#B0452A", "accent": "#2B5D8E", "line": "#C9BFAE" },
+  "accents": [{ "role": "growth and done", "color": "#3F7D3A" }, { "role": "a second data series", "color": "#7A3E7A" }, { "role": "a warning or a date", "color": "#8A6418" }, { "role": "a third data series", "color": "#1F6F6B" }],
+  "textRoles": ["ink", "muted", "signal", "accent", "ground"],
+  "faces": {
+    "display": { "family": "Pretendard", "weight": 700 },
+    "headline": { "family": "Pretendard", "weight": 700 },
+    "body": { "family": "Pretendard", "weight": 400 },
+    "label": { "family": "MesloLGS NF", "weight": 400 }
+  },
+  "scale": {
+    "16:9": { "display": 112, "headline": 68, "body": 40, "label": 26 },
+    "9:16": { "display": 108, "headline": 74, "body": 46, "label": 32 }
+  },
+  "leading": { "display": 1.15, "headline": 1.25, "body": 1.6, "label": 1.4 },
+  "motion": {
+    "ease": { "enter": [0.22, 1, 0.36, 1], "move": [0.65, 0, 0.35, 1], "exit": [0.55, 0, 1, 0.45] },
+    "dur": { "micro": 0.18, "move": 0.55, "hero": 0.8, "exit": 0.32 },
+    "stagger": { "letter": 0.03, "word": 0.09, "item": 0.1 },
+    "spring": { "micro": { "zeta": 0.85, "hz": 3.5 }, "panel": { "zeta": 0.8, "hz": 2 }, "headline": { "zeta": 0.95, "hz": 2.2 }, "subject": { "zeta": 0.6, "hz": 1.8 }, "camera": { "zeta": 1, "hz": 0.5 } },
+    "secondary": { "delay": 0.15, "travel": 0.6 },
+    "ambient": { "travel": 0.04 },
+    "push": 0.02
+  },
+  "transitions": ["cut", "match", "wipe", "iris", "push"],
+  "ground": { "kind": "flat" },
+  "sound": { "timbre": "soft-keys", "key": "F", "mode": "major", "tempo": 96 },
+  "score": { "genre": "garage" },
+  "beds": [
+    { "timbre": "soft-keys", "key": "F", "mode": "major", "tempo": 96 },
+    { "timbre": "felt-strings", "key": "G", "mode": "major", "tempo": 88 },
+    { "timbre": "glass", "key": "C", "mode": "major", "tempo": 108 }
+  ],
+  "bans": ["drop shadows that float type", "neon or glow", "gradients on type", "a saturated colour with no role", "bouncy type"]
+}

@@ -55,7 +55,7 @@ test('cover render: a page that throws while loading fails fast with its own mes
   const r = motionCli(['cover', '--out', coverRun('throws'), '--round', '1']);
   const seconds = (Date.now() - started) / 1000;
   assert.equal(r.status, EXIT.STAGE_CONTRACT_ERROR, r.stdout + r.stderr);
-  assert.match(r.stderr, /STAGE_CONTRACT_ERROR: the cover page failed while loading; first page error: .*ART\.lights has no entry for the hero bay 4/);
+  assert.match(r.stderr, /STAGE_CONTRACT_ERROR: the cover page stopped before it set window\.ready; first page error: .*ART\.lights has no entry for the hero bay 4/);
   assert.doesNotMatch(r.stderr, /within 60 s/);
   assert.ok(seconds < 30, `the failure took ${seconds.toFixed(1)} s`);
 });

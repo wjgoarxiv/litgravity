@@ -6,13 +6,24 @@ Engine code
   The required notice is in NOTICE next to this file.
 
 Engine dependency (installed into the LitGravity motion cache by
-`npx @litfamily/litgravity runtime install motion`, never bundled)
+`litgravity runtime install motion`, never bundled)
   opentype.js 2.0.0 (MIT) — its LICENSE ships inside the installed package:
     <motion cache>/node-<lockdigest>-<platform>-<arch>/node_modules/opentype.js/LICENSE
 
+Vendored library (bundled, unmodified, served to stage and cover pages at /lit/three/)
+  three.js r170 (npm three@0.170.0, MIT), Copyright 2010-2024 Three.js Authors
+    licence:    engine/vendor/three/LICENSE
+    source:     https://registry.npmjs.org/three/-/three-0.170.0.tgz
+                tarball sha256 4a608a355dcaba72e0e5383cdc814303f5b6060b43c238cdf6932dceb699238d
+                integrity sha512-FQK+LEpYc0fBD+J8g6oSEyyNzjp+Q7Ks1C568WWaoMRLW+TkNNWmenWeGgJjV105Gd+p/2ql1ZcjYvNiPZBhuQ==
+    files (sha256), copied unmodified from the tarball (build/, examples/jsm/):
+      three.module.js                           ce1fa418de16a19495a9f72495580e3015d7745c296d3ce0485897f902ddedfb
+      addons/environments/RoomEnvironment.js    85869bdd22f7cf0b22e68dcefe6cb710480af0f5c901a76f7a7764fd07fc8014
+      addons/geometries/RoundedBoxGeometry.js   d20aeaf7077c459a8d952d215738d7b44fba028440bb862d84b622a34f0c80bb
+
 Fonts. Paths starting with fonts/ are relative to the skill directory
 (skills/lit-typographic-motion/); paths starting with <motion cache>/fonts/ are written by
-`npx @litfamily/litgravity runtime install motion` (pinned URL, sha256-verified, licence fetched with the
+`litgravity runtime install motion` (pinned URL, sha256-verified, licence fetched with the
 font). <motion cache> is $LITGRAVITY_MOTION_RUNTIME, or
 ${XDG_DATA_HOME:-~/.local/share}/litgravity/runtime/motion.
 

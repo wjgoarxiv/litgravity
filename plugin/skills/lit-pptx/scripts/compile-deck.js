@@ -24,8 +24,6 @@ const { load: loadMarkdown } = require("./lib/markdown-loader");
 const { validate: validateContent } = require("./lib/directive-parser");
 const { buildBlocks, buildAst } = require("./lib/slide-ast");
 const { validate: validateAst } = require("./lib/spec-validator");
-// Windows has no python3 (the Store alias runs nothing); python.org installs python and the py launcher.
-const PYTHON = process.platform === "win32" ? "python" : "python3";
 
 // Lazy-loaded modules — may not exist yet (built by another agent)
 let templateRegistry = null;
@@ -97,7 +95,7 @@ const BUNDLED_FONTS = [
 /**
  * Describe a template's visual system for a chart drawn elsewhere.
  *
- * A chart belongs to the lit-scientific-visualization skill, not to this skill, and the
+ * A chart belongs to the scientific visualization skill, not to this skill, and the
  * reason charts end up looking foreign in a deck is that the tool drawing them
  * cannot see the deck's colours, typeface or canvas. This hands those over.
  *
@@ -150,7 +148,7 @@ async function resolveAndRender(ast, templateName, outputs, options = {}) {
   const meta = (ast.deck && ast.deck.metadata) || {};
   const tonality = options.tonality || meta.tonality || null;
   const templateObj = tonality
-    ? templateRegistry.loadTonality(tonality, { density: meta.density, variance: meta.variance, canvas: meta.canvas, faces: options.faces || meta.faces })
+    ? templateRegistry.loadTonality(tonality, { density: meta.density, variance: meta.variance, canvas: meta.canvas, faces: options.faces || meta.faces, hero: meta.hero, decoration: meta.decoration })
     : templateRegistry.loadTemplate(templateName);
   if (tonality) {
     const d = templateObj.pack.dials;
@@ -399,7 +397,7 @@ if (require.main === module) {
   const frontmatter = source.match(/^---[ \t]*\n([\s\S]*?)\n---/);
   if (frontmatter && /^data:[ \t]*\S/m.test(frontmatter[1])) {
     const { spawnSync } = require("child_process");
-    const resolved = spawnSync(PYTHON, ["-B", path.resolve(__dirname, "office_data.py"), "resolve", path.resolve(inputPath)], {
+    const resolved = spawnSync("python3", ["-B", path.resolve(__dirname, "office_data.py"), "resolve", path.resolve(inputPath)], {
       encoding: "utf8",
     });
     if (resolved.status !== 0) {
@@ -445,7 +443,7 @@ if (require.main === module) {
         // Optional: embed bundled fonts into the PPTX for a self-contained deck.
         if (embedFonts && pptxPath) {
           const { execFileSync } = require("child_process");
-          execFileSync(PYTHON, [path.join(__dirname, "embed_fonts.py"), pptxPath], {
+          execFileSync("python3", [path.join(__dirname, "embed_fonts.py"), pptxPath], {
             stdio: "inherit",
           });
         }

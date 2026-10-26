@@ -38,7 +38,7 @@ palette:
   series: ["#C8361A", "#15131A", "#6B6870", "#2F6F8F"]
 
 ramp: reading
-hero: false
+hero: true
 type-voice:
   title-tracking: -1
   display-tracking: -2
@@ -91,4 +91,4 @@ avoid:
   - red for losses (losses carry ▼ in ink)
   - more than two lines of display text
   - cards
-  - bullet lists longer than four items
+  - a long bullet list with no grouping

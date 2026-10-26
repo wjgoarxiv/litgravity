@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Recipe D, hero 3D: one product object, lit in a small studio, acting its beat once per loop. A
+     worked example: a rounded case turns exactly once per loop (slow layer), the camera breathes twice
+     (mid layer), and once per loop the lid opens, a lit core rises and settles back and the lid closes,
+     while a ring runs out across the floor (the beat). The word sits still on the left. Drawn with the
+     pinned three.js build on the GPU rung (software when the GPU is missing). Replace the word, the
+     motto and the HERO block with the project's own object. -->
+<link rel="stylesheet" href="/lit/fonts.css">
+<script src="/lit/loop-kit.js"></script>
+<script type="importmap">{ "imports": { "three": "/lit/three/three.module.js", "three/addons/": "/lit/three/addons/" } }</script>
+<style>
+  html, body { margin: 0; width: 1200px; height: 600px; overflow: hidden; background: #0b0f16; }
+  canvas { position: absolute; left: 0; top: 0; width: 1200px; height: 600px; display: block; }
+</style>
+</head>
+<body>
+<canvas id="world"></canvas>
+<canvas id="type" width="2400" height="1200"></canvas>
+<script type="module">
+import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+
+const { TAU, clamp, fract, ease } = LitLoop;
+const span = (a, b, t) => clamp((t - a) / (b - a));
+const C = { bg: "#0b0f16", ivory: "#f2efdf", dim: "#8b8f8f", orange: "#ff6337", shell: "#d9d4c4", inner: "#1a2230" };
+const W = 1200, H = 600;
+const AIM = { x: 860, y: 318 };
+
+// ---- the world: renderer, studio light, floor ----
+const glCanvas = document.getElementById("world");
+const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(W, H, false);
+renderer.setClearColor(0x000000, 0);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+const cam = new THREE.PerspectiveCamera(30, W / H, 0.1, 60);
+cam.setViewOffset(W, H, W / 2 - AIM.x, H / 2 - AIM.y, W, H);
+const key = new THREE.DirectionalLight(0xffffff, 2.4);
+key.position.set(-3, 6, 4);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.radius = 5;
+key.shadow.bias = -0.0004;
+key.shadow.normalBias = 0.03;
+key.shadow.camera.left = -4; key.shadow.camera.right = 4; key.shadow.camera.top = 4; key.shadow.camera.bottom = -4;
+const rim = new THREE.DirectionalLight(0xffb08f, 1.1);
+rim.position.set(4, 2.5, -5);
+scene.add(key, rim);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), new THREE.ShadowMaterial({ opacity: 0.35 }));
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+const ring = new THREE.Mesh(new THREE.RingGeometry(0.98, 1, 128), new THREE.MeshBasicMaterial({ color: C.orange, transparent: true, opacity: 0 }));
+ring.rotation.x = -Math.PI / 2;
+ring.position.y = 0.002;
+scene.add(ring);
+
+// ---- HERO: the product object (a case with a hinged lid and a lit core) ----
+const shell = new THREE.MeshPhysicalMaterial({ color: C.shell, roughness: 0.32, metalness: 0.05, clearcoat: 0.6, clearcoatRoughness: 0.2 });
+const inner = new THREE.MeshStandardMaterial({ color: C.inner, roughness: 0.8 });
+const HERO = new THREE.Group();
+const base = new THREE.Mesh(new RoundedBoxGeometry(1.6, 0.62, 1.1, 6, 0.12), shell);
+base.position.y = 0.31;
+const well = new THREE.Mesh(new RoundedBoxGeometry(1.38, 0.5, 0.88, 4, 0.08), inner);
+well.position.y = 0.4;
+const hinge = new THREE.Group();
+hinge.position.set(0, 0.64, -0.55);
+const lid = new THREE.Mesh(new RoundedBoxGeometry(1.6, 0.16, 1.1, 6, 0.07), shell);
+lid.position.set(0, 0.08, 0.55);
+hinge.add(lid);
+const coreMat = new THREE.MeshStandardMaterial({ color: C.orange, emissive: C.orange, emissiveIntensity: 0, roughness: 0.35 });
+const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.24, 3), coreMat);
+const glow = new THREE.PointLight(C.orange, 0, 4, 2);
+core.add(glow);
+for (const m of [base, lid, core]) m.castShadow = true;
+base.receiveShadow = true;
+HERO.add(base, well, hinge, core);
+scene.add(HERO);
+
+// The beat: open 0.28-0.44, hold, close 0.62-0.78; zero at both ends, so the loop closes.
+const openAt = (t) => ease.smooth(span(0.28, 0.44, t)) * (1 - ease.smooth(span(0.62, 0.78, t)));
+
+function drawWorld(t) {
+  HERO.rotation.y = -0.5 + TAU * t;
+  const open = openAt(t);
+  hinge.rotation.x = -1.45 * open;
+  const rise = ease.outBack(span(0.36, 0.5, t)) * (1 - ease.smooth(span(0.58, 0.7, t)));
+  core.position.y = 0.42 + 0.6 * rise;
+  core.rotation.y = TAU * 2 * t;
+  coreMat.emissiveIntensity = 1.1 * open;
+  glow.intensity = 3 * open;
+  const wave = ease.outCubic(span(0.38, 0.72, t));
+  ring.scale.setScalar(0.9 + 1.3 * wave);
+  ring.material.opacity = 0.55 * open * (1 - wave);
+  const breathe = Math.sin(TAU * 2 * t);
+  cam.position.set(5.8 * Math.sin(0.35), 2.3 + 0.12 * breathe, 5.8 * Math.cos(0.35));
+  cam.lookAt(0, 0.62 + 0.04 * breathe, 0);
+  renderer.render(scene, cam);
+}
+
+// ---- the word, set once ----
+const ctx = document.getElementById("type").getContext("2d");
+ctx.scale(2, 2);
+function drawType(mask) {
+  ctx.clearRect(0, 0, W, H);
+  if (mask) { ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H); }
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = mask ? "#fff" : C.ivory;
+  ctx.font = '800 84px "JetBrains Mono"';
+  ctx.fillText("LITGRAVITY", 70, 292);
+  if (mask) return;
+  ctx.font = '500 18px "JetBrains Mono"';
+  ctx.fillStyle = C.dim;
+  let mx = 74;
+  for (const ch of "KEEP THE WORK ") { ctx.fillText(ch, mx, 338); mx += 19.6; }
+  ctx.fillStyle = C.orange;
+  ctx.font = '700 18px "JetBrains Mono"';
+  for (const ch of "LIT.") { ctx.fillText(ch, mx, 338); mx += 19.6; }
+}
+
+window.renderFrame = (t, o = {}) => {
+  glCanvas.style.visibility = o.mask ? "hidden" : "visible";
+  if (!o.mask) drawWorld(fract(t));
+  drawType(Boolean(o.mask));
+};
+document.fonts.load('800 84px "JetBrains Mono"').then(() => document.fonts.load('500 18px "JetBrains Mono"')).then(() => { window.renderFrame(0); window.ready = true; });
+</script>
+</body>
+</html>

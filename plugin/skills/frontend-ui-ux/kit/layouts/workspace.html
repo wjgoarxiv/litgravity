@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="{{lang: en or ko}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{Screen}} · {{Product}}</title>
+  <link rel="stylesheet" href="ui/tokens.css">
+  <link rel="stylesheet" href="ui/components.css">
+  <script src="ui/ui.js" defer></script>
+</head>
+<body>
+  <!-- Workspace starter (kit/layouts/workspace.html): an app shell for screens people work in.
+       The first viewport is the working content: headline figures, then the main view. No hero,
+       no tagline, no illustration block. Replace every {{slot}} (DS-006 flags leftovers). -->
+  <a class="ui-skip" href="#main">{{Skip to content}}</a>
+  <div class="ui-app">
+    <aside class="ui-app__nav" aria-label="{{Product}}">
+      <a class="ui-brand" href="#main">{{Product}}</a>
+      <nav class="ui-navgroup" aria-label="{{Sections}}">
+        <p class="ui-navgroup__label">{{Group}}</p>
+        <ul class="ui-navlist">
+          <li><a href="#main" aria-current="page">{{This screen}}</a></li>
+          <li><a href="#{{id}}">{{Other screen}}</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="ui-app__main">
+      <header class="ui-topbar">
+        <div class="ui-stack ui-stack--tight">
+          <h1 class="ui-page__title">{{Screen title}}</h1>
+          <p class="ui-meta">{{Scope and freshness, e.g. "Today · data as of 14:20"}}</p>
+        </div>
+        <div class="ui-cluster">
+          <!-- One primary action at most; the rest stay quiet. -->
+          <button class="ui-btn ui-btn--sm" type="button">{{Secondary}}</button>
+        </div>
+      </header>
+
+      <main class="ui-page" id="main">
+        <!-- Headline figures: each one is a number the user acts on, with its comparison. -->
+        <section class="ui-stat-row" aria-label="{{Headline figures}}">
+          <div class="ui-stat">
+            <p class="ui-stat__label">{{Figure}}</p>
+            <div class="ui-stat__value">{{value}} <small>{{unit or of total}}</small></div>
+            <p class="ui-stat__note">{{comparison: target, yesterday, or what it means}}</p>
+          </div>
+          <div class="ui-stat">…</div>
+          <div class="ui-stat">…</div>
+          <div class="ui-stat">…</div>
+        </section>
+
+        <div class="ui-workgrid">
+          <!-- The small signature moment (chart, empty-state or header-detail): mark the one element
+               that carries it; the rest of the screen stays calm. -->
+          <section class="ui-panel ui-span-8" aria-labelledby="chart-title" data-ui-moment="{{small moment kind from design.lock.json, or move it}}">
+            <div class="ui-panel__head">
+              <h2 class="ui-panel__title" id="chart-title">{{Chart title that states the question}}</h2>
+              <p class="ui-meta">{{what the marks mean}}</p>
+            </div>
+            <!-- UI.bars(document.getElementById('chart'), { labels, series: [{ name, values, role: 'chart-1' }], marker: { index, label }, caption }) -->
+            <div id="chart"></div>
+          </section>
+
+          <section class="ui-panel ui-panel--accent-2 ui-span-4" aria-labelledby="side-title">
+            <div class="ui-panel__head">
+              <h2 class="ui-panel__title" id="side-title">{{Exceptions or alerts}}</h2>
+              <p class="ui-meta">{{count and period}}</p>
+            </div>
+            <ul class="ui-list ui-scroll">
+              <li>
+                <div class="ui-stack ui-stack--tight"><strong>{{item}}</strong><span class="ui-meta">{{detail}}</span></div>
+                <span class="ui-status ui-status--negative">{{state in words}}</span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="ui-panel ui-panel--flush ui-span-12" aria-labelledby="table-title">
+            <div class="ui-panel__head">
+              <h2 class="ui-panel__title" id="table-title">{{Records}}</h2>
+              <div class="ui-toolbar">
+                <div class="ui-segmented" role="group" aria-label="{{Filter by status}}">
+                  <button type="button" aria-pressed="true">{{All}} <span class="ui-count">{{n}}</span></button>
+                  <button type="button" aria-pressed="false">{{Status}} <span class="ui-count">{{n}}</span></button>
+                </div>
+                <label class="ui-search"><span class="ui-visually-hidden">{{Search}}</span><input class="ui-input" type="search" placeholder="{{Search by …}}"></label>
+              </div>
+            </div>
+            <div class="ui-table-wrap" style="border: 0; border-radius: 0">
+              <table class="ui-table ui-table--compact ui-table--stack" data-ui-sortable>
+                <thead>
+                  <tr>
+                    <th scope="col" aria-sort="ascending"><button class="ui-sort">{{Column}}</button></th>
+                    <th scope="col"><button class="ui-sort">{{Column}}</button></th>
+                    <th scope="col" class="is-num"><button class="ui-sort">{{Number}}</button></th>
+                    <th scope="col"><button class="ui-sort">{{Status}}</button></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-label="{{Column}}">{{value}}</td>
+                    <td data-label="{{Column}}">{{value}}</td>
+                    <td data-label="{{Number}}" class="is-num" data-value="{{raw number}}">{{formatted}}</td>
+                    <td data-label="{{Status}}"><span class="ui-status ui-status--positive">{{state}}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

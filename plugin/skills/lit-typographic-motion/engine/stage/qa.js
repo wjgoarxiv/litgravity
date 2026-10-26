@@ -79,11 +79,16 @@
       const cs = getComputedStyle(el);
       const fontSizePx = Number.parseFloat(cs.fontSize) || 0;
       const scale = scaleOf(el);
+      // Colour and face as the text is painted: the fill for SVG text, the colour otherwise; the
+      // first family of the stack (the look check compares it with the look's faces).
+      const ink = (nodes[0]?.parentElement ? getComputedStyle(nodes[0].parentElement) : cs);
+      const color = el instanceof SVGElement ? ink.fill : ink.color;
+      const family = String(ink.fontFamily || "").split(",")[0].trim().replace(/^["']|["']$/gu, "");
       out.push({
         id, kind, text: text.replace(/\s+/gu, " ").trim(), decor: Boolean(el.closest("[data-lit-decor]")),
         // A run is as visible as its most visible text: per-word opacity lives on the children.
         rects, opacity: +(nodes.length ? Math.max(...nodes.map((n) => opacityChain(n.parentElement))) : opacityChain(el)).toFixed(3), fontSizePx: +(fontSizePx * scale).toFixed(2), capHeightPx: +(fontSizePx * scale).toFixed(2),
-        gradient: /text/u.test(cs.backgroundClip + (cs.webkitBackgroundClip ?? "")),
+        gradient: /text/u.test(cs.backgroundClip + (cs.webkitBackgroundClip ?? "")), color, family,
       });
     };
     for (const [el, nodes] of groups) {

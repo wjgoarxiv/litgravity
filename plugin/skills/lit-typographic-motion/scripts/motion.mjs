@@ -5,7 +5,7 @@
 // WebGL2, 12 no ffmpeg for video, 13 QA gate FAIL, 14 runtime not pre-warmed, 15 font missing or
 // hash-mismatched, 16 treatment invalid, 17 stage contract, 18 stage nondeterministic, 19 stage
 // network request, 20 sound invalid (2 = usage).
-import { realpathSync } from "node:fs";
+import { realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { EXIT, EXIT_NAME, CREDIT_LINE } from "../engine/core/constants.mjs";
@@ -13,13 +13,20 @@ import { EXIT, EXIT_NAME, CREDIT_LINE } from "../engine/core/constants.mjs";
 export const USAGE = `lit-typographic-motion render CLI (LitGravity)
 
 usage:
-  motion.mjs stage --out <dir> [--round N] [--stills-only]      stage path: renders the page in <dir>/stage/
+  motion.mjs styles --out <dir> [--format 16:9|9:16]              the house-style gallery: one demo board per style
+  motion.mjs assets --out <dir> --url <link> [--cover]            a named product's real logo, README images and words:
+                                                                  <dir>/stage/assets/ (cover/assets/), <dir>/product/, <dir>/product.json
+  motion.mjs scaffold --out <dir>                                 writes <dir>/stage/index.html from the treatment
+  motion.mjs stage --out <dir> [--round N] [--stills-only]      stage path: renders the page in <dir>/stage/;
+                                                                  --stills-only is the board round (storyboard + check)
   motion.mjs cover --out <dir> [--round N] [--window t0,t1]   cover mode: the seamless README loop in <dir>/cover/;
                                                                   --window re-renders only t0-0.5 s .. t1+0.5 s and sheets it
   motion.mjs cover-gate <cover.webp> [--frames d --frames2 d --masks d --title x,y,w,h] [--strict] [--json]
                                                                   the cover gate on a decoded cover file
   motion.mjs make  <brief.json> --out <dir> [--round N] [--stills-only] [--word-timing]
                                                                   type path: the typographic engine
+  motion.mjs blender --out <dir> [--final]                        the offline Blender rung (render3d: blender): preview stills of
+                                                                  <dir>/stage/scene.py, then with --final the plate in <dir>/stage/plate/
   motion.mjs sound --out <dir>                                    builds <dir>/sound/bed.wav from the treatment
   motion.mjs look  --out <dir> --round N --answers <file>         records one look round in <dir>/look.json
                    (--blocked no-vision-tool when no image tool can be reached)
@@ -27,7 +34,8 @@ usage:
   motion.mjs stills|sheet|video|perf <brief.json> --out <dir>     one type-path stage alone
 
 Every render reads <dir>/treatment.json first (exit 16 names the field). A render with --stills-only
-writes the beat stills, the transition strips and the contact sheet, then stops; the full render adds
+writes the beat stills, the transition strips, the contact sheet and the storyboard (stills/board.png),
+and on the stage path runs the board check (exit 13 when it fails), then stops; the full render adds
 the master, preview, poster, reduced-motion still, determinism re-check, sound and the gate. A
 flash-audit FAIL withholds every export in <dir>/withheld/. A cover render (treatment mode: cover)
 captures at 2x, encodes cover.webp and gates the decoded file; it exits 13 until every gate reaches
@@ -44,7 +52,7 @@ function parse(argv) {
   const args = { _: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (["--stills-only", "--word-timing", "--help", "-h", "--foreground", "--worker", "--strict", "--json"].includes(a)) args[a.replace(/^-+/u, "")] = true;
+    if (["--stills-only", "--word-timing", "--help", "-h", "--foreground", "--worker", "--strict", "--json", "--cover", "--final"].includes(a)) args[a.replace(/^-+/u, "")] = true;
     else if (a.startsWith("--")) {
       args[a.slice(2)] = argv[i + 1];
       i += 1;
@@ -65,10 +73,21 @@ export async function main(argv, { env = process.env, stdout = process.stdout, s
   const pipeline = await import("../engine/node/pipeline.mjs");
   try {
     let result;
-    if (["stage", "cover", "sound", "look"].includes(mode)) {
+    if (["stage", "cover", "sound", "look", "scaffold", "styles", "assets", "blender"].includes(mode)) {
       if (!args.out) throw new BlockedError(EXIT.USAGE, `${mode} needs --out <dir>`);
       const out = path.resolve(args.out);
-      if (mode === "cover") {
+      if (mode === "assets") {
+        if (!args.url) throw new BlockedError(EXIT.USAGE, "assets needs --url <link>");
+        const { fetchAssets } = await import("../engine/node/assets.mjs");
+        result = await fetchAssets({ out, url: String(args.url), into: args.cover ? "cover" : "stage" });
+      } else if (mode === "scaffold") {
+        const { scaffoldCommand } = await import("../engine/node/scaffold.mjs");
+        const { asBlocked } = pipeline;
+        result = asBlocked(() => scaffoldCommand({ out }));
+      } else if (mode === "styles") {
+        const { stylesCommand } = await import("../engine/node/gallery.mjs");
+        result = await stylesCommand({ out, format: args.format ?? "16:9", env, log });
+      } else if (mode === "cover") {
         const cover = await import("../engine/node/cover.mjs");
         const round = Number(args.round ?? 1);
         const run = () => cover.renderCover({ out, round, env, log });
@@ -92,6 +111,20 @@ export async function main(argv, { env = process.env, stdout = process.stdout, s
         if (stillsOnly || args.foreground || env.LITGRAVITY_MOTION_FOREGROUND === "1") result = await stage.renderStage({ out, round, stillsOnly, env, log });
         else {
           result = await stage.renderStageDetached({ out, round, cli: fileURLToPath(import.meta.url), env, log });
+          if (result.blocked) throw new BlockedError(result.code, result.message);
+        }
+      } else if (mode === "blender") {
+        const { blenderCommand } = await import("../engine/node/blender.mjs");
+        const final = Boolean(args.final);
+        if (args.worker) {
+          const progress = (frame, frameCount) => writeProgress(out, { phase: "plate", frame, frameCount });
+          return await detachedWorker({ run: () => blenderCommand({ out, final: true, env, log, progress }), out, BlockedError });
+        }
+        // The final plate can take most of an hour, so it runs detached like a full stage render.
+        if (!final || args.foreground || env.LITGRAVITY_MOTION_FOREGROUND === "1") result = await blenderCommand({ out, final, env, log });
+        else {
+          const { renderStageDetached } = await import("../engine/node/stage.mjs");
+          result = await renderStageDetached({ out, round: 1, cli: fileURLToPath(import.meta.url), mode: "blender", env, log });
           if (result.blocked) throw new BlockedError(result.code, result.message);
         }
       } else if (mode === "sound") {
@@ -138,9 +171,16 @@ export async function main(argv, { env = process.env, stdout = process.stdout, s
   }
 }
 
+const writeProgress = (out, p) => {
+  try {
+    writeFileSync(path.join(out, ".run", "progress.json"), JSON.stringify(p));
+  } catch {
+    // The waiting caller only logs progress; a missed write costs nothing.
+  }
+};
+
 /** The detached side of a full stage or cover render: run it and leave the result for the waiting caller. */
 async function detachedWorker({ run, out, BlockedError }) {
-  const { writeFileSync } = await import("node:fs");
   let result;
   try {
     const r = await run();

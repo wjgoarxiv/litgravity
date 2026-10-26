@@ -11,15 +11,16 @@ import { BlockedError } from "./chrome.mjs";
 import { readStills } from "./stills.mjs";
 
 export const LOOK_FILE = "look.json";
-export const QUESTIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-// Cover mode asks its own eight (references/cover.md): motion in every half second, the seam, the
-// motion surviving the encoder, the brand word, the three speed layers, slide-likeness, damage, and
-// what a motion designer would change.
-export const COVER_QUESTIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8]);
-// A "no" on these, a "yes" on the next, or a named last question (film 7, cover 8) needs another round.
+// Film question 10 is the story turn, answered on the turn beat's own still (story.beat).
+export const QUESTIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+// Cover mode asks its own nine (references/cover.md): motion in every half second, the seam, the
+// motion surviving the encoder, the brand word, the three speed layers, slide-likeness, damage, what
+// a motion designer would change, and the hero acting its beat once per loop.
+export const COVER_QUESTIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+// A "no" on these, a "yes" on the next, or a named question (film 7, cover 8) needs another round.
 const REVISE = Object.freeze({
-  film: { no: new Set([1, 2, 3, 5, 6]), yes: new Set([4, 8, 9]), named: 7 },
-  cover: { no: new Set([1, 2, 3, 4, 5]), yes: new Set([6, 7]), named: 8 },
+  film: { no: new Set([1, 2, 3, 5, 6, 10]), yes: new Set([4, 8, 9]), named: 7 },
+  cover: { no: new Set([1, 2, 3, 4, 5, 9]), yes: new Set([6, 7]), named: 8 },
 });
 const PLACEHOLDER = /<[^<>\n]{1,80}>/u;
 const BARE = /^\s*(?:yes|no|y|n|ok|none|named|네|아니요|아니오|예|없음|있음)[.!]?\s*$/iu;
@@ -62,18 +63,28 @@ export function reviseTriggers(answers, mode = "film") {
   return answers.filter((a) => (r.no.has(a.q) && a.verdict === "no") || (r.yes.has(a.q) && a.verdict === "yes") || (a.q === r.named && a.verdict === "named")).map((a) => a.q);
 }
 
+/** The still of the story's turn beat (`stills/beat-NN.png`), or null when the treatment names none. */
+function turnStill(out) {
+  try {
+    const beat = JSON.parse(readFileSync(path.join(out, "treatment.json"), "utf8")).story?.beat;
+    return Number.isInteger(beat) ? `stills/beat-${String(beat + 1).padStart(2, "0")}.png` : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Validate an answers document against the current stills set; returns the round record. */
 export function checkAnswers(doc, { round, stills, out }) {
   if (!doc || typeof doc !== "object") refuse("the answers file must be a JSON object");
   const cover = stills.index.mode === "cover";
   const questions = cover ? COVER_QUESTIONS : QUESTIONS;
   const namedQ = cover ? REVISE.cover.named : REVISE.film.named;
-  if (!cover && doc.defects !== undefined) refuse("defects are a cover-mode record; a film round names its weakest beat instead");
   const listed = new Set(stills.index.files.map((f) => f.file));
   const inSet = (file) => listed.has(file) && existsSync(path.join(out, file));
-  if (!Array.isArray(doc.viewed) || !doc.viewed.length) refuse("viewed must list every stills file you opened with read_file this round");
+  if (!Array.isArray(doc.viewed) || !doc.viewed.length) refuse("viewed must list every stills file you opened with the image tool this round");
   for (const file of doc.viewed) if (!inSet(file)) refuse(`viewed file ${JSON.stringify(file)} is not in the latest stills set (${path.join(out, "stills", "index.json")})`);
-  if (!Array.isArray(doc.answers)) refuse(`answers must be an array of the ${cover ? "eight cover" : "nine"} questions`);
+  if (!Array.isArray(doc.answers)) refuse(`answers must be an array of the ${cover ? "nine cover" : "ten"} questions`);
+  const turn = cover ? null : turnStill(out);
   const answers = [];
   const seen = new Set();
   for (const a of doc.answers) {
@@ -83,6 +94,7 @@ export function checkAnswers(doc, { round, stills, out }) {
     const verdicts = a.q === namedQ ? ["none", "named"] : ["yes", "no"];
     if (!verdicts.includes(a.verdict)) refuse(`question ${a.q}: verdict must be ${verdicts.join(" or ")}`);
     if (!inSet(a.frame)) refuse(`question ${a.q}: frame ${JSON.stringify(a.frame)} is not in the latest stills set`);
+    if (a.q === 10 && turn && a.frame !== turn) refuse(`question 10: answer it on the turn beat's still ${turn} (story.beat in treatment.json)`);
     if (!isObservation(a.observed)) refuse(`question ${a.q}: observed must be at least one sentence naming a concrete visible detail in ${a.frame}, not a bare verdict`);
     if (a.q === 1 && !cover) {
       if (!["blind", "self"].includes(a.by)) refuse("question 1: by must be blind (a fresh subagent that saw only the sheet and the beat stills) or self");
@@ -100,26 +112,28 @@ export function checkAnswers(doc, { round, stills, out }) {
   }
   answers.sort((a, b) => a.q - b.q);
   const defects = checkDefects(doc.defects, { cover, stills, inSet });
-  return { answers, viewed: [...new Set(doc.viewed)], weakestBeat: doc.weakestBeat ?? null, change: doc.change ?? null, aids: Array.isArray(doc.aids) ? doc.aids.map(String) : [], ...(cover ? { defects } : {}) };
+  return { answers, viewed: [...new Set(doc.viewed)], weakestBeat: doc.weakestBeat ?? null, change: doc.change ?? null, aids: Array.isArray(doc.aids) ? doc.aids.map(String) : [], ...(cover || defects.length ? { defects } : {}) };
 }
 
 /**
- * Cover defects: at most three per round, each { t, region, frame, observed, cause, fix }. `t` is the
- * loop time in seconds where the defect shows, `region` the [x, y, w, h] it covers in cover pixels,
- * `frame` a file of the current stills set that shows it. A window re-render around `t` is how the
- * fix is checked before the next full render.
+ * Defects: at most three per round, worst first, each { t, region, frame, observed, cause, fix }. `t`
+ * is the time in seconds where the defect shows (the loop time for a cover), `region` the
+ * [x, y, w, h] it covers in frame pixels, `frame` a file of the current stills set that shows it. A
+ * cover checks the fix with a window re-render around `t`; a film fixes those seconds and renders the
+ * board again. Optional on a film round, where the named weakest beat stays required in round 1.
  */
 function checkDefects(list, { cover, stills, inSet }) {
-  if (list === undefined || !cover) return [];
+  if (list === undefined) return [];
   if (!Array.isArray(list)) refuse("defects must be an array");
   if (list.length > COVER.maxDefects) refuse(`at most ${COVER.maxDefects} defects per round; fix the worst first`);
-  const { width, height, durationSec } = stills.index;
+  const { width, height } = stills.index;
+  const durationSec = stills.index.durationSec ?? (stills.index.frameCount && stills.index.fps ? stills.index.frameCount / stills.index.fps : null);
   return list.map((d, i) => {
     const f = `defect ${i + 1}`;
     if (!d || typeof d !== "object") refuse(`${f} must be an object`);
-    if (typeof d.t !== "number" || !(d.t >= 0) || (durationSec && d.t >= durationSec)) refuse(`${f}: t must be the loop time in seconds${durationSec ? ` (0 to ${durationSec})` : ""} where the defect shows`);
+    if (typeof d.t !== "number" || !(d.t >= 0) || (durationSec && d.t >= durationSec)) refuse(`${f}: t must be the ${cover ? "loop " : ""}time in seconds${durationSec ? ` (0 to ${durationSec})` : ""} where the defect shows`);
     const r = d.region;
-    if (!Array.isArray(r) || r.length !== 4 || !r.every(Number.isInteger) || r[0] < 0 || r[1] < 0 || r[2] <= 0 || r[3] <= 0 || r[0] + r[2] > width || r[1] + r[3] > height) refuse(`${f}: region must be [x, y, w, h] inside the ${width}x${height} cover`);
+    if (!Array.isArray(r) || r.length !== 4 || !r.every(Number.isInteger) || r[0] < 0 || r[1] < 0 || r[2] <= 0 || r[3] <= 0 || r[0] + r[2] > width || r[1] + r[3] > height) refuse(`${f}: region must be [x, y, w, h] inside the ${width}x${height} ${cover ? "cover" : "frame"}`);
     if (!inSet(d.frame)) refuse(`${f}: frame ${JSON.stringify(d.frame)} is not in the latest stills set`);
     if (!isObservation(d.observed)) refuse(`${f}: observed must be at least one sentence naming what is visible there`);
     if (![d.cause, d.fix].every((x) => typeof x === "string" && x.trim().length >= 8 && !PLACEHOLDER.test(x))) refuse(`${f}: cause and fix must each say something concrete`);

@@ -122,9 +122,9 @@ test('the legal and attribution files name no sibling product either: they credi
   assert.deepEqual(hits, []);
 });
 
-test('all 39 family skills ship and each carries a pin, with no byproduct files left in the bundle', () => {
+test('all 42 family skills ship and each carries a pin, with no byproduct files left in the bundle', () => {
   const family = JSON.parse(readFileSync(new URL('./fixtures/family-skills.json', import.meta.url), 'utf8')).sort();
-  assert.equal(family.length, 39);
+  assert.equal(family.length, 42);
   assert.deepEqual(skillIds, family);
   assert.deepEqual(Object.keys(DEPTH.skills).sort(), family);
   const stray = walk(PLUGIN_DIR).filter((f) => /(^|\/)(__pycache__|node_modules|\.DS_Store|evidence|plans|\.litgravity)(\/|$)|\.pyc$/.test(relative(PLUGIN_DIR, f)));

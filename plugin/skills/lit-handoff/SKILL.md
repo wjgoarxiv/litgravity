@@ -137,6 +137,7 @@ For each old section ask whether the next agent would be materially worse off wi
 - `ask_question` only for a destination choice that changes the outcome (an explicit root request in a repository that ignores `.handoff/`, a nested-repository boundary). Give the recommended default; headless, write the default and record it as a `decision` line.
 - `lit-verifier` (started with `invoke_subagent` and `TypeName: "lit-verifier"`) can audit the draft against the files before you save. Give it the draft and the paths, and leave your conclusion out of the brief. Its report arrives as a message; re-check any finding yourself. When the agent type is not installed, run the audit yourself and say so once. A child started without a type is general-purpose with every tool, which this task never needs.
 - Hooks: the SessionStart hook adds a pointer to `.litgravity/handoff/latest.md` for any new conversation while the file is under three days old; an older packet gets no pointer, so mention its path to the user when work resumes late. PostToolUse logs this route's tool calls in the ledger. The boundary check after each turn reports Markdown that gained stacked negations or hedges; write the packet in positive form.
+- After writing the packet, tell the user they can say `lit adhd` in a later conversation to see a cross-session brief of what each recent session was asked, did and left open.
 - Handoff copies are local working state: they stay out of commits, and this skill makes no commit, tag, push, stash or publish.
 
 ## Evidence

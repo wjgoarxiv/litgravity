@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="{{lang: en or ko}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{Settings}} · {{Product}}</title>
+  <link rel="stylesheet" href="ui/tokens.css">
+  <link rel="stylesheet" href="ui/components.css">
+  <script src="ui/ui.js" defer></script>
+</head>
+<body>
+  <!-- Settings starter (kit/layouts/settings.html): one column of sections capped near 720 px,
+       a section index beside it on wide screens, labels above fields, errors beside their field
+       on blur, one save bar that shows saving, saved and error in words. Destructive actions
+       sit last, behind a confirmation that names the thing being destroyed. Replace every
+       {{slot}} (DS-006 flags leftovers). -->
+  <a class="ui-skip" href="#main">{{Skip to content}}</a>
+  <header class="ui-sitebar">
+    <div class="ui-container ui-container--wide ui-sitebar__inner">
+      <a class="ui-brand" href="#main">{{Product}}</a>
+      <p class="ui-meta">{{Workspace or account name}}</p>
+    </div>
+  </header>
+
+  <div class="ui-container ui-container--wide">
+    <div class="ui-page">
+      <!-- The small signature moment, usually a header detail (the workspace's own mark, plan or
+           status set with care); mark the one element that carries it. -->
+      <div class="ui-page__head" data-ui-moment="{{small moment kind from design.lock.json, or move it}}">
+        <div class="ui-stack ui-stack--tight">
+          <h1 class="ui-page__title">{{Settings}}</h1>
+          <p class="ui-meta">{{What these settings affect}}</p>
+        </div>
+      </div>
+
+      <div class="ui-settings">
+        <nav class="ui-settings__nav" aria-label="{{Settings sections}}">
+          <ul class="ui-navlist">
+            <li><a href="#general" aria-current="true">{{General}}</a></li>
+            <li><a href="#{{id}}">{{Section}}</a></li>
+            <li><a href="#danger">{{Danger zone}}</a></li>
+          </ul>
+        </nav>
+
+        <main class="ui-settings__body" id="main">
+          <form id="settings-form" class="ui-settings__body" novalidate>
+            <section class="ui-panel ui-setting-section" id="general" aria-labelledby="general-title">
+              <div class="ui-setting-section__head">
+                <h2 class="ui-h3" id="general-title">{{General}}</h2>
+                <p class="ui-meta">{{What this section controls}}</p>
+              </div>
+              <div class="ui-field">
+                <label class="ui-field__label" for="name">{{Field label}}</label>
+                <input class="ui-input" id="name" name="name" required aria-describedby="name-hint name-error">
+                <p class="ui-field__hint" id="name-hint">{{Rule stated before the user types}}</p>
+                <p class="ui-field__error" id="name-error" hidden>{{What went wrong and how to fix it}}</p>
+              </div>
+              <div class="ui-field">
+                <label class="ui-field__label" for="slug">{{Address}}</label>
+                <div class="ui-input-group">
+                  <span class="ui-input-group__addon">{{example.com/}}</span>
+                  <input class="ui-input" id="slug" name="slug" required aria-describedby="slug-hint slug-error">
+                </div>
+                <p class="ui-field__hint" id="slug-hint">{{Allowed characters and length}}</p>
+                <p class="ui-field__error" id="slug-error" hidden>{{…}}</p>
+              </div>
+            </section>
+
+            <section class="ui-panel ui-setting-section" id="{{id}}" aria-labelledby="{{id}}-title">
+              <div class="ui-setting-section__head">
+                <h2 class="ui-h3" id="{{id}}-title">{{Section}}</h2>
+              </div>
+              <label class="ui-switch"><span class="ui-stack ui-stack--tight"><span>{{What turns on}}</span><span class="ui-meta">{{consequence}}</span></span><input type="checkbox" role="switch"></label>
+            </section>
+
+            <div class="ui-savebar" role="region" aria-label="{{Save changes}}">
+              <p class="ui-status" id="save-state" role="status" aria-live="polite">{{No unsaved changes}}</p>
+              <div class="ui-form-actions">
+                <button class="ui-btn ui-btn--quiet" type="reset">{{Discard}}</button>
+                <button class="ui-btn ui-btn--primary" type="submit">{{Save changes}}</button>
+              </div>
+            </div>
+          </form>
+
+          <section class="ui-panel ui-setting-section ui-setting-section--danger" id="danger" aria-labelledby="danger-title">
+            <div class="ui-setting-section__head">
+              <h2 class="ui-h3" id="danger-title">{{Danger zone}}</h2>
+              <p class="ui-meta">{{What is lost, and that it cannot be undone}}</p>
+            </div>
+            <div><button class="ui-btn ui-btn--danger" type="button" id="delete-open">{{Delete …}}</button></div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="ui-dialog" id="delete-dialog" aria-labelledby="delete-title">
+    <form method="dialog">
+      <div class="ui-dialog__body">
+        <h2 class="ui-h3" id="delete-title">{{Delete name?}}</h2>
+        <p class="ui-muted">{{Exactly what disappears}}</p>
+        <div class="ui-field">
+          <label class="ui-field__label" for="confirm">{{Type the name to confirm}}</label>
+          <input class="ui-input" id="confirm" autocomplete="off">
+        </div>
+      </div>
+      <div class="ui-dialog__actions">
+        <button class="ui-btn" type="submit" value="cancel">{{Cancel}}</button>
+        <button class="ui-btn ui-btn--danger" type="submit" value="confirm" id="delete-confirm" disabled>{{Delete permanently}}</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
