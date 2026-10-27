@@ -74,10 +74,10 @@
       "minTotalBytes": 4370500
     },
     "lit-adhd": {
-      "minSkillBytes": 15200,
-      "minBodyBytes": 15000,
+      "minSkillBytes": 16200,
+      "minBodyBytes": 16000,
       "minFiles": 4,
-      "minTotalBytes": 21600
+      "minTotalBytes": 23200
     },
     "lit-brainstorm": {
       "minSkillBytes": 23500,
@@ -164,10 +164,10 @@
       "minTotalBytes": 30100
     },
     "lit-plan": {
-      "minSkillBytes": 23700,
-      "minBodyBytes": 23500,
+      "minSkillBytes": 23800,
+      "minBodyBytes": 23600,
       "minFiles": 10,
-      "minTotalBytes": 74200
+      "minTotalBytes": 77400
     },
     "lit-pptx": {
       "minSkillBytes": 23400,
@@ -261,9 +261,9 @@
     },
     "start-work": {
       "minSkillBytes": 23800,
-      "minBodyBytes": 23600,
+      "minBodyBytes": 23700,
       "minFiles": 8,
-      "minTotalBytes": 60300
+      "minTotalBytes": 60400
     },
     "structural-search": {
       "minSkillBytes": 23000,

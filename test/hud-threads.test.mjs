@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, mkdirSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { renderStatus, visibleWidth } from '../plugin/hud/render.mjs';
+import { livePath } from '../plugin/hooks/lib/liveness.mjs';
 import { applyStackEvent, emptyStack, writeStack } from '../plugin/hooks/lib/workflow-stack.mjs';
 import { writeLanes } from '../plugin/hooks/lib/lanes.mjs';
 import { sandbox } from './helpers.mjs';
@@ -187,6 +188,66 @@ test('count chain reads plan checkboxes when the top frame has a plan ref', () =
   writeStack(cwd, convId, stack, env);
   const line = plain(render(env, cwd, convId));
   assert.ok(line.includes('2/3'), 'should show 2/3 from plan checkboxes');
+});
+
+function live(env, cwd, convId, state, agoMs) {
+  const file = livePath(cwd, convId, env);
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, JSON.stringify({ state, at: new Date(now().getTime() - agoMs).toISOString() }));
+}
+
+test('other sessions: a compact chip counts running then idle, never this conversation', () => {
+  const { env } = sandbox();
+  const cwd = mkdtempSync(join(tmpdir(), 'litgravity-others-'));
+  setupRoute(env, cwd, 'conv-self', 'lit-loop');
+  live(env, cwd, 'conv-self', 'alive', 1000);
+  live(env, cwd, 'conv-a', 'alive', 5000);
+  live(env, cwd, 'conv-b', 'alive', 20_000);
+  live(env, cwd, 'conv-c', 'idle', 60_000);
+  live(env, cwd, 'conv-gone', 'alive', 11 * 60_000);
+  const line = plain(render(env, cwd, 'conv-self', 200));
+  assert.match(line, /\+2 running · 1 idle/);
+  assert.ok(!line.includes('3 running'), 'this conversation and the stale one are not counted');
+  assert.match(plain(render(env, cwd, 'conv-self', 120)), /\+3 others$/, 'a tight line keeps the total');
+});
+
+test('other sessions: a lone other session still shows, even when this conversation has no route', () => {
+  const { env } = sandbox();
+  const cwd = mkdtempSync(join(tmpdir(), 'litgravity-lone-'));
+  live(env, cwd, 'conv-a', 'idle', 5000);
+  assert.match(plain(render(env, cwd, 'conv-self')), /\+1 idle/);
+  const empty = mkdtempSync(join(tmpdir(), 'litgravity-none-'));
+  assert.doesNotMatch(plain(render(env, empty, 'conv-self')), /running|idle/);
+});
+
+test('other sessions: a finished start-work shows done for 60 s, then drops', () => {
+  const { env } = sandbox();
+  const cwd = mkdtempSync(join(tmpdir(), 'litgravity-finished-'));
+  mkdirSync(join(cwd, 'plans'), { recursive: true });
+  writeFileSync(join(cwd, 'plans', 'p.md'), '- [x] 1. a\n- [x] 2. b\n');
+  mkdirSync(join(cwd, '.litgravity', 'ledger'), { recursive: true });
+  writeFileSync(join(cwd, '.litgravity', 'ledger', 'conv-work.jsonl'), `${JSON.stringify({ kind: 'tool', tool: 'write_file', path: 'plans/p.md' })}\n`);
+  setupRoute(env, cwd, 'conv-work', 'start-work');
+  live(env, cwd, 'conv-work', 'idle', 10_000);
+  assert.match(plain(render(env, cwd, 'conv-self')), /\+1 done/);
+  live(env, cwd, 'conv-work', 'idle', 70_000);
+  assert.doesNotMatch(plain(render(env, cwd, 'conv-self')), /done|idle/);
+});
+
+test('other sessions: the chip fits every width and NO_COLOR leaves no escape', () => {
+  const { env } = sandbox();
+  const cwd = mkdtempSync(join(tmpdir(), 'litgravity-others-fit-'));
+  setupRoute(env, cwd, 'conv-self', 'start-work');
+  for (const [i, state] of ['alive', 'alive', 'alive', 'idle', 'idle'].entries()) live(env, cwd, `conv-${i}`, state, 1000);
+  const input = { conversation_id: 'conv-self', workspace: cwd, model: { display_name: 'Gemini 3.8 Flash (Medium)' }, context_window: { used_percentage: 42, context_window_size: 1048576 } };
+  for (const width of [40, 60, 80, 120, 160]) {
+    const line = renderStatus(input, { env, width, now: now().getTime() });
+    assert.ok(visibleWidth(plain(line)) <= width, `wider than ${width}`);
+  }
+  assert.match(plain(renderStatus(input, { env, width: 200, now: now().getTime() })), /\+3 running · 2 idle/);
+  const flat = renderStatus(input, { env: { ...env, NO_COLOR: '1' }, width: 200, now: now().getTime() });
+  assert.ok(!flat.includes('\u001b['));
+  assert.match(flat, /\+3 running · 2 idle/);
 });
 
 test('rainbow paint: every cell takes its own hue, pills included, and the plain width holds', () => {

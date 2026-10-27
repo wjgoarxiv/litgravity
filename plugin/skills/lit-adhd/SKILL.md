@@ -49,11 +49,11 @@ verdicts: [PASS, FAIL, BLOCKED]
 
 The collector draws the brief in Markdown (`plugin/hooks/lib/rewind/brief.mjs`), because agy's chat pane renders headings, bold, quotes, tables and code blocks; the shape is the same every time, so a tired reader finds each part where it was last time. Five parts, in this order:
 
-1. **Headline.** One `## 🧭` line: conversations found, how many wait on the user, how many are active, and the next step in words: `세션 5개 · 나를 기다리는 것 1 · 진행 중 1 · 다음: …` / `5 sessions · 1 waits on you · 1 active · next: …`. A dim line under it gives the window and how many folders were read.
-2. **Live cards, grouped by folder and branch.** Conversations that wait on the user or are active get a `### 🌿 branch · folder` heading per group and one quoted card each: a status badge (🟠 waiting on you, 🟢 active; see `references/status-taxonomy.md`) with why it waits, its `id8`, its route, how long ago it moved and `this conversation` / `이 대화`; the goal in bold; a real gauge with the next items, or the known facts after ⏳ (how long it ran, its last ask); ✅ what was written and committed, or before any write the tools it used most; ▶ what is next for it (answer its question, resume its paused route, its route stage, or its last tool call by base name, never a command line).
+1. **Headline and opener.** One `## 🧭` line: conversations found, how many wait on the user, how many are active (`세션 5개 · 나를 기다리는 것 1 · 진행 중 1` / `5 sessions · 1 waits on you · 1 active`). Three lines follow for a reader who reads nothing else: **Done so far** (finished plans here, sessions done, commits in the window), **Doing now** (up to two active conversations by id and goal) and **Next** (the step in the box). A dim line under them gives the window and how many folders were read.
+2. **Live cards, grouped by folder and branch.** Conversations that wait on the user, are active, idle or done get a `### 🌿 branch · folder` heading per group and one quoted card each: a status badge (🟠 waiting on you, 🟢 active, 💤 idle, ✅ done; see `references/status-taxonomy.md`) with why it waits, its `id8`, its route, how long ago it moved and `this conversation` / `이 대화`; the goal in bold; a real gauge with the next items, or the known facts after ⏳ (how long it ran, its last ask); ✅ what was written and committed, or before any write the tools it used most; ▶ what is next for it (answer its question, resume its paused route, its route stage, or its last tool call by base name, never a command line).
 3. **Ended conversations, one table row each** (`### ⚪ Ended · N`: id, where, goal, ago, done), at most eight and a count of the rest. Each row fits on one line at 120 columns: the age is its largest unit and done is a commit count or a file count.
-4. **Roadmap timeline** (`### 🗺️`, with this folder's gauge): ✓ commits with their dates and branch, ▶ the current item of each open plan here and of plans another folder changed inside the window (with its folder name), ○ the items after it, then litgoal objectives. Unfilled plan scaffolds, stale plans elsewhere and another folder's finished objectives are left out.
-5. **One recommended next step** in a box, then one line. A step that runs on `go` shows its command and the word to type, and the line says "Type `go` to continue." When nothing runs on `go`, the box still recommends a real step from the records, in this order: a conversation waiting on the user, a paused route, an open plan item (a live conversation's folder first), the newest other active conversation, the newest ended one; the line then says nothing runs on its own.
+4. **Roadmap timeline** (`### 🗺️`, with this folder's gauge): ✓ commits with their dates and branch, ▶ the current item of each open plan changed inside the window, here or in another folder (with its folder name), ○ the items after it, then litgoal objectives. Plans are held to the window here too. Unfilled plan scaffolds and files without task rows are skipped and counted on the last line; another folder's finished plans and objectives are left out.
+5. **One recommended next step** in a box (an untagged code fence), then one line. A step that runs on `go` shows its command and the word to type, and the line says "Type `go` to continue." When nothing runs on `go`, the box still recommends a real step from the records, in this order: a conversation waiting on the user, a paused route, an open plan item (a live conversation's folder first), the newest other active conversation, the newest ended one, the first item under `## Next` in this folder's `HANDOFF*.md`; the line then says nothing runs on its own.
 
 **Progress gauges (D9).** A gauge appears only when the collector provides both done and total as real integers: `[▉▉▉░░] 3/5`. When the total is unknown, the card shows known facts in words instead (`⏳ 2h 19m of work · last ask: …`). Never show `?/?`, `[???]`, `k/?` or any question-mark placeholder. The gauge is the progress; do not compute progress from prose like "about halfway".
 
@@ -99,20 +99,23 @@ The collector (`plugin/hooks/lib/rewind/collect.mjs`, served as `node <skill-roo
 | agy transcripts, `~/.gemini/antigravity-cli/brain/<id>/.system_generated/logs/transcript.jsonl`, only for conversations this workspace's route state lists | per session: first and last ask, tools used, files changed, last model text, status | `transcripts: unknown` |
 | `plans/*.md` checkbox rows | open plans, current item, done/total, remaining names | `plans: unknown` |
 | `.litgravity/goals/active.json` | objective and passed/total criteria | `litgoal: unknown` |
-| `HANDOFF*.md` | headings from the first 40 lines only | `handoffs: unknown` |
+| `HANDOFF*.md` | headings from the first 40 lines, and the first item under `## Next` | `handoffs: unknown` |
+| Route-state `*.live.json` liveness records (written by PostToolUse and Stop) | `alive` / `idle` per conversation; `ended` once stale | status falls back to the transcript clock |
 | `git log --since` | commits in the window, matched to sessions by time and branch | `git: unknown` |
 | Route-state `*.stack.json` files | running and paused disciplines with stage and k/n | `workflowStack: unknown` |
 
-Transcripts are read head (64 KiB) and tail (256 KiB) only, under one 8 MiB budget for the whole run, through descriptors opened without following links. Every string is redacted before it leaves the collector: credential shapes (provider keys, bearer tokens, JWT, API keys), `NAME=value` with a secret-like name, URI userinfo, any current environment value of eight or more characters, and the home directory (shown as `~`).
+Plans, goals, handoffs and stacks are read first, so a long transcript cannot use up the budget before them. Transcripts are read head (64 KiB) and tail (256 KiB) only, under one 8 MiB budget for the whole run, through descriptors opened without following links. Every string is redacted before it leaves the collector: credential shapes (provider keys, bearer tokens, JWT, API keys), `NAME=value` with a secret-like name, URI userinfo, any current environment value of eight or more characters, and the home directory (shown as `~`).
 
 ## Status taxonomy
 
 - `waiting-on-user`: the session's last word was the model asking something, or it holds a paused workflow frame.
-- `active`: written to within the last 15 minutes and not waiting.
-- `ended`: quiet for longer than that.
+- `done`: its start-work frame names a plan with every row ticked.
+- `active`: its liveness record says `alive`, or, without one, it was written to within the last 15 minutes.
+- `idle`: its liveness record says `idle`: the last turn ended and the conversation waits for its next prompt.
+- `ended`: quiet past the transcript clock, or a liveness record left alone past its limit (agy fires no session-end event).
 - `unknown`: the transcript held no timestamp.
 
-Sessions waiting on the user come first, then active ones, newest first.
+Sessions waiting on the user come first, then active, idle, done and ended ones, newest first.
 
 ## The next step
 

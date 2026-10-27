@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync, readdirSync, readFileSync, utimesSync } from 'node:fs';
 import { join } from 'node:path';
-import { sandbox, workspace, runHook, basePayload, turn } from './helpers.mjs';
+import { sandbox, workspace, runHook, basePayload, turn, injected } from './helpers.mjs';
 
 const stop = (ws, env, extra = {}) => runHook('stop', basePayload(ws, { executionNum: 1, terminationReason: 'NO_TOOL_CALL', fullyIdle: true, ...extra }), env);
 const held = (r) => r.json?.decision === 'continue';
@@ -28,6 +28,60 @@ test('lit-plan gate: holds once until plans/<slug>.md exists, then lets the turn
   mkdirSync(join(ws2.dir, 'plans'));
   writeFileSync(join(ws2.dir, 'plans', 'y.md'), '- [ ] 1. a\n');
   assert.deepEqual(stop(ws2, second.env).json, {}, 'plan written after activation');
+});
+
+test('a saved plan arms `go` in the same conversation for 30 minutes; it starts start-work on that plan once', () => {
+  const { env } = sandbox();
+  const ws = workspace();
+  turn(ws, env, 'lit plan y', 0);
+  mkdirSync(join(ws.dir, 'plans'));
+  writeFileSync(join(ws.dir, 'plans', 'y.md'), '- [ ] 1. a\n');
+  assert.deepEqual(stop(ws, env).json, {});
+  const record = join(env.XDG_STATE_HOME, 'litgravity', 'adhd', 'next-conv-test-0001.json');
+  assert.deepEqual(JSON.parse(readFileSync(record, 'utf8')).target, { plan: 'plans/y.md' });
+
+  const text = injected(turn(ws, env, 'go', 10));
+  assert.match(text, /LIT IGNITED · start-work/);
+  assert.match(text, /plans\/y\.md/);
+  assert.match(readFileSync(join(ws.dir, '.litgravity', 'ledger', 'conv-test-0001.jsonl'), 'utf8'), /"how":"go","plan":"plans\/y\.md"/);
+  assert.deepEqual(turn(ws, env, 'go', 20).json, {}, 'the record is consumed once');
+});
+
+test('lit-plan gate: a saved plan whose todo names an uncovered outside path is held once to ask for `Scope roots:`', () => {
+  const { env } = sandbox();
+  const ws = workspace();
+  turn(ws, env, 'lit plan y', 0);
+  mkdirSync(join(ws.dir, 'plans'));
+  const body = '## Todos\n- [ ] 1. a\n  - Files: `/srv/data/input.csv`\n\n## Final verification wave\n';
+  writeFileSync(join(ws.dir, 'plans', 'y.md'), body);
+  const first = stop(ws, env);
+  assert.ok(held(first));
+  assert.match(first.json.reason, /\/srv\/data\/input\.csv/);
+  assert.match(first.json.reason, /Scope roots: <path> \(<actions>\)/);
+  assert.deepEqual(stop(ws, env).json, {}, 'held at most once; the grant stays advisory');
+
+  const ok = sandbox();
+  const ws2 = workspace();
+  turn(ws2, ok.env, 'lit plan y', 0);
+  mkdirSync(join(ws2.dir, 'plans'));
+  writeFileSync(join(ws2.dir, 'plans', 'y.md'), `Scope roots: /srv/data (read)\n\n${body}`);
+  assert.deepEqual(stop(ws2, ok.env).json, {}, 'a covering Scope roots line lets the turn end');
+});
+
+test('`go` after a saved plan does nothing in another conversation or after 30 minutes', () => {
+  const { env } = sandbox();
+  const ws = workspace();
+  turn(ws, env, 'lit plan y', 0);
+  mkdirSync(join(ws.dir, 'plans'));
+  writeFileSync(join(ws.dir, 'plans', 'y.md'), '- [ ] 1. a\n');
+  stop(ws, env);
+  const otherWs = { dir: ws.dir, transcript: join(ws.dir, 'other.jsonl') };
+  assert.deepEqual(turn(otherWs, env, 'go', 0, { conversationId: 'conv-test-0002' }).json, {}, 'another conversation has no record');
+
+  const record = join(env.XDG_STATE_HOME, 'litgravity', 'adhd', 'next-conv-test-0001.json');
+  const stale = JSON.parse(readFileSync(record, 'utf8'));
+  writeFileSync(record, JSON.stringify({ ...stale, at: new Date(Date.now() - 31 * 60_000).toISOString() }));
+  assert.deepEqual(turn(ws, env, 'go', 10).json, {}, 'a 31-minute-old record is ignored');
 });
 
 test('Stop holds only a normal end of turn: errors, cancels and limits end it', () => {

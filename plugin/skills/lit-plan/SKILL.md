@@ -143,6 +143,7 @@ It prints `PLAN_STRUCTURE_PASS` when the sections, row grammar, labels and numbe
 Then run the decision-complete checklist:
 
 - [ ] Every task names its files, its test and its acceptance check.
+- [ ] A todo path outside the project has a `Scope roots: <path> (<actions>)` line the user agreed to.
 - [ ] Every Must have maps to at least one task's acceptance.
 - [ ] Verification names exact commands and one real-surface probe.
 - [ ] Words like "TBD", "maybe", "or alternatively", "as appropriate" are gone.
@@ -203,7 +204,7 @@ Off limits on this route: `send_command_input`, `define_subagent`, `browser_suba
 
 Stop when the plan file is written and passes the checklist, or when a missing answer blocks every useful task (then the plan carries the question as row 1 and the reply says `BLOCKED: <question>`). After two failed attempts at one section, surface what you tried and ask.
 
-Reply in reader form: the plan path, the TL;DR, the number of tasks, any assumption the user should confirm, and the next action: `lit start plans/<slug>.md` to execute it. Approval covers plan generation; implementation, commit, push, versioning and publishing each need their own go-ahead. Keep logs, lane verdicts and command lists in the draft and ledger unless the user asks for them.
+Reply in reader form: the plan path, the TL;DR, the number of tasks, any assumption the user should confirm, and the next action: `go` in this conversation within 30 minutes, or `lit start plans/<slug>.md`, to execute it. Approval covers plan generation; implementation, commit, push, versioning and publishing each need their own go-ahead. Keep logs, lane verdicts and command lists in the draft and ledger unless the user asks for them.
 
 ## Pitfalls
 

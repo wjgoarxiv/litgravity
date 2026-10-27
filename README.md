@@ -109,7 +109,7 @@ When the terminal narrows, the extras give way first and the route and the conte
 [LIT] | GF3.8 | ctx [#--] 42%/1049k | [LIT] . lit-loop 2:20 | [PIN] = RED . - GREEN . - VERIFY . - REVIEW . - RECORD .
 ```
 
-Some moments change the look of the row. While `lit adhd` (or `lit-rewind`, the skill typed whole or after `/`, or the skill the model loads by itself) is the route, every cell turns its own colour of a slow rainbow. When the turn ends on a question, a typed approval, a BLOCKED report or a goal that needs a decision, the row turns amber and reads `⚠ YOUR TURN · <why>` until you type. During `lit review work` the five lanes (goal, qa, quality, security, context) appear as each reports, in its own colour with its verdict mark and a count such as `2/5`. A plan or goal finished during the route shows `✦ DONE ✦` for twenty seconds. agy repaints the line when it chooses, so every look is static, and `NO_COLOR` keeps the labels in plain text.
+Some moments change the look of the row. While `lit adhd` (or `lit-rewind`, the skill typed whole or after `/`, or the skill the model loads by itself) is the route, every cell turns its own colour of a slow rainbow. When the turn ends on a question, a typed approval, a BLOCKED report or a goal that needs a decision, the row turns amber and reads `⚠ YOUR TURN · <why>` until you type. During `lit review work` the five lanes (goal, qa, quality, security, context) appear as each reports, in its own colour with its verdict mark and a count such as `2/5`. A plan or goal finished during the route shows `✦ DONE ✦` for twenty seconds. Other conversations in the same workspace appear as one count, `+2 running · 1 idle` (shortened to `+3 others` when the row is tight), read from the small liveness record each conversation's hooks keep; a start-work that just finished counts as done for a minute. agy repaints the line when it chooses, so every look is static, and `NO_COLOR` keeps the labels in plain text.
 
 ## What you get
 
@@ -200,3 +200,5 @@ The seven armored machines on the cover are those seven packages, and LitGravity
 ## License
 
 MIT. See [LICENSE](./LICENSE).
+
+The LitGravity and LitFamily names and logos are covered by the [trademark policy](./TRADEMARK.md).

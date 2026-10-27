@@ -70,7 +70,7 @@ Each of these needs the user's explicit word in this run, so stop at the boundar
 - `git commit`, `git push`, tags, branch deletion, `git reset --hard`, `git clean`, history rewrites, a stash of someone else's changes;
 - `npm publish`, registry writes, version bumps, release notes, package uploads;
 - writes to host configuration: `~/.gemini`, other tools' home folders, credential files, and `agy plugin install`, `update` or `remove`;
-- a new root outside the workspace, a dependency the plan did not list, a network call that needs approval, deletion of files outside the row's scope, anything under Must NOT have;
+- a root outside the workspace that no `Scope roots: <path> (<actions>)` line grants (advisory, no hook checks it), a dependency the plan did not list, a network call that needs approval, deletion of files outside the row's scope, anything under Must NOT have;
 - credentials or accounts of any kind.
 
 The Bootstrap section's "Approvals withheld" line says which of these the user already granted. A grant covers the named action on the named paths for this run.

@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { PLUGIN } from './helpers.mjs';
+import { PLUGIN, sandbox, workspace, turn, injected, runHook, basePayload } from './helpers.mjs';
+import { sessionPath } from '../plugin/hooks/lib/common.mjs';
 
 const HOOKS = JSON.parse(readFileSync(join(PLUGIN, 'hooks.json'), 'utf8'));
 const FLAT = ['SessionStart', 'PreInvocation', 'PostInvocation', 'Stop'];
@@ -58,6 +59,37 @@ test('PreToolUse is matcher-limited to tools that never prompt the user', () => 
   for (const risky of ['run_command', 'write_file', 'write_to_file', 'replace_file_content', 'read_file']) {
     assert.ok(!new RegExp(`^(?:${group.matcher})$`).test(risky), `${risky} must not reach a hook that can only approve`);
   }
+});
+
+// A linked git worktree nested inside its parent checkout is a workspace of its own: route state is keyed by the
+// worktree's real path and the ledger lands in its own .litgravity, so the parent's active route and started plan
+// never leak into it, even under the same conversation id.
+test('a linked worktree workspace reads only its own state, never the parent checkout it sits in', () => {
+  const { env } = sandbox();
+  const parent = workspace();
+  mkdirSync(join(parent.dir, 'plans'));
+  writeFileSync(join(parent.dir, 'plans', 'todo.md'), '- [x] 1. scaffold\n- [ ] 2. add tags\n');
+  assert.match(injected(turn(parent, env, 'lit start plans/todo.md', 0)), /`start-work` route/);
+  assert.match(injected(turn(parent, env, 'lit', 10)), /LIT CONTINUES · start-work/);
+
+  const ledger = join(parent.dir, '.litgravity', 'ledger', 'conv-test-0001.jsonl');
+  const snapshot = () => (existsSync(ledger) ? readFileSync(ledger, 'utf8') : '');
+  const before = snapshot();
+
+  const dir = join(parent.dir, '.worktrees', 'feature');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, '.git'), `gitdir: ${join(parent.dir, '.git', 'worktrees', 'feature')}\n`);
+  const child = { dir, transcript: join(dir, 'transcript_full.jsonl') };
+  const text = injected(turn(child, env, 'lit', 0));
+  assert.doesNotMatch(text, /LIT CONTINUES/);
+  assert.doesNotMatch(text, /resuming `start-work`/);
+  assert.match(text, /ask the user in one line what to run/);
+
+  assert.notEqual(sessionPath(child.dir, 'conv-test-0001', env), sessionPath(parent.dir, 'conv-test-0001', env));
+  const parentState = JSON.parse(readFileSync(sessionPath(parent.dir, 'conv-test-0001', env), 'utf8'));
+  assert.equal(parentState.route, 'start-work', 'the child turn left the parent state alone');
+  runHook('post-tool-use', basePayload(child, { toolCall: { name: 'read_file', args: { Path: 'x' } } }), env);
+  assert.equal(snapshot(), before, 'the child turn wrote nothing into the parent ledger');
 });
 
 const agy = spawnSync('agy', ['--version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });

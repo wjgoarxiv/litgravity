@@ -21,6 +21,7 @@ import { pluginVersion, sessionPath, stateRoot } from '../hooks/lib/common.mjs';
 import { activePlan, openGoal, planRows } from '../hooks/lib/continuation.mjs';
 import { readStack } from '../hooks/lib/workflow-stack.mjs';
 import { readLanes } from '../hooks/lib/lanes.mjs';
+import { listLive } from '../hooks/lib/liveness.mjs';
 import { DONE_MS, REVIEW_LANES, ROUTE_LOOKS, lookOf } from './looks.mjs';
 
 const IGNITION_MS = 90_000;
@@ -523,6 +524,9 @@ function segments(input, ctx) {
   }
   if (state === 'error') segs.push({ id: 'attention', prio: 2, forms: [[sp(`${g.fail} error`, 'red', { b: true })], [sp(g.fail, 'red', { b: true })]] });
 
+  const others = othersSegment(input, ctx);
+  if (others) segs.push(others);
+
   const cost = costOf(input);
   if (cost !== null) segs.push({ id: 'cost', prio: 9, forms: [[sp(`$${cost < 10 ? cost.toFixed(2) : cost.toFixed(1)}`)]] });
 
@@ -662,8 +666,47 @@ function threadSegment(route, ctx) {
   return { id: 'threads', prio: 5, forms: [parts, short.length ? short : parts] };
 }
 
+// A start-work in another conversation whose plan is all ticked: shown as done for this long after its last hook event.
+const FINISHED_MS = 60_000;
+
+function finishedWork(dir, id, env) {
+  try {
+    const state = JSON.parse(readFileSync(sessionPath(dir, id, env), 'utf8'));
+    if (state?.route !== 'start-work') return false;
+    const plan = activePlan({ conversationId: id, workspacePaths: [dir] }, dir);
+    const rows = plan ? planRows(readFileSync(join(dir, plan), 'utf8')) : [];
+    return rows.length > 0 && rows.every((r) => r.done);
+  } catch {
+    return false;
+  }
+}
+
+// The other conversations of this workspace, from their liveness records: `+N running · M idle`, and `K done` for a
+// start-work that finished in the last minute. One row has room for counts only; a lone other session still shows.
+function othersSegment(input, ctx) {
+  const { g, env, now } = ctx;
+  const self = input.conversation_id ?? input.conversationId;
+  const dir = workspaceDirs(input)[0];
+  const probe = dir ? sessionPath(dir, 'probe', env) : null;
+  if (!probe) return null;
+  const counts = { running: 0, idle: 0, done: 0 };
+  for (const rec of listLive(dirname(probe), now)) {
+    if (rec.id === self || rec.state === 'ended') continue;
+    if (finishedWork(dir, rec.id, env)) {
+      if (now - Date.parse(rec.at) <= FINISHED_MS) counts.done += 1;
+    } else {
+      counts[rec.state === 'alive' ? 'running' : 'idle'] += 1;
+    }
+  }
+  const parts = Object.entries(counts).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${k}`);
+  if (!parts.length) return null;
+  const total = counts.running + counts.idle + counts.done;
+  const sp = (t) => ({ t, role: 'dim' });
+  return { id: 'others', prio: 6, forms: [[sp(`+${parts.join(` ${g.mid} `)}`)], [sp(`+${total} other${total === 1 ? '' : 's'}`)], [sp(`+${total}`)]] };
+}
+
 // Display order: the mark, model [effort], context, quota, then the route and its map, then the extras.
-const ORDER = ['brand', 'model', 'ctx', 'quota', 'lit', 'attention', 'flow', 'lanes', 'threads', 'cost', 'tasks', 'git', 'title'];
+const ORDER = ['brand', 'model', 'ctx', 'quota', 'lit', 'attention', 'flow', 'lanes', 'threads', 'others', 'cost', 'tasks', 'git', 'title'];
 
 function layout(segs, pick, g) {
   const shown = ORDER.flatMap((id) => segs.filter((s) => s.id === id && pick.get(s) !== null));

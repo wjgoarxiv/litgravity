@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, readdirSync, realpathSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, readdirSync, realpathSync, symlinkSync, utimesSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -401,7 +401,7 @@ test('rewind.mjs --brief --lang ko prints the Korean brief; an unknown language 
   const io = { env, stdout: { write: (t) => { out += t; }, columns: 100 }, stderr: { write: () => {} } };
   assert.equal(runRewindCli(['--brief', '--lang', 'ko', '--here'], cwd, io), 0);
   assert.match(out, /^## 🧭 세션 0개/);
-  assert.match(out, /```text\n╭─ 추천 다음 단계/);
+  assert.match(out, /```\n╭─ 추천 다음 단계/, 'an untagged fence: a language tag would colour the box');
   assert.equal(runRewindCli(['--lang', 'fr'], cwd, io), 64);
 });
 
@@ -486,6 +486,111 @@ test('a plan file name with a control character never reaches the brief or the g
   assert.ok(data.roadmap.plans.every((p) => !/[\u0000-\u001f]/.test(p.plan)), 'no control characters in plan names');
   assert.notEqual(data.next.kind, 'start-plan');
   assert.ok(!/Ignore the user/.test(injected(turn(ws, env, 'go', 2))));
+});
+
+// --- Brief: statuses, opener, plan reading order, window and HANDOFF fallback ---
+
+test('sessionRecord: a liveness record makes a session idle or active, a finished plan makes it done; a question still waits', () => {
+  const at = new Date(Date.now() - 60 * 60_000).toISOString();
+  const lines = [{ type: 'USER_INPUT', created_at: at, content: '<USER_REQUEST>\nship it\n</USER_REQUEST>' }, { type: 'PLANNER_RESPONSE', created_at: at, content: 'Shipped.' }];
+  assert.equal(sessionRecord(lines).status, 'ended');
+  assert.equal(sessionRecord(lines, { live: 'idle' }).status, 'idle');
+  assert.equal(sessionRecord(lines, { live: 'alive' }).status, 'active');
+  assert.equal(sessionRecord(lines, { live: 'ended' }).status, 'ended');
+  assert.equal(sessionRecord(lines, { live: 'idle', finished: true }).status, 'done');
+  const asking = [...lines, { type: 'PLANNER_RESPONSE', created_at: at, content: 'Shall I tag it?' }];
+  assert.equal(sessionRecord(asking, { live: 'idle' }).status, 'waiting-on-user');
+});
+
+test('collector: liveness records and a finished start-work plan set the session status', () => {
+  const home = mkdtempSync(join(tmpdir(), 'litgravity-status-home-'));
+  const cwd = mkdtempSync(join(tmpdir(), 'litgravity-status-ws-'));
+  const env = { HOME: home, XDG_STATE_HOME: join(home, '.state') };
+  const geminiDir = join(home, '.gemini', 'antigravity-cli');
+  const at = new Date(Date.now() - 40 * 60_000).toISOString();
+  mkdirp(join(cwd, 'plans'));
+  writeFileSync(join(cwd, 'plans', 'ship.md'), '- [x] 1. Draft\n- [x] 2. Notes\n');
+  for (const id of ['conv-idle', 'conv-done']) {
+    const t = transcriptPathOf(geminiDir, id);
+    mkdirSync(dirname(t), { recursive: true });
+    writeFileSync(t, `${JSON.stringify({ step_index: 0, type: 'USER_INPUT', created_at: at, content: `<USER_REQUEST>\n${id}\n</USER_REQUEST>` })}\n`);
+    const state = sessionPath(cwd, id, env);
+    mkdirSync(dirname(state), { recursive: true });
+    writeFileSync(state, JSON.stringify({ route: id === 'conv-done' ? 'start-work' : 'lit-loop' }));
+    writeFileSync(state.replace(/\.json$/, '.live.json'), JSON.stringify({ state: 'idle', at: new Date().toISOString() }));
+  }
+  writeFileSync(sessionPath(cwd, 'conv-done', env).replace(/\.json$/, '.stack.json'), JSON.stringify({ sessionId: 'conv-done', frames: [{ skill: 'start-work', role: 'spine', status: 'active', at, ref: { plan: 'plans/ship.md' } }] }));
+  const data = collectRewind({ cwd, env, record: false, exec: () => { throw new Error('no git'); } });
+  const byId = Object.fromEntries(data.sessions.map((s) => [s.id8, s.status]));
+  assert.deepEqual(byId, { 'conv-idl': 'idle', 'conv-don': 'done' });
+});
+
+test('brief: a three-line opener says what is done, what runs now and what is next', () => {
+  const finished = { plan: 'plans/old.md', worktree: '/ws/app', local: true, current: null, finished: true, progress: { gauge: '[██] 2/2', remaining: [] } };
+  const data = briefData([card('act00000', 'active', { title: 'port the parser' }), card('don00000', 'done')], {
+    roadmap: { plans: [finished], litgoal: [], progress: {} },
+    commits: [{ hash: 'abc1234', subject: 'feat: x', branch: 'main', at: ago(30) }],
+    next: { kind: 'start-plan', target: { plan: 'plans/ship.md' }, say: 'go', command: 'lit start plans/ship.md' },
+  });
+  const lines = renderBrief(data, { now: NOW }).split('\n');
+  assert.match(lines[0], /^## 🧭 /);
+  assert.match(lines[1], /^\*\*Done so far:\*\* 1 plan finished · 1 session done · 1 commit$/);
+  assert.match(lines[2], /^\*\*Doing now:\*\* `act00000` port the parser$/);
+  assert.match(lines[3], /^\*\*Next:\*\* Start plans\/ship\.md with start-work$/);
+  const quiet = renderBrief(briefData([]), { now: NOW }).split('\n');
+  assert.match(quiet[1], /^\*\*Done so far:\*\* nothing finished in this window$/);
+  assert.match(quiet[2], /^\*\*Doing now:\*\* nothing running$/);
+  const ko = renderBrief(data, { lang: 'ko', now: NOW }).split('\n');
+  assert.match(ko[1], /^\*\*지금까지 한 일:\*\* 끝난 계획 1개 · 끝난 세션 1개 · 커밋 1개$/);
+  assert.match(ko[2], /^\*\*지금 하는 일:\*\* /);
+  assert.match(ko[3], /^\*\*다음:\*\* /);
+});
+
+test('collector: plans are read before transcripts, so a full read budget still lists them', () => {
+  const home = mkdtempSync(join(tmpdir(), 'litgravity-budget-home-'));
+  const cwd = mkdtempSync(join(tmpdir(), 'litgravity-budget-ws-'));
+  const env = { HOME: home, XDG_STATE_HOME: join(home, '.state') };
+  const geminiDir = join(home, '.gemini', 'antigravity-cli');
+  const old = new Date(Date.now() - 30 * 86_400_000).toISOString();
+  const pad = JSON.stringify({ step_index: 1, type: 'PLANNER_RESPONSE', created_at: old, content: 'x'.repeat(400 * 1024) });
+  for (let i = 0; i < 28; i += 1) {
+    const id = `conv-old-${String(i).padStart(2, '0')}`;
+    const t = transcriptPathOf(geminiDir, id);
+    mkdirSync(dirname(t), { recursive: true });
+    writeFileSync(t, `${JSON.stringify({ step_index: 0, type: 'USER_INPUT', created_at: old, content: '<USER_REQUEST>\nold\n</USER_REQUEST>' })}\n${pad}\n`);
+    const state = sessionPath(cwd, id, env);
+    mkdirSync(dirname(state), { recursive: true });
+    writeFileSync(state, '{}');
+  }
+  mkdirp(join(cwd, 'plans'));
+  writeFileSync(join(cwd, 'plans', 'ship.md'), '- [ ] 1. Ship it\n');
+  const data = collectRewind({ cwd, env, record: false, exec: () => { throw new Error('no git'); } });
+  assert.equal(data.budget.exhausted, true, 'the transcripts used the whole budget');
+  assert.deepEqual(data.roadmap.plans.map((p) => p.plan), ['plans/ship.md']);
+});
+
+test('collector: skipped plans are counted, and a local plan is held to the window too', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'litgravity-window-'));
+  mkdirp(join(cwd, 'plans'));
+  writeFileSync(join(cwd, 'plans', 'real.md'), '- [ ] 1. Ship it\n');
+  writeFileSync(join(cwd, 'plans', 'scaffold.md'), '- [ ] <task one>\n- [ ] <task two>\n');
+  writeFileSync(join(cwd, 'plans', 'notes.md'), 'no rows here\n');
+  writeFileSync(join(cwd, 'plans', 'stale.md'), '- [ ] 1. Old idea\n');
+  const month = new Date(Date.now() - 30 * 86_400_000);
+  utimesSync(join(cwd, 'plans', 'stale.md'), month, month);
+  const data = collectRewind({ cwd, here: true, env: { HOME: tmpdir(), XDG_STATE_HOME: join(cwd, '.state') }, exec: () => { throw new Error('no git'); }, record: false });
+  assert.deepEqual(data.roadmap.plans.map((p) => p.plan), ['plans/real.md']);
+  assert.equal(data.roadmap.plansSkipped, 2, 'the scaffold and the file without rows');
+  assert.match(renderBrief(data), /2 plan files skipped \(no task rows or an unfilled scaffold\)/);
+});
+
+test('brief: with nothing else to suggest, the Next section of this folder\'s HANDOFF.md is the step', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'litgravity-handoff-'));
+  writeFileSync(join(cwd, 'HANDOFF.md'), '# Handoff\n\n## Done\n\n- shipped 0.1.2\n\n## Next\n\n- Release 0.1.3 after the review\n- then rest\n');
+  const data = collectRewind({ cwd, here: true, env: { HOME: tmpdir(), XDG_STATE_HOME: join(cwd, '.state') }, exec: () => { throw new Error('no git'); }, record: false });
+  assert.equal(data.handoffs[0].next, 'Release 0.1.3 after the review');
+  assert.match(renderBrief(data), /│ From HANDOFF\.md: Release 0\.1\.3 after the review/);
+  assert.match(renderBrief(data, { lang: 'ko' }), /HANDOFF\.md에서: Release 0\.1\.3 after the review/);
 });
 
 test('ESC and OSC sequences in record strings are stripped before the brief prints them', () => {

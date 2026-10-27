@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- After `lit plan` saves a plan, type `go` in the same conversation within 30 minutes to start it with start-work.
+- A plan whose tasks name a folder outside the project asks for a `Scope roots: <path> (<actions>)` line before it is saved; the plan checker reports any path no such line covers. The grant is advisory.
+- Every conversation now leaves a small liveness record (running, idle, or ended once stale), and the status line counts the other conversations of the workspace as `+2 running · 1 idle`, with a finished start-work shown as done for a minute.
+- The `lit-adhd` brief opens with three lines (done so far, doing now, next), shows idle and done conversations, reads plans before transcripts, holds this folder's plans to the window too, says how many plan files it skipped, and falls back to the `## Next` item of this folder's HANDOFF file. Its box uses a plain code fence.
+
 ## 0.1.2 — 2026-10-27
 
 New skills (42 in all):

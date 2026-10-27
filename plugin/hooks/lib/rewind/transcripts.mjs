@@ -140,7 +140,7 @@ export const waitingReason = (lines) => {
 };
 
 // One session's record from its agy transcript lines.
-export const sessionRecord = (lines, { redact = (t) => t, now = Date.now(), cwd: workspace = null } = {}) => {
+export const sessionRecord = (lines, { redact = (t) => t, now = Date.now(), cwd: workspace = null, live = null, finished = false } = {}) => {
   if (!lines || !lines.length) return null;
   let cwd = workspace;
   let started = null;
@@ -189,7 +189,10 @@ export const sessionRecord = (lines, { redact = (t) => t, now = Date.now(), cwd:
   const changed = [...new Set(files.reverse())].slice(0, 5).map((p) => redact(relativeFile(p)));
   const asked = [...new Set([prompts[0], prompts.at(-1)].filter(Boolean))].slice(0, 2).map((t) => clip(redact(t), 160));
   const waiting = lastEntry?.role === 'assistant' && WAITING_TEXT.test(lastEntry.text.slice(-400));
-  const status = last === null ? 'unknown' : waiting ? 'waiting-on-user' : now - last < ACTIVE_MS ? 'active' : 'ended';
+  // A question on record wins; then a finished plan; then the hooks' liveness record (`alive`, `idle`); the
+  // transcript's own clock decides only when neither says more.
+  const clock = last === null ? 'unknown' : now - last < ACTIVE_MS ? 'active' : 'ended';
+  const status = waiting ? 'waiting-on-user' : finished ? 'done' : live === 'alive' ? 'active' : live === 'idle' ? 'idle' : clock;
   // agy does not carry a sessionId in the transcript; use the conversation folder name if available.
   const sessionId = lines.find((l) => typeof l.conversation_id === 'string')?.conversation_id ?? null;
   return {

@@ -14,9 +14,15 @@ const WORDS = {
     sessions: (n) => `${n} ${n === 1 ? 'session' : 'sessions'}`,
     waiting: (n) => `${n} ${n === 1 ? 'waits' : 'wait'} on you`,
     active: (n) => `${n} active`,
-    next: 'next',
     window: (since, trees) => `last ${since} · ${trees} ${trees === 1 ? 'folder' : 'folders'} read`,
-    badge: { 'waiting-on-user': '🟠 **WAITING ON YOU**', active: '🟢 **ACTIVE**', ended: '⚪ ended', unknown: '⚫ unknown' },
+    badge: { 'waiting-on-user': '🟠 **WAITING ON YOU**', active: '🟢 **ACTIVE**', idle: '💤 idle', done: '✅ **DONE**', ended: '⚪ ended', unknown: '⚫ unknown' },
+    doneSoFar: 'Done so far',
+    doingNow: 'Doing now',
+    plansFinished: (n) => `${n} ${n === 1 ? 'plan' : 'plans'} finished`,
+    sessionsDone: (n) => `${n} ${n === 1 ? 'session' : 'sessions'} done`,
+    nothingDone: 'nothing finished in this window',
+    nothingRunning: 'nothing running',
+    plansSkipped: (n) => `${n} plan ${n === 1 ? 'file' : 'files'} skipped (no task rows or an unfilled scaffold).`,
     reason: { 'asked the user': 'it asked you something', 'paused workflow': 'a paused route' },
     ago: (text) => `${text} ago`,
     justNow: 'just now',
@@ -55,6 +61,7 @@ const WORDS = {
       plan: ({ plan, item }) => `Next in ${plan}: ${item}`,
       check: ({ id8, goal, where, doing }) => `Check on ${id8} in ${where} (${goal})${doing ? `, now ${doing}` : ''}`,
       pickUp: ({ id8, goal, where }) => `Pick up ${id8} in ${where}: ${goal}`,
+      handoff: ({ file, next }) => `From ${file}: ${next}`,
       start: () => 'No conversation or plan in this window: say what to start',
     },
     goLine: (say) => `Type **\`${say}\`** to continue.`,
@@ -68,9 +75,15 @@ const WORDS = {
     sessions: (n) => `세션 ${n}개`,
     waiting: (n) => `나를 기다리는 것 ${n}`,
     active: (n) => `진행 중 ${n}`,
-    next: '다음',
     window: (since, trees) => `최근 ${since} · 폴더 ${trees}곳 읽음`,
-    badge: { 'waiting-on-user': '🟠 **나를 기다림**', active: '🟢 **진행 중**', ended: '⚪ 끝남', unknown: '⚫ 알 수 없음' },
+    badge: { 'waiting-on-user': '🟠 **나를 기다림**', active: '🟢 **진행 중**', idle: '💤 쉬는 중', done: '✅ **완료**', ended: '⚪ 끝남', unknown: '⚫ 알 수 없음' },
+    doneSoFar: '지금까지 한 일',
+    doingNow: '지금 하는 일',
+    plansFinished: (n) => `끝난 계획 ${n}개`,
+    sessionsDone: (n) => `끝난 세션 ${n}개`,
+    nothingDone: '이 기간에 끝난 일 없음',
+    nothingRunning: '진행 중인 일 없음',
+    plansSkipped: (n) => `계획 파일 ${n}개는 건너뜀(작업 행이 없거나 채우지 않은 틀).`,
     reason: { 'asked the user': '질문하고 기다림', 'paused workflow': '멈춘 라우트' },
     ago: (text) => `${text} 전`,
     justNow: '방금',
@@ -109,6 +122,7 @@ const WORDS = {
       plan: ({ plan, item }) => `${plan} 다음 항목: ${item}`,
       check: ({ id8, goal, where, doing }) => `${where}의 ${id8} 확인 (${goal})${doing ? `, 지금 ${doing}` : ''}`,
       pickUp: ({ id8, goal, where }) => `${where}의 ${id8} 이어받기: ${goal}`,
+      handoff: ({ file, next }) => `${file}에서: ${next}`,
       start: () => '이 기간에 대화·계획이 없습니다. 시작할 일을 말해 주세요',
     },
     goLine: (say) => `**\`${say}\`** 라고 입력하면 이어갑니다.`,
@@ -249,6 +263,8 @@ const suggestion = (data, w) => {
   if (active) return w.suggest.check({ id8: active.id8, goal: goal(active), where: where(active), doing: actionOf(active, bare) });
   const ended = sessions.find((s) => s.status === 'ended' && !s.self);
   if (ended) return w.suggest.pickUp({ id8: ended.id8, goal: goal(ended), where: where(ended) });
+  const handoff = (data.handoffs ?? []).find((h) => h.local && h.next);
+  if (handoff) return w.suggest.handoff({ file: bare(handoff.file), next: bare(handoff.next) });
   return w.suggest.start();
 };
 
@@ -289,7 +305,22 @@ const wrap = (text, width, max = 3) => {
 // Open on the right: agy's chat font draws Hangul narrower than two cells, so a right edge would wander.
 const box = (title, body) => {
   const inner = Math.max(displayWidth(title) + 4, ...body.map(displayWidth)) + 2;
-  return ['```text', `╭─ ${title} ${'─'.repeat(Math.max(1, inner - displayWidth(title) - 3))}`, ...body.map((line) => `│ ${line}`), `╰${'─'.repeat(inner)}`, '```'].join('\n');
+  return ['```', `╭─ ${title} ${'─'.repeat(Math.max(1, inner - displayWidth(title) - 3))}`, ...body.map((line) => `│ ${line}`), `╰${'─'.repeat(inner)}`, '```'].join('\n');
+};
+
+// Three lines under the headline, for a reader who reads nothing else: what is finished, what runs now, the step.
+const opener = (data, step, w) => {
+  const sessions = data.sessions ?? [];
+  const finished = (data.roadmap?.plans ?? []).filter((p) => p.finished).length;
+  const doneSessions = sessions.filter((s) => s.status === 'done').length;
+  const commits = (data.commits ?? []).length;
+  const done = [finished ? w.plansFinished(finished) : null, doneSessions ? w.sessionsDone(doneSessions) : null, commits ? w.commits(commits) : null].filter(Boolean);
+  const running = sessions.filter((s) => s.status === 'active').slice(0, 2).map((s) => `${code(s.id8)} ${plain(clipToWidth(goalOf(s), 50))}`);
+  return [
+    `**${w.doneSoFar}:** ${done.length ? done.join(' · ') : w.nothingDone}`,
+    `**${w.doingNow}:** ${running.length ? running.join(' · ') : w.nothingRunning}`,
+    `**${w.nextLabel}:** ${plain(step)}`,
+  ];
 };
 
 export const renderBrief = (data, { lang = 'en', width = 72, now = Date.parse(data.generatedAt) || Date.now() } = {}) => {
@@ -298,7 +329,8 @@ export const renderBrief = (data, { lang = 'en', width = 72, now = Date.parse(da
   const summary = data.summary ?? { sessions: sessions.length, waitingOnUser: 0, active: 0 };
   const runs = data.next?.kind && data.next.kind !== 'none';
   const step = runs ? w.step[data.next.kind](Object.fromEntries(Object.entries(data.next.target ?? {}).map(([k, v]) => [k, bare(v)]))) : bare(suggestion(data, w));
-  const out = [`## 🧭 ${[w.sessions(summary.sessions), w.waiting(summary.waitingOnUser), w.active(summary.active)].join(' · ')} · ${w.next}: ${plain(step)}`];
+  const out = [`## 🧭 ${[w.sessions(summary.sessions), w.waiting(summary.waitingOnUser), w.active(summary.active)].join(' · ')}`];
+  out.push(...opener(data, step, w));
   out.push(`*${w.window(data.scope?.since ?? '7d', (data.scope?.worktrees ?? []).length || 1)}*`);
   if (!sessions.length) out.push('', w.noSessions);
 
@@ -326,7 +358,7 @@ export const renderBrief = (data, { lang = 'en', width = 72, now = Date.parse(da
   out.push('', runs && data.next.say ? w.goLine(data.next.say) : w.noGo);
 
   const unread = Object.entries(data.sources ?? {}).filter(([, v]) => v === 'unknown').map(([k]) => k);
-  const tail = [unread.length ? w.unknownSources(unread.join(', ')) : null, data.budget?.exhausted ? w.older : null].filter(Boolean);
+  const tail = [unread.length ? w.unknownSources(unread.join(', ')) : null, data.roadmap?.plansSkipped ? w.plansSkipped(data.roadmap.plansSkipped) : null, data.budget?.exhausted ? w.older : null].filter(Boolean);
   if (tail.length) out.push('', `*${tail.join(' ')}*`);
   return `${out.join('\n')}\n`;
 };

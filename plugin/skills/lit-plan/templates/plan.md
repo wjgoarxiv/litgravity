@@ -24,6 +24,9 @@ Your next move: <fill: approve, steer, or ask for a high-accuracy review>.
 
 ## Scope
 
+<!-- When a todo names an absolute path outside this project, ask the user and add one line per root, at column zero:
+Scope roots: <absolute path> (<actions: read, write, execute>) -->
+
 ### Must have
 - <non-negotiable property, each one checkable>
 

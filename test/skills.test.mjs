@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { PLUGIN } from './helpers.mjs';
-import { checkPlan } from '../plugin/skills/lit-plan/scripts/check-plan.mjs';
+import { checkPlan, uncoveredPaths } from '../plugin/skills/lit-plan/scripts/check-plan.mjs';
 import { checkGoal } from '../plugin/skills/litgoal/scripts/check-goal.mjs';
 
 const PLAN_CHECK = join(PLUGIN, 'skills', 'lit-plan', 'scripts', 'check-plan.mjs');
@@ -41,6 +41,33 @@ test('lit-plan: the checker finds indented rows, bad numbering, missing labels, 
   assert.deepEqual(checkPlan(ticked, { complete: true }).problems, []);
   const fenced = `${ok}\n\`\`\`\n  - [ ] 9. example row inside a fence\n\`\`\`\n`;
   assert.deepEqual(checkPlan(fenced).problems, [], 'rows inside code fences are examples, not structure');
+});
+
+test('lit-plan: a todo that names an absolute path outside the project needs a covering `Scope roots:` line', () => {
+  const ok = fill(skeleton());
+  const outside = ok.replace('  - Files: `x`', '  - Files: `/srv/data/input.csv`, `/work/proj/src/a.js`, `plans/x.md`');
+  assert.deepEqual(uncoveredPaths(outside, '/work/proj'), ['/srv/data/input.csv']);
+  assert.ok(checkPlan(outside, { root: '/work/proj' }).problems.some((p) => /\/srv\/data\/input\.csv, outside the project.*Scope roots:/.test(p)));
+  assert.deepEqual(checkPlan(outside).problems, [], 'without a project root the check stays off');
+
+  const covered = outside.replace('## Scope\n', '## Scope\n\nScope roots: /srv/data (read)\n');
+  assert.deepEqual(uncoveredPaths(covered, '/work/proj'), []);
+  assert.deepEqual(checkPlan(covered, { root: '/work/proj' }).problems, []);
+  assert.deepEqual(uncoveredPaths(outside.replace('## Scope\n', '## Scope\n\nScope roots: /srv/database (read)\n'), '/work/proj'), ['/srv/data/input.csv'], 'a sibling prefix does not cover');
+
+  const fenced = ok.replace('## Final verification wave', '```\n- Files: `/etc/hosts`\n```\n\n## Final verification wave');
+  assert.deepEqual(uncoveredPaths(fenced, '/work/proj'), [], 'a fenced example is not a todo path');
+  const prose = ok.replace('## Scope\n', '## Scope\n\nNever touch /etc/hosts or https://example.com/a/b, and run /litgravity:lit-plan.\n');
+  assert.deepEqual(uncoveredPaths(prose, '/work/proj'), [], 'only todo rows are read; URLs and slash routes are no paths');
+});
+
+test('lit-plan: CLI --check finds an uncovered outside path against the plan folder\'s project', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'litgravity-plan-'));
+  mkdirSync(join(dir, 'plans'));
+  writeFileSync(join(dir, 'plans', 'a.md'), fill(skeleton('a')).replace('  - Files: `x`', '  - Files: `/srv/data/input.csv`'));
+  const r = node([PLAN_CHECK, '--check', 'plans/a.md'], dir);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /\/srv\/data\/input\.csv/);
 });
 
 test('lit-plan: CLI exit codes, symlink refusal and slug validation', () => {

@@ -30,7 +30,7 @@ test('package.json: scoped name, bin target, node floor, test and gate scripts, 
   assert.equal(pkg.scripts.test, 'node --test test/*.test.mjs');
   for (const s of ['check:version', 'scan:legacy-tokens', 'validate', 'sync:fixtures']) assert.ok(pkg.scripts[s], s);
   assert.equal(JSON.parse(readFileSync(join(PLUGIN, 'plugin.json'), 'utf8')).version, pkg.version);
-  assert.deepEqual(pkg.files.slice().sort(), ['CHANGELOG.md', 'LICENSE', 'README.md', 'README_ko-KR.md', 'bin', 'lib', 'plugin']);
+  assert.deepEqual(pkg.files.slice().sort(), ['CHANGELOG.md', 'LICENSE', 'README.md', 'README_ko-KR.md', 'TRADEMARK.md', 'bin', 'lib', 'plugin']);
 });
 
 test('READMEs: both languages, the seven-member cover and family picture, install line, no "X, not Y" pairs', () => {

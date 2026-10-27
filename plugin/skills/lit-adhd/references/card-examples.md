@@ -5,7 +5,10 @@ The collector draws both briefs from the same records (`rewind.mjs --brief --lan
 ## English
 
 ````markdown
-## 🧭 5 sessions · 1 waits on you · 1 active · next: Answer 655f39d3 in shop: “Should I also cap them at three?”
+## 🧭 5 sessions · 1 waits on you · 1 active
+**Done so far:** 2 commits
+**Doing now:** `f06fb727` lit pptx quarterly review deck
+**Next:** Answer 655f39d3 in shop: “Should I also cap them at three?”
 *last 7d · 2 folders read*
 
 ### 🌿 `feat/checkout` · shop
@@ -38,7 +41,7 @@ The collector draws both briefs from the same records (`rewind.mjs --brief --lan
   - ○ later · Ledger entry
   - ○ later · Email receipt
 
-```text
+```
 ╭─ RECOMMENDED NEXT STEP ─────────────────────────────────────
 │ Answer 655f39d3 in shop: “Should I also cap them at three?”
 ╰─────────────────────────────────────────────────────────────
@@ -52,7 +55,10 @@ Nothing runs on its own here: open that conversation, or say what to do.
 ## Korean
 
 ````markdown
-## 🧭 세션 5개 · 나를 기다리는 것 1 · 진행 중 1 · 다음: shop의 655f39d3에 답하기: “Should I also cap them at three?”
+## 🧭 세션 5개 · 나를 기다리는 것 1 · 진행 중 1
+**지금까지 한 일:** 커밋 2개
+**지금 하는 일:** `f06fb727` lit pptx quarterly review deck
+**다음:** shop의 655f39d3에 답하기: “Should I also cap them at three?”
 *최근 7d · 폴더 2곳 읽음*
 
 ### 🌿 `feat/checkout` · shop
@@ -85,7 +91,7 @@ Nothing runs on its own here: open that conversation, or say what to do.
   - ○ 나중 · Ledger entry
   - ○ 나중 · Email receipt
 
-```text
+```
 ╭─ 추천 다음 단계 ─────────────────────────────────────────────
 │ shop의 655f39d3에 답하기: “Should I also cap them at three?”
 ╰──────────────────────────────────────────────────────────────

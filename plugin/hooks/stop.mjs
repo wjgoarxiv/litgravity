@@ -1,16 +1,25 @@
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { run, holdStop, activeRoute, readSession, writeSession, workspaceOf } from './lib/common.mjs';
+import { run, holdStop, activeRoute, readSession, writeSession, workspaceOf, stateRoot } from './lib/common.mjs';
 import { continuationHold } from './lib/continuation.mjs';
 import { boundaryProblem, BOUNDARY_HOLDS } from './lib/boundary.mjs';
 import { lastUserRequest } from './lib/transcript.mjs';
 import { MOTION_ROUTE, evaluateMotionStop } from './lib/motion.mjs';
 import { makeBudget, readTranscriptLines, waitingReason } from './lib/rewind/transcripts.mjs';
+import { writeNextStep } from './lib/rewind/next-step.mjs';
+import { uncoveredPaths } from '../skills/lit-plan/scripts/check-plan.mjs';
+import { markLive } from './lib/liveness.mjs';
 
+// The newest plans/*.md written since the route started, as `plans/<name>.md`, or null.
 function planWrittenSince(cwd, since) {
   const dir = join(cwd, 'plans');
-  if (!existsSync(dir)) return false;
-  return readdirSync(dir).some((f) => f.endsWith('.md') && statSync(join(dir, f)).mtimeMs >= since);
+  if (!existsSync(dir)) return null;
+  let best = null;
+  for (const f of readdirSync(dir).filter((name) => name.endsWith('.md'))) {
+    const mtime = statSync(join(dir, f)).mtimeMs;
+    if (mtime >= since && (!best || mtime > best.mtime)) best = { plan: `plans/${f}`, mtime };
+  }
+  return best?.plan ?? null;
 }
 
 const WAIT_READ_BYTES = 512 * 1024;
@@ -32,8 +41,15 @@ function settle(payload, out) {
 // holds are bounded by continuation.mjs; the motion gate holds at most twice, then asks the reply to say the render is
 // not done. Only a normal end of turn is held: errors, cancellations and limits end.
 run((payload) => {
+  const finish = (r) => {
+    // A held turn goes on; any other end leaves the conversation idle until the next tool call.
+    if (r?.decision !== 'continue') {
+      try { markLive(workspaceOf(payload), payload.conversationId, 'idle'); } catch { /* liveness never blocks */ }
+    }
+    return settle(payload, r);
+  };
   const out = decide(payload);
-  return out && typeof out.then === 'function' ? out.then((r) => settle(payload, r)) : settle(payload, out);
+  return out && typeof out.then === 'function' ? out.then(finish) : finish(out);
 });
 
 function decide(payload) {
@@ -57,8 +73,21 @@ function decide(payload) {
     const reason = continuationHold(payload, state, request?.text, turn);
     return reason ? holdStop(reason) : {};
   }
+  const workspace = workspaceOf(payload);
+  const plan = planWrittenSince(workspace, state.activatedAt ?? 0);
+  if (plan && state.stopHeldFor !== turn) {
+    const outside = uncoveredPaths(readFileSync(join(workspace, plan), 'utf8'), workspace);
+    if (outside.length) {
+      writeSession(payload, { ...state, stopHeldFor: turn });
+      return holdStop(`LitGravity lit-plan gate: ${plan} names ${outside.slice(0, 3).join(', ')}${outside.length > 3 ? ` and ${outside.length - 3} more` : ''} outside the project. Ask the user which roots the work may use and with which actions, add one line "Scope roots: <path> (<actions>)" per root under ## Scope, then end the turn.`);
+    }
+  }
+  if (plan) {
+    // A saved plan arms `go`: the same conversation can start it with one word within 30 minutes.
+    writeNextStep(stateRoot(), payload.conversationId, { kind: 'start-plan', target: { plan } });
+    return {};
+  }
   if (state.stopHeldFor === turn) return {};
-  if (planWrittenSince(workspaceOf(payload), state.activatedAt ?? 0)) return {};
   writeSession(payload, { ...state, stopHeldFor: turn });
   return holdStop('LitGravity lit-plan gate: this planning turn has no plan file yet. Write the plan to plans/<slug>.md (task rows as "- [ ] N. <title>"), then end the turn and point the user to `lit start`.');
 }

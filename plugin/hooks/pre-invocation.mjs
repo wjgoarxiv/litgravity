@@ -34,8 +34,10 @@ function goActivation(step, conversationId) {
       return `LitGravity: \`go\` continues the paused ${step.target?.skill ?? 'route'} at ${step.target?.stage ?? 'its current stage'}.\nBegin your reply with \`🔥 LIT CONTINUES · ${step.target?.skill ?? 'route'}\` once. Keep the criteria, plan and ledger you hold; reload no skill and start no new run.`;
     case 'continue-work':
       return `LitGravity: \`go\` continues the active start-work run${step.target?.plan ? ` on ${step.target.plan}` : ''}.\nBegin your reply with \`🔥 LIT CONTINUES · start-work\` once. Carry on from the first unticked row.`;
-    case 'start-plan':
-      return activation({ route: 'start-work', keyword: 'start', bare: false, resume: false, restart: false, direct: false, empty: false }, conversationId, 'ignite');
+    case 'start-plan': {
+      const text = activation({ route: 'start-work', keyword: 'start', bare: false, resume: false, restart: false, direct: false, empty: false }, conversationId, 'ignite');
+      return step.target?.plan ? `${text}\nThe user typed \`go\`: the plan to execute is ${step.target.plan}.` : text;
+    }
     default:
       return null;
   }

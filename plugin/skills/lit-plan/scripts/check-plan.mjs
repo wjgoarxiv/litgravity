@@ -9,7 +9,7 @@
 // which is why a planning turn may run it. Exit 0 = pass, 1 = findings, 2 = usage.
 
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
@@ -53,7 +53,36 @@ function rowBlock(lines, at, rows) {
   return block.join('\n');
 }
 
-export function checkPlan(text, { complete = false } = {}) {
+const SCOPE_ROOT = /^Scope roots:\s*(\/\S*?)\/?(?:\s+\(([^)]*)\))?\s*$/u;
+// An absolute path of at least two segments after a space, quote, backtick or bracket: URLs (`https://…`) and
+// one-word slash routes (`/hooks`, `/litgravity:lit-plan`) are not paths.
+const ABSOLUTE = /(?<=^|[\s`'"(<[])\/[A-Za-z0-9._@+~-]+(?:\/[A-Za-z0-9._@+~-]+)+\/?/gu;
+const under = (path, root) => path === root || path.startsWith(`${root}/`);
+
+// Absolute paths that a todo row names outside the project and outside every `Scope roots: <path> (<actions>)` line.
+// Only the Todos section outside code fences is read. The grant is advisory: the Stop hook asks for the line once,
+// and nothing gates a tool call on it.
+export function uncoveredPaths(text, root) {
+  const lines = visibleLines(text);
+  const roots = [root.replace(/\/+$/u, '')];
+  for (const { line } of lines) {
+    const m = SCOPE_ROOT.exec(line);
+    if (m) roots.push(m[1]);
+  }
+  const found = [];
+  let inTodos = false;
+  for (const { line } of lines) {
+    if (/^## /u.test(line)) inTodos = line.trimEnd() === '## Todos';
+    if (!inTodos) continue;
+    for (const raw of line.match(ABSOLUTE) ?? []) {
+      const path = raw.replace(/\/+$/u, '');
+      if (!roots.some((r) => under(path, r)) && !found.includes(path)) found.push(path);
+    }
+  }
+  return found;
+}
+
+export function checkPlan(text, { complete = false, root = null } = {}) {
   const problems = [];
   const lines = visibleLines(text);
 
@@ -99,6 +128,11 @@ export function checkPlan(text, { complete = false } = {}) {
     }
   });
 
+  if (root) {
+    for (const path of uncoveredPaths(text, root)) {
+      problems.push(`a todo names ${path}, outside the project: add a line "Scope roots: <path> (<actions>)" that covers it, after asking the user`);
+    }
+  }
   if (/<fill\b/u.test(text)) problems.push('unfilled <fill ...> placeholders remain: the plan is not decision-complete');
   if (complete) {
     for (const { line } of rows) if (/^- \[ \] /u.test(line)) problems.push(`row still open: ${line.trim()}`);
@@ -121,7 +155,9 @@ function checkFile(planPath, options) {
   }
   if (stat.isSymbolicLink() || !stat.isFile()) return fail(`FAIL PLAN_UNSAFE: ${path} must be a regular file`);
   if (stat.size > MAX_BYTES) return fail(`FAIL PLAN_TOO_LARGE: ${path}`);
-  const result = checkPlan(readFileSync(path, 'utf8'), options);
+  // plans/<slug>.md sits one folder below its project; any other location leaves the outside-path check off.
+  const root = basename(dirname(path)) === 'plans' ? dirname(dirname(path)) : null;
+  const result = checkPlan(readFileSync(path, 'utf8'), { ...options, root });
   if (!result.ok) {
     for (const problem of result.problems) process.stderr.write(`FAIL ${problem}\n`);
     return 1;

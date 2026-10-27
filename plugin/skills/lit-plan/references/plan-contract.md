@@ -43,7 +43,7 @@ Detail earns its place when it removes executor judgment, protects a boundary or
 ## Plan structure
 
 1. TL;DR for humans (written last) and a one-line machine summary: effort, risk, deliverables.
-2. Scope: must have, must not have.
+2. Scope: must have, must not have, and one `Scope roots: <absolute path> (<actions>)` line, at column zero, for each root outside the project that a todo names.
 3. Bootstrap: facts to re-read, dirty-worktree constraints, stale-state risks, the resume ledger path, bounded cleanup rules, and which approvals are withheld (commit, push, publish, version bump).
 4. Context and current evidence, and Decisions.
 5. Verification strategy and the Goal block.
@@ -53,6 +53,17 @@ Detail earns its place when it removes executor judgment, protects a boundary or
 9. Commit strategy, success criteria, DoneClaim, risks and open questions.
 
 A task that builds or changes a user-facing web interface names `frontend-ui-ux` in its verification (the interface probe across the responsive matrix, no HIGH finding left) and hands the acceptance verdict to `visual-qa`. A CLI, library or backend-only task names neither.
+
+## Scope roots (advisory)
+
+A todo that names an absolute path outside the project (a data folder, a sibling checkout, a temp folder) needs a grant the user agreed to before the plan is saved. Ask which roots the work may use and with which actions (`read`, `write`, `execute`), then write one line per root under `## Scope`:
+
+```text
+Scope roots: /srv/data (read)
+Scope roots: /tmp/build-cache (read, write)
+```
+
+A root covers itself and every path below it; `/srv/database` is not under `/srv/data`. `check-plan.mjs --check` reads only the Todos section outside code fences, ignores URLs and one-word slash routes, and fails with one line per uncovered path. The lit-plan Stop gate runs the same check on the saved plan and holds the turn once to ask for the missing line. The grant is advisory: no hook gates a tool call on it, and `start-work` treats an uncovered outside root as a boundary to stop at.
 
 ## Plan-row grammar (machine-checkable)
 

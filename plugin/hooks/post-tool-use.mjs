@@ -5,6 +5,7 @@ import { targetPaths } from './lib/policy.mjs';
 import { clip } from './lib/redact.mjs';
 import { MOTION_ROUTE, recordMotionTool } from './lib/motion.mjs';
 import { recordLane } from './lib/lanes.mjs';
+import { markLive } from './lib/liveness.mjs';
 import { READ_ONLY_DISCIPLINES, applyStackEvent, readStack, writeStack } from './lib/workflow-stack.mjs';
 import { ROUTE_LOOKS } from '../hud/looks.mjs';
 
@@ -40,6 +41,7 @@ function startLoadedSkill(payload, args) {
 // While a route is active every tool call leaves one ledger line, and a call that touches a goal record binds that
 // record to this conversation, which is what lets the Stop hook hold the turn on its open criteria.
 run((payload) => {
+  try { markLive(workspaceOf(payload), payload.conversationId, 'alive'); } catch { /* liveness never blocks */ }
   if (toolName(payload)) startLoadedSkill(payload, toolArgs(payload));
   const state = activeRoute(payload);
   if (!state || state.corrupt) return {};

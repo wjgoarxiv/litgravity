@@ -14,6 +14,7 @@ import { renderBrief } from './brief.mjs';
 import { chooseNextStep, writeNextStep } from './next-step.mjs';
 import { makeRedactor } from './redact.mjs';
 import { findTranscripts, makeBudget, readTranscriptLines, sessionRecord } from './transcripts.mjs';
+import { listLive } from '../liveness.mjs';
 
 const SMALL_FILE_BYTES = 1024 * 1024;
 const GIT_TIMEOUT_MS = 5000;
@@ -72,15 +73,22 @@ const worktreesOf = (cwd, exec) => {
 // A plan scaffold nobody filled in: a row still holding a `<placeholder>`, or every row the same.
 const isTemplate = (rows) => rows.some((r) => /<[^<>]{1,40}>/u.test(r.title)) || (rows.length > 1 && new Set(rows.map((r) => r.title.trim())).size === 1);
 
-const plansIn = (root, budget, redact, local) => {
+// `skipped.count` grows by one per Markdown file under plans/ that is no plan: unreadable, without task rows, an
+// unfilled scaffold, or a name with a control character.
+const plansIn = (root, budget, redact, local, skipped) => {
   const list = entries(join(root, 'plans'));
   if (!list) return null;
+  const markdown = list.filter((e) => e.isFile() && e.name.endsWith('.md'));
   // A name with a control character could carry its own lines into the brief or the `go` note; skip it.
-  return list.filter((e) => e.isFile() && e.name.endsWith('.md') && !/[\p{Cc}\p{Cf}]/u.test(e.name)).sort((a, b) => a.name.localeCompare(b.name)).flatMap((e) => {
+  const named = markdown.filter((e) => !/[\p{Cc}\p{Cf}]/u.test(e.name));
+  skipped.count += markdown.length - named.length;
+  return named.sort((a, b) => a.name.localeCompare(b.name)).flatMap((e) => {
     const text = readSmallFile(join(root, 'plans', e.name), budget);
-    if (text === null) return [];
-    const rows = planRows(text);
-    if (!rows.length || isTemplate(rows)) return [];
+    const rows = text === null ? [] : planRows(text);
+    if (!rows.length || isTemplate(rows)) {
+      skipped.count += 1;
+      return [];
+    }
     const open = rows.filter((r) => !r.done);
     const done = rows.length - open.length;
     let mtime = null;
@@ -108,12 +116,26 @@ const litgoalOf = (root, budget, redact) => {
   };
 };
 
-const handoffsOf = (root, budget, redact) => (entries(root) ?? [])
+// The first item under a handoff's `## Next` heading, without its list marker, or null.
+const nextOfHandoff = (text) => {
+  const lines = text.split('\n');
+  const at = lines.findIndex((l) => /^#{2,3}\s+Next\b/iu.test(l));
+  if (at === -1) return null;
+  for (const line of lines.slice(at + 1)) {
+    if (/^#{1,6} /u.test(line)) return null;
+    const item = line.replace(/^\s*(?:[-*+]|\d+[.)])\s+/u, '').replace(/^\s*-\s*\[[ xX]\]\s*/u, '').trim();
+    if (item) return item;
+  }
+  return null;
+};
+
+const handoffsOf = (root, budget, redact, local) => (entries(root) ?? [])
   .filter((e) => e.isFile() && /^HANDOFF.*\.md$/u.test(e.name))
   .map((e) => {
     const text = readSmallFile(join(root, e.name), budget) ?? '';
     const headings = text.split('\n').slice(0, 40).filter((l) => /^#{1,3} /u.test(l)).map((l) => clipToWidth(redact(l), 100));
-    return { worktree: redact(root), file: e.name, headings };
+    const next = nextOfHandoff(text);
+    return { worktree: redact(root), file: e.name, headings, local, next: next ? clipToWidth(redact(next), 100) : null };
   });
 
 const branchOf = (root, exec) => {
@@ -160,7 +182,7 @@ const stacksOf = (stateDir, budget, redact) => {
 };
 
 const known = (list) => (list === null ? 'unknown' : 'ok');
-const statusRank = { 'waiting-on-user': 0, active: 1, ended: 2, unknown: 3 };
+const statusRank = { 'waiting-on-user': 0, active: 1, idle: 2, done: 3, ended: 4, unknown: 5 };
 
 export const collectRewind = ({
   cwd = process.cwd(),
@@ -188,16 +210,36 @@ export const collectRewind = ({
   for (const { root: r, dir } of stateDirs) {
     for (const e of entries(dir) ?? []) {
       const m = /^([A-Za-z0-9._:-]{1,160})\.json$/.exec(e.name);
-      if (e.isFile() && m && !/\.(?:snapshot|stack|motion)$/.test(m[1]) && !owner.has(m[1])) owner.set(m[1], r);
+      if (e.isFile() && m && !/\.(?:snapshot|stack|motion|live)$/.test(m[1]) && !owner.has(m[1])) owner.set(m[1], r);
     }
   }
+  // Plans, goals, handoffs and stacks are small and come first, so long transcripts cannot use up the read budget
+  // before them.
+  const collectEach = (read) => {
+    const results = roots.map(read);
+    return results.every((v) => v === null) ? null : results.flatMap((v) => v ?? []);
+  };
+  const skipped = { count: 0 };
+  const plans = collectEach((r) => plansIn(r, budget, redact, resolve(r) === start, skipped));
+  const litgoal = collectEach((r) => {
+    const goal = litgoalOf(r, budget, redact);
+    return goal ? [{ ...goal, local: resolve(r) === start }] : null;
+  });
+  const handoffs = roots.flatMap((r) => handoffsOf(r, budget, redact, resolve(r) === start));
+  const stackLists = stateDirs.map(({ dir }) => stacksOf(dir, budget, redact));
+  const workflows = stackLists.every((v) => v === null) ? null : stackLists.flatMap((v) => v ?? []);
+  const liveness = new Map(stateDirs.flatMap(({ dir }) => listLive(dir, now).map((r) => [r.id, r.state])));
+  // A conversation whose start-work frame names a plan with every row ticked is done.
+  const finishedPlans = new Set((plans ?? []).filter((p) => p.finished).map((p) => `${p.worktree}\u0000${p.plan}`));
+  const finishedIn = (id, root) => (workflows ?? []).some((f) => f.sessionId === id && f.ref?.plan && finishedPlans.has(`${redact(root)}\u0000${f.ref.plan}`));
+
   const geminiDir = join(home, '.gemini', 'antigravity-cli');
   const transcripts = owner.size ? findTranscripts(geminiDir, [...owner.keys()]) : { status: 'unknown', files: [] };
   const sessions = [];
   for (const { id, path } of transcripts.files) {
     if (sessions.length >= limit || budget.exhausted) break;
     const lines = readTranscriptLines(path, budget);
-    const session = lines ? sessionRecord(lines, { redact, now, cwd: owner.get(id) }) : null;
+    const session = lines ? sessionRecord(lines, { redact, now, cwd: owner.get(id), live: liveness.get(id) ?? null, finished: finishedIn(id, owner.get(id)) }) : null;
     if (!session || (session.lastMs !== null && now - session.lastMs > sinceMs)) continue;
     session.sessionId = id;
     session.id8 = id.slice(0, 8);
@@ -206,20 +248,8 @@ export const collectRewind = ({
     sessions.push(session);
   }
 
-  const collectEach = (read) => {
-    const results = roots.map(read);
-    return results.every((v) => v === null) ? null : results.flatMap((v) => v ?? []);
-  };
-  const plans = collectEach((r) => plansIn(r, budget, redact, resolve(r) === start));
-  const litgoal = collectEach((r) => {
-    const goal = litgoalOf(r, budget, redact);
-    return goal ? [{ ...goal, local: resolve(r) === start }] : null;
-  });
-  const handoffs = roots.flatMap((r) => handoffsOf(r, budget, redact));
   const commits = collectEach((r) => commitsOf(r, sinceMs, now, exec, redact));
-  const stackLists = stateDirs.map(({ dir }) => stacksOf(dir, budget, redact));
   const branches = new Map(roots.map((r) => [r, branchOf(r, exec)]));
-  const workflows = stackLists.every((v) => v === null) ? null : stackLists.flatMap((v) => v ?? []);
 
   for (const session of sessions) {
     const frames = (workflows ?? []).filter((f) => f.sessionId === session.sessionId);
@@ -238,9 +268,9 @@ export const collectRewind = ({
   }
   sessions.sort((a, b) => statusRank[a.status] - statusRank[b.status] || (b.lastMs ?? 0) - (a.lastMs ?? 0));
 
-  // This folder's open plans, then another folder's plans changed inside the window, newest first; a
-  // finished plan elsewhere or one nobody touched lately is history, not roadmap.
-  const recent = (p) => p.local || (!p.finished && p.mtime !== null && now - p.mtime <= sinceMs);
+  // Plans changed inside the window, this folder's first, newest first; a plan nobody touched lately is history,
+  // and so is a finished plan of another folder. This folder's finished plans count as done.
+  const recent = (p) => p.mtime !== null && now - p.mtime <= sinceMs && (p.local || !p.finished);
   const orderedPlans = (plans ?? []).filter(recent).sort((a, b) => Number(b.local) - Number(a.local) || (b.mtime ?? 0) - (a.mtime ?? 0));
   const shownPlans = orderedPlans.slice(0, PLAN_LIMIT);
   const localGoals = (litgoal ?? []).filter((g) => g.local);
@@ -267,6 +297,7 @@ export const collectRewind = ({
     roadmap: {
       plans: shownPlans,
       plansOmitted: orderedPlans.length - shownPlans.length,
+      plansSkipped: skipped.count,
       // Another folder's finished objective is history.
       litgoal: (litgoal ?? []).filter((g) => g.local || g.status !== 'complete'),
       progress: roadmapItems.length ? aggregateProgress(roadmapItems) : progressOf(null, null),

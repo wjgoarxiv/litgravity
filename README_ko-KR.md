@@ -200,3 +200,5 @@ LitGravity는 LitFamily 패키지 일곱 개 중 하나입니다. 각 패키지�
 ## 라이선스
 
 MIT. [LICENSE](./LICENSE)를 보세요.
+
+LitGravity와 LitFamily 이름과 로고는 [상표 정책](./TRADEMARK.md)을 따릅니다.
