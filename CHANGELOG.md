@@ -1,11 +1,23 @@
 # Changelog
 
-## Unreleased
+## 0.1.3 — 2026-10-28
 
-- After `lit plan` saves a plan, type `go` in the same conversation within 30 minutes to start it with start-work.
-- A plan whose tasks name a folder outside the project asks for a `Scope roots: <path> (<actions>)` line before it is saved; the plan checker reports any path no such line covers. The grant is advisory.
-- Every conversation now leaves a small liveness record (running, idle, or ended once stale), and the status line counts the other conversations of the workspace as `+2 running · 1 idle`, with a finished start-work shown as done for a minute.
-- The `lit-adhd` brief opens with three lines (done so far, doing now, next), shows idle and done conversations, reads plans before transcripts, holds this folder's plans to the window too, says how many plan files it skipped, and falls back to the `## Next` item of this folder's HANDOFF file. Its box uses a plain code fence.
+Plans:
+
+- After `lit plan` saves a plan, type `go` in the same conversation within 30 minutes and start-work picks it up.
+- If a plan's tasks touch a folder outside the project, the plan asks for a `Scope roots: <path> (<actions>)` line before it is saved, and the plan checker points at any path that line does not cover. The line is a reminder, not a lock.
+
+Status line:
+
+- Each conversation keeps a small record of whether it is running, idle or ended. The status line uses it to show the other conversations in the same workspace as one count, such as `+2 running · 1 idle`, and shows a start-work that just finished as done for a minute.
+
+lit-adhd:
+
+- The brief now opens with three lines: what is done, what is happening now, and what comes next. It also lists idle and finished conversations, reads plans before transcripts, says how many plan files it skipped, and, when nothing else suggests a next step, uses the `## Next` item of this folder's HANDOFF file. The box is a plain code fence.
+
+Project:
+
+- `TRADEMARK.md` explains how the LitGravity and LitFamily names and logos may be used. The code stays MIT.
 
 ## 0.1.2 — 2026-10-27
 
