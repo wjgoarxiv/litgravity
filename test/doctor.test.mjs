@@ -26,7 +26,7 @@ test('doctor PASS after a user-scope install: agy version, validate result, skil
   const r = await check(env, cwd);
   assert.equal(r.code, 0, r.text);
   assert.match(r.text, /PASS agy — agy 1\.4\.3/);
-  assert.match(r.text, /PASS plugin user — LitGravity 0\.1\.3 installed/);
+  assert.match(r.text, /PASS plugin user — LitGravity 0\.1\.4 installed/);
   assert.match(r.text, /PASS validate user — agy plugin validate: 0 errors, 0 warnings/);
   assert.match(r.text, /PASS hooks — SessionStart, PreInvocation, PostInvocation, Stop, PreToolUse, PostToolUse/);
   assert.match(r.text, /PASS hook smoke/);

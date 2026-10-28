@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 — 2026-10-28
+
+- The interface check now starts its headless Chrome with a stand-in keychain, so macOS no longer pops up "keychain not found" while it runs.
+- Releases are now built and published from GitHub Actions with npm provenance. The npm page shows a green check that links each version to this repository and the commit it was built from, so a copy published under another name cannot claim to be this one.
+
 ## 0.1.3 — 2026-10-28
 
 Plans:

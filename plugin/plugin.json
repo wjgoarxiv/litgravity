@@ -2,5 +2,5 @@
   "$schema": "https://antigravity.google/schemas/v1/plugin.json",
   "name": "litgravity",
   "description": "LitFamily workflows for the Antigravity CLI: bare lit activation, planning, evidence-bound execution, review, research, handoff and Korean prose care.",
-  "version": "0.1.3"
+  "version": "0.1.4"
 }
