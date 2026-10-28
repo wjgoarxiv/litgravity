@@ -1,0 +1,58 @@
+# Publishes @litfamily/litgravity from GitHub with npm trusted publishing, so every version carries a
+# provenance statement that links the tarball to this repository and commit. Run it by hand from main.
+# The default is a dry run that only runs the gates and lists the tarball. A real run uploads a staged
+# version; it stays private until the maintainer approves it on npmjs.com with two-factor authentication.
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "Upload a staged version to npm (off = gates and pack listing only)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: npm with staged publishing
+        run: npm install -g npm@11.21.1
+
+      - name: Tests
+        env:
+          LITGRAVITY_CHROME_NO_SANDBOX: "1"
+        run: npm test
+
+      - name: Version lockstep
+        run: npm run check:version
+
+      - name: Plugin manifest
+        run: npm run validate
+
+      - name: Legacy-token scan
+        run: npm run scan:legacy-tokens
+
+      - name: Pack listing
+        run: npm pack --dry-run --json --ignore-scripts > pack.json && node -e "const p=require('./pack.json')[0]; console.log(p.name+'@'+p.version, p.entryCount+' files')"
+
+      - name: Stage on npm
+        if: inputs.stage
+        run: npm stage publish
