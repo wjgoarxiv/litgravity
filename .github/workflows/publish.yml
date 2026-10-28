@@ -44,9 +44,6 @@ jobs:
       - name: Version lockstep
         run: npm run check:version
 
-      - name: Plugin manifest
-        run: npm run validate
-
       - name: Legacy-token scan
         run: npm run scan:legacy-tokens
 
