@@ -3,7 +3,9 @@
 //   1. this session's paused spine frame    -> resume-frame   (`lit continue`)
 //   2. this session's active start-work     -> continue-work
 //   3. a single open plan with no work      -> start-plan     (`lit start plans/<plan>.md`)
+//      ...unless other lanes work here      -> none, held     (no `go` until they finish)
 //   4. otherwise                            -> none
+// Another conversation's run is never offered. PreInvocation re-checks the recorded step when `go` arrives.
 // A start-work approval is typed as `lit approve` when the run asks for it; agy keeps no record of a
 // pending one for a brief to offer.
 
@@ -21,6 +23,8 @@ export const chooseNextStep = (data, sessionId) => {
   const running = data.startWork.some((w) => ['active', 'paused'].includes(w.status));
   const open = data.roadmap.plans.filter((p) => p.local && p.progress.total !== null && p.progress.done < p.progress.total);
   if (!running && open.length === 1) {
+    const lanes = data.lanes?.count ?? 0;
+    if (lanes > 0) return { kind: 'none', target: null, held: { lanes, plan: open[0].plan } };
     return { kind: 'start-plan', target: { plan: open[0].plan }, say: 'go', command: `lit start ${open[0].plan}` };
   }
   return { kind: 'none', target: null };

@@ -1,8 +1,11 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { run, inject, readSession, writeSession, appendLedger, workspaceOf, safeId, stateRoot } from './lib/common.mjs';
 import { detectRoute } from './lib/routes.mjs';
 import { decide, resumablePlan, activation, continueNote, resumeNote } from './lib/reentry.mjs';
 import { lastUserRequest } from './lib/transcript.mjs';
-import { PAUSE_WORD } from './lib/continuation.mjs';
+import { PAUSE_WORD, planRows } from './lib/continuation.mjs';
 import { saveSnapshot } from './lib/boundary.mjs';
 import { MOTION_ROUTE, armMotionTurn } from './lib/motion.mjs';
 import { applyStackEvent, readStack, writeStack } from './lib/workflow-stack.mjs';
@@ -43,6 +46,37 @@ function goActivation(step, conversationId) {
   }
 }
 
+// The brief may be up to 30 minutes old: `go` acts only when its step still holds for this conversation. The stack
+// file is this conversation's own, so a run found there is one it owns.
+function stillHolds(step, workspace, conversationId) {
+  const frames = readStack(workspace, conversationId).frames;
+  switch (step.kind) {
+    case 'resume-frame':
+      return frames.some((f) => f.role === 'spine' && f.status === 'paused' && (!step.target?.skill || f.skill === step.target.skill));
+    case 'continue-work':
+      return frames.some((f) => f.skill === 'start-work' && f.status === 'active' && (!step.target?.plan || f.ref?.plan === step.target.plan));
+    case 'start-plan': {
+      const plan = step.target?.plan;
+      if (typeof plan !== 'string' || !/^plans\/[^/\\]+\.md$/u.test(plan)) return false;
+      if (frames.some((f) => f.skill === 'start-work')) return false;
+      try {
+        return planRows(readFileSync(join(workspace, plan), 'utf8')).some((r) => !r.done);
+      } catch {
+        return false;
+      }
+    }
+    default:
+      return false;
+  }
+}
+
+function staleGoText(step) {
+  const what = step.kind === 'start-plan' ? `start ${step.target?.plan ?? 'the plan'}`
+    : step.kind === 'continue-work' ? 'continue this conversation\'s start-work run'
+      : `resume the paused ${step.target?.skill ?? 'route'}`;
+  return `LitGravity: the user typed \`go\`, but the step the brief offered (${what}) no longer holds: the run finished, moved on or is not this conversation's. Start nothing. Say so in one line and suggest \`lit adhd\` for a fresh brief.`;
+}
+
 function approveText(word) {
   if (word === 'approve') return 'LitGravity: the user typed `lit approve`. This is the typed approval for start-work. Proceed with the work.';
   return 'LitGravity: the user typed `lit deny`. This is a denial. Stop the work and explain what was denied.';
@@ -64,6 +98,10 @@ run((payload) => {
   // `go` / `ㄱㄱ` / `진행`: consume the next-step record the collector wrote within 30 minutes.
   if (isGoPrompt(request.text)) {
     const step = takeNextStep(root, safeId(payload.conversationId));
+    if (step && step.kind !== 'none' && !stillHolds(step, workspace, payload.conversationId)) {
+      appendLedger(payload, { kind: 'route', route: null, how: 'go-stale', step: step.kind });
+      return inject(staleGoText(step));
+    }
     if (step) {
       const text = goActivation(step, payload.conversationId);
       if (text) {

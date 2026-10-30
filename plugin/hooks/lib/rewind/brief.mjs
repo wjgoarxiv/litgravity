@@ -64,6 +64,11 @@ const WORDS = {
       handoff: ({ file, next }) => `From ${file}: ${next}`,
       start: () => 'No conversation or plan in this window: say what to start',
     },
+    hold: {
+      wait: ({ lanes, plan }) => `Wait for ${lanes} ${lanes === 1 ? 'lane' : 'lanes'} to finish, then start ${plan}`,
+      answerPane: ({ pane }) => `Answer the lane waiting on you in pane ${pane}`,
+    },
+    holdGo: 'Do not type `go` until they finish.',
     goLine: (say) => `Type **\`${say}\`** to continue.`,
     noGo: 'Nothing runs on its own here: open that conversation, or say what to do.',
     unknownSources: (list) => `Not read: ${list}.`,
@@ -125,6 +130,11 @@ const WORDS = {
       handoff: ({ file, next }) => `${file}에서: ${next}`,
       start: () => '이 기간에 대화·계획이 없습니다. 시작할 일을 말해 주세요',
     },
+    hold: {
+      wait: ({ lanes, plan }) => `작업 중인 레인 ${lanes}개가 끝나면 ${plan} 시작`,
+      answerPane: ({ pane }) => `${pane} 창에서 나를 기다리는 레인에 답하기`,
+    },
+    holdGo: '지금은 `go`는 입력하지 마세요.',
     goLine: (say) => `**\`${say}\`** 라고 입력하면 이어갑니다.`,
     noGo: '저절로 실행되는 단계는 아닙니다. 그 대화를 열거나 할 일을 말해 주세요.',
     unknownSources: (list) => `읽지 못함: ${list}.`,
@@ -243,7 +253,8 @@ const endedTable = (sessions, now, w) => {
 
 // When nothing can run on `go`, the box still recommends one step from what was read: a conversation
 // that waits on the user, a paused route, an open plan item (a live conversation's folder first), the
-// newest other active conversation, the newest ended one. It is shown, never recorded for `go`.
+// newest other active conversation, the newest HANDOFF's open Next item, the newest ended one. It is
+// shown, never recorded for `go`.
 const suggestion = (data, w) => {
   const sessions = data.sessions ?? [];
   const where = (session) => bare(placeOf(session));
@@ -261,11 +272,20 @@ const suggestion = (data, w) => {
   if (plan) return w.suggest.plan({ plan: plan.local ? plan.plan : `${basename(String(plan.worktree))}/${plan.plan}`, item: clipToWidth(bare(plan.current), 60) });
   const active = sessions.find((s) => s.status === 'active' && !s.self);
   if (active) return w.suggest.check({ id8: active.id8, goal: goal(active), where: where(active), doing: actionOf(active, bare) });
-  const ended = sessions.find((s) => s.status === 'ended' && !s.self);
-  if (ended) return w.suggest.pickUp({ id8: ended.id8, goal: goal(ended), where: where(ended) });
+  // The newest handoff's first open Next item: below every live signal, above an ended conversation.
   const handoff = (data.handoffs ?? []).find((h) => h.local && h.next);
   if (handoff) return w.suggest.handoff({ file: bare(handoff.file), next: bare(handoff.next) });
+  const ended = sessions.find((s) => s.status === 'ended' && !s.self);
+  if (ended) return w.suggest.pickUp({ id8: ended.id8, goal: goal(ended), where: where(ended) });
   return w.suggest.start();
+};
+
+// A plan start held while other lanes work: answer the one waiting on the user, else wait for them.
+const holdStep = (data, held, w) => {
+  const waiting = (data.sessions ?? []).find((s) => s.status === 'waiting-on-user' && !s.self);
+  if (waiting) return suggestion(data, w);
+  if (data.lanes?.waitingPane) return w.hold.answerPane({ pane: data.lanes.waitingPane });
+  return w.hold.wait({ lanes: held.lanes, plan: bare(held.plan) });
 };
 
 const ROADMAP_COMMITS = 5;
@@ -328,7 +348,10 @@ export const renderBrief = (data, { lang = 'en', width = 72, now = Date.parse(da
   const sessions = data.sessions ?? [];
   const summary = data.summary ?? { sessions: sessions.length, waitingOnUser: 0, active: 0 };
   const runs = data.next?.kind && data.next.kind !== 'none';
-  const step = runs ? w.step[data.next.kind](Object.fromEntries(Object.entries(data.next.target ?? {}).map(([k, v]) => [k, bare(v)]))) : bare(suggestion(data, w));
+  const held = !runs && data.next?.held ? data.next.held : null;
+  const step = runs
+    ? w.step[data.next.kind](Object.fromEntries(Object.entries(data.next.target ?? {}).map(([k, v]) => [k, bare(v)])))
+    : bare(held ? holdStep(data, held, w) : suggestion(data, w));
   const out = [`## 🧭 ${[w.sessions(summary.sessions), w.waiting(summary.waitingOnUser), w.active(summary.active)].join(' · ')}`];
   out.push(...opener(data, step, w));
   out.push(`*${w.window(data.scope?.since ?? '7d', (data.scope?.worktrees ?? []).length || 1)}*`);
@@ -355,7 +378,7 @@ export const renderBrief = (data, { lang = 'en', width = 72, now = Date.parse(da
   if (runs && data.next.command) body.push(clipToWidth(data.next.command, width - 4));
   if (runs && data.next.say) body.push(`${w.type}: ${data.next.say}`);
   out.push('', box(w.recommended, body));
-  out.push('', runs && data.next.say ? w.goLine(data.next.say) : w.noGo);
+  out.push('', held ? w.holdGo : runs && data.next.say ? w.goLine(data.next.say) : w.noGo);
 
   const unread = Object.entries(data.sources ?? {}).filter(([, v]) => v === 'unknown').map(([k]) => k);
   const tail = [unread.length ? w.unknownSources(unread.join(', ')) : null, data.roadmap?.plansSkipped ? w.plansSkipped(data.roadmap.plansSkipped) : null, data.budget?.exhausted ? w.older : null].filter(Boolean);

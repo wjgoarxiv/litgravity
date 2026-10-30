@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- lit-adhd no longer offers `go` to start a plan while other lanes work: another conversation of the workspace that is running or waits on you, or, under `HERDR_ENV=1`, a working or blocked herdr agent on this repo. The box says to answer the waiting lane or wait for them, and the last line says not to type `go` yet. When `go` arrives the hook re-checks the step and starts nothing if the run finished or is not this conversation's. The HANDOFF step now comes from the newest HANDOFF file, skips Next items already marked done, and ranks above an ended conversation.
+
 ## 0.1.4 — 2026-10-28
 
 - The interface check now starts its headless Chrome with a stand-in keychain, so macOS no longer pops up "keychain not found" while it runs.

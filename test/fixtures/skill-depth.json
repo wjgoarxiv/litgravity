@@ -71,13 +71,13 @@
       "minSkillBytes": 19400,
       "minBodyBytes": 19300,
       "minFiles": 240,
-      "minTotalBytes": 4370500
+      "minTotalBytes": 4370600
     },
     "lit-adhd": {
-      "minSkillBytes": 16200,
-      "minBodyBytes": 16000,
+      "minSkillBytes": 17100,
+      "minBodyBytes": 17000,
       "minFiles": 4,
-      "minTotalBytes": 23200
+      "minTotalBytes": 24100
     },
     "lit-brainstorm": {
       "minSkillBytes": 23500,

@@ -3,9 +3,9 @@
 // A source that is not there reads `unknown`; nothing is inferred.
 
 import { execFileSync } from 'node:child_process';
-import { closeSync, constants, fstatSync, lstatSync, openSync, readSync, readdirSync, statSync } from 'node:fs';
+import { closeSync, constants, fstatSync, lstatSync, openSync, readSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { basename, dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve, sep } from 'node:path';
 
 import { planRows } from '../continuation.mjs';
 import { sessionPath, stateRoot } from '../common.mjs';
@@ -22,6 +22,8 @@ const DEFAULT_SINCE = '7d';
 const DEFAULT_MAX = 12;
 const NAME_MAX = 90;
 const PLAN_LIMIT = 8;
+const HERDR_TIMEOUT_MS = 2000;
+const PANE = /^[A-Za-z0-9._:-]{1,64}$/u;
 
 export const parseSince = (text) => {
   const match = /^(\d{1,4})([dhm])$/u.exec(String(text ?? ''));
@@ -116,27 +118,100 @@ const litgoalOf = (root, budget, redact) => {
   };
 };
 
-// The first item under a handoff's `## Next` heading, without its list marker, or null.
+// An item already finished: ticked, struck through, marked ✅ or ✓, or carrying the word DONE or SHIPPED.
+const isDoneItem = (item) => /^\[[xX]\]|^~~/u.test(item) || /[✅✓]/u.test(item) || /\b(?:DONE|SHIPPED)\b/u.test(item);
+
+// The first open item under a handoff's `## Next` heading, without its list marker, or null.
 const nextOfHandoff = (text) => {
   const lines = text.split('\n');
   const at = lines.findIndex((l) => /^#{2,3}\s+Next\b/iu.test(l));
   if (at === -1) return null;
   for (const line of lines.slice(at + 1)) {
     if (/^#{1,6} /u.test(line)) return null;
-    const item = line.replace(/^\s*(?:[-*+]|\d+[.)])\s+/u, '').replace(/^\s*-\s*\[[ xX]\]\s*/u, '').trim();
-    if (item) return item;
+    const item = line.replace(/^\s*(?:[-*+]|\d+[.)])\s+/u, '').trim();
+    if (!item || isDoneItem(item)) continue;
+    return item.replace(/^\[ \]\s*/u, '').trim() || null;
   }
   return null;
 };
 
+// Newest file first, so a dated handoff written today wins over an old root HANDOFF.md.
 const handoffsOf = (root, budget, redact, local) => (entries(root) ?? [])
   .filter((e) => e.isFile() && /^HANDOFF.*\.md$/u.test(e.name))
   .map((e) => {
+    let mtime = 0;
+    try { mtime = statSync(join(root, e.name)).mtimeMs; } catch { /* unreadable: oldest */ }
+    return { e, mtime };
+  })
+  .sort((a, b) => b.mtime - a.mtime || a.e.name.localeCompare(b.e.name))
+  .map(({ e }) => {
     const text = readSmallFile(join(root, e.name), budget) ?? '';
     const headings = text.split('\n').slice(0, 40).filter((l) => /^#{1,3} /u.test(l)).map((l) => clipToWidth(redact(l), 100));
     const next = nextOfHandoff(text);
     return { worktree: redact(root), file: e.name, headings, local, next: next ? clipToWidth(redact(next), 100) : null };
   });
+
+const realOf = (path) => {
+  try { return realpathSync(path); } catch { return resolve(path); }
+};
+// Compares both spellings, so a herdr cwd under /var matches a root under /private/var, even for a path not yet made.
+const insideAny = (path, roots) => {
+  if (typeof path !== 'string' || !path) return false;
+  const forms = new Set([resolve(path), realOf(path)]);
+  return roots.some((r) => [...forms].some((p) => p === r || p.startsWith(r.endsWith(sep) ? r : `${r}${sep}`)));
+};
+
+// herdr's agents that work on this repo, read only under HERDR_ENV=1: working or blocked (blocked waits on its user),
+// in this herdr workspace or with a cwd inside one of the roots, never this pane. Any failure reads `unknown`.
+const herdrLanes = (env, roots, sessionId, exec) => {
+  if (env.HERDR_ENV !== '1') return null;
+  let agents;
+  try {
+    agents = JSON.parse(exec('herdr', ['agent', 'list'], { timeout: HERDR_TIMEOUT_MS }))?.result?.agents;
+  } catch {
+    return { status: 'unknown', agents: [] };
+  }
+  if (!Array.isArray(agents)) return { status: 'unknown', agents: [] };
+  const realRoots = [...new Set(roots.flatMap((r) => [resolve(r), realOf(r)]))];
+  const ownPane = typeof env.HERDR_PANE_ID === 'string' ? env.HERDR_PANE_ID : null;
+  const list = agents.filter((a) => a && typeof a === 'object'
+    && ['working', 'blocked'].includes(a.agent_status)
+    && !(ownPane && a.pane_id === ownPane)
+    && !(sessionId && a.agent_session?.value === sessionId)
+    && ((typeof env.HERDR_WORKSPACE_ID === 'string' && env.HERDR_WORKSPACE_ID && a.workspace_id === env.HERDR_WORKSPACE_ID)
+      || insideAny(a.cwd, realRoots) || insideAny(a.foreground_cwd, realRoots)))
+    .map((a) => ({
+      pane: typeof a.pane_id === 'string' && PANE.test(a.pane_id) ? a.pane_id : null,
+      session: typeof a.agent_session?.value === 'string' ? a.agent_session.value : null,
+      waiting: a.agent_status === 'blocked',
+    }));
+  return { status: 'ok', agents: list };
+};
+
+// Other conversations of this workspace that work or wait on the user, plus herdr agents on this repo; one lane seen
+// both ways (same conversation id or same pane) counts once.
+const lanesOf = (sessions, liveRecords, herdr, sessionId) => {
+  const lanes = new Map();
+  for (const s of sessions) {
+    if (s.sessionId === sessionId || !['active', 'waiting-on-user'].includes(s.status)) continue;
+    lanes.set(s.sessionId, { pane: null, waiting: s.status === 'waiting-on-user' });
+  }
+  for (const r of liveRecords) {
+    if (r.id === sessionId) continue;
+    const known = lanes.get(r.id);
+    if (known) known.pane = known.pane ?? r.pane ?? null;
+    else if (r.state === 'alive') lanes.set(r.id, { pane: r.pane ?? null, waiting: false });
+  }
+  const panes = new Set([...lanes.values()].map((l) => l.pane).filter(Boolean));
+  let waitingPane = null;
+  for (const a of herdr?.agents ?? []) {
+    if ((a.session && lanes.has(a.session)) || (a.pane && panes.has(a.pane))) continue;
+    lanes.set(`herdr:${a.pane ?? lanes.size}`, { pane: a.pane, waiting: a.waiting });
+    if (a.waiting && a.pane && !waitingPane) waitingPane = a.pane;
+  }
+  const all = [...lanes.values()];
+  return { count: all.length, waiting: all.filter((l) => l.waiting).length, waitingPane };
+};
 
 const branchOf = (root, exec) => {
   try {
@@ -228,7 +303,8 @@ export const collectRewind = ({
   const handoffs = roots.flatMap((r) => handoffsOf(r, budget, redact, resolve(r) === start));
   const stackLists = stateDirs.map(({ dir }) => stacksOf(dir, budget, redact));
   const workflows = stackLists.every((v) => v === null) ? null : stackLists.flatMap((v) => v ?? []);
-  const liveness = new Map(stateDirs.flatMap(({ dir }) => listLive(dir, now).map((r) => [r.id, r.state])));
+  const liveRecords = stateDirs.flatMap(({ dir }) => listLive(dir, now));
+  const liveness = new Map(liveRecords.map((r) => [r.id, r.state]));
   // A conversation whose start-work frame names a plan with every row ticked is done.
   const finishedPlans = new Set((plans ?? []).filter((p) => p.finished).map((p) => `${p.worktree}\u0000${p.plan}`));
   const finishedIn = (id, root) => (workflows ?? []).some((f) => f.sessionId === id && f.ref?.plan && finishedPlans.has(`${redact(root)}\u0000${f.ref.plan}`));
@@ -274,6 +350,8 @@ export const collectRewind = ({
   const orderedPlans = (plans ?? []).filter(recent).sort((a, b) => Number(b.local) - Number(a.local) || (b.mtime ?? 0) - (a.mtime ?? 0));
   const shownPlans = orderedPlans.slice(0, PLAN_LIMIT);
   const localGoals = (litgoal ?? []).filter((g) => g.local);
+  const herdr = herdrLanes(env, roots, sessionId, exec);
+  const lanes = lanesOf(sessions, liveRecords, herdr, sessionId);
   const roadmapItems = [...orderedPlans.filter((p) => p.local).map((p) => p.progress), ...localGoals.map((g) => g.progress)];
   const data = {
     version: 1,
@@ -286,6 +364,7 @@ export const collectRewind = ({
       handoffs: handoffs.length ? 'ok' : 'unknown',
       git: known(commits),
       workflowStack: known(workflows),
+      ...(herdr ? { herdr: herdr.status } : {}),
     },
     budget: { bytesRead: budget.used, limit: budget.limit, exhausted: budget.exhausted },
     summary: {
@@ -293,6 +372,7 @@ export const collectRewind = ({
       waitingOnUser: sessions.filter((s) => s.status === 'waiting-on-user').length,
       active: sessions.filter((s) => s.status === 'active').length,
     },
+    lanes,
     sessions: sessions.map(({ cwd: _cwd, lastMs: _lastMs, root: _root, sessionId: id, ...rest }) => ({ ...rest, self: Boolean(sessionId) && id === sessionId })),
     roadmap: {
       plans: shownPlans,
