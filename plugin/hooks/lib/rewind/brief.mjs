@@ -66,6 +66,7 @@ const WORDS = {
     },
     hold: {
       wait: ({ lanes, plan }) => `Wait for ${lanes} ${lanes === 1 ? 'lane' : 'lanes'} to finish, then start ${plan}`,
+      waitLanes: ({ lanes }) => `Wait for ${lanes} ${lanes === 1 ? 'lane' : 'lanes'} to finish`,
       answerPane: ({ pane }) => `Answer the lane waiting on you in pane ${pane}`,
     },
     holdGo: 'Do not type `go` until they finish.',
@@ -132,6 +133,7 @@ const WORDS = {
     },
     hold: {
       wait: ({ lanes, plan }) => `작업 중인 레인 ${lanes}개가 끝나면 ${plan} 시작`,
+      waitLanes: ({ lanes }) => `작업 중인 레인 ${lanes}개가 끝날 때까지 기다리기`,
       answerPane: ({ pane }) => `${pane} 창에서 나를 기다리는 레인에 답하기`,
     },
     holdGo: '지금은 `go`는 입력하지 마세요.',
@@ -208,6 +210,9 @@ const doneLine = (session, w) => {
 const nextOf = (session, data, w) => {
   if (session.status === 'waiting-on-user') {
     const paused = framesOf(session, data).find((f) => f.status === 'paused');
+    // This session's own card never offers its resume command while lanes work: the hold answers
+    // a lane that waits on the user, else waits for them.
+    if (paused && session.self && data.next?.held) return holdStep(data, data.next.held, w);
     if (paused) return w.resume(plain(paused.skill), plain(paused.stage));
     return w.answer(lastQuestion(session.result));
   }
@@ -280,12 +285,14 @@ const suggestion = (data, w) => {
   return w.suggest.start();
 };
 
-// A plan start held while other lanes work: answer the one waiting on the user, else wait for them.
+// A step held while other lanes work: answer the one waiting on the user, else wait for them.
+// A held plan names the plan to start after; a held resume or continue only waits.
 const holdStep = (data, held, w) => {
   const waiting = (data.sessions ?? []).find((s) => s.status === 'waiting-on-user' && !s.self);
   if (waiting) return suggestion(data, w);
   if (data.lanes?.waitingPane) return w.hold.answerPane({ pane: data.lanes.waitingPane });
-  return w.hold.wait({ lanes: held.lanes, plan: bare(held.plan) });
+  if (held.plan) return w.hold.wait({ lanes: held.lanes, plan: bare(held.plan) });
+  return w.hold.waitLanes({ lanes: held.lanes });
 };
 
 const ROADMAP_COMMITS = 5;

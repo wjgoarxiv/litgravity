@@ -1,33 +1,35 @@
 // The one next step a lit-adhd brief offers, chosen by fixed priority over the collected records,
 // and the small record `go` later reads back within 30 minutes:
-//   1. this session's paused spine frame    -> resume-frame   (`lit continue`)
-//   2. this session's active start-work     -> continue-work
-//   3. a single open plan with no work      -> start-plan     (`lit start plans/<plan>.md`)
-//      ...unless other lanes work here      -> none, held     (no `go` until they finish)
-//   4. otherwise                            -> none
-// Another conversation's run is never offered. PreInvocation re-checks the recorded step when `go` arrives.
-// A start-work approval is typed as `lit approve` when the run asks for it; agy keeps no record of a
-// pending one for a brief to offer.
+//   1. this session's paused spine frame    -> resume-frame   (`lit continue`, never while lanes work)
+//   2. this session's active start-work     -> continue-work  (`go`, never while lanes work)
+//   3. a single open plan with no work      -> start-plan     (held with the plan while lanes work)
+//   4. lanes work here                      -> none, held     (answer who waits, else wait for them)
+//   5. otherwise                            -> none
+// While another lane works, neither this session's paused frame nor its own run is offered: answering
+// a lane that waits on the user is still offered, through the hold. Another conversation's run is
+// never offered. PreInvocation re-checks the recorded step when `go` arrives. A start-work approval
+// is typed as `lit approve` when the run asks for it; agy keeps no record of a pending one for a
+// brief to offer.
 
 import { closeSync, constants, fstatSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { safeId } from '../common.mjs';
 
 export const chooseNextStep = (data, sessionId) => {
+  const lanes = data.lanes?.count ?? 0;
   const ownStack = data.workflows.find((f) => f.sessionId === sessionId && f.role === 'spine' && f.status === 'paused');
-  if (sessionId && ownStack) {
+  if (sessionId && ownStack && !lanes) {
     return { kind: 'resume-frame', target: { skill: ownStack.skill, stage: ownStack.stage, progress: ownStack.progress.gauge ?? `${ownStack.progress.done ?? 0} done` }, say: 'lit continue' };
   }
   const own = data.startWork.find((w) => w.status === 'active' && sessionId && w.sessionId === sessionId);
-  if (own) return { kind: 'continue-work', target: { plan: own.plan }, say: 'go' };
+  if (own && !lanes) return { kind: 'continue-work', target: { plan: own.plan }, say: 'go' };
   const running = data.startWork.some((w) => ['active', 'paused'].includes(w.status));
   const open = data.roadmap.plans.filter((p) => p.local && p.progress.total !== null && p.progress.done < p.progress.total);
   if (!running && open.length === 1) {
-    const lanes = data.lanes?.count ?? 0;
     if (lanes > 0) return { kind: 'none', target: null, held: { lanes, plan: open[0].plan } };
     return { kind: 'start-plan', target: { plan: open[0].plan }, say: 'go', command: `lit start ${open[0].plan}` };
   }
-  return { kind: 'none', target: null };
+  return lanes > 0 ? { kind: 'none', target: null, held: { lanes } } : { kind: 'none', target: null };
 };
 
 export const nextStepPath = (root, conversationId) => {

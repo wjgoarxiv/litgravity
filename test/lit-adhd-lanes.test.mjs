@@ -185,6 +185,62 @@ test('S4: the HANDOFF step is the first open Next item of the newest HANDOFF fil
   assert.match(renderBrief(data), /│ From HANDOFF-2026-10\.md: Review the shipped done list/);
 });
 
+test('S6: an own paused frame with a working lane offers no resume: no lit continue, go starts nothing', () => {
+  const { env } = sandbox();
+  const ws = workspace();
+  const at = new Date().toISOString();
+  stack(ws.dir, env, SELF, [{ skill: 'lit-loop', role: 'spine', status: 'paused', stage: 'verify', at }]);
+  live(ws.dir, env, 'conv-lane-0002', 'alive');
+  const data = collectRewind({ cwd: ws.dir, sessionId: SELF, env, record: true, exec: noGit });
+  assert.equal(data.lanes.count, 1);
+  assert.equal(data.next.kind, 'none');
+  assert.equal(data.next.say, undefined);
+  const text = renderBrief(data);
+  assert.ok(!/lit continue/.test(text), text);
+  assert.match(text, /Do not type `go` until they finish\./);
+  const r = injected(turn(ws, env, 'go', 2));
+  assert.ok(!/LIT CONTINUES/.test(r), 'go starts nothing while a lane works');
+});
+
+test('S6: the same paused frame with no lane still resumes', () => {
+  const { env } = sandbox();
+  const ws = workspace();
+  stack(ws.dir, env, SELF, [{ skill: 'lit-loop', role: 'spine', status: 'paused', stage: 'verify', at: new Date().toISOString() }]);
+  const data = collectRewind({ cwd: ws.dir, sessionId: SELF, env, record: false, exec: noGit });
+  assert.equal(data.lanes.count, 0);
+  assert.equal(data.next.kind, 'resume-frame');
+});
+
+test('S6: an own active start-work run with a working lane offers no go', () => {
+  const { env } = sandbox();
+  const ws = workspace();
+  stack(ws.dir, env, SELF, [{ skill: 'start-work', role: 'spine', status: 'active', at: new Date().toISOString(), ref: { plan: 'plans/ship.md' } }]);
+  live(ws.dir, env, 'conv-lane-0002', 'alive');
+  const data = collectRewind({ cwd: ws.dir, sessionId: SELF, env, record: true, exec: noGit });
+  assert.equal(data.next.kind, 'none');
+  const text = renderBrief(data);
+  assert.ok(!/Type \*\*`go`\*\*/.test(text) && !/type: go/.test(text), text);
+  assert.match(text, /Do not type `go` until they finish\./);
+  assert.match(text, /Wait for 1 lane to finish/);
+});
+
+test('S6: the own card shows no resume command while lanes work, and a waiting lane is still answered', () => {
+  const now = new Date().toISOString();
+  const self = { id8: 'conv-tes', self: true, status: 'waiting-on-user', title: 'own goal', started: now, last: now, done: {}, result: null, worktree: '/ws/app', branch: 'main' };
+  const other = { ...self, id8: 'wait0000', self: false, result: 'Shall I tag it?' };
+  const data = {
+    generatedAt: now,
+    sessions: [other, self],
+    roadmap: { plans: [], litgoal: [] },
+    workflows: [{ id8: 'conv-tes', self: true, skill: 'lit-loop', stage: 'verify', status: 'paused' }],
+    lanes: { count: 1, waiting: 1, waitingPane: null },
+    next: { kind: 'none', target: null, held: { lanes: 1 } },
+  };
+  const text = renderBrief(data);
+  assert.ok(!/lit continue/.test(text), text);
+  assert.match(text, /Answer wait0000/);
+});
+
 test('S4: the HANDOFF step outranks an ended conversation; a conversation waiting on the user outranks the HANDOFF step', () => {
   const ended = { id8: 'end00000', worktree: '/ws/app', status: 'ended', title: 'old goal', started: new Date(0).toISOString(), last: new Date(0).toISOString(), done: {} };
   const waiting = { ...ended, id8: 'wait0000', status: 'waiting-on-user', result: 'Shall I tag it?', last: new Date().toISOString() };
