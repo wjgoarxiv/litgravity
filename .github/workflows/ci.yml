@@ -1,0 +1,101 @@
+# Runs the repo's gates on every push and pull request to main. The runner has
+# no agy: the suite passes with the host hidden (host-dependent tests skip
+# cleanly with a reason) and `npm run validate` reports SKIP instead of failing.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test and payload gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LITGRAVITY_NO_UPDATE_CHECK: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Check syntax
+        run: |
+          node --check bin/litgravity.mjs
+          node --check lib/agent-file.mjs
+
+      - name: Check version lockstep
+        run: npm run check:version
+
+      # LitGravity declares no dependencies and ships no lockfile, so there is no
+      # install step. Adding one would only hide that fact.
+      - name: Run tests
+        shell: bash --noprofile --norc -e -o pipefail {0}
+        env:
+          HOME: ${{ runner.temp }}/litgravity-ci-home
+        run: |
+          mkdir -p "$HOME"
+          npm test 2>&1 | tee "$RUNNER_TEMP/test-report.log"
+
+      - name: Legacy-token scan
+        run: npm run scan:legacy-tokens
+
+      - name: Validate plugin (skips cleanly without agy)
+        run: npm run validate
+
+      # Re-pinning must be committed: a diff here means someone changed skills or
+      # package files without running `npm run sync:fixtures`.
+      - name: Fixtures current
+        run: |
+          npm run sync:fixtures
+          git diff --exit-code -- test/fixtures
+
+      # The payload gates inside the suite run their own `npm pack --dry-run`.
+      # This step proves the package packs at all, independently of them.
+      - name: Pack dry run
+        run: npm pack --dry-run --json --ignore-scripts > "$RUNNER_TEMP/pack-report.json"
+
+      - name: List routes
+        run: node bin/litgravity.mjs list > /dev/null
+
+      - name: No release-command guard
+        run: |
+          set -euo pipefail
+          terms=(
+            "npm publi""sh"
+            "NPM_""TOKEN"
+            "NODE_AUTH_""TOKEN"
+            "git pu""sh"
+            "git ta""g"
+            "--access publi""c"
+          )
+          found=0
+          # Skill prose and redaction tests name these commands on purpose (release
+          # safety, dangerous-command redaction), so only release-capable
+          # surfaces are scanned: workflows, manifests, and shipped code.
+          for term in "${terms[@]}"; do
+            if grep -R -n -F --exclude-dir=.git -- "$term" .github package.json bin lib scripts; then
+              found=1
+            fi
+          done
+          if [ "$found" -ne 0 ]; then
+            echo "release-command guard failed" >&2
+            exit 1
+          fi
+          echo "release-command guard passed"
