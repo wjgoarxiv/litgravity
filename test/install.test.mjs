@@ -59,15 +59,17 @@ test('project scope installs an owned copy under .agents/plugins/litgravity and 
   assert.ok(existsSync(paths(env).receipt));
 });
 
-test('user scope installs under ~/.gemini/config/plugins/litgravity and nothing else under ~/.gemini', async () => {
+test('user scope installs under ~/.gemini/config/plugins/litgravity and the owned rule file, nothing else', async () => {
   const { env, home } = sandbox();
   const cwd = project();
   const r = await run(env, { yes: true, scope: 'user' }, cwd);
   assert.equal(r.code, 0, r.text);
   const dest = join(home, '.gemini', 'config', 'plugins', 'litgravity');
   assert.equal(destState(dest).state, 'owned');
-  const under = walk(join(home, '.gemini')).filter((p) => !p.startsWith(join('config', 'plugins', 'litgravity')) && p !== 'config' && p !== join('config', 'plugins'));
-  assert.deepEqual(under, [], 'only the plugin folder is written');
+  const rule = join(home, '.gemini', 'config', 'rules', 'litgravity.md');
+  assert.ok(existsSync(rule), 'the owned rule file is written');
+  const under = walk(join(home, '.gemini')).filter((p) => !p.startsWith(join('config', 'plugins', 'litgravity')) && p !== 'config' && p !== join('config', 'plugins') && p !== join('config', 'rules') && p !== join('config', 'rules', 'litgravity.md'));
+  assert.deepEqual(under, [], 'only the plugin folder and the owned rule file are written');
   assert.deepEqual(walk(cwd), []);
   assert.ok(!existsSync(join(home, '.gemini', 'antigravity-cli')), 'no status line without the flag');
 });

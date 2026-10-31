@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { createInterface } from 'node:readline/promises';
 import { install } from '../lib/install.mjs';
+import { runAgentFileConfig, runAgentFileProject } from '../lib/agent-file.mjs';
 import { uninstall } from '../lib/uninstall.mjs';
 import { doctor } from '../lib/doctor.mjs';
 import { models } from '../lib/models.mjs';
@@ -21,12 +22,15 @@ Commands
   status       Short version of doctor plus an update check
   models       List the models and efforts your agy offers
   list         Every skill with the words that reach it, its purpose and its engine (--json for tools)
+  config       config agentFile on|off: keep or remove the LitGravity rule in agy's global rules folder
+  agent-file   agent-file project [--dir <path>]: write the LitGravity block into a repo's AGENTS.md
   runtime      status [name] | install <name|all>: the pinned engine runtimes, cached under the LitGravity data dir
   uninstall    Remove the copies this installer wrote (both scopes unless --scope is given)
   help         This text
 
 Options
   --dry-run        Show every destination and command; write nothing
+  --no-agent-file  install: skip the global rule file for this run (stored setting untouched)
   --yes, -y        Allow writes from a shell without a terminal (agents, CI)
   --scope <s>      user (default): ~/.gemini/config/plugins/litgravity, or project: ./.agents/plugins/litgravity
   --status-line    install: also set the LitGravity status line in agy's user settings (opt-in, user scope only)
@@ -42,6 +46,7 @@ function parse(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === '--dry-run') flags.dryRun = true;
+    else if (a === '--no-agent-file') flags.noAgentFile = true;
     else if (a === '--yes' || a === '-y') flags.yes = true;
     else if (a === '--json') flags.json = true;
     else if (a === '--offline') flags.offline = true;
@@ -95,6 +100,10 @@ async function main() {
       return models({ env, flags, print });
     case 'list':
       return list({ flags, print });
+    case 'config':
+      return runAgentFileConfig({ env, args, cwd, print });
+    case 'agent-file':
+      return runAgentFileProject({ env, args, cwd, flags, print });
     case 'runtime':
       return runtime({ env, flags, args, print });
     case 'status': {

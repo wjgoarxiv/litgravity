@@ -66,11 +66,13 @@ The installer shows every destination first. By default it copies the plugin to 
 npx @litfamily/litgravity doctor
 ```
 
-`doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, every skill and agent, every engine with its pre-warm command, the host programs the skills call, and the Python the engines will use. It ends with `LitGravity: ready` when nothing is broken.
+`doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, the global rule file, every skill and agent, every engine with its pre-warm command, the host programs the skills call, and the Python the engines will use. It ends with `LitGravity: ready` when nothing is broken.
+
+Every user-scope install also leaves one owned rule file at `~/.gemini/config/rules/litgravity.md`, because agy reads that folder at every session start. The rule stays short on purpose: the lit activation word, where plans and handoffs live, and the release freeze, so the ground rules hold before any skill loads. An interactive install asks first and a No stores the rule off; `--yes` adds it, `--no-agent-file` skips it for one run, and `npx @litfamily/litgravity config agentFile off` removes it at any time. A repo gets the matching project conventions with `npx @litfamily/litgravity agent-file project --dir <path>`, which writes only the marked block into its `AGENTS.md`.
 
 <p align="center"><img src="./docs/assets/litgravity/install-doctor.webp" width="960" alt="Terminal capture. The install command ends with Status: Ready, and the doctor command ends with LitGravity: ready after thirty passing checks." /></p>
 
-Useful switches: `--dry-run` previews and writes nothing; `--yes` lets an agent or CI shell install (a shell without a terminal otherwise only previews); `--status-line` adds the optional LitGravity status line to agy's user settings (never on by default).
+Useful switches: `--dry-run` previews and writes nothing; `--yes` lets an agent or CI shell install (a shell without a terminal otherwise only previews); `--no-agent-file` skips the global rule file for one run; `--status-line` adds the optional LitGravity status line to agy's user settings (never on by default).
 
 The status line is one row under the prompt, drawn in the LitFamily status-line style: the `[🔥LIT v…]` mark, then every segment in LitGravity's flame orange. It reads `model [effort] │ ctx [█▎░] 42%/1049k │ quota [▌░]28% ↻ 2h5m`, then the active lit route as a pink `🔥 LIT` chip with its clock, then where the route stands on its map (PIN, RED, GREEN, VERIFY, REVIEW, RECORD for the open criterion of litwork and lit-loop, read from its evidence files; interview, plan, work, review, done for planning and start-work, with the plan's rows), the lanes of a lit-team, and whatever agy also reports: cost, background tasks, the branch and the title. The context and quota gauges turn yellow at 70% and red at 90%. On a narrow terminal the extras go first and the route and the context gauge stay. `NO_COLOR` turns colour off and `LITGRAVITY_HUD_ASCII=1` keeps every glyph ASCII. If agy already shows another status line, the installer refuses to touch it; `install --status-line --replace-status-line` swaps it after saving the old value, and `uninstall` puts that value back.
 
@@ -170,7 +172,7 @@ While a route is active, every tool call lands in `.litgravity/ledger/<conversat
 
 ## Safety and uninstall
 
-- The installer writes only its own plugin folder, its data directory (`$XDG_DATA_HOME/litgravity`) and, when you ask, the status line key in agy's user settings, after a backup. It never reads agy's credential files.
+- The installer writes only its own plugin folder, its data directory (`$XDG_DATA_HOME/litgravity`), the owned rule file in agy's global rules folder, and, when you ask, the status line key in agy's user settings, after a backup. It never reads agy's credential files. A rule file it did not write stops the install before the first write instead of being merged into.
 - A symlinked, foreign or edited destination stops the install before the first write, with the command to move it aside. `--dry-run` never mutates.
 - Hooks fail open: if one breaks, your conversation continues.
 - Engine caches live under `~/.local/share/litgravity/runtime/`. `uninstall` keeps them, so delete that folder to free the space.
@@ -181,6 +183,8 @@ Three commands cover the lifecycle, and every one previews with `--dry-run`:
 |---|---|
 | Install | `npx @litfamily/litgravity install` |
 | Update | `npx @litfamily/litgravity install` (validates, replaces in place) |
+| Global rule off or back on | `npx @litfamily/litgravity config agentFile off` (or `on`) |
+| Project block | `npx @litfamily/litgravity agent-file project --dir <path>` |
 | Refresh engines | `npx @litfamily/litgravity runtime install all` |
 | Check | `npx @litfamily/litgravity doctor` |
 | Remove | `npx @litfamily/litgravity uninstall --yes` |

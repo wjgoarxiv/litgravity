@@ -66,11 +66,13 @@ npx @litfamily/litgravity install
 npx @litfamily/litgravity doctor
 ```
 
-`doctor`는 설치된 사본, 검증 결과, 훅 이벤트 6개와 각 훅 스크립트의 실행 확인, 스킬과 에이전트 전체, 각 엔진과 그 사전 설치 명령, 스킬이 부르는 호스트 프로그램, 엔진이 쓸 Python을 보여 줍니다. 깨진 곳이 없으면 마지막 줄이 `LitGravity: ready`입니다.
+`doctor`는 설치된 사본, 검증 결과, 훅 이벤트 6개와 각 훅 스크립트의 실행 확인, 전역 규칙 파일, 스킬과 에이전트 전체, 각 엔진과 그 사전 설치 명령, 스킬이 부르는 호스트 프로그램, 엔진이 쓸 Python을 보여 줍니다. 깨진 곳이 없으면 마지막 줄이 `LitGravity: ready`입니다.
+
+사용자 범위 설치는 `~/.gemini/config/rules/litgravity.md`에 LitGravity 전용 규칙 파일 하나를 남깁니다. agy가 매 세션 시작에 그 폴더를 읽기 때문입니다. 규칙은 일부러 짧습니다. lit 호출어, 계획과 핸드오프의 위치, 릴리스 동결만 담아서 어떤 스킬이 뜨기 전에 기본 규칙이 서도록 합니다. 대화형 설치는 먼저 묻고, No라고 답하면 규칙을 끈 채로 저장합니다. `--yes`는 규칙을 더하고, `--no-agent-file`은 한 번만 건너뛰고, `npx @litfamily/litgravity config agentFile off`는 언제든 규칙을 지웁니다. 저장소에는 `npx @litfamily/litgravity agent-file project --dir <경로>`로 맞는 프로젝트 관례를 넣습니다. `AGENTS.md`에 표시된 블록만 씁니다.
 
 <p align="center"><img src="./docs/assets/litgravity/install-doctor.webp" width="960" alt="터미널 갈무리. 설치 명령은 Status: Ready로 끝나고, doctor 명령은 서른 개의 통과 확인 뒤에 LitGravity: ready로 끝납니다." /></p>
 
-자주 쓰는 옵션: `--dry-run`은 미리 보기만 하고 아무것도 쓰지 않습니다. `--yes`는 터미널이 붙지 않은 에이전트나 CI 셸에서 설치를 허용합니다(그런 셸에서는 기본으로 미리 보기만 합니다). `--status-line`은 agy 사용자 설정에 선택형 LitGravity 상태 표시줄을 추가합니다(기본값은 꺼짐).
+자주 쓰는 옵션: `--dry-run`은 미리 보기만 하고 아무것도 쓰지 않습니다. `--yes`는 터미널이 붙지 않은 에이전트나 CI 셸에서 설치를 허용합니다(그런 셸에서는 기본으로 미리 보기만 합니다). `--no-agent-file`은 전역 규칙 파일을 한 번만 건너뜁니다. `--status-line`은 agy 사용자 설정에 선택형 LitGravity 상태 표시줄을 추가합니다(기본값은 꺼짐).
 
 상태 표시줄은 프롬프트 아래 한 줄이고, LitFamily 상태 표시줄 모양을 따릅니다. `[🔥LIT v…]` 표시 뒤의 모든 칸은 LitGravity의 불꽃 주황 한 가지 색입니다. 순서는 `model [effort] │ ctx [█▎░] 42%/1049k │ quota [▌░]28% ↻ 2h5m`이고, 그 뒤에 지금 도는 lit 경로를 분홍 `🔥 LIT` 칩과 시계로, 그 경로가 지도에서 어디쯤인지를 보여 줍니다. litwork와 lit-loop는 열린 기준의 증거 파일을 읽어 PIN, RED, GREEN, VERIFY, REVIEW, RECORD 중 하나를, 계획과 start-work는 interview, plan, work, review, done 중 하나를 계획 행 수와 함께 보여 줍니다. lit-team은 레인을 보여 주고, agy가 함께 넘겨주는 비용, 백그라운드 작업, 브랜치, 제목이 이어집니다. 컨텍스트와 쿼터 게이지는 70%에서 노랑, 90%에서 빨강이 됩니다. 터미널이 좁으면 덧붙인 정보부터 빠지고 경로와 컨텍스트 게이지는 남습니다. `NO_COLOR`는 색을 끄고, `LITGRAVITY_HUD_ASCII=1`은 모든 기호를 ASCII로 바꿉니다. agy에 이미 다른 상태 표시줄이 있으면 설치기는 손대지 않습니다. `install --status-line --replace-status-line`을 쓰면 원래 값을 저장한 뒤 바꾸고, `uninstall`이 그 값을 되돌려 놓습니다.
 
@@ -170,7 +172,7 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 
 ## 안전과 제거
 
-- 설치기는 자기 플러그인 폴더, 데이터 디렉터리(`$XDG_DATA_HOME/litgravity`), 그리고 요청했을 때 agy 사용자 설정의 상태 표시줄 키만 씁니다. 설정 파일은 먼저 백업합니다. agy의 인증 파일은 읽지 않습니다.
+- 설치기는 자기 플러그인 폴더, 데이터 디렉터리(`$XDG_DATA_HOME/litgravity`), agy 전역 규칙 폴더의 전용 규칙 파일, 그리고 요청했을 때 agy 사용자 설정의 상태 표시줄 키만 씁니다. 설정 파일은 먼저 백업합니다. agy의 인증 파일은 읽지 않습니다. 설치기가 쓰지 않은 규칙 파일은 합치지 않고 첫 쓰기 전에 설치를 멈춥니다.
 - 심볼릭 링크이거나, 남의 파일이거나, 설치 뒤 수정된 대상은 첫 쓰기 전에 설치를 멈추고, 옮기는 명령을 알려 줍니다. `--dry-run`은 아무것도 바꾸지 않습니다.
 - 훅이 하나 깨져도 대화는 계속됩니다.
 - 엔진 캐시는 `~/.local/share/litgravity/runtime/`에 있습니다. `uninstall`은 캐시를 남기므로, 공간이 필요하면 그 폴더를 지우세요.
@@ -181,6 +183,8 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 |---|---|
 | 설치 | `npx @litfamily/litgravity install` |
 | 업데이트 | `npx @litfamily/litgravity install` (검증하고 그 자리에서 교체) |
+| 전역 규칙 끄기/켜기 | `npx @litfamily/litgravity config agentFile off` (또는 `on`) |
+| 프로젝트 블록 | `npx @litfamily/litgravity agent-file project --dir <경로>` |
 | 엔진 새로 받기 | `npx @litfamily/litgravity runtime install all` |
 | 확인 | `npx @litfamily/litgravity doctor` |
 | 제거 | `npx @litfamily/litgravity uninstall --yes` |

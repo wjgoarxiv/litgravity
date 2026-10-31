@@ -5,6 +5,7 @@
   "README_ko-KR.md",
   "TRADEMARK.md",
   "bin/litgravity.mjs",
+  "lib/agent-file.mjs",
   "lib/agy.mjs",
   "lib/bundle.mjs",
   "lib/doctor.mjs",
