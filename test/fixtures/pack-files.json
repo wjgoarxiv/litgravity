@@ -33,6 +33,7 @@
   "plugin/agents/polish-orchestrator.md",
   "plugin/agents/qa-runner.md",
   "plugin/agents/quality-reviewer.md",
+  "plugin/assets/logo.svg",
   "plugin/hooks.json",
   "plugin/hooks/lib/boundary.mjs",
   "plugin/hooks/lib/common.mjs",

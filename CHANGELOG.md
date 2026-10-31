@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- The plugin now carries the official LitFamily ignition icon (`plugin/assets/logo.svg`, wired as the manifest `logo`), so `agy plugin validate --json --strict` reports zero findings instead of the no-logo note.
 - lit-adhd no longer tells this session to `lit continue` or `go` while other lanes work: the next-step chooser counts lanes first, so a held paused frame or a held own run offers no resume and no continue, and the session's own card shows the hold instead of the resume command. Answering a lane that waits on the user is still offered through the hold.
 - User-scope installs now leave one owned rule file at `~/.gemini/config/rules/litgravity.md`, because agy reads that folder at every session start and a shared `GEMINI.md` block is refused on symlinked files. The rule stays short: the lit activation word, where plans and handoffs live, and the release freeze. An interactive install asks first and a No stores the rule off; `--yes` adds it, `--no-agent-file` skips one run, and `config agentFile off` removes it at any time. `doctor` reports it as `agent file`, and `uninstall` takes back exactly the file it wrote. `agent-file project --dir <path>` writes the matching project block into a repo's `AGENTS.md`.
 - A `ci.yml` workflow runs the repo's gates on push and pull request to `main`: tests, version lockstep, legacy-token scan, plugin validation, fixture pinning, pack dry run, route listing and the no-release-command guard. The runner has no agy, so host-dependent tests skip with a reason and validation reports SKIP.
