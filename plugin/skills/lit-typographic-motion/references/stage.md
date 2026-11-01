@@ -12,7 +12,8 @@ Start every page from `motion.mjs scaffold --out <dir>`, which writes the struct
   SVG, PNG, JPG, WebP, JS, CSS and WAV files beside it. Nothing else is served.
 - The page loads the fonts, the style and the kit from the renderer's own routes:
   `<link rel="stylesheet" href="/lit/fonts.css">`, `<link rel="stylesheet" href="/lit/style.css">`,
-  `<script src="/lit/style.js"></script>` and `<script src="/lit/stage-kit.js"></script>`.
+  `<script src="/lit/style.js"></script>` and `<script src="/lit/stage-kit.js"></script>`; a page that
+  uses clips adds `<script src="/lit/clips.js"></script>` after the kit (Clips).
 - Each shot's copy sits in its layout's type zone, in a type-role class and a colour class of the style;
   the gate's style rules check the result (`studio.md`).
 - The page calls `LitStage.define({ width, height, fps, duration, render })`, or sets
@@ -95,6 +96,8 @@ Every primitive is a pure function of its inputs. `LitStage` holds them all.
 - The style and the timeline (`studio.md`): `shot(t)` (the shot at `t`, with `p`, `local`,
   `enter(delay, dur)`, `exit(dur)`), `zone(layout, part)` and `place(el, layout, part)` (a layout zone in
   pixels), `tokens()` (the style's eases, durations, staggers and springs per object class).
+- `clip({ parent, id, box })` registers a declared keyed clip once (Clips) and returns `show(t, opts)`:
+  `const boom = clip({ parent, id: "boom", box: { x: 1200, y: 300, w: 520, h: 511 } }); boom(t, { start: 2.1 });`.
 
 ## Fonts
 
@@ -114,6 +117,45 @@ no frame is captured with a fallback face. Use these family names exactly:
 Any other family falls back to a system face. The QA replay reports that, and fails it for copy
 text. Set Korean copy in Pretendard. Never ask for a weight the family does not have (the browser
 would synthesize a fake bold), and never animate tracking or width on Hangul.
+
+## Clips
+
+Real keyed footage (a reaction clip, a spinning-cat loop shot on a green screen) joins the film as a
+layer inside the page. Key the video outside the renderer into one 8-bit RGBA PNG per frame, declare the
+frames, and the page picks the frame from film time. A declared clip is exempt from the flipbook and
+count rule; every other raster keeps its limits. Nothing is encoded by hand: the clip frames are
+captured with the page, so the flash audit, the determinism replay and the text checks run on the final
+pixels like any other film.
+
+1. Copy each clip's frames into the run's stage folder as `stage/clips/<dir>/frame_0001.png`,
+   `frame_0002.png` and on, with no gaps and no other image in that folder.
+2. Declare them in `stage/clips/clips.json`:
+
+   ```json
+   { "clips": [ { "id": "boom", "dir": "01-vine-boom", "count": 122, "fps": 30 } ] }
+   ```
+
+   `id` is the name the page uses; `dir` is a folder directly under `clips/`; `count` is the number of
+   frames; `fps` is the clip's own rate, 1 to 30. A clip used twice is declared once.
+3. The page loads `<script src="/lit/clips.js"></script>` after the kit, registers each use once with
+   `LitStage.clip({ parent, id, box })`, and calls the returned `show(t, opts)` from `render(t)`.
+   `parent` is the element the clip sits in; `box` is its place in pixels, the frame fitted inside it.
+   `show` returns the clip's wrapper element, or `null` while hidden; scale, fade or move the wrapper
+   from `t` like any other layer. The frame is `floor((t - start) * fps) + 1`, counted from `from`, so
+   a cue is plain arithmetic: `start = cue - (N - 1) / fps`, where N is the frame whose own sound or
+   action must land on the cue (a clip whose sound starts at frame 85 and must land at 0.12 s has
+   `start = 0.12 - 84 / 30`). Options: `start` (film seconds, default 0), `from` and `to` (the frame
+   range, default the whole clip), `loop` (wrap by frame index) and `hold` (keep the last frame).
+   Before `start`, and past `to` without `loop` or `hold`, the clip is hidden.
+
+The scan refuses, with exit 17 and the clip named: more than 12 clips, more than 360 frames in a clip or
+1500 in all, more than 40 MB in a clip or 128 MB in all, a frame whose long side is above 720 px (a clip
+is an overlay, not the film), a frame rate above 30, frames of mixed sizes, a missing or extra frame, a
+frame that is not an 8-bit RGBA PNG or that has no transparent pixel in the first, middle and last frame
+(an opaque video is not keyed), an animated image, and a duplicate `id`. A folder that is not declared,
+or any frame sequence beside a declared clip, is a flipbook as before. Cover mode takes no clips. Keep a
+clip clear of copy: the text checks read DOM text, so a clip laid over a line is yours to catch on the
+stills. The manifest and the report list each clip.
 
 ## Clock
 
@@ -143,7 +185,7 @@ region. For variation, use `LitStage.rand(<seed>)`.
   CDN.
 - Rasters: at most 24 raster images and 8 MB in total. Ten or more rasters of the same size (a
   flipbook), or any animated GIF, APNG or WebP, is exit 17. Rasters are textures and stills, never a
-  frame sequence.
+  frame sequence. The one frame sequence a page may carry is a declared keyed clip (Clips).
 - Hand-encoded films are not the deliverable: no frame loop encoded by hand, no screen recording,
   no raster flipbook. Every frame passes through the renderer.
 

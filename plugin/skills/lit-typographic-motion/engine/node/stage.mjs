@@ -480,6 +480,7 @@ export async function renderStage({ out, round = 1, stillsOnly = false, env = pr
       frameCount, seed: treatment.seed, renderer: finalState.webglRenderer ?? "no WebGL", rung: ctx.rung, chromeFlags: master.flags, usesWebGL: finalState.usesWebGL,
       cuts, stills: { sha256: stills.sha256, poster: plan.poster, reduced: plan.reduced }, posterEncoding: poster,
       geometry: geometryFor(width, height),
+      clips: scan.clips.map((c) => ({ id: c.id, frames: c.count, fps: c.fps, width: c.width, height: c.height, bytes: c.bytes })),
       plate: scan.plate ? { blender: scan.plate.blender, engine: scan.plate.engine, device: scan.plate.device, samples: scan.plate.samples, fps: scan.plate.fps, frames: scan.plate.frames.length } : null,
       sound: { mode: sound.mode, label: sound.label, file: sound.file ? path.relative(out, sound.file) : null, sha256: sound.file ? sha256(readFileSync(sound.file)) : null, lufs: sound.bed?.lufs ?? null },
       preview: { encoder: preview.encoder, rung: preview.rung, attempts: preview.attempts },

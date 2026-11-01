@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- A film on the stage path can now carry real keyed footage. Put the chroma-keyed frames of a clip (8-bit RGBA PNG, real transparency) under `stage/clips/<dir>/`, declare them in `stage/clips/clips.json`, and the page shows them with `LitStage.clip` from film time: `start = cue - (N-1)/fps` lands a frame on a cue. The scan holds declared clips to their own limits (12 clips, 360 frames each, 1500 in all, 40 MB each, 128 MB in all, long side up to 720 px, up to 30 fps), a frame folder that is not declared is still refused as a flipbook, cover mode takes none, and the flash audit and determinism replay still run on the final pixels.
+
 ## 0.1.5 — 2026-10-31
 
 - The plugin now carries the official LitFamily ignition icon (`plugin/assets/logo.svg`, wired as the manifest `logo`), so `agy plugin validate --json --strict` reports zero findings instead of the no-logo note.

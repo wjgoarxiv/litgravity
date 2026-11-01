@@ -152,7 +152,7 @@ Stop at a blocked exit, at a gate failure you cannot fix within round 3, or when
 | 14 | BLOCKED_DEPS_NOT_PREWARMED | Run step 0, or give the user `npx @litfamily/litgravity runtime install motion` for a terminal. |
 | 15 | BLOCKED_FONT_FETCH | A cached font is missing or its sha256 differs; the same pre-warm command fixes it. |
 | 16 | BLOCKED_TREATMENT_INVALID | Fix the named field. |
-| 17 | STAGE_CONTRACT_ERROR | Fix the named element, API, raster, size or missing copy line. |
+| 17 | STAGE_CONTRACT_ERROR | Fix the named element, API, raster, clip, size or missing copy line. |
 | 18 | STAGE_NONDETERMINISTIC | The page read something the clock does not drive; seed it or derive it from `t`. |
 | 19 | STAGE_NETWORK_REQUEST | Remove the named URL or connection; everything is local. |
 | 20 | SOUND_INVALID | The planned sound is missing, silent at the start or out of limits; fix it. |

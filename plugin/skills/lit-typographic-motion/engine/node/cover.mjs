@@ -187,7 +187,7 @@ function prepare({ out, env, log }) {
   const treatment = asBlocked(() => loadCoverTreatment(out));
   const stageDir = path.join(out, COVER_STAGE);
   if (!existsSync(path.join(stageDir, "index.html"))) throw new BlockedError(EXIT.STAGE_CONTRACT_ERROR, `STAGE_CONTRACT_ERROR: ${path.join(stageDir, "index.html")} is missing; write the cover page first (references/cover.md)`);
-  const scan = scanStage(stageDir);
+  const scan = scanStage(stageDir, { clips: false });
   for (const w of scan.warnings) log(`warning: ${w}`);
   const { assets } = checkAssets({ out, treatment, rasters: scan.rasters, coverDir: COVER_STAGE });
   return { treatment, stageDir, assets, faces: stageFonts(env) };

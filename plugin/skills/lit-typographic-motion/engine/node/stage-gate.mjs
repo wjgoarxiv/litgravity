@@ -160,6 +160,7 @@ export function formatStageReport({ gate, manifest, outputs, round, framesViewed
     `outputs: ${outputs.film} · ${outputs.preview} · ${outputs.poster} · ${outputs.still}${withheld ? "  [WITHHELD: MO-C-03 flash audit failed; exports are diagnostics in withheld/, not deliverables]" : ""}`,
     `format / duration / fps: ${manifest.format} ${manifest.width}x${manifest.height}, ${manifest.durationSec} s (treatment ${manifest.treatmentDurationSec} s) @ ${manifest.fps} fps, ${manifest.frameCount} frames`,
     `renderer: ${manifest.renderer} (${manifest.rung ?? "software"} rung, stage flags: ${manifest.chromeFlags.join(" ")})`,
+    ...(manifest.clips?.length ? [`clips: ${manifest.clips.map((c) => `${c.id} ${c.frames} frames at ${c.fps} fps`).join(", ")} (keyed overlays, chosen from film time)`] : []),
     ...(manifest.plate ? [`plate: Blender ${manifest.plate.blender}, ${manifest.plate.engine} ${manifest.plate.device}, ${manifest.plate.samples} spp, ${manifest.plate.frames} frames at ${manifest.plate.fps} fps`] : []),
     `sound: ${manifest.sound?.mode ?? "none"}${manifest.sound?.label ? ` (${manifest.sound.label})` : ""}`,
     "",
