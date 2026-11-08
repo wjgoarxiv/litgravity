@@ -17,9 +17,9 @@ export const LANGUAGES = [
     checkers: ['tsc', 'eslint'], wired: true, buildCheck: 'npx tsc --noEmit -p tsconfig.json',
     projectFiles: ['tsconfig.json', 'jsconfig.json', 'package.json'],
     install: {
-      darwin: 'npm install --save-dev typescript typescript-language-server   (or: brew install typescript-language-server)',
-      linux: 'npm install --save-dev typescript typescript-language-server',
-      win32: 'npm install --save-dev typescript typescript-language-server',
+      darwin: 'npm install --save-dev typescript@6 typescript-language-server   (or: brew install typescript-language-server)',
+      linux: 'npm install --save-dev typescript@6 typescript-language-server',
+      win32: 'npm install --save-dev typescript@6 typescript-language-server',
     } },
   { language: 'python', serverId: 'basedpyright', command: ['basedpyright-langserver', '--stdio'],
     extensions: ['.py', '.pyi'], checkers: ['pyright', 'basedpyright', 'ruff', 'mypy'], wired: true,

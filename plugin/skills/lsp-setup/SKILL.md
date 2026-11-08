@@ -156,7 +156,7 @@ These are the commands the references expand on. Treat them as candidates and le
 
 | Tool | macOS | Linux | Windows |
 | --- | --- | --- | --- |
-| TypeScript checker and server | `npm i -D typescript typescript-language-server` | same | same |
+| TypeScript checker and server | `npm i -D typescript@6 typescript-language-server` | same | same |
 | `basedpyright` | `uv tool install basedpyright` or `brew install basedpyright` | `uv tool install basedpyright` or `pipx install basedpyright` | `uv tool install basedpyright` |
 | `ruff` | `brew install ruff` or `uv tool install ruff` | `uv tool install ruff` or `pipx install ruff` | `uv tool install ruff` |
 | `gopls` | `go install golang.org/x/tools/gopls@latest` or `brew install gopls` | `go install golang.org/x/tools/gopls@latest` | `go install golang.org/x/tools/gopls@latest` |

@@ -19,22 +19,24 @@ agy has no language-server tool and a plugin cannot register one, so this refere
 
 ## Install (the user runs these)
 
+Pin `typescript@6`: TypeScript 7 ships no `lib/tsserver.js`, which `typescript-language-server` loads.
+
 **macOS**
 
-- project-local (preferred): `npm install --save-dev typescript typescript-language-server`
-- global: `npm install -g typescript typescript-language-server`
-- Homebrew alternative for the wrapper: `brew install typescript-language-server` (it still needs a `typescript` package)
+- project-local (preferred): `npm install --save-dev typescript@6 typescript-language-server`
+- global: `npm install -g typescript@6 typescript-language-server`
+- Homebrew alternative for the wrapper: `brew install typescript-language-server` (it still needs a `typescript@6` package alongside it)
 
 **Linux**
 
-- project-local (preferred): `npm install --save-dev typescript typescript-language-server`
-- global: `npm install -g typescript typescript-language-server`; with a system Node a prefix such as `npm config set prefix ~/.local` avoids `sudo`
-- other package managers: `pnpm add -D typescript typescript-language-server`, `yarn add -D ...`, `bun add -d ...`
+- project-local (preferred): `npm install --save-dev typescript@6 typescript-language-server`
+- global: `npm install -g typescript@6 typescript-language-server`; with a system Node a prefix such as `npm config set prefix ~/.local` avoids `sudo`
+- other package managers: `pnpm add -D typescript@6 typescript-language-server`, `yarn add -D ...`, `bun add -d ...`
 
 **Windows**
 
-- project-local (preferred): `npm install --save-dev typescript typescript-language-server`
-- global: `npm install -g typescript typescript-language-server`; the binaries land in `%AppData%\npm`, which must be on PATH
+- project-local (preferred): `npm install --save-dev typescript@6 typescript-language-server`
+- global: `npm install -g typescript@6 typescript-language-server`; the binaries land in `%AppData%\npm`, which must be on PATH
 - install Node first with `winget install OpenJS.NodeJS.LTS` when it is missing
 
 Confirm afterwards:
