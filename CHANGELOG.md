@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.8 — 2026-11-11
 
 - lit-adhd now opens with a KPI board instead of the per-session brief: the one thing to do now with the exact text to type (or what to wait for), four counts (done, in progress, waiting on you, left) with an overall bar, a milestone table with ten-cell bars, up to five things done lately, up to seven left in plan order, and up to five reminders shaped `thing → what to do`: a conversation waiting on you, uncommitted changes and unpushed commits per worktree, lanes still working, plans untouched for a week, the handoff's next item. The collector computes all of it and puts it in the JSON as `board` and `boardText`. The board shows no conversation ids, commit hashes, status codes or plan paths. `lit adhd detail` (or `자세히`) adds the old per-session brief under the board; the next-step choice and `go` work as before.
 
