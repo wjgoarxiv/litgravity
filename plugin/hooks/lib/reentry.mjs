@@ -91,7 +91,7 @@ export function activation(hit, conversationId, kind = 'ignite') {
   if (hit.route === 'lit-plan') lines.push(PLAN_REMINDER);
   if (THEME_FIRST.has(hit.route)) lines.push(THEME_NOTE);
   // `go` reads the step the brief offered for this conversation, so the collector needs its id.
-  if (hit.route === 'lit-adhd' && id) lines.push(`Run the collector for this conversation: node ${dirname(skillPath('lit-adhd'))}/scripts/rewind.mjs --brief --lang <ko|en> --session ${id}`);
+  if (hit.route === 'lit-adhd' && id) lines.push(`Run the collector for this conversation: node ${dirname(skillPath('lit-adhd'))}/scripts/rewind.mjs --brief --lang <ko|en> --session ${id}${hit.detail ? ' --detail' : ''}`);
   if (hit.reviewMode) lines.push(`The user forced the ${hit.reviewMode} review mode.`);
   if (kind === 'confirm') {
     lines.push('The prompt has no task text after the keyword and nothing is active or resumable. After reading the skill, ask the user in one line what to run (a task for lit-loop, or a route such as plan or review) and wait for the answer before any other tool.');

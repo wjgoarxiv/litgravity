@@ -394,13 +394,17 @@ test('collector leaves out unfilled plan scaffolds and stale plans of another fo
   assert.deepEqual(data.roadmap.plans.map((p) => p.plan), ['plans/real.md']);
 });
 
-test('rewind.mjs --brief --lang ko prints the Korean brief; an unknown language is refused', () => {
+test('rewind.mjs --brief --lang ko prints the Korean board, --detail adds the brief under it; an unknown language is refused', () => {
   const cwd = mkdtempSync(join(tmpdir(), 'litgravity-cli-'));
   const env = { HOME: tmpdir(), XDG_STATE_HOME: join(cwd, '.state') };
   let out = '';
   const io = { env, stdout: { write: (t) => { out += t; }, columns: 100 }, stderr: { write: () => {} } };
   assert.equal(runRewindCli(['--brief', '--lang', 'ko', '--here'], cwd, io), 0);
-  assert.match(out, /^## 🧭 세션 0개/);
+  assert.match(out, /^## 🎯 지금 할 일\n/);
+  assert.ok(!out.includes('## 🧭'), 'the per-session brief only on request');
+  out = '';
+  assert.equal(runRewindCli(['--brief', '--lang', 'ko', '--here', '--detail'], cwd, io), 0);
+  assert.match(out, /^## 🧭 세션 0개/m);
   assert.match(out, /```\n╭─ 추천 다음 단계/, 'an untagged fence: a language tag would colour the box');
   assert.equal(runRewindCli(['--lang', 'fr'], cwd, io), 64);
 });

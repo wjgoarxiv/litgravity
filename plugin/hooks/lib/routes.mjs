@@ -38,7 +38,7 @@ export const SKILL_ROUTES = [
   { id: 'autoresearch', when: 'a budgeted experiment loop against a metric' },
   { id: 'structural-search', when: 'find or rewrite code by syntax shape' },
   { id: 'browser-drive', when: 'the answer only exists inside a running web page' },
-  { id: 'lit-adhd', when: 'cross-session brief: what each recent session was asked, did and waits on, with progress gauges' },
+  { id: 'lit-adhd', when: 'cross-session KPI board: the one thing to do now, done and remaining milestones, reminders' },
   { id: 'lit-team', when: 'two or more child agents behind one durable team packet' },
   { id: 'autoconference', when: 'a budgeted research conference: parallel researchers, review, synthesis' },
   { id: 'rules', when: 'which rules, AGENTS.md files and skills agy loads, and in what order' },
@@ -204,6 +204,9 @@ const firstWord = (s) => (/^([^\s:,.!?]+)/.exec(s)?.[1] ?? '').toLowerCase();
 // Activation is case-sensitive on purpose: `lit` or `LIT` activates, a sentence-initial "Lit" stays prose.
 // The result also says how the prompt re-enters: `bare` (no task text), `resume` (continue word), `restart`
 // (`lit new` / `lit restart`), `empty` (nothing follows the keyword) and `direct` (a skill id typed as the first word, which is never a continue).
+// `lit adhd detail` / `lit adhd 자세히` asks for the per-session detail under the board.
+const ADHD_DETAIL = /(?:^|[\s,.:])(?:detail|details|detailed|자세히|자세하게|상세|상세히)(?=$|[\s,.!?])/iu;
+
 export function detectRoute(prompt) {
   if (typeof prompt !== 'string') return null;
   let text = prompt.trimStart();
@@ -236,12 +239,17 @@ export function detectRoute(prompt) {
       if (frontendIntent(rest)) return { route: 'frontend-ui-ux', ...base, keyword: null };
     }
     const hit = { route: route ?? 'lit-loop', ...base };
+    if (hit.route === 'lit-adhd') hit.detail = ADHD_DETAIL.test(rest.slice(word.length));
     if (hit.route === 'review-work') {
       hit.reviewMode = REVIEW_MODES[firstWord(rest.slice(word.length).replace(SEPARATORS, ''))] ?? null;
     }
     return hit;
   }
   const id = skillId(lower);
-  if (id && (lower.startsWith('lit') || slash)) return { route: id, keyword: null, bare: false, resume: false, restart: false, direct: true, empty: false };
+  if (id && (lower.startsWith('lit') || slash)) {
+    const hit = { route: id, keyword: null, bare: false, resume: false, restart: false, direct: true, empty: false };
+    if (id === 'lit-adhd') hit.detail = ADHD_DETAIL.test(text.slice(token.length));
+    return hit;
+  }
   return null;
 }

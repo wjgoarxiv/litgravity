@@ -11,6 +11,7 @@ import { planRows } from '../continuation.mjs';
 import { sessionPath, stateRoot } from '../common.mjs';
 import { aggregateProgress, clipToWidth, progressOf } from './gauge.mjs';
 import { renderBrief } from './brief.mjs';
+import { buildBoard, renderBoard } from './board.mjs';
 import { chooseNextStep, writeNextStep } from './next-step.mjs';
 import { makeRedactor } from './redact.mjs';
 import { findTranscripts, makeBudget, readTranscriptLines, sessionRecord } from './transcripts.mjs';
@@ -24,6 +25,8 @@ const NAME_MAX = 90;
 const PLAN_LIMIT = 8;
 const HERDR_TIMEOUT_MS = 2000;
 const PANE = /^[A-Za-z0-9._:-]{1,64}$/u;
+const STALE_MS = 7 * 86_400_000;
+const STALE_LIMIT = 3;
 
 export const parseSince = (text) => {
   const match = /^(\d{1,4})([dhm])$/u.exec(String(text ?? ''));
@@ -95,8 +98,10 @@ const plansIn = (root, budget, redact, local, skipped) => {
     const done = rows.length - open.length;
     let mtime = null;
     try { mtime = statSync(join(root, 'plans', e.name)).mtimeMs; } catch { /* skip */ }
+    const heading = /^# +(.+)$/mu.exec(text)?.[1]?.trim();
     return [{
       worktree: redact(root), plan: `plans/${e.name}`, local,
+      title: heading ? clipToWidth(redact(heading), NAME_MAX) : null,
       rows: rows.map((r) => ({ checked: r.done, title: clipToWidth(redact(r.title), NAME_MAX) })),
       current: open.length ? clipToWidth(redact(open[0].title), NAME_MAX) : null,
       finished: open.length === 0,
@@ -235,6 +240,17 @@ const commitsOf = (root, sinceMs, now, exec, redact) => {
   }
 };
 
+// Uncommitted changes and commits not on the upstream yet, read without taking git's optional index lock, so the
+// brief stays read-only. A folder without git or without an upstream reads null for that count.
+const repoStateOf = (root, exec, redact) => {
+  const count = (args, parse) => {
+    try { return parse(exec('git', args, { cwd: root, timeout: GIT_TIMEOUT_MS })); } catch { return null; }
+  };
+  const uncommitted = count(['--no-optional-locks', 'status', '--porcelain'], (out) => out.split('\n').filter(Boolean).length);
+  const unpushed = count(['rev-list', '--count', '@{upstream}..HEAD'], (out) => (/^\d+$/u.test(out.trim()) ? Number(out.trim()) : null));
+  return uncommitted === null && unpushed === null ? null : { worktree: redact(root), uncommitted, unpushed };
+};
+
 const stacksOf = (stateDir, budget, redact) => {
   if (!stateDir) return null;
   const list = entries(stateDir);
@@ -325,6 +341,7 @@ export const collectRewind = ({
   }
 
   const commits = collectEach((r) => commitsOf(r, sinceMs, now, exec, redact));
+  const repo = roots.map((r) => repoStateOf(r, exec, redact)).filter(Boolean);
   const branches = new Map(roots.map((r) => [r, branchOf(r, exec)]));
 
   for (const session of sessions) {
@@ -349,6 +366,10 @@ export const collectRewind = ({
   const recent = (p) => p.mtime !== null && now - p.mtime <= sinceMs && (p.local || !p.finished);
   const orderedPlans = (plans ?? []).filter(recent).sort((a, b) => Number(b.local) - Number(a.local) || (b.mtime ?? 0) - (a.mtime ?? 0));
   const shownPlans = orderedPlans.slice(0, PLAN_LIMIT);
+  // Open plans nobody touched for a week, the longest-forgotten first: a reminder to resume or drop each.
+  const stale = (plans ?? []).filter((p) => !p.finished && p.mtime !== null && now - p.mtime >= STALE_MS)
+    .sort((a, b) => a.mtime - b.mtime).slice(0, STALE_LIMIT)
+    .map((p) => ({ worktree: p.worktree, plan: p.plan, title: p.title, local: p.local, days: Math.floor((now - p.mtime) / 86_400_000) }));
   const localGoals = (litgoal ?? []).filter((g) => g.local);
   const herdr = herdrLanes(env, roots, sessionId, exec);
   const lanes = lanesOf(sessions, liveRecords, herdr, sessionId);
@@ -381,7 +402,9 @@ export const collectRewind = ({
       // Another folder's finished objective is history.
       litgoal: (litgoal ?? []).filter((g) => g.local || g.status !== 'complete'),
       progress: roadmapItems.length ? aggregateProgress(roadmapItems) : progressOf(null, null),
+      stale,
     },
+    repo,
     workflows: (workflows ?? []).map((f) => ({ ...f, self: Boolean(sessionId) && f.sessionId === sessionId })),
     // A start-work run is a start-work frame on a workflow stack; agy keeps no other record of one.
     startWork: (workflows ?? []).filter((f) => f.skill === 'start-work').map((f) => ({ sessionId: f.sessionId, status: f.status, plan: f.ref?.plan ?? null })),
@@ -402,18 +425,31 @@ export const collectRewind = ({
   }
   for (const f of data.workflows) delete f.sessionId;
   for (const w of data.startWork) delete w.sessionId;
+  data.board = buildBoard(data);
   return data;
 };
 
-// The brief as Markdown (brief.mjs). `width` sizes the next-step box.
-export const renderRewind = (data, { lang = 'en', width = 72 } = {}) => renderBrief(data, { lang, width: Math.max(40, Math.min(width, 100)) });
+// The KPI board (board.mjs) is the brief; the per-session detail (brief.mjs) follows it only on request. `width`
+// sizes the detail's next-step box. A source that could not be read, or a read budget that ran out, is named once
+// under the board.
+export const renderRewind = (data, { lang = 'en', width = 72, detail = false } = {}) => {
+  const board = renderBoard(data, { lang });
+  if (detail) return `${board}\n${renderBrief(data, { lang, width: Math.max(40, Math.min(width, 100)) })}`;
+  const unread = Object.entries(data.sources ?? {}).filter(([, v]) => v === 'unknown').map(([k]) => k);
+  const words = lang === 'ko'
+    ? [unread.length ? `읽지 못함: ${unread.join(', ')}.` : null, data.budget?.exhausted ? '오래된 대화는 읽지 않았습니다(읽기 예산 소진).' : null]
+    : [unread.length ? `Not read: ${unread.join(', ')}.` : null, data.budget?.exhausted ? 'Older conversations were not read (read budget used up).' : null];
+  const tail = words.filter(Boolean);
+  return tail.length ? `${board}\n*${tail.join(' ')}*\n` : board;
+};
 
 export const runRewindCli = (args, cwd = process.cwd(), { env = process.env, stdout = process.stdout, stderr = process.stderr } = {}) => {
   const options = { cwd, env, here: false, since: DEFAULT_SINCE, max: DEFAULT_MAX, sessionId: null };
   let json = false;
+  let detail = false;
   let lang = 'en';
   let width = Math.min(Number(stdout.columns) || 72, 72);
-  const usage = 'Usage: rewind.mjs [--brief|--json] [--lang en|ko] [--here] [--since 7d] [--max 12] [--session <id>] [--width N]';
+  const usage = 'Usage: rewind.mjs [--brief|--json] [--detail] [--lang en|ko] [--here] [--since 7d] [--max 12] [--session <id>] [--width N]';
   if (args.some((a) => a === '--help' || a === '-h')) {
     stdout.write(`${usage}\n`);
     return 0;
@@ -422,6 +458,7 @@ export const runRewindCli = (args, cwd = process.cwd(), { env = process.env, std
     const arg = args[i];
     if (arg === '--json') json = true;
     else if (arg === '--brief') json = false;
+    else if (arg === '--detail') detail = true;
     else if (arg === '--lang' && ['en', 'ko'].includes(args[i + 1])) lang = args[++i];
     else if (arg === '--here') options.here = true;
     else if (arg === '--since' && parseSince(args[i + 1])) options.since = args[++i];
@@ -434,6 +471,7 @@ export const runRewindCli = (args, cwd = process.cwd(), { env = process.env, std
     }
   }
   const data = collectRewind(options);
-  stdout.write(json ? `${JSON.stringify(data, null, 2)}\n` : renderRewind(data, { lang, width }));
+  if (json) data.boardText = renderBoard(data, { lang });
+  stdout.write(json ? `${JSON.stringify(data, null, 2)}\n` : renderRewind(data, { lang, width, detail }));
   return 0;
 };

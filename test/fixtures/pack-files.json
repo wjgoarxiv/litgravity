@@ -45,6 +45,7 @@
   "plugin/hooks/lib/prose.mjs",
   "plugin/hooks/lib/redact.mjs",
   "plugin/hooks/lib/reentry.mjs",
+  "plugin/hooks/lib/rewind/board.mjs",
   "plugin/hooks/lib/rewind/brief.mjs",
   "plugin/hooks/lib/rewind/collect.mjs",
   "plugin/hooks/lib/rewind/gauge.mjs",

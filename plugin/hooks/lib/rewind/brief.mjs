@@ -148,10 +148,10 @@ const WORDS = {
 
 const bare = (text) => String(text ?? '').replace(/\s+/gu, ' ').trim();
 // Inline text from the records: no HTML, no code ticks, no table or emphasis syntax.
-const plain = (text) => bare(text).replace(/[<>`]/gu, (ch) => ({ '<': '‹', '>': '›', '`': "'" }[ch])).replace(/[*_|[\]\\]/gu, (ch) => `\\${ch}`);
+export const plain = (text) => bare(text).replace(/[<>`]/gu, (ch) => ({ '<': '‹', '>': '›', '`': "'" }[ch])).replace(/[*_|[\]\\]/gu, (ch) => `\\${ch}`);
 const code = (text) => `\`${bare(text).replace(/`/gu, "'")}\``;
-const placeOf = (session) => (session.worktree && session.worktree !== 'unknown' ? basename(String(session.worktree)) : 'unknown');
-const goalOf = (session) => (session.title && session.title !== 'unknown' ? session.title : session.asked?.[0] ?? 'unknown');
+export const placeOf = (session) => (session.worktree && session.worktree !== 'unknown' ? basename(String(session.worktree)) : 'unknown');
+export const goalOf = (session) => (session.title && session.title !== 'unknown' ? session.title : session.asked?.[0] ?? 'unknown');
 
 // The largest unit only, so a table cell never wraps: `14h`, `3d`, `20m`.
 const age = (iso, now, w) => {
@@ -172,7 +172,7 @@ const span = (session, w) => {
 const stamp = (iso) => (typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/u.test(iso) ? `${iso.slice(5, 10)} ${iso.slice(11, 16)}` : '·');
 
 // The last question a conversation asked, from its last model words.
-const lastQuestion = (result, escape = plain) => {
+export const lastQuestion = (result, escape = plain) => {
   const found = [...String(result ?? '').matchAll(/[^.!?。？\n]{4,}[?？]/gu)].at(-1)?.[0];
   return found ? escape(clipToWidth(bare(found), 90)) : null;
 };
@@ -259,40 +259,48 @@ const endedTable = (sessions, now, w) => {
 // When nothing can run on `go`, the box still recommends one step from what was read: a conversation
 // that waits on the user, a paused route, an open plan item (a live conversation's folder first), the
 // newest other active conversation, the newest HANDOFF's open Next item, the newest ended one. It is
-// shown, never recorded for `go`.
-const suggestion = (data, w) => {
+// shown, never recorded for `go`. `suggestionOf` makes the choice once; the brief and the board word it.
+export const suggestionOf = (data) => {
   const sessions = data.sessions ?? [];
   const where = (session) => bare(placeOf(session));
   const goal = (session) => clipToWidth(bare(goalOf(session)), 50);
   const waiting = sessions.find((s) => s.status === 'waiting-on-user' && !s.self);
-  if (waiting) return w.suggest.answer({ id8: waiting.id8, where: where(waiting), question: lastQuestion(waiting.result, bare) });
+  if (waiting) return { kind: 'answer', args: { id8: waiting.id8, where: where(waiting), question: lastQuestion(waiting.result, bare) } };
   const paused = (data.workflows ?? []).find((f) => f.status === 'paused');
   if (paused) {
     const owner = sessions.find((s) => s.id8 === paused.id8);
-    return w.suggest.resume({ id8: paused.id8, skill: paused.skill, stage: paused.stage, where: owner ? where(owner) : 'unknown' });
+    return { kind: 'resume', args: { id8: paused.id8, skill: paused.skill, stage: paused.stage, where: owner ? where(owner) : 'unknown', self: Boolean(owner?.self) } };
   }
   const live = new Set(sessions.filter((s) => s.status !== 'ended').map((s) => s.worktree));
   const open = (data.roadmap?.plans ?? []).filter((p) => p.current);
   const plan = open.find((p) => live.has(p.worktree)) ?? open.find((p) => p.local) ?? open[0];
-  if (plan) return w.suggest.plan({ plan: plan.local ? plan.plan : `${basename(String(plan.worktree))}/${plan.plan}`, item: clipToWidth(bare(plan.current), 60) });
+  if (plan) return { kind: 'plan', args: { plan: plan.local ? plan.plan : `${basename(String(plan.worktree))}/${plan.plan}`, item: clipToWidth(bare(plan.current), 60) }, plan };
   const active = sessions.find((s) => s.status === 'active' && !s.self);
-  if (active) return w.suggest.check({ id8: active.id8, goal: goal(active), where: where(active), doing: actionOf(active, bare) });
+  if (active) return { kind: 'check', args: { id8: active.id8, goal: goal(active), where: where(active), doing: actionOf(active, bare) } };
   // The newest handoff's first open Next item: below every live signal, above an ended conversation.
   const handoff = (data.handoffs ?? []).find((h) => h.local && h.next);
-  if (handoff) return w.suggest.handoff({ file: bare(handoff.file), next: bare(handoff.next) });
+  if (handoff) return { kind: 'handoff', args: { file: bare(handoff.file), next: bare(handoff.next) } };
   const ended = sessions.find((s) => s.status === 'ended' && !s.self);
-  if (ended) return w.suggest.pickUp({ id8: ended.id8, goal: goal(ended), where: where(ended) });
-  return w.suggest.start();
+  if (ended) return { kind: 'pickUp', args: { id8: ended.id8, goal: goal(ended), where: where(ended) } };
+  return { kind: 'start', args: {} };
+};
+const suggestion = (data, w) => {
+  const { kind, args } = suggestionOf(data);
+  return w.suggest[kind](args);
 };
 
 // A step held while other lanes work: answer the one waiting on the user, else wait for them.
 // A held plan names the plan to start after; a held resume or continue only waits.
-const holdStep = (data, held, w) => {
+export const holdOf = (data, held) => {
   const waiting = (data.sessions ?? []).find((s) => s.status === 'waiting-on-user' && !s.self);
-  if (waiting) return suggestion(data, w);
-  if (data.lanes?.waitingPane) return w.hold.answerPane({ pane: data.lanes.waitingPane });
-  if (held.plan) return w.hold.wait({ lanes: held.lanes, plan: bare(held.plan) });
-  return w.hold.waitLanes({ lanes: held.lanes });
+  if (waiting) return suggestionOf(data);
+  if (data.lanes?.waitingPane) return { kind: 'answerPane', args: { pane: data.lanes.waitingPane } };
+  if (held.plan) return { kind: 'wait', args: { lanes: held.lanes, plan: bare(held.plan) } };
+  return { kind: 'waitLanes', args: { lanes: held.lanes } };
+};
+const holdStep = (data, held, w) => {
+  const choice = holdOf(data, held);
+  return (w.suggest[choice.kind] ?? w.hold[choice.kind])(choice.args);
 };
 
 const ROADMAP_COMMITS = 5;
