@@ -11,7 +11,7 @@ This file keeps the id. `lit motion …`, `lit film …`, `lit video …`, `lit 
 
 ## Install it in agy
 
-wjgoarxiv-skills is not published yet, so copy the skill folder from a local clone into agy's user skills, which every workspace sees:
+wjgoarxiv-skills is public at https://github.com/wjgoarxiv/wjgoarxiv-skills. Clone it (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), then copy the skill folder into agy's user skills, which every workspace sees:
 
 ```bash
 mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/lit-typographic-motion" ~/.gemini/config/skills/

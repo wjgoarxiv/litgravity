@@ -145,7 +145,7 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 
 LitGravity에는 원래 슬라이드, 문서, 다이어그램, 장치도, 그림, 화면, 영상, README를 만드는 스킬이 함께 들어 있었고, 패키지 대부분이 이 스킬들이었습니다. 대부분의 사람은 그중 대부분을 쓰지 않으므로, 이제 이 스킬들은 따로 떨어진 wjgoarxiv-skills 저장소 한곳에 있고, 스킬마다 agy용 폴더가 있어 하나씩 복사해 설치합니다. LitGravity는 옛 이름마다 짧은 스텁을 남겨 둡니다. `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 그 스텁에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 그 묶음이 설치되지 않았으면 설치 명령 한 줄을 알려 주고 아무것도 만들지 않습니다.
 
-wjgoarxiv-skills는 아직 공개되지 않았으므로, 로컬 클론에서 스킬 폴더를 agy의 사용자 스킬 폴더로 복사합니다.
+wjgoarxiv-skills는 <https://github.com/wjgoarxiv/wjgoarxiv-skills>에 공개되어 있습니다. 저장소를 클론한 뒤(`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), 클론에서 스킬 폴더를 agy의 사용자 스킬 폴더로 복사합니다.
 
 ```bash
 mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/

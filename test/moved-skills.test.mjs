@@ -43,7 +43,7 @@ for (const [id, family] of MOVED) {
     assert.ok(md.includes(`\`litgravity:${id}\``), 'says the stub and the copy keep different names');
     assert.ok(md.includes(`~/.gemini/config/skills/${id}/SKILL.md`) && md.includes(`.agents/skills/${id}/SKILL.md`), 'tells the model where the installed copy is');
     assert.doesNotMatch(md, /another agent host|map its tools/, 'the agy copy needs no tool mapping');
-    assert.match(md, /not published yet/);
+    assert.ok(md.includes('https://github.com/wjgoarxiv/wjgoarxiv-skills'), 'names the public repository');
     assert.match(md, /read_file/);
     assert.match(md, /headless/i);
     assert.doesNotMatch(md, /\/Users\/|\/home\/[a-z]|[A-Z]:\\\\Users/, 'no private path');

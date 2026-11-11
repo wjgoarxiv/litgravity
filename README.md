@@ -145,7 +145,7 @@ The skills also call programs already on your machine: Python 3, Chrome or Chrom
 
 LitGravity used to carry its own slide, document, diagram, schematic, figure, interface, film and README makers, and together they were most of the package. Most people never touch most of them, so they now live in one separate place, the wjgoarxiv-skills repository, where each skill has a folder written for agy that you copy in on its own. LitGravity keeps a short stub under each old name: `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` and the rest still land there. The stub hands the turn to the installed copy, or, when that family is not installed, gives you the one line that installs it and makes nothing.
 
-wjgoarxiv-skills is not published yet, so copy a skill from a local clone into agy's user skills folder:
+wjgoarxiv-skills is public at <https://github.com/wjgoarxiv/wjgoarxiv-skills>. Clone it (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), then copy a skill from your clone into agy's user skills folder:
 
 ```bash
 mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/

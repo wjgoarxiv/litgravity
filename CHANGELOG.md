@@ -1,11 +1,22 @@
 # Changelog
 
-## Unreleased
+## 0.1.9 — 2026-11-11
 
-- Five content families moved to the separate wjgoarxiv-skills repository, so a LitGravity install stays small: decks (`lit-pptx`), documents (`lit-docx`), figures (`lit-diagram-drawer`, `lit-schematic`, `lit-scientific-visualization`), design (`frontend-ui-ux`, `visual-qa`) and video-covers (`lit-typographic-motion`, `readme-studio`). Each id keeps its route words, its `/litgravity:<id>` form and a same-name stub. The stub hands the turn to an installed copy, or gives the one install line, `mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/`, and makes nothing. Each moved skill installs on its own from its agy folder in wjgoarxiv-skills, answers as `/<id>`, and stays in place when LitGravity is upgraded or removed. `litgravity list` marks each moved skill with its family and `doctor` names them all with that line.
-- The engines those skills shipped (`office`, `diagram`, `readme`, `sciviz`, `motion`) left with them, and so did `litgravity runtime`, the Python picker, the motion done gate that held a film turn until its render passed, the motion cover QA script and the doctor rows for the design corpus, the Chrome driver, motion readiness, LibreOffice, pandoc, Poppler, XeLaTeX, ffmpeg, libwebp and the Pretendard font. The design routes no longer add the theme question, because the stub asks nothing.
-- autoconference draws `conference_progress.png` with a Python that can already import matplotlib (its `style_presets.py` doubles as the probe) and skips the figure with a ledger note when none can.
-- `skills.lock.json` holds stub-sized budgets for the nine ids and lists them in `policy.movedStubs`, the only ids the family floor skips. The package drops from 1,547 files to 519.
+Nine skills moved out of LitGravity into the public wjgoarxiv-skills repository (https://github.com/wjgoarxiv/wjgoarxiv-skills), so a LitGravity install stays small. Their ids, route words and `/litgravity:<id>` forms still work, and each one now answers with a short stub that tells you how to install the real skill.
+
+- What moved, by family: decks (`lit-pptx`), documents (`lit-docx`), figures (`lit-diagram-drawer`, `lit-schematic`, `lit-scientific-visualization`), design (`frontend-ui-ux`, `visual-qa`) and video-covers (`lit-typographic-motion`, `readme-studio`).
+- To keep using one, clone the repository once and copy that skill's agy folder into agy's user skills:
+
+  ```bash
+  git clone https://github.com/wjgoarxiv/wjgoarxiv-skills
+  mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/
+  ```
+
+  For one workspace only, copy it into that workspace's `.agents/skills/` instead. Start a new conversation (or type `/skills reload`) and the skill answers as `/<id>`; `lit` prompts that reach the stub hand over to it. The copy stays in place when LitGravity is upgraded or removed. Without a copy the stub gives that install line and makes nothing. `litgravity list` marks each moved skill with its family and `doctor` names them all with the line.
+- Removed with the skills: the engines they shipped (`office`, `diagram`, `readme`, `sciviz`, `motion`), the `litgravity runtime` command, the Python picker, the motion done gate that held a film turn until its render passed, the motion cover QA script, and the doctor rows for the design corpus, the Chrome driver, motion readiness, LibreOffice, pandoc, Poppler, XeLaTeX, ffmpeg, libwebp and the Pretendard font. The design routes no longer ask the theme question, because the stub asks nothing. The agy copies in wjgoarxiv-skills carry their own engine installers.
+- After upgrading: `npx @litfamily/litgravity@latest install` replaces the old plugin folder whole, and agy has no hook trust step, so there is nothing to re-approve. Earlier releases cached the engines under `~/.local/share/litgravity/runtime/` (`$XDG_DATA_HOME/litgravity/runtime/`); nothing writes there now and `uninstall` leaves it, so delete that folder to free the space.
+- autoresearch draws its convergence figure through your installed `lit-scientific-visualization` copy, then a project Python that can import matplotlib, and otherwise marks the figure step BLOCKED with the install line. autoconference draws `conference_progress.png` with a Python that can already import matplotlib (its `style_presets.py` doubles as the probe) and skips the figure with a ledger note when none can.
+- The package drops from 1,547 files to 519. `skills.lock.json` holds stub-sized budgets for the nine ids and lists them in `policy.movedStubs`, the only ids the family floor skips.
 
 ## 0.1.8 — 2026-11-11
 
