@@ -54,6 +54,16 @@ test('budget checks catch a placeholder SKILL.md, a trimmed folder, a bloated on
   assert.match(violations(at(25000, 24800, 5, 50000), budgets, policy)[0], /a: SKILL\.md body 24800 B > the 24000 B agy loads/);
 });
 
+test('a moved skill named in policy.movedStubs skips only the family floor; its own floors and ceilings still hold', () => {
+  const policy = { familyFloorBytes: 12000, bodyCapBytes: 24000, movedStubs: { s: 'decks' } };
+  const stub = { minSkillBytes: 2800, minBodyBytes: 2600, minFiles: 1, minTotalBytes: 2800, maxFiles: 1, maxTotalBytes: 5000 };
+  const at = (id, bytes, files = 1) => ({ [id]: { skillMd: { bytes, bodyBytes: bytes - 200 }, files, bytes } });
+  assert.deepEqual(violations(at('s', 3000), { s: stub }, policy), []);
+  assert.deepEqual(violations(at('t', 3000), { t: stub }, policy), ['t: SKILL.md 3000 B < family floor 12000 B'], 'any other id keeps the family floor');
+  assert.deepEqual(violations(at('s', 300), { s: stub }, policy), ['s: SKILL.md 300 B < floor 2800 B', 's: SKILL.md body 100 B < floor 2600 B', 's: 300 B in the folder < floor 2800 B']);
+  assert.deepEqual(violations(at('s', 3000, 2), { s: stub }, policy), ['s: 2 files > ceiling 1'], 'a stub that grows files again is caught');
+});
+
 test('sync:lock keeps hand-owned policy and budgets, and seeds or drops a budget only when told to', () => {
   const dir = tempDir('build');
   try {

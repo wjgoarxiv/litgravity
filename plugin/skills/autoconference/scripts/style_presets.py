@@ -4,10 +4,10 @@ style_presets.py: matplotlib style for autoconference figures (conference_progre
 researcher heatmaps, synthesis diagrams). The rules it encodes are in references/visualization-guide.md.
 
 The module imports with the standard library alone; matplotlib is loaded when rcparams() runs.
-Run figure scripts through the sciviz engine of the lit-scientific-visualization skill, which
-provides a pinned matplotlib in its own runtime cache:
+Run figure scripts with a Python that already imports matplotlib and numpy (the one that passed the
+readiness probe below; a project virtual environment when the user named one):
 
-    node "<skills-dir>/lit-scientific-visualization/scripts/sciviz-runtime.mjs" run -- plot_progress.py
+    python3 plot_progress.py
 
 Inside a figure script:
 
@@ -51,8 +51,8 @@ def rcparams():
     """Apply the publication style. Call before creating any figure."""
     if not matplotlib_available():
         raise MatplotlibMissing(
-            "matplotlib is not importable; run the figure script through the sciviz engine "
-            "(sciviz-runtime.mjs run -- <script>) or skip the figure and note it in the round log."
+            "matplotlib is not importable; run the figure script with a Python that has it "
+            "(the one the readiness probe passed) or skip the figure and note it in the round log."
         )
     import matplotlib as mpl
     from matplotlib import font_manager, rcParams
@@ -138,5 +138,5 @@ def color_legend_text(legend):
 if __name__ == "__main__":
     print("Okabe-Ito:", " ".join(OKABE_ITO))
     ok = matplotlib_available()
-    print("matplotlib:", "importable" if ok else "missing (use the sciviz engine)")
+    print("matplotlib:", "importable" if ok else "missing (use a Python that has it, or skip the figure)")
     sys.exit(0 if ok else 1)

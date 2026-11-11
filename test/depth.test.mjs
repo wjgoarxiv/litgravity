@@ -1,16 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, statSync, existsSync, mkdtempSync } from 'node:fs';
-import { join, dirname, relative, extname, basename } from 'node:path';
-import { tmpdir } from 'node:os';
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { join, dirname, relative, extname } from 'node:path';
 import { inflateRawSync } from 'node:zlib';
 import { PLUGIN_DIR } from '../lib/bundle.mjs';
-import { runtimeModules, callRuntime } from '../lib/runtime.mjs';
 import { readLock } from '../scripts/sync-lock.mjs';
 
 const SKILLS = join(PLUGIN_DIR, 'skills');
 const skillIds = readdirSync(SKILLS).filter((d) => statSync(join(SKILLS, d)).isDirectory()).sort();
-// Floors, exemptions and the runtime list are the hand-owned half of skills.lock.json (npm run sync:lock).
+// Floors, exemptions, the runtime list and the moved stubs are the hand-owned half of skills.lock.json (npm run sync:lock).
 const LOCK = readLock();
 const DEPTH = LOCK.policy;
 
@@ -79,21 +77,6 @@ test('no sibling product or host vocabulary anywhere in the bundle (legal files 
     for (const re of HOSTS) if (re.test(text)) hits.push(`${rel}: ${re}`);
   }
   assert.deepEqual(hits, []);
-});
-
-test('runtime modules answer status --json inside a sandbox and cache under the LitGravity data dir', () => {
-  const home = mkdtempSync(join(tmpdir(), 'litgravity-rt-'));
-  const env = { PATH: process.env.PATH, HOME: home, XDG_DATA_HOME: join(home, 'data') };
-  const mods = runtimeModules();
-  assert.deepEqual(mods.map((m) => m.name), DEPTH.runtimes, 'shipped runtime modules (skills.lock.json policy.runtimes; edit it by hand when a runtime is added or removed)');
-  for (const m of mods) {
-    const r = callRuntime(m, 'status', env);
-    assert.equal(r.error, undefined, `${m.name}: ${r.error}`);
-    assert.equal(typeof r.ready, 'boolean', `${m.name}: ready flag`);
-    assert.ok(Array.isArray(r.missing), `${m.name}: missing list`);
-    assert.ok(String(r.cache).startsWith(join(home, 'data', 'litgravity', 'runtime')), `${m.name}: cache ${r.cache}`);
-    assert.ok(['lib', 'scripts'].includes(basename(dirname(m.file))));
-  }
 });
 
 test('the legal and attribution files name no sibling product either: they credit upstream sources only', () => {
@@ -176,6 +159,6 @@ test('no byte of any bundle file names a sibling product: text of any size, bina
     }
     for (const v of views) for (const re of PRODUCTS) if (re.test(v.text)) hits.push(`${v.label}: ${re}`);
   }
-  assert.ok(scanned > 1000, `scanned ${scanned} files`);
+  assert.ok(scanned > 400, `scanned ${scanned} files`);
   assert.deepEqual(hits, []);
 });

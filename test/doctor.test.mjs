@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, writeFileSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { sandbox, collect, PLUGIN } from './helpers.mjs';
+import { sandbox, collect } from './helpers.mjs';
 import { install } from '../lib/install.mjs';
 import { doctor } from '../lib/doctor.mjs';
 
@@ -96,14 +96,14 @@ test('doctor fails when an installed copy lost a skill or a hook script', async 
   assert.match(r2.text, /FAIL skills — .*lit-plan/);
 });
 
-test('doctor lists engine runtimes and the pre-warm command without installing anything', async () => {
-  const { env, home } = sandbox();
+test('doctor names the moved skills and their install line, and lists no engine', async () => {
+  const { env } = sandbox();
   const cwd = cwdOf();
   await installAt(env, 'user', cwd);
   const r = await check(env, cwd);
-  assert.doesNotMatch(r.text, /FAIL runtime/);
-  assert.equal(PLUGIN.length > 0, true);
-  void home;
+  assert.match(r.text, /INFO moved skills — 9 are pointer stubs here/);
+  assert.match(r.text, /fix: agy plugin install <path to your wjgoarxiv-skills clone>\/plugins\/<family>/);
+  assert.doesNotMatch(r.text, /engine |runtime install/);
 });
 
 test('doctor runs the hook smoke with the environment it was given, never the caller\'s own HOME', async () => {

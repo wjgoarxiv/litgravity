@@ -1,6 +1,0 @@
-{
-  "name": "litgravity-readme-runtime",
-  "private": true,
-  "type": "module",
-  "dependencies": {"fontkit": "2.0.4"}
-}

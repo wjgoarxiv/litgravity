@@ -18,7 +18,7 @@ Every publish, tag or push needs the maintainer's explicit approval. Work throug
 - [ ] `npm run sync:lock` reads `already current`; after a skill or package change, read the diff of `skills.lock.json`
 - [ ] `npm pack --dry-run --json --ignore-scripts` — `[0].files` equals the `pack` list in `skills.lock.json`
 - [ ] Before any publish: run the umbrella decode-aware leak scan over every tracked and untracked file (`zsh ../plans/tools/leak-scan.sh` with each file as a target) and require rc 0
-- [ ] Motion: with a warm motion runtime, `node scripts/qa-cover-recipes.mjs --negatives` (the painted recipe uses its pinned five-panel base `test/fixtures/motion/painted-light-base.png`) reports the three recipes `PASS` and the four negatives and `feather-150` as caught; `motion.mjs cover-gate <cover.webp> --strict` reads `PASS+TARGET`
+- [ ] Moved skills: each of the nine stubs still names `wjgoarxiv-skills`, its `plugins/<family>/skills/<id>/` folder and the `agy plugin install` line with the placeholder (`test/moved-skills.test.mjs`)
 - [ ] Live: `agy -p "lit plan a tiny todo app" --output-format json < /dev/null` in a throwaway project with the plugin at `.agents/plugins/litgravity/`; the reply or the ledger shows the activation. Real model calls count against the user's quota; keep them few.
 - [ ] Fresh clone: `git clone` the repo into a temp folder and run `npm test` there
 

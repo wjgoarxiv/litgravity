@@ -4,7 +4,6 @@ import { run, holdStop, activeRoute, readSession, writeSession, workspaceOf, sta
 import { continuationHold } from './lib/continuation.mjs';
 import { boundaryProblem, BOUNDARY_HOLDS } from './lib/boundary.mjs';
 import { lastUserRequest } from './lib/transcript.mjs';
-import { MOTION_ROUTE, evaluateMotionStop } from './lib/motion.mjs';
 import { makeBudget, readTranscriptLines, waitingReason } from './lib/rewind/transcripts.mjs';
 import { writeNextStep } from './lib/rewind/next-step.mjs';
 import { uncoveredPaths } from '../skills/lit-plan/scripts/check-plan.mjs';
@@ -38,8 +37,7 @@ function settle(payload, out) {
 
 // The Stop event offers one lever: decision "continue" re-enters the loop with a reason. It is used sparingly. The
 // lit-plan gate holds a turn at most once, so a model that cannot write the plan still ends; start-work and litgoal
-// holds are bounded by continuation.mjs; the motion gate holds at most twice, then asks the reply to say the render is
-// not done. Only a normal end of turn is held: errors, cancellations and limits end.
+// holds are bounded by continuation.mjs. Only a normal end of turn is held: errors, cancellations and limits end.
 run((payload) => {
   const finish = (r) => {
     // A held turn goes on; any other end leaves the conversation idle until the next tool call.
@@ -48,8 +46,7 @@ run((payload) => {
     }
     return settle(payload, r);
   };
-  const out = decide(payload);
-  return out && typeof out.then === 'function' ? out.then(finish) : finish(out);
+  return finish(decide(payload));
 });
 
 function decide(payload) {
@@ -65,9 +62,6 @@ function decide(payload) {
       writeSession(payload, { ...state, boundaryTurn: state.turnId, boundaryHolds: used + 1 });
       return holdStop(problem.message);
     }
-  }
-  if (state.route === MOTION_ROUTE) {
-    return evaluateMotionStop(payload).then((r) => (r.action === 'block' ? holdStop(r.reason) : {}));
   }
   if (state.route !== 'lit-plan') {
     const reason = continuationHold(payload, state, request?.text, turn);

@@ -1,21 +1,21 @@
 # autoconference: visualization guide
 
-Rules for every figure a conference produces: the per-round `conference_progress.png`, the optional per-lane progress plots, and the figures analyze and ship modes put into their reports. The figures follow the house style of the `lit-scientific-visualization` skill; this file adds what is specific to conferences: which panels to draw, which data feeds them, and how to render them with agy tools.
+Rules for every figure a conference produces: the per-round `conference_progress.png`, the optional per-lane progress plots, and the figures analyze and ship modes put into their reports. The figures follow one publication house style, carried by this skill's own `scripts/style_presets.py`; this file adds what is specific to conferences: which panels to draw, which data feeds them, and how to render them with agy tools.
 
 Figures are a by-product. When the plotting runtime is not ready, skip the figure, append a `note` ledger line saying so, and keep the round going.
 
 ## Runtime
 
-Plots run in the Python runtime that `lit-scientific-visualization` manages (matplotlib and numpy, installed on first use into `$XDG_DATA_HOME/litgravity/runtime/sciviz`). Check it once per conference with `run_command`:
+Plots run on a Python 3 that can already import matplotlib and numpy. LitGravity installs no plotting runtime of its own, and the conference never installs packages for the user. Check once per conference with `run_command`; the helper doubles as the readiness probe:
 
 ```bash
-node "<skills-dir>/lit-scientific-visualization/scripts/sciviz-runtime.mjs" status --json
+python3 "<skill-folder>/scripts/style_presets.py"
 ```
 
-- `"ready": true`: render with `node "<skills-dir>/lit-scientific-visualization/scripts/sciviz-runtime.mjs" run -- <plot script>`.
-- `"ready": false`: run the same file with `install --json` once (first use). If `run_command` is refused, or the run is headless and the install cannot run, skip figures for this conference and report the user command `npx @litfamily/litgravity runtime install sciviz` as an optional action.
+- Exit 0 (`matplotlib: importable`): render with `python3 <plot script>` from CONF_DIR. When the user named an interpreter or a virtual environment for this project, use that one for the probe and for every render.
+- Exit 1 (`matplotlib: missing`): skip figures for this conference, append one `note` ledger line, and report the optional user action: make matplotlib and numpy importable for the Python the user wants the figures drawn with (a project virtual environment is the clean place), then rerun the round. If `run_command` is refused, or the run is headless and cannot ask, skip the figures the same way.
 
-`<skills-dir>` is the parent of this skill's folder, taken from the SKILL.md path in the activation note. Write each plot script into CONF_DIR (`plot_progress.py`), never into the skill folder or the user's source tree.
+`<skill-folder>` is this skill's folder, taken from the SKILL.md path in the activation note. Write each plot script into CONF_DIR (`plot_progress.py`), never into the skill folder or the user's source tree.
 
 ## Style setup
 

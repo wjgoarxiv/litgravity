@@ -22,7 +22,7 @@
 
 ## 만들 수 있는 것
 
-아래 그림은 모두 이 Mac에서 나온 실제 결과물입니다. `lit-adhd` 브리프는 실제 agy 대화 세 개를 수집기가 읽어 그렸고, 나머지는 각 스킬의 예제를 그 스킬의 엔진이 만든 것입니다. 대화에서 요청할 때 agy가 부르는 엔진과 같습니다.
+아래 그림은 모두 이 Mac에서 나온 실제 결과물입니다. `lit-adhd` 브리프는 실제 agy 대화 세 개를 수집기가 읽어 그렸고, 나머지는 각 스킬의 예제를 그 스킬의 엔진이 만든 것입니다. 덱, P&ID, 장치도, 영상은 이제 wjgoarxiv-skills에 있는 스킬이 만든 것이며([옮겨 간 스킬](#옮겨-간-스킬) 참고), 그 묶음을 설치하면 agy가 같은 방식으로 만듭니다.
 
 | 그림 | 스킬 | 보여 주는 것 |
 |---|---|---|
@@ -66,7 +66,7 @@ npx @litfamily/litgravity install
 npx @litfamily/litgravity doctor
 ```
 
-`doctor`는 설치된 사본, 검증 결과, 훅 이벤트 6개와 각 훅 스크립트의 실행 확인, 전역 규칙 파일, 스킬과 에이전트 전체, 각 엔진과 그 사전 설치 명령, 스킬이 부르는 호스트 프로그램, 엔진이 쓸 Python을 보여 줍니다. 깨진 곳이 없으면 마지막 줄이 `LitGravity: ready`입니다.
+`doctor`는 설치된 사본, 검증 결과, 훅 이벤트 6개와 각 훅 스크립트의 실행 확인, 전역 규칙 파일, 스킬과 에이전트 전체, 옮겨 간 스킬과 그 설치 명령, 스킬이 부르는 호스트 프로그램을 보여 줍니다. 깨진 곳이 없으면 마지막 줄이 `LitGravity: ready`입니다.
 
 사용자 범위 설치는 `~/.gemini/config/rules/litgravity.md`에 LitGravity 전용 규칙 파일 하나를 남깁니다. agy가 매 세션 시작에 그 폴더를 읽기 때문입니다. 규칙은 일부러 짧습니다. lit 호출어, 계획과 핸드오프의 위치, 릴리스 동결만 담아서 어떤 스킬이 뜨기 전에 기본 규칙이 서도록 합니다. 대화형 설치는 먼저 묻고, No라고 답하면 규칙을 끈 채로 저장합니다. `--yes`는 규칙을 더하고, `--no-agent-file`은 한 번만 건너뛰고, `npx @litfamily/litgravity config agentFile off`는 언제든 규칙을 지웁니다. 저장소에는 `npx @litfamily/litgravity agent-file project --dir <경로>`로 맞는 프로젝트 관례를 넣습니다. `AGENTS.md`에 표시된 블록만 씁니다.
 
@@ -115,19 +115,19 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 
 ## 들어 있는 것
 
-모든 lit 턴은 같은 순서를 따릅니다. 큰 변경은 첫 편집 전에 계획으로 적습니다. 작업은 그 계획에 맞춰 테스트와 실제 화면 확인으로 검증합니다. 합치기 전에는 두 번째 눈이 검토합니다. 조사는 출처를 밝히고, 문서와 글은 깔끔하게 읽히며, 턴은 다음 대화가 읽을 인계 메모로 끝납니다. 아래 스킬, 에이전트, 훅, 엔진은 그 순서의 부품으로, 필요할 때 읽습니다.
+모든 lit 턴은 같은 순서를 따릅니다. 큰 변경은 첫 편집 전에 계획으로 적습니다. 작업은 그 계획에 맞춰 테스트와 실제 화면 확인으로 검증합니다. 합치기 전에는 두 번째 눈이 검토합니다. 조사는 출처를 밝히고, 문서와 글은 깔끔하게 읽히며, 턴은 다음 대화가 읽을 인계 메모로 끝납니다. 아래 스킬, 에이전트, 훅은 그 순서의 부품으로, 필요할 때 읽습니다.
 
-**스킬 42개.** 각 스킬은 필요할 때 읽는 agy 스킬로, 필요한 참고 문서, 스크립트, 템플릿, 엔진을 자기 폴더 안에 갖고 있습니다. agy는 `SKILL.md`의 앞 24,000바이트만 불러오므로 긴 내용은 스킬의 `references/` 폴더에 두고, 스킬이 열 파일을 알려 줍니다.
+**스킬 42개.** 33개는 필요할 때 읽는 agy 스킬로, 필요한 참고 문서, 스크립트, 템플릿을 자기 폴더 안에 갖고 있고, 9개는 옮겨 간 스킬의 스텁입니다([옮겨 간 스킬](#옮겨-간-스킬) 참고). agy는 `SKILL.md`의 앞 24,000바이트만 불러오므로 긴 내용은 스킬의 `references/` 폴더에 두고, 스킬이 열 파일을 알려 줍니다.
 
 | 부분 | 내용 | 역할 |
 |---|---|---|
-| 스킬 42개 | 참고 문서, 스크립트, 엔진을 담은 agy 스킬 | 계획, 구현, 확인, 조사, 작성, 인계 |
+| 스킬 42개 | 참고 문서와 스크립트를 담은 agy 스킬 33개와 옮겨 간 스킬의 스텁 9개 | 계획, 구현, 확인, 조사, 작성, 인계 |
 | 에이전트 11개 | agy가 타입 이름으로 시작하는 하위 에이전트 | 계획, 실행, 검증, 검토, 한국어 글 |
 | 훅 6개 | 세션 시작, 매 턴, 매 도구 호출, 종료 게이트에서 실행 | `lit` 라우팅, 미완 턴 붙잡기, 도구 ledger 기록 |
 
-스킬 묶음은 루프와 목표, 아이디어와 계획, 구현, 검토와 정리, 조사와 지식, 팀, 글, 이어가기와 안내, 화면과 문서, 문서와 그림, 영상과 커버, 도구이고, `npx @litfamily/litgravity list`는 모든 스킬과 그 스킬에 닿는 단어를 출력합니다.
+스킬 묶음은 루프와 목표, 아이디어와 계획, 구현, 검토와 정리, 조사와 지식, 팀, 글, 이어가기와 안내, 도구이고, 옮겨 간 묶음의 스텁이 더해지며, `npx @litfamily/litgravity list`는 모든 스킬과 그 스킬에 닿는 단어를 출력합니다.
 
-문서, 다이어그램, README 커버, 그림, 모션 스킬은 버전이 고정된 엔진을 함께 싣습니다. 이름은 `office`, `diagram`, `readme`, `sciviz`, `motion`입니다. 각 엔진은 `~/.local/share/litgravity/runtime/<이름>`에만 설치됩니다. `npx @litfamily/litgravity runtime install all`(또는 이름 하나)로 한 번 설치하고, `runtime status`로 상태를 봅니다. 스킬은 엔진이 준비됐는지 먼저 확인하고, 없으면 agy에 설치 명령을 실행해 달라고 합니다. Python이 필요한 엔진은 알아서 쓸 수 있는 인터프리터를 고릅니다. 3.14보다 새로운 `python3`에는 고정된 패키지의 휠이 없으므로 `python3.14`, `python3.13`을 차례로 찾고, `LITGRAVITY_OFFICE_PYTHON`, `LITGRAVITY_SCIVIZ_PYTHON`, `LITGRAVITY_MOTION_PYTHON`이 있으면 그 값을 따르며, 맞는 인터프리터가 없으면 정확한 해결 방법과 함께 `BLOCKED`로 답합니다. 스킬은 이미 설치된 프로그램도 부릅니다. LibreOffice, pandoc, Poppler, Chrome 또는 Chromium, ffmpeg, libwebp, ast-grep, XeLaTeX, `lsp`가 돌리는 언어별 검사기가 그것입니다. 빠진 것과 설치 명령은 `doctor`가 알려 주며, LitGravity는 소프트웨어를 전역으로 설치하지 않습니다.
+스킬은 이미 설치된 프로그램도 부릅니다. Python 3, 브라우저 작업용 Chrome 또는 Chromium, ast-grep, ripgrep, `lsp`가 돌리는 언어별 검사기가 그것입니다. 빠진 것과 설치 명령은 `doctor`가 알려 주며, LitGravity는 소프트웨어를 전역으로 설치하지 않습니다.
 
 **에이전트 11개.** agy가 `invoke_subagent`로 타입 이름을 지정해 시작합니다. lit-planner, lit-executor, lit-verifier, qa-runner, quality-reviewer, librarian-researcher, 그리고 한국어 글 에이전트 5개(korean-style-analyzer, korean-prose-editor, meaning-preservation-auditor, native-flow-reviewer, polish-orchestrator)입니다. 검토용 에이전트와 한국어 에이전트는 읽기와 검색 도구만 받습니다.
 
@@ -135,11 +135,33 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 
 - SessionStart는 새 대화가 시작될 때 한 번, LitGravity 경로 목록과 업데이트 알림, 최근 인계 메모 위치를 알려 줍니다.
 - PreInvocation은 `lit` 라우터입니다. agy에는 프롬프트 훅이 없으므로, 한 턴의 첫 모델 호출에서 라우터가 대화 기록의 가장 최근 프롬프트를 읽고, 다시 진입 규칙을 적용한 뒤, 읽을 스킬 파일을 알리는 단계 하나를 끼워 넣습니다.
-- PostInvocation과 Stop은 agy가 미리 실행할 수 없는 검사를 맡습니다(아래 한계 참고). Stop은 턴도 붙잡습니다. lit-plan 턴은 `plans/<slug>.md`가 생길 때까지, start-work는 승인된 계획에 열린 행이 있는 동안, litgoal과 lit-loop는 목표 기록에 열린 기준이 있는 동안 붙잡으며, 진전 없이 연달아 최대 세 번입니다. `pause`라고 말하거나 ledger에 `BLOCKED at row N:`, `PAUSED at row N:`, `CANCELLED:`를 적으면 풀립니다. 모션 턴은 스킬의 완료 검사가 마지막 렌더에서 통과하면 끝나고, 그렇지 않으면 두 번 붙잡은 뒤 "완료되지 않았다"는 알림을 답변에 넣게 합니다.
+- PostInvocation과 Stop은 agy가 미리 실행할 수 없는 검사를 맡습니다(아래 한계 참고). Stop은 턴도 붙잡습니다. lit-plan 턴은 `plans/<slug>.md`가 생길 때까지, start-work는 승인된 계획에 열린 행이 있는 동안, litgoal과 lit-loop는 목표 기록에 열린 기준이 있는 동안 붙잡으며, 진전 없이 연달아 최대 세 번입니다. `pause`라고 말하거나 ledger에 `BLOCKED at row N:`, `PAUSED at row N:`, `CANCELLED:`를 적으면 풀립니다.
 - PreToolUse는 lit-plan이 켜져 있는 동안 쓰기가 가능한 하위 에이전트를 거절합니다.
 - PostToolUse는 경로가 켜져 있는 동안 도구 호출마다 `.litgravity/ledger/<대화>.jsonl`에 한 줄을 남깁니다. 키 모양의 값은 가립니다. ledger가 조용하면 훅이 불러와지지 않은 것입니다.
 
 **모델.** `npx @litfamily/litgravity models`는 agy가 제공하는 모델과 추론 강도를 agy에서 직접 읽어 보여 줍니다. Google이 나중에 모델을 추가하면 LitGravity를 업데이트하지 않아도 목록에 나타납니다.
+
+## 옮겨 간 스킬
+
+LitGravity에는 원래 슬라이드, 문서, 다이어그램, 장치도, 그림, 화면, 영상, README를 만드는 스킬이 함께 들어 있었고, 패키지 대부분이 이 스킬들이었습니다. 대부분의 사람은 그중 대부분을 쓰지 않으므로, 이제 이 스킬들은 따로 떨어진 wjgoarxiv-skills 저장소 한곳에 있고, 묶음마다 하나의 플러그인으로 따로 설치합니다. LitGravity는 옛 이름마다 짧은 스텁을 남겨 둡니다. `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 그 스텁에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 그 묶음이 설치되지 않았으면 설치 명령 한 줄을 알려 주고 아무것도 만들지 않습니다.
+
+wjgoarxiv-skills는 아직 공개되지 않았으므로, 로컬 클론에서 묶음을 설치합니다.
+
+```bash
+agy plugin install <path to your wjgoarxiv-skills clone>/plugins/<family>
+```
+
+agy는 설치하면서 플러그인을 변환해 `~/.gemini/config/plugins/<family>`에 복사합니다. 새 대화를 열거나 `/skills reload`를 입력하면 스킬이 `/<family>:<id>`로 답합니다.
+
+| 묶음 | 옮겨 간 스킬 |
+|---|---|
+| `decks` | `lit-pptx` |
+| `documents` | `lit-docx` |
+| `figures` | `lit-diagram-drawer`, `lit-schematic`, `lit-scientific-visualization` |
+| `design` | `frontend-ui-ux`, `visual-qa` |
+| `video-covers` | `lit-typographic-motion`, `readme-studio` |
+
+고정 엔진(`office`, `diagram`, `readme`, `sciviz`, `motion`)과 `litgravity runtime`, 렌더가 통과할 때까지 영상 턴을 붙잡던 훅도 함께 옮겨 갔습니다. wjgoarxiv-skills의 사본은 다른 에이전트 호스트용으로 쓰였으므로, 각 스텁이 그 도구 이름을 agy 도구에 어떻게 대응시키는지 알려 줍니다.
 
 ## 지금 agy가 막아 두는 것
 
@@ -175,7 +197,7 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 - 설치기는 자기 플러그인 폴더, 데이터 디렉터리(`$XDG_DATA_HOME/litgravity`), agy 전역 규칙 폴더의 전용 규칙 파일, 그리고 요청했을 때 agy 사용자 설정의 상태 표시줄 키만 씁니다. 설정 파일은 먼저 백업합니다. agy의 인증 파일은 읽지 않습니다. 설치기가 쓰지 않은 규칙 파일은 합치지 않고 첫 쓰기 전에 설치를 멈춥니다.
 - 심볼릭 링크이거나, 남의 파일이거나, 설치 뒤 수정된 대상은 첫 쓰기 전에 설치를 멈추고, 옮기는 명령을 알려 줍니다. `--dry-run`은 아무것도 바꾸지 않습니다.
 - 훅이 하나 깨져도 대화는 계속됩니다.
-- 엔진 캐시는 `~/.local/share/litgravity/runtime/`에 있습니다. `uninstall`은 캐시를 남기므로, 공간이 필요하면 그 폴더를 지우세요.
+- 스킬을 옮기기 전의 릴리스는 엔진 캐시를 `~/.local/share/litgravity/runtime/`에 두었습니다. 이제 그곳에 쓰는 것은 없고 `uninstall`도 남겨 두므로, 공간이 필요하면 그 폴더를 지우세요.
 - agy를 시작하기 전에 `LITGRAVITY_HOOK_TRACE=<파일>`을 지정하면 훅 호출마다 한 줄씩 기록합니다. 지정하지 않으면 꺼져 있습니다.
 설치부터 제거까지 세 명령으로 충분하고, 모두 `--dry-run`으로 먼저 미리 봅니다.
 
@@ -185,7 +207,6 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 | 업데이트 | `npx @litfamily/litgravity install` (검증하고 그 자리에서 교체) |
 | 전역 규칙 끄기/켜기 | `npx @litfamily/litgravity config agentFile off` (또는 `on`) |
 | 프로젝트 블록 | `npx @litfamily/litgravity agent-file project --dir <경로>` |
-| 엔진 새로 받기 | `npx @litfamily/litgravity runtime install all` |
 | 확인 | `npx @litfamily/litgravity doctor` |
 | 제거 | `npx @litfamily/litgravity uninstall --yes` |
 

@@ -1,14 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { fetchBytes } from '../plugin/skills/lit-hijack/scripts/hijack.mjs';
-import { fetchAssets } from '../plugin/skills/lit-typographic-motion/engine/node/assets.mjs';
 
-// The lit-hijack capture and the motion asset fetch reach only public https hosts, on every redirect, and connect to
+// The lit-hijack capture reaches only public https hosts, on every redirect, and connects to
 // the address the check approved, so a name that answers public for the check and private for the connection (DNS
 // rebinding) cannot move the socket. node:https is faked at its own level: the fake calls the lookup it was handed, the
 // way net.connect does, with and without `all`.
@@ -77,33 +73,4 @@ test('lit-hijack fetch: a redirect to a public host is followed and the body is 
   assert.equal(finalUrl, 'https://example.com/moved');
   const big = fakeRequest([], [{ headers: {}, body: 'x'.repeat(2048) }]);
   await assert.rejects(fetchBytes('https://example.com/', { lookup: publicLookup, request: big, limit: 1024 }), /larger than 1024 bytes/);
-});
-
-test('motion asset fetch: connects to the address its hop check approved', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'motion-pin-'));
-  try {
-    const { lookup, asked } = rebinding();
-    const connected = [];
-    await fetchAssets({ out, url: 'https://rebind.example', lookup, request: fakeRequest(connected, [{ body: '<html><title>x</title></html>' }]) }).catch(() => null);
-    assert.ok(connected.length >= 2, 'the page was requested through the pinned transport');
-    assert.deepEqual([...new Set(connected)], [PUBLIC]);
-    assert.equal(asked.get('rebind.example'), 1);
-  } finally {
-    rmSync(out, { recursive: true, force: true });
-  }
-});
-
-test('motion asset fetch: an og:image on a private address or behind a private redirect is not fetched', async () => {
-  const out = mkdtempSync(join(tmpdir(), 'motion-pin-'));
-  try {
-    const page = '<html><head><meta property="og:image" content="https://127.0.0.1/logo.png"><link rel="icon" href="https://cdn.example/i.png"></head></html>';
-    const connected = [];
-    const request = fakeRequest(connected, [{ body: page }, { status: 302, headers: { location: 'https://192.168.1.1/i.png' } }]);
-    const r = await fetchAssets({ out, url: 'https://example.com', lookup: publicLookup, request }).catch((e) => e);
-    assert.ok(!connected.includes('127.0.0.1') && !connected.includes('192.168.1.1'));
-    const problems = JSON.stringify(r?.product ?? r?.message ?? r);
-    assert.match(problems, /private host/);
-  } finally {
-    rmSync(out, { recursive: true, force: true });
-  }
 });

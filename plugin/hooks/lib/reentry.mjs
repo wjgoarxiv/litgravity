@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { PLUGIN_ROOT, sessionPath, safeId } from './common.mjs';
+import { MOVED_SKILLS, movedInstallLine } from './routes.mjs';
 
 // The route a `lit` prompt finds already active in this conversation. A damaged, journal-only or odd-shaped state
 // counts as nothing active, so the prompt gets the full activation and rewrites the state.
@@ -73,9 +74,9 @@ export function resumeNote(plan) {
   ].join('\n');
 }
 
-// Design skills let the user pick the look: the skill asks one `ask_question` round before it builds.
-export const THEME_FIRST = new Set(['lit-pptx', 'lit-docx', 'frontend-ui-ux', 'lit-schematic', 'lit-diagram-drawer', 'readme-studio', 'lit-typographic-motion']);
-const THEME_NOTE = 'Theme first: before building, ask the user with `ask_question` to choose the theme or preset (two to four real options from the skill, the recommended one first), unless the prompt already names one or says "you choose" / "알아서". If nobody can answer (headless), take the recommended option and say so in one line.';
+// A moved skill's route reads its pointer stub; the note says so up front, with the install line, so the turn gives
+// that line (or hands over to the installed copy) and builds nothing from memory.
+const movedNote = (id) => `\`${id}\` moved to wjgoarxiv-skills (plugins/${MOVED_SKILLS[id]}/skills/${id}/); the file above is its pointer stub. If the stub finds no installed copy, give the user this install line and make nothing: ${movedInstallLine(id)}`;
 
 export function activation(hit, conversationId, kind = 'ignite') {
   const id = safeId(conversationId);
@@ -89,7 +90,7 @@ export function activation(hit, conversationId, kind = 'ignite') {
   ];
   lines.push(HEADLESS_NOTE);
   if (hit.route === 'lit-plan') lines.push(PLAN_REMINDER);
-  if (THEME_FIRST.has(hit.route)) lines.push(THEME_NOTE);
+  if (MOVED_SKILLS[hit.route]) lines.push(movedNote(hit.route));
   // `go` reads the step the brief offered for this conversation, so the collector needs its id.
   if (hit.route === 'lit-adhd' && id) lines.push(`Run the collector for this conversation: node ${dirname(skillPath('lit-adhd'))}/scripts/rewind.mjs --brief --lang <ko|en> --session ${id}${hit.detail ? ' --detail' : ''}`);
   if (hit.reviewMode) lines.push(`The user forced the ${hit.reviewMode} review mode.`);

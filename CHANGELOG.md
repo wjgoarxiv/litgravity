@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Five content families moved to the separate wjgoarxiv-skills repository, so a LitGravity install stays small: decks (`lit-pptx`), documents (`lit-docx`), figures (`lit-diagram-drawer`, `lit-schematic`, `lit-scientific-visualization`), design (`frontend-ui-ux`, `visual-qa`) and video-covers (`lit-typographic-motion`, `readme-studio`). Each id keeps its route words, its `/litgravity:<id>` form and a same-name stub. The stub hands the turn to an installed copy, or gives the one install line, `agy plugin install <path to your wjgoarxiv-skills clone>/plugins/<family>`, and makes nothing. `litgravity list` marks each moved skill with its family and `doctor` names them all with that line.
+- The engines those skills shipped (`office`, `diagram`, `readme`, `sciviz`, `motion`) left with them, and so did `litgravity runtime`, the Python picker, the motion done gate that held a film turn until its render passed, the motion cover QA script and the doctor rows for the design corpus, the Chrome driver, motion readiness, LibreOffice, pandoc, Poppler, XeLaTeX, ffmpeg, libwebp and the Pretendard font. The design routes no longer add the theme question, because the stub asks nothing.
+- autoconference draws `conference_progress.png` with a Python that can already import matplotlib (its `style_presets.py` doubles as the probe) and skips the figure with a ledger note when none can.
+- `skills.lock.json` holds stub-sized budgets for the nine ids and lists them in `policy.movedStubs`, the only ids the family floor skips. The package drops from 1,547 files to 519.
+
 ## 0.1.8 — 2026-11-11
 
 - lit-adhd now opens with a KPI board instead of the per-session brief: the one thing to do now with the exact text to type (or what to wait for), four counts (done, in progress, waiting on you, left) with an overall bar, a milestone table with ten-cell bars, up to five things done lately, up to seven left in plan order, and up to five reminders shaped `thing → what to do`: a conversation waiting on you, uncommitted changes and unpushed commits per worktree, lanes still working, plans untouched for a week, the handoff's next item. The collector computes all of it and puts it in the JSON as `board` and `boardText`. The board shows no conversation ids, commit hashes, status codes or plan paths. `lit adhd detail` (or `자세히`) adds the old per-session brief under the board; the next-step choice and `go` work as before.

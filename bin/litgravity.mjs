@@ -5,7 +5,6 @@ import { runAgentFileConfig, runAgentFileProject } from '../lib/agent-file.mjs';
 import { uninstall } from '../lib/uninstall.mjs';
 import { doctor } from '../lib/doctor.mjs';
 import { models } from '../lib/models.mjs';
-import { runtime } from '../lib/runtime.mjs';
 import { list } from '../lib/list.mjs';
 import { packageVersion, destState } from '../lib/bundle.mjs';
 import { paths } from '../lib/paths.mjs';
@@ -18,13 +17,12 @@ Usage: litgravity <command> [options]
 
 Commands
   install      Copy the plugin into agy's plugin folder (user scope by default) and validate it
-  doctor       Check install state, agy version, hooks, skills, agents, engines and host tools
+  doctor       Check install state, agy version, hooks, skills, agents and host tools
   status       Short version of doctor plus an update check
   models       List the models and efforts your agy offers
-  list         Every skill with the words that reach it, its purpose and its engine (--json for tools)
+  list         Every skill with the words that reach it and its purpose, and where a moved skill went (--json for tools)
   config       config agentFile on|off: keep or remove the LitGravity rule in agy's global rules folder
   agent-file   agent-file project [--dir <path>]: write the LitGravity block into a repo's AGENTS.md
-  runtime      status [name] | install <name|all>: the pinned engine runtimes, cached under the LitGravity data dir
   uninstall    Remove the copies this installer wrote (both scopes unless --scope is given)
   help         This text
 
@@ -35,7 +33,7 @@ Options
   --scope <s>      user (default): ~/.gemini/config/plugins/litgravity, or project: ./.agents/plugins/litgravity
   --status-line    install: also set the LitGravity status line in agy's user settings (opt-in, user scope only)
   --replace-status-line  install: replace a status line LitGravity did not write (saved first; uninstall puts it back)
-  --json           Machine-readable output (doctor, models, runtime)
+  --json           Machine-readable output (doctor, models, list)
   --offline        Skip the npm update check
   --discard-modified  uninstall: also remove a copy edited after install
   --version        Print the version`;
@@ -104,8 +102,6 @@ async function main() {
       return runAgentFileConfig({ env, args, cwd, print });
     case 'agent-file':
       return runAgentFileProject({ env, args, cwd, flags, print });
-    case 'runtime':
-      return runtime({ env, flags, args, print });
     case 'status': {
       const p = paths(env, cwd);
       const user = destState(p.userPlugin);

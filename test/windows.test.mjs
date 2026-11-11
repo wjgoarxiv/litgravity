@@ -1,13 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync, readFileSync, chmodSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
   splitLines, firstLine, pathExtensions, resolveOnPath, quoteForCmd, spawnPlan, npmInvocation, describeSpawn, runSync,
 } from '../plugin/lib/host-exec.mjs';
-import { pickPython } from '../plugin/lib/python-pick.mjs';
 import { paths } from '../lib/paths.mjs';
 import { hudCommand, isOurs } from '../lib/statusline.mjs';
 import { hostToolOk, HOST_TOOLS } from '../lib/host-tools.mjs';
@@ -107,15 +104,6 @@ test('runSync returns the child result for a real executable (POSIX path, run fo
   assert.equal(r.stdout, 'ok');
 });
 
-test('python for engines: Windows tries python and then the py launcher when python3 is the Store stub', () => {
-  const probe = (command) => (command === 'py' ? { command, found: true, version: '3.12.1', parts: [3, 12, 1] } : { command, found: false, detail: 'Python was not found' });
-  const p = pickPython(undefined, 'LITGRAVITY_OFFICE_PYTHON', { platform: 'win32', probe });
-  assert.deepEqual({ ok: p.ok, command: p.command }, { ok: true, command: 'py' });
-  const none = pickPython(undefined, 'LITGRAVITY_OFFICE_PYTHON', { platform: 'win32', probe: (command) => ({ command, found: false, detail: 'nope' }) });
-  assert.equal(none.ok, false);
-  assert.match(none.detail, /python\.org|winget/);
-});
-
 test('settings live under %USERPROFILE%\\.gemini on Windows, where HOME is not set', () => {
   const p = paths({ USERPROFILE: 'C:\\Users\\woojin' }, 'C:\\work', { platform: 'win32' });
   assert.equal(p.home, 'C:\\Users\\woojin');
@@ -132,90 +120,14 @@ test('the status-line command is recognised as ours whichever slash style the se
   assert.equal(isOurs({ command: 'node other.mjs' }), false);
 });
 
-test('doctor host tools are found without sh on Windows: ffmpeg.exe through PATHEXT, soffice in Program Files', () => {
-  const ffmpeg = HOST_TOOLS.find((t) => t.label === 'ffmpeg');
-  const soffice = HOST_TOOLS.find((t) => t.label.startsWith('LibreOffice'));
-  const poppler = HOST_TOOLS.find((t) => t.label.startsWith('Poppler'));
+test('doctor host tools are found without sh on Windows: rg.exe through PATHEXT, Chrome in Program Files', () => {
+  const rg = HOST_TOOLS.find((t) => t.label.startsWith('ripgrep'));
+  const chrome = HOST_TOOLS.find((t) => t.label.startsWith('Chrome'));
   const win = (...files) => ({ platform: 'win32', env: { Path: 'C:\\bin', PATHEXT: '.EXE;.CMD', ProgramFiles: 'C:\\Program Files' }, isFile: winFs(...files) });
-  assert.equal(hostToolOk(ffmpeg, win('C:\\bin\\ffmpeg.exe')), true);
-  assert.equal(hostToolOk(ffmpeg, win()), false);
-  assert.equal(hostToolOk(soffice, win('C:\\Program Files\\LibreOffice\\program\\soffice.exe')), true);
-  assert.equal(hostToolOk(poppler, win('C:\\bin\\pdftoppm.exe')), false);
-  assert.equal(hostToolOk(poppler, win('C:\\bin\\pdftoppm.exe', 'C:\\bin\\pdftotext.exe')), true);
-});
-
-// ---- Python: the office bootstrap and the PDF font preflight ----
-
-const PY = (code, env = {}) => spawnSync('python3', ['-I', '-B', '-c', code], { encoding: 'utf8', env: { PATH: process.env.PATH, PYTHONDONTWRITEBYTECODE: '1', ...env } });
-const SCRIPTS = join(PLUGIN, 'skills', 'lit-pptx', 'scripts');
-const DOCX_SCRIPTS = join(PLUGIN, 'skills', 'lit-docx', 'scripts');
-
-test('the office bootstrap hands back the child exit code on Windows (a script that exits 3 returns 3)', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'litgravity-win-'));
-  const child = join(dir, 'child.py');
-  writeFileSync(child, 'import sys\nsys.exit(3)\n');
-  const r = PY(`
-import sys
-sys.path.insert(0, ${JSON.stringify(SCRIPTS)})
-import office_runtime_bootstrap as b
-code = b.reexec(sys.executable, ${JSON.stringify(child)}, [], {}, platform="win32")
-print("RETURNED", code)
-`);
-  assert.equal(r.status, 0, r.stderr);
-  assert.match(r.stdout, /RETURNED 3/);
-});
-
-test('the office bootstrap keeps execve on POSIX: the replaced process exits with the child code', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'litgravity-win-'));
-  const child = join(dir, 'child.py');
-  writeFileSync(child, 'import sys\nsys.exit(3)\n');
-  const r = PY(`
-import sys
-sys.path.insert(0, ${JSON.stringify(SCRIPTS)})
-import office_runtime_bootstrap as b
-b.reexec(sys.executable, ${JSON.stringify(child)}, [], {})
-print("NOT REACHED")
-`);
-  assert.equal(r.status, 3, r.stderr);
-  assert.doesNotMatch(r.stdout, /NOT REACHED/);
-});
-
-test('the PDF font preflight names the missing font and the fix, and stays quiet when it cannot list fonts', () => {
-  const run = (families, fonts) => PY(`
-import sys
-sys.path.insert(0, ${JSON.stringify(DOCX_SCRIPTS)})
-import pdf_fonts as f
-try:
-    f.require_fonts(${JSON.stringify(families)}, ${fonts})
-    print("OK")
-except SystemExit as e:
-    print(e)
-`);
-  const missing = run(['Pretendard', 'Times New Roman'], '["Times New Roman", "Arial"]');
-  assert.match(missing.stdout, /BLOCKED/);
-  assert.match(missing.stdout, /Pretendard/);
-  assert.match(missing.stdout, /github\.com\/orioncactus\/pretendard/);
-  assert.doesNotMatch(missing.stdout, /Times New Roman is/);
-  assert.match(run(['Pretendard'], '["Pretendard Variable", "Arial"]').stdout, /OK/);
-  assert.match(run(['Pretendard'], 'None').stdout, /OK/);
-});
-
-test('Windows font names from the registry list match a family ("Pretendard Bold (TrueType)")', () => {
-  const r = PY(`
-import sys
-sys.path.insert(0, ${JSON.stringify(DOCX_SCRIPTS)})
-import pdf_fonts as f
-print(f.parse_registry_fonts("    Pretendard Bold (TrueType)    REG_SZ    PretendardBold.otf\\r\\n    Times New Roman (TrueType)    REG_SZ    times.ttf\\r\\n"))
-`);
-  assert.match(r.stdout, /Pretendard Bold/);
-  assert.match(r.stdout, /Times New Roman/);
-});
-
-test('every LaTeX template loads longtable so a pandoc table compiles', () => {
-  for (const name of ['elsevier', 'acs', 'ieee', 'nature', 'korean-generic']) {
-    const tex = readFileSync(join(PLUGIN, 'skills', 'lit-docx', 'templates', 'latex', name, 'template.tex'), 'utf8');
-    assert.match(tex, /\\usepackage\{longtable\}/, name);
-  }
+  assert.equal(hostToolOk(rg, win('C:\\bin\\rg.exe')), true);
+  assert.equal(hostToolOk(rg, win()), false);
+  assert.equal(hostToolOk(chrome, win('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')), true);
+  assert.equal(hostToolOk(chrome, win()), false);
 });
 
 test('no skill script spawns npm, npx or a .cmd by bare name, and none parses child output with split("\\n") on a where/which probe', () => {

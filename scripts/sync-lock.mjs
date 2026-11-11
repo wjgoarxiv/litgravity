@@ -124,7 +124,9 @@ export function violations(skills, budgets, policy = {}) {
     const { bytes: md, bodyBytes: body } = m.skillMd;
     if (md < b.minSkillBytes) out.push(`${id}: SKILL.md ${md} B < floor ${b.minSkillBytes} B`);
     if (body < b.minBodyBytes) out.push(`${id}: SKILL.md body ${body} B < floor ${b.minBodyBytes} B`);
-    if (policy.familyFloorBytes && md < policy.familyFloorBytes) out.push(`${id}: SKILL.md ${md} B < family floor ${policy.familyFloorBytes} B`);
+    // A skill that moved to wjgoarxiv-skills ships as a short pointer stub; only the family floor is waived for it.
+    const movedStub = Object.hasOwn(policy.movedStubs ?? {}, id);
+    if (policy.familyFloorBytes && !movedStub && md < policy.familyFloorBytes) out.push(`${id}: SKILL.md ${md} B < family floor ${policy.familyFloorBytes} B`);
     if (policy.bodyCapBytes && body > policy.bodyCapBytes) out.push(`${id}: SKILL.md body ${body} B > the ${policy.bodyCapBytes} B agy loads; move detail into references/`);
     if (m.files < b.minFiles) out.push(`${id}: ${m.files} files < floor ${b.minFiles}`);
     if (m.files > b.maxFiles) out.push(`${id}: ${m.files} files > ceiling ${b.maxFiles}`);

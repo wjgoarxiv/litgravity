@@ -1,12 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, mkdtempSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sandbox, collect, workspace, runHook, basePayload, turn, injected, PLUGIN } from './helpers.mjs';
 import { install } from '../lib/install.mjs';
 import { doctor } from '../lib/doctor.mjs';
-import { runtime, runtimeModules } from '../lib/runtime.mjs';
 import { skillIds, agentNames, bundleHashes } from '../lib/bundle.mjs';
 import { SKILL_ROUTES } from '../plugin/hooks/lib/routes.mjs';
 
@@ -39,7 +38,7 @@ test('`lit <id>` activates each skill with the absolute path of a SKILL.md that 
   }
 });
 
-test('doctor --json lists every skill, agent and route, the five engines with their pre-warm commands, and the python pick', async () => {
+test('doctor --json lists every skill, agent and route, and the moved skills with their install line', async () => {
   const { env } = sandbox();
   const cwd = mkdtempSync(join(tmpdir(), 'litgravity-proj-'));
   const out = collect();
@@ -51,40 +50,28 @@ test('doctor --json lists every skill, agent and route, the five engines with th
   assert.deepEqual(doc.skills, ids);
   assert.equal(doc.agents.length, 11);
   assert.equal(doc.routes.length, 42);
-  for (const name of ['diagram', 'motion', 'office', 'readme', 'sciviz']) {
-    const row = doc.checks.find((c) => c.name === `engine ${name}`);
-    assert.ok(row, `engine ${name}`);
-    if (!/^ready/.test(row.detail)) assert.equal(row.fix, `npx @litfamily/litgravity runtime install ${name}`);
-  }
-  assert.ok(doc.checks.some((c) => c.name === 'python for engines'));
-  for (const label of ['frontend corpus', 'design dataset', 'handoff closure', 'wikify script', 'checker inventory']) {
+  assert.ok(doc.checks.some((c) => c.name === 'moved skills'));
+  for (const label of ['handoff closure', 'wikify script', 'checker inventory']) {
     assert.equal(doc.checks.find((c) => c.name === label)?.status, 'PASS', label);
   }
   assert.match(doc.checks.find((c) => c.name === 'skills').detail, /42 shipped, all present in the installed copy/);
 });
 
-test('the installed copy carries every skill, every engine module, the shared libraries and the motion engine, byte for byte', async () => {
+test('the installed copy carries every skill (the moved ones as stubs) and the shared libraries, byte for byte', async () => {
   const { env } = sandbox();
   const cwd = mkdtempSync(join(tmpdir(), 'litgravity-proj-'));
   const out = collect();
   assert.equal(await install({ env, flags: { yes: true, scope: 'project' }, cwd, print: out.print }), 0, out.text());
   const dest = join(cwd, '.agents', 'plugins', 'litgravity');
   assert.deepEqual(skillIds(dest), ids);
-  for (const f of ['lib/python-pick.mjs', 'hooks/lib/motion.mjs', 'skills/lit-typographic-motion/engine/node/done.mjs', 'skills/lit-typographic-motion/recipes/painted-light/expected.json', 'skills/lit-pptx/scripts/office-runtime.mjs']) {
+  for (const f of ['lib/host-exec.mjs', 'hooks/lib/routes.mjs', 'skills/lit-pptx/SKILL.md', 'skills/lit-typographic-motion/SKILL.md']) {
     assert.ok(existsSync(join(dest, f)), f);
   }
-  assert.deepEqual(runtimeModules(dest).map((m) => m.name), ['diagram', 'motion', 'office', 'readme', 'sciviz']);
+  for (const f of ['hooks/lib/motion.mjs', 'lib/python-pick.mjs', 'skills/lit-pptx/scripts', 'skills/lit-typographic-motion/engine']) {
+    assert.ok(!existsSync(join(dest, f)), `${f} left with the moved bodies`);
+  }
   const want = bundleHashes(PLUGIN);
   const got = bundleHashes(dest);
   for (const [file, hash] of Object.entries(want)) assert.equal(got[file], hash, file);
 });
 
-test('`runtime install all --dry-run` names the five engines and the cache folder each would use', async () => {
-  const { env, home } = sandbox();
-  const out = collect();
-  assert.equal(await runtime({ env, flags: { dryRun: true }, args: ['install', 'all'], print: out.print }), 0);
-  for (const name of ['diagram', 'motion', 'office', 'readme', 'sciviz']) {
-    assert.ok(out.text().includes(`would install runtime ${name} with `) && out.text().includes(join(home, '.local', 'share', 'litgravity', 'runtime', name)), name);
-  }
-  assert.deepEqual(readdirSync(home).filter((n) => n === '.local'), [], 'a dry run writes nothing');
-});

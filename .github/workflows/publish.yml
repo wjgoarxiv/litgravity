@@ -37,8 +37,6 @@ jobs:
         run: npm install -g npm@11.21.1
 
       - name: Tests
-        env:
-          LITGRAVITY_CHROME_NO_SANDBOX: "1"
         run: npm test
 
       - name: Version lockstep

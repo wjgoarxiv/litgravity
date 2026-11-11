@@ -7,7 +7,6 @@ import { decide, resumablePlan, activation, continueNote, resumeNote } from './l
 import { lastUserRequest } from './lib/transcript.mjs';
 import { PAUSE_WORD, planRows } from './lib/continuation.mjs';
 import { saveSnapshot } from './lib/boundary.mjs';
-import { MOTION_ROUTE, armMotionTurn } from './lib/motion.mjs';
 import { applyStackEvent, readStack, writeStack } from './lib/workflow-stack.mjs';
 import { isGoPrompt, takeNextStep } from './lib/rewind/next-step.mjs';
 
@@ -182,7 +181,6 @@ run((payload) => {
     writeStack(workspace, payload.conversationId, next);
   }
 
-  if (decision.route === MOTION_ROUTE) armMotionTurn(payload, now);
   appendLedger(payload, {
     kind: 'route', route: decision.route, how: decision.kind, keyword: hit.keyword ?? null,
     ...(decision.plan ? { path: decision.plan.file } : {}),

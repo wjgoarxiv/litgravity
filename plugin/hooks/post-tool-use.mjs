@@ -3,7 +3,6 @@ import { join, resolve } from 'node:path';
 import { run, activeRoute, appendLedger, readSession, writeSession, toolName, toolArgs, workspaceOf, PLUGIN_ROOT } from './lib/common.mjs';
 import { targetPaths } from './lib/policy.mjs';
 import { clip } from './lib/redact.mjs';
-import { MOTION_ROUTE, recordMotionTool } from './lib/motion.mjs';
 import { recordLane } from './lib/lanes.mjs';
 import { markLive } from './lib/liveness.mjs';
 import { READ_ONLY_DISCIPLINES, applyStackEvent, readStack, writeStack } from './lib/workflow-stack.mjs';
@@ -60,7 +59,6 @@ run((payload) => {
     const goalPath = `.litgravity/goals/${goal[1]}`;
     if (state.goalPath !== goalPath) writeSession(payload, { ...state, goalPath });
   }
-  if (state.route === MOTION_ROUTE) recordMotionTool(payload);
   if (/invoke_subagent|define_subagent/i.test(tool)) {
     try { recordLane(workspaceOf(payload), payload.conversationId, payload); } catch { /* lane tracking never blocks */ }
   }

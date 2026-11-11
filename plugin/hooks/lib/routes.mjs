@@ -16,7 +16,7 @@ export const SKILL_ROUTES = [
   { id: 'refactor', when: 'restructure code while behavior stays put' },
   { id: 'lit-commit', when: 'commits, staging, rebase, blame, bisect, history questions' },
   { id: 'review-work', when: 'is this plan, diff or branch right, risky or safe to merge' },
-  { id: 'visual-qa', when: 'inspect a built interface in a browser at several widths' },
+  { id: 'visual-qa', when: 'inspect a built interface in a browser at several widths (moved)' },
   { id: 'comment-checker', when: 'audit the comments in a diff or a set of files' },
   { id: 'lit-burnoff', when: 'clear generated bloat across a scope of files' },
   { id: 'lit-burnoff-file', when: 'clear generated residue from exactly one file' },
@@ -27,14 +27,14 @@ export const SKILL_ROUTES = [
   { id: 'lit-recap', when: 'where does the work stand (read-only)' },
   { id: 'lit-handoff', when: 'before stopping or switching conversations' },
   { id: 'lit-init', when: 'orient in an unfamiliar repository and leave AGENTS.md behind' },
-  { id: 'frontend-ui-ux', when: 'build or restyle a user interface' },
-  { id: 'readme-studio', when: 'write or refresh a README from repository facts' },
-  { id: 'lit-docx', when: 'a Word document, or DOCX/PDF converted to Markdown (needs Python)' },
-  { id: 'lit-pptx', when: 'a slide deck (needs Python)' },
-  { id: 'lit-schematic', when: 'a P&ID, PFD, equipment layout, journal apparatus figure or isometric cutaway of real hardware' },
-  { id: 'lit-scientific-visualization', when: 'a publication-ready figure from data' },
-  { id: 'lit-diagram-drawer', when: 'an architecture, workflow or timeline diagram' },
-  { id: 'lit-typographic-motion', when: 'a short film, kinetic type, lyric video or a seamless README cover loop' },
+  { id: 'frontend-ui-ux', when: 'build or restyle a user interface (moved)' },
+  { id: 'readme-studio', when: 'write or refresh a README from repository facts (moved)' },
+  { id: 'lit-docx', when: 'a Word document, or DOCX/PDF converted to Markdown (moved)' },
+  { id: 'lit-pptx', when: 'a slide deck (moved)' },
+  { id: 'lit-schematic', when: 'a P&ID, PFD, equipment layout, journal apparatus figure or isometric cutaway of real hardware (moved)' },
+  { id: 'lit-scientific-visualization', when: 'a publication-ready figure from data (moved)' },
+  { id: 'lit-diagram-drawer', when: 'an architecture, workflow or timeline diagram (moved)' },
+  { id: 'lit-typographic-motion', when: 'a short film, kinetic type, lyric video or a seamless README cover loop (moved)' },
   { id: 'autoresearch', when: 'a budgeted experiment loop against a metric' },
   { id: 'structural-search', when: 'find or rewrite code by syntax shape' },
   { id: 'browser-drive', when: 'the answer only exists inside a running web page' },
@@ -47,6 +47,22 @@ export const SKILL_ROUTES = [
 ];
 
 export const SKILL_IDS = new Set(SKILL_ROUTES.map((r) => r.id));
+
+// Five content families moved to the separate wjgoarxiv-skills repository. Each id keeps its route and a same-name
+// pointer stub; the value is the plugin (family) that now holds the skill there.
+export const MOVED_SKILLS = {
+  'lit-pptx': 'decks',
+  'lit-docx': 'documents',
+  'lit-diagram-drawer': 'figures',
+  'lit-schematic': 'figures',
+  'lit-scientific-visualization': 'figures',
+  'frontend-ui-ux': 'design',
+  'visual-qa': 'design',
+  'lit-typographic-motion': 'video-covers',
+  'readme-studio': 'video-covers',
+};
+/** The one agy line that installs the family holding a moved skill, from a local clone of wjgoarxiv-skills. */
+export const movedInstallLine = (id) => `agy plugin install <path to your wjgoarxiv-skills clone>/plugins/${MOVED_SKILLS[id]}`;
 // Skill ids that are another name for a skill: typed whole, slashed or after `lit`, they take its route.
 export const SKILL_ALIASES = { 'lit-rewind': 'lit-adhd' };
 const skillId = (word) => (SKILL_IDS.has(word) ? word : SKILL_ALIASES[word]);
