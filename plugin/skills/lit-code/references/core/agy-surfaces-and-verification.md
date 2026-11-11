@@ -15,7 +15,7 @@ Each surface below is code, because something executes or obeys it.
 | `plugin/agents/<name>.md` | defines a delegated role and its tool allowlist | name equals file name; a read-only agent's `tools:` list holds no writer |
 | `plugin/rules/*.md` | always-on context | size within the rules cap; contract statements present |
 | installer and doctor (`lib/`, `bin/`) | mutate the user's machine | dry-run output, refusal paths, and a run in a throwaway HOME |
-| engine scripts (`<name>-runtime.mjs`) | install software | `status --json` shape in a temp `XDG_DATA_HOME`; install stays inside `$XDG_DATA_HOME/litgravity/runtime/<name>` |
+| engine scripts (`<name>-runtime.mjs`) inside a skill folder | install software | `status --json` shape in a temp `XDG_DATA_HOME`; install stays inside the per-user cache the skill names under `XDG_DATA_HOME` |
 
 For skill and agent text, prefer structural tests over snapshots. A good test checks that a safety rule, a capability boundary, a threshold or a review lane is present; a weak test compares a whole paragraph and fails whenever wording improves. Compute corpus sets from the directory. Read real manifests and `package.json` in tests instead of duplicating their contents as fixtures, unless the duplication is itself the guard.
 

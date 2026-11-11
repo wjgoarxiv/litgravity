@@ -102,9 +102,9 @@ Direction: cohesive ownership, generalise at the second use, mark generated file
 - A skill names a resource path that does not exist in its folder.
 - An agent meant to be read-only has a writer in its `tools:` list.
 - A child agent is started without `TypeName`.
-- An engine installs outside `$XDG_DATA_HOME/litgravity/runtime/<name>`.
+- An engine installs outside the per-user cache its skill names (under `$XDG_DATA_HOME`), for example into the plugin folder, the workspace or a global prefix.
 
-Direction: one parser per payload with tolerant name matching, closure checks in tests, explicit allowlists, typed spawns, and engine installs pinned to the runtime cache.
+Direction: one parser per payload with tolerant name matching, closure checks in tests, explicit allowlists, typed spawns, and engine installs pinned to the cache the skill names.
 
 ## Review procedure
 

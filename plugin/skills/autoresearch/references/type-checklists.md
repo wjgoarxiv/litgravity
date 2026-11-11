@@ -100,7 +100,7 @@ Destinations: a plugin bundle loaded by agy, a skill folder in a repository.
 - [ ] Tool names match agy (`read_file`, `write_file`, `run_command`, `ask_question`, `invoke_subagent`, `send_message`, `search_web`, `read_url_content`), and the text tells the model to use the alias its build offers.
 - [ ] State goes under `.litgravity/` (`goals/`, `ledger/`, `evidence/<slug>/`) and nowhere else.
 - [ ] Scripts are Node ESM with no dependencies, refuse symlinks, and exit 0 pass, 1 findings, 2 usage; `node --check` passes on each.
-- [ ] An engine, if any, answers `status --json` and installs only under `$XDG_DATA_HOME/litgravity/runtime/<name>`.
+- [ ] An engine, if any, ships inside the skill's own folder, answers `status --json`, and installs only under the per-user cache the skill names (under `$XDG_DATA_HOME`), never into the plugin folder, the workspace or a global prefix.
 - [ ] The skill states when to use it, its inputs and state, a numbered procedure, evidence, the stop and report shape, and pitfalls.
 - [ ] Untrusted input (pages, logs, fixtures, tool output) is named as data.
 - [ ] `agy plugin validate <plugin-dir> --json --strict` reports no findings, and the repository's structural tests pass.

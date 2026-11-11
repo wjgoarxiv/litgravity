@@ -114,6 +114,32 @@ test('autoconference draws its figures without the moved plotting engine', () =>
   assert.match(readFileSync(join(dir, 'references', 'visualization-guide.md'), 'utf8'), /style_presets\.py/);
 });
 
+test('autoresearch draws its convergence figure through the installed copy, a local matplotlib or BLOCKED', () => {
+  const dir = join(PLUGIN, 'skills', 'autoresearch');
+  for (const f of walk(dir).filter((p) => /\.(md|py|sh)$/.test(p))) {
+    const text = readFileSync(join(dir, f), 'utf8');
+    assert.doesNotMatch(text, /\.\.\/lit-scientific-visualization|litgravity\/runtime/, f);
+  }
+  const guide = readFileSync(join(dir, 'references', 'visualization-guide.md'), 'utf8');
+  assert.ok(guide.includes('~/.gemini/config/skills/lit-scientific-visualization/SKILL.md'), 'user-scope copy');
+  assert.ok(guide.includes('.agents/skills/lit-scientific-visualization/SKILL.md'), 'workspace-scope copy');
+  assert.ok(guide.includes(movedInstallLine('lit-scientific-visualization')), 'the stub install line');
+  assert.match(guide, /BLOCKED/);
+  assert.match(guide, /style_presets\.py/);
+});
+
+test('no core skill points at a removed engine or the old LitGravity runtime cache', () => {
+  const moved = new Set(Object.keys(MOVED_SKILLS));
+  const core = readdirSync(join(PLUGIN, 'skills')).filter((id) => !moved.has(id));
+  const gone = new RegExp(`sciviz|litgravity/runtime|litgravity runtime|\\.\\./(${[...moved].join('|')})/(scripts|engine|references|assets)/`);
+  for (const id of core) {
+    const dir = join(PLUGIN, 'skills', id);
+    for (const f of walk(dir).filter((p) => /\.(md|py|sh|mjs|json)$/.test(p))) {
+      assert.doesNotMatch(readFileSync(join(dir, f), 'utf8'), gone, `${id}/${f}`);
+    }
+  }
+});
+
 test('list shows each moved skill with its new home, and no engines', () => {
   const out = collect();
   assert.equal(list({ flags: {}, print: out.print }), 0);

@@ -377,8 +377,8 @@
         "sha256": "f5ea613c4fbce9208d72c3a12069ebcae567c47e2e446f3c695e72188ae2b008"
       },
       "files": 32,
-      "bytes": 255806,
-      "sha256": "d45075c2a02691147132ca2b92f14d521a7bcbf7b879522e81a3b2eecf003482"
+      "bytes": 256669,
+      "sha256": "4b0a13d49efca8255cb209de56b263fb42730f89a6d5a2b83ecc3cf9f54cb7c7"
     },
     "browser-drive": {
       "skillMd": {
@@ -477,8 +477,8 @@
         "sha256": "789fdf23dc7aaba78cc50f731a7bb7b0ecb92e1007359fca155ae5c6ae5a5742"
       },
       "files": 81,
-      "bytes": 845270,
-      "sha256": "670f88b9f929c073bbacb619b3f15966c9a9270d064f897a41025aaa0dadfdff"
+      "bytes": 845401,
+      "sha256": "debb57b304909914ccc24c13c08f92ef9b8a0ac689140f4db460debe5a8dbfa3"
     },
     "lit-commit": {
       "skillMd": {
@@ -572,13 +572,13 @@
     },
     "lit-loop": {
       "skillMd": {
-        "bytes": 23391,
-        "bodyBytes": 23214,
-        "sha256": "5e23c6330abcf6e5df8d618e0f00d50d1579474aba7038831b33209e0831e81c"
+        "bytes": 23559,
+        "bodyBytes": 23382,
+        "sha256": "10234c0ab4bb2b1c24c0a6ddb545d5995ddd15e0d649687cfc552029f53d432a"
       },
       "files": 3,
-      "bytes": 30121,
-      "sha256": "373afb1f1129dc7d13c5c8363abeba6eb231bd64906bba13412e879356c7d624"
+      "bytes": 30289,
+      "sha256": "6b69c1cad0c2fb66e7e48727066a0b52a39c93be19c53887392b4662601a55f2"
     },
     "lit-plan": {
       "skillMd": {

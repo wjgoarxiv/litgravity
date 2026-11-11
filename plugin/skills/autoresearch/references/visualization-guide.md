@@ -8,13 +8,19 @@ Rendering writes files and runs a plotting interpreter, so the figure's output p
 
 ## Runtime
 
-The figure needs Python with matplotlib. agy installs nothing for this skill on its own, so pick one of these routes in order:
+The figure needs Python with matplotlib. LitGravity ships no plotting engine and agy installs nothing for this skill on its own, so pick one of these routes in order:
 
-1. When the `lit-scientific-visualization` skill is present (read `../lit-scientific-visualization/SKILL.md` with `read_file`), use the `sciviz` engine it declares: check it with its runtime `status --json`, install on first use with its `install --json`, and run the plotting script through it. That engine installs only under `$XDG_DATA_HOME/litgravity/runtime/sciviz`.
-2. When the project already has a Python environment with matplotlib, run the script with it.
-3. Otherwise skip the figure, say so in one line of the report, and keep the TSV as the evidence. A headless run that cannot install stops the figure step, never the run.
+1. **The installed figure skill.** `lit-scientific-visualization` moved to wjgoarxiv-skills; LitGravity keeps only a stub of that name. Look for the user's installed copy with `read_file`: first `~/.gemini/config/skills/lit-scientific-visualization/SKILL.md`, then `.agents/skills/lit-scientific-visualization/SKILL.md` in the workspace. When one is there, follow its own runtime section (its folder is the root for every path it names, and its engine caches outside this plugin), still under this file's authority and figure rules.
+2. **A local matplotlib.** When no copy is installed but the project already has a Python environment that imports matplotlib (or the user named an interpreter), run the plotting script with it; the style preset below keeps the figure in the house style.
+3. **BLOCKED.** When neither exists, or `run_command` is refused, mark the figure step `BLOCKED` in one line of the report, give the optional install line from the stub, and keep the TSV as the evidence:
 
-This skill's `scripts/` folder carries a small style preset module for matplotlib (SKILL.md names it). Import it before creating any axes so every autoresearch figure looks the same; when it is unavailable, set the same values by hand from the table below.
+   ```bash
+   mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/lit-scientific-visualization" ~/.gemini/config/skills/
+   ```
+
+   Never copy the skill in or install packages yourself, and never claim a figure that was not drawn and looked at. A headless run that cannot plot stops the figure step, never the run.
+
+This skill's `scripts/style_presets.py` is a small style preset module for matplotlib. Import it before creating any axes so every autoresearch figure looks the same; when it is unavailable, set the same values by hand from the table below.
 
 ## Seven rules every figure follows
 
