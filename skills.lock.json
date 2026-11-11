@@ -19,7 +19,7 @@
       "lit-typographic-motion": "video-covers",
       "readme-studio": "video-covers"
     },
-    "movedStubsReason": "pointer stubs for skills that moved to wjgoarxiv-skills (plugins/<family>/skills/<id>/); SKILL.md alone, so the family floor is waived for these ids only"
+    "movedStubsReason": "pointer stubs for skills that moved to wjgoarxiv-skills (value: its family there; agy installs the copy at variants/litgravity/<id>/); SKILL.md alone, so the family floor is waived for these ids only"
   },
   "budgets": {
     "autoconference": {
@@ -422,13 +422,13 @@
     },
     "frontend-ui-ux": {
       "skillMd": {
-        "bytes": 2900,
-        "bodyBytes": 2706,
-        "sha256": "9c130d28f6b65c2401c6b9a74794e1009a944a7c9bfa90996e1518b25ff58e89"
+        "bytes": 3242,
+        "bodyBytes": 3064,
+        "sha256": "9c9d68d729189138fd20f62482182412778c35a5f9644d8c88acdf63bef7fb0a"
       },
       "files": 1,
-      "bytes": 2900,
-      "sha256": "763f9fab28661ea3a04fa420371203d78a6253068ae7c0d39af001650df80046"
+      "bytes": 3242,
+      "sha256": "65892bdfb589a8d5dafa27d613842d341ccee66211800f8628eec8a762b87dcf"
     },
     "lit-adhd": {
       "skillMd": {
@@ -512,23 +512,23 @@
     },
     "lit-diagram-drawer": {
       "skillMd": {
-        "bytes": 2983,
-        "bodyBytes": 2766,
-        "sha256": "7320b4594b45639be4d79dc0b26acb35f45a06eed9d1a3b7f565f8aac2b0227a"
+        "bytes": 3298,
+        "bodyBytes": 3098,
+        "sha256": "3aef4a5c6caf26ec9c76d462ed8e1d05fd70b06c9c0df820a07ce098d85dfff0"
       },
       "files": 1,
-      "bytes": 2983,
-      "sha256": "f8f7c3db5de6b78c933595bc59785d0c0660fdce72c4216d80cfd05b46e46256"
+      "bytes": 3298,
+      "sha256": "6595c8eb00a53f4da7289bc73a1101dbd92b2c374e2ec3c48514cf7c6cc378dd"
     },
     "lit-docx": {
       "skillMd": {
-        "bytes": 2910,
-        "bodyBytes": 2710,
-        "sha256": "c81b1929b438d6c6f50f4016831dbec51a21622851b1a857278c45115012bec5"
+        "bytes": 3094,
+        "bodyBytes": 2913,
+        "sha256": "2ecd9e595a2dc3b5665456b537a598927c90525b1e2a65f1e306fad6ddc25409"
       },
       "files": 1,
-      "bytes": 2910,
-      "sha256": "876fae11bb06ff64617130a58669df8447b5826fba0b067b8183e9d9a1043b2a"
+      "bytes": 3094,
+      "sha256": "81388ed3182d40694066b75e0be4f7b0b6473b11dd6d0825922660db709db6e0"
     },
     "lit-handoff": {
       "skillMd": {
@@ -592,13 +592,13 @@
     },
     "lit-pptx": {
       "skillMd": {
-        "bytes": 2891,
-        "bodyBytes": 2723,
-        "sha256": "bf6fd8d79161a251e899713cfdb172895a4e99ad46deeaf020529ab189e4a6f2"
+        "bytes": 3111,
+        "bodyBytes": 2958,
+        "sha256": "a182f69dba9e9b3f07ba34159b6a05fcebdbd03d33a580bfdf5d382dfb87ffc2"
       },
       "files": 1,
-      "bytes": 2891,
-      "sha256": "95dee215dd06c353c4f2cbf39656881cf18061092016ceb02e4f56a69cee69b0"
+      "bytes": 3111,
+      "sha256": "d824094197dd82aa0ad0a2f31bcf738d99c3b84357f4d1db6a5c6308d9b52429"
     },
     "lit-recap": {
       "skillMd": {
@@ -612,23 +612,23 @@
     },
     "lit-schematic": {
       "skillMd": {
-        "bytes": 3130,
-        "bodyBytes": 2898,
-        "sha256": "2aef8cefef5cb67fb2d67d6c2e12dc5e9dcc7c4dff6a71c7eff1f5959d99b768"
+        "bytes": 3420,
+        "bodyBytes": 3205,
+        "sha256": "a87d301fd5b441054b7c2ad17bcfd267b87407cff72fa36fe11bb1e8bf5ac7c5"
       },
       "files": 1,
-      "bytes": 3130,
-      "sha256": "50a40c63163f077872fcb4e2be10d5aad88c2befefec076359bc0bac67b3bcd0"
+      "bytes": 3420,
+      "sha256": "d09e5ab319fb44de85ae320cf4425e907f091a881b56da507936768067084308"
     },
     "lit-scientific-visualization": {
       "skillMd": {
-        "bytes": 3077,
-        "bodyBytes": 2862,
-        "sha256": "c51481ddc585281e526775c17496b2cda5242e0aec9a2bd778d0d6089a15791d"
+        "bytes": 3422,
+        "bodyBytes": 3224,
+        "sha256": "6e19a396c26d471a49880f79b5017f280d8c8e501350372981141d2c46938910"
       },
       "files": 1,
-      "bytes": 3077,
-      "sha256": "a418e1399447f7dc915616a34cca9b48358ddfcc41c8d564894a058a07275499"
+      "bytes": 3422,
+      "sha256": "9d2810c3d1ef65a2c4cab2835a945a53c05ad9986f67affafeee746832c37fc5"
     },
     "lit-team": {
       "skillMd": {
@@ -642,13 +642,13 @@
     },
     "lit-typographic-motion": {
       "skillMd": {
-        "bytes": 3515,
-        "bodyBytes": 3274,
-        "sha256": "5ccc1f133e11cc050a85b59c27609943384bc9cc4aea757fba0005f24d15733f"
+        "bytes": 3833,
+        "bodyBytes": 3614,
+        "sha256": "1a4629c3fe2ae9954580eff0612859b013853a233ad4de4b35c1bb52bc58a58c"
       },
       "files": 1,
-      "bytes": 3515,
-      "sha256": "58c05e8d212457676146781c90fcf0431760ae85e69d8c1d89e5b98b688fa177"
+      "bytes": 3833,
+      "sha256": "a0291ab558b63494b1f0d0f4f3af404a6568fc4442c8975e2bb0ea3c2d80ce41"
     },
     "litgoal": {
       "skillMd": {
@@ -702,13 +702,13 @@
     },
     "readme-studio": {
       "skillMd": {
-        "bytes": 2994,
-        "bodyBytes": 2781,
-        "sha256": "c9b49a62512cbf68fe0cf3cb2edf265ce6bd5d3a24baccc174cd12b247a13b4b"
+        "bytes": 3277,
+        "bodyBytes": 3086,
+        "sha256": "6e992c4f097fdec99f9498c289d3fecbea73e2b213cc51bb7e6b18631e6d0f39"
       },
       "files": 1,
-      "bytes": 2994,
-      "sha256": "09c058299a625d16bc7dae7dfe548ef812a6d4d63ce3a5c62f3c69b7b41178a4"
+      "bytes": 3277,
+      "sha256": "3749db89dbe0105489f5fdc60f56b7f70090b11b904f1469875394c59578ec70"
     },
     "refactor": {
       "skillMd": {
@@ -762,13 +762,13 @@
     },
     "visual-qa": {
       "skillMd": {
-        "bytes": 2828,
-        "bodyBytes": 2615,
-        "sha256": "73d5f1948841de61e3ec32525790b1d614e2d53a82ded41056ce5d49100b8388"
+        "bytes": 3145,
+        "bodyBytes": 2948,
+        "sha256": "6f79c914a71acb46d903aa562fec6af4b7465607215837505d6da2c906e62826"
       },
       "files": 1,
-      "bytes": 2828,
-      "sha256": "281fae1198d96a56a6b4b4c1b872136388d94fae80a2dc7d0c16be4b075c324c"
+      "bytes": 3145,
+      "sha256": "f9175ab88b2796bc9bd4e4e2e0d6e8683d76ac7c70de0a8f59b0587e71a33c38"
     },
     "wikify": {
       "skillMd": {

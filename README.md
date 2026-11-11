@@ -143,17 +143,17 @@ The skills also call programs already on your machine: Python 3, Chrome or Chrom
 
 ## Moved skills
 
-LitGravity used to carry its own slide, document, diagram, schematic, figure, interface, film and README makers, and together they were most of the package. Most people never touch most of them, so they now live in one separate place, the wjgoarxiv-skills repository, where each family is a plugin you install on its own. LitGravity keeps a short stub under each old name: `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` and the rest still land there. The stub hands the turn to the installed copy, or, when that family is not installed, gives you the one line that installs it and makes nothing.
+LitGravity used to carry its own slide, document, diagram, schematic, figure, interface, film and README makers, and together they were most of the package. Most people never touch most of them, so they now live in one separate place, the wjgoarxiv-skills repository, where each skill has a folder written for agy that you copy in on its own. LitGravity keeps a short stub under each old name: `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` and the rest still land there. The stub hands the turn to the installed copy, or, when that family is not installed, gives you the one line that installs it and makes nothing.
 
-wjgoarxiv-skills is not published yet, so install a family from a local clone:
+wjgoarxiv-skills is not published yet, so copy a skill from a local clone into agy's user skills folder:
 
 ```bash
-agy plugin install <path to your wjgoarxiv-skills clone>/plugins/<family>
+mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/
 ```
 
-agy converts the plugin while it installs it into `~/.gemini/config/plugins/<family>`. Start a new conversation (or type `/skills reload`), and the skill answers as `/<family>:<id>`.
+For one workspace only, copy it into that workspace's `.agents/skills/` instead. Start a new conversation (or type `/skills reload`), and the skill answers as `/<id>`. To update it, delete the copied folder and copy it again. The LitGravity installer writes only its own plugin folder, so upgrading or removing LitGravity never touches the copy, and the stub (`litgravity:<id>`) and the copy (`<id>`) keep different names.
 
-| Family | Skills that moved |
+| Family in wjgoarxiv-skills | Skills that moved |
 |---|---|
 | `decks` | `lit-pptx` |
 | `documents` | `lit-docx` |
@@ -161,7 +161,7 @@ agy converts the plugin while it installs it into `~/.gemini/config/plugins/<fam
 | `design` | `frontend-ui-ux`, `visual-qa` |
 | `video-covers` | `lit-typographic-motion`, `readme-studio` |
 
-Their pinned engines (`office`, `diagram`, `readme`, `sciviz`, `motion`) left with them, and so did `litgravity runtime` and the hook that held a film turn until its render passed. The copies in wjgoarxiv-skills were written for another agent host; each stub tells agy how their tool names map onto its own.
+Their pinned engines (`office`, `diagram`, `readme`, `sciviz`, `motion`) left with them, and so did `litgravity runtime` and the hook that held a film turn until its render passed. The agy copies in wjgoarxiv-skills carry their own engine installers and run their checks as commands, so they need nothing from LitGravity.
 
 ## What agy limits today
 

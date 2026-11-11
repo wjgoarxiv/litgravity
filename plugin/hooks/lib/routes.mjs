@@ -49,7 +49,8 @@ export const SKILL_ROUTES = [
 export const SKILL_IDS = new Set(SKILL_ROUTES.map((r) => r.id));
 
 // Five content families moved to the separate wjgoarxiv-skills repository. Each id keeps its route and a same-name
-// pointer stub; the value is the plugin (family) that now holds the skill there.
+// pointer stub; the value is the family that holds the skill there. agy installs it from the repository's agy copy,
+// one folder per skill (variants/litgravity/<id>), as a standalone user skill.
 export const MOVED_SKILLS = {
   'lit-pptx': 'decks',
   'lit-docx': 'documents',
@@ -61,8 +62,8 @@ export const MOVED_SKILLS = {
   'lit-typographic-motion': 'video-covers',
   'readme-studio': 'video-covers',
 };
-/** The one agy line that installs the family holding a moved skill, from a local clone of wjgoarxiv-skills. */
-export const movedInstallLine = (id) => `agy plugin install <path to your wjgoarxiv-skills clone>/plugins/${MOVED_SKILLS[id]}`;
+/** The one line that installs a moved skill for agy: copy its folder from a local clone into the user skills folder. */
+export const movedInstallLine = (id) => `mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/${id}" ~/.gemini/config/skills/`;
 // Skill ids that are another name for a skill: typed whole, slashed or after `lit`, they take its route.
 export const SKILL_ALIASES = { 'lit-rewind': 'lit-adhd' };
 const skillId = (word) => (SKILL_IDS.has(word) ? word : SKILL_ALIASES[word]);

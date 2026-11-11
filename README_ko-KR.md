@@ -143,17 +143,17 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 
 ## 옮겨 간 스킬
 
-LitGravity에는 원래 슬라이드, 문서, 다이어그램, 장치도, 그림, 화면, 영상, README를 만드는 스킬이 함께 들어 있었고, 패키지 대부분이 이 스킬들이었습니다. 대부분의 사람은 그중 대부분을 쓰지 않으므로, 이제 이 스킬들은 따로 떨어진 wjgoarxiv-skills 저장소 한곳에 있고, 묶음마다 하나의 플러그인으로 따로 설치합니다. LitGravity는 옛 이름마다 짧은 스텁을 남겨 둡니다. `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 그 스텁에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 그 묶음이 설치되지 않았으면 설치 명령 한 줄을 알려 주고 아무것도 만들지 않습니다.
+LitGravity에는 원래 슬라이드, 문서, 다이어그램, 장치도, 그림, 화면, 영상, README를 만드는 스킬이 함께 들어 있었고, 패키지 대부분이 이 스킬들이었습니다. 대부분의 사람은 그중 대부분을 쓰지 않으므로, 이제 이 스킬들은 따로 떨어진 wjgoarxiv-skills 저장소 한곳에 있고, 스킬마다 agy용 폴더가 있어 하나씩 복사해 설치합니다. LitGravity는 옛 이름마다 짧은 스텁을 남겨 둡니다. `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 그 스텁에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 그 묶음이 설치되지 않았으면 설치 명령 한 줄을 알려 주고 아무것도 만들지 않습니다.
 
-wjgoarxiv-skills는 아직 공개되지 않았으므로, 로컬 클론에서 묶음을 설치합니다.
+wjgoarxiv-skills는 아직 공개되지 않았으므로, 로컬 클론에서 스킬 폴더를 agy의 사용자 스킬 폴더로 복사합니다.
 
 ```bash
-agy plugin install <path to your wjgoarxiv-skills clone>/plugins/<family>
+mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/
 ```
 
-agy는 설치하면서 플러그인을 변환해 `~/.gemini/config/plugins/<family>`에 복사합니다. 새 대화를 열거나 `/skills reload`를 입력하면 스킬이 `/<family>:<id>`로 답합니다.
+한 워크스페이스에서만 쓰려면 그 워크스페이스의 `.agents/skills/`에 복사합니다. 새 대화를 열거나 `/skills reload`를 입력하면 스킬이 `/<id>`로 답합니다. 업데이트할 때는 복사한 폴더를 지우고 다시 복사합니다. LitGravity 설치기는 자기 플러그인 폴더에만 쓰므로, LitGravity를 업그레이드하거나 지워도 복사본은 그대로이고, 스텁(`litgravity:<id>`)과 복사본(`<id>`)은 이름이 겹치지 않습니다.
 
-| 묶음 | 옮겨 간 스킬 |
+| wjgoarxiv-skills의 묶음 | 옮겨 간 스킬 |
 |---|---|
 | `decks` | `lit-pptx` |
 | `documents` | `lit-docx` |
@@ -161,7 +161,7 @@ agy는 설치하면서 플러그인을 변환해 `~/.gemini/config/plugins/<fami
 | `design` | `frontend-ui-ux`, `visual-qa` |
 | `video-covers` | `lit-typographic-motion`, `readme-studio` |
 
-고정 엔진(`office`, `diagram`, `readme`, `sciviz`, `motion`)과 `litgravity runtime`, 렌더가 통과할 때까지 영상 턴을 붙잡던 훅도 함께 옮겨 갔습니다. wjgoarxiv-skills의 사본은 다른 에이전트 호스트용으로 쓰였으므로, 각 스텁이 그 도구 이름을 agy 도구에 어떻게 대응시키는지 알려 줍니다.
+고정 엔진(`office`, `diagram`, `readme`, `sciviz`, `motion`)과 `litgravity runtime`, 렌더가 통과할 때까지 영상 턴을 붙잡던 훅도 함께 옮겨 갔습니다. wjgoarxiv-skills의 agy용 사본은 엔진 설치 스크립트를 직접 갖고 있고 검사도 명령으로 실행하므로, LitGravity 없이 동작합니다.
 
 ## 지금 agy가 막아 두는 것
 

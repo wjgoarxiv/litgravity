@@ -4,7 +4,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { sandbox, workspace, runHook, basePayload, turn, injected, walk, collect, ROOT, PLUGIN } from './helpers.mjs';
-import { SKILL_ROUTES, KEYWORD_ROUTES, MOVED_SKILLS } from '../plugin/hooks/lib/routes.mjs';
+import { SKILL_ROUTES, KEYWORD_ROUTES, MOVED_SKILLS, movedInstallLine } from '../plugin/hooks/lib/routes.mjs';
 import { activation } from '../plugin/hooks/lib/reentry.mjs';
 import { list, routeRows } from '../lib/list.mjs';
 import { doctor } from '../lib/doctor.mjs';
@@ -13,7 +13,7 @@ import { readLock } from '../scripts/sync-lock.mjs';
 
 // Five families left LitGravity for the separate wjgoarxiv-skills repository. Each id stays as a same-name pointer
 // stub: the routes, the slash form and the listings still reach it, and it says where the skill went and gives the
-// one agy line that installs it. The engines, the motion done gate and the runtime command left with the bodies.
+// one line that copies its agy folder (variants/litgravity/<id>) into agy's user skills. The engines, the motion done gate and the runtime command left with the bodies.
 const FAMILIES = {
   decks: ['lit-pptx'],
   documents: ['lit-docx'],
@@ -35,10 +35,14 @@ for (const [id, family] of MOVED) {
     assert.deepEqual(walk(join(PLUGIN, 'skills', id)), ['SKILL.md'], 'the stub is SKILL.md alone');
     const md = stubText(id);
     assert.match(md, new RegExp(`^---\\nname: ${id}\\ndescription: "[^"\\n]*wjgoarxiv-skills[^"\\n]*"\\n---\\n`));
-    assert.ok(md.includes(`\`plugins/${family}/skills/${id}/\``), 'names the folder in wjgoarxiv-skills');
-    assert.ok(md.includes(`agy plugin install ${PLACE}/plugins/${family}`), 'one agy install line with the placeholder');
-    assert.ok(md.includes(`/${family}:${id}`), 'names the slash form after install');
-    assert.ok(md.includes(`~/.gemini/config/plugins/${family}/skills/${id}/SKILL.md`), 'tells the model where the installed copy is');
+    assert.ok(md.includes(`\`variants/litgravity/${id}/\``), 'names the folder in wjgoarxiv-skills');
+    assert.ok(md.includes(`mkdir -p ~/.gemini/config/skills && cp -R "${PLACE}/variants/litgravity/${id}" ~/.gemini/config/skills/`), 'one user-scope install line with the placeholder');
+    assert.ok(md.includes(`cp -R "${PLACE}/variants/litgravity/${id}" .agents/skills/`), 'the workspace-scope line');
+    assert.doesNotMatch(md, /agy plugin install|plugins\/(decks|documents|figures|design|video-covers)/, 'no plugin-per-family install left');
+    assert.ok(md.includes(`as \`/${id}\``), 'names the bare slash form after install');
+    assert.ok(md.includes(`\`litgravity:${id}\``), 'says the stub and the copy keep different names');
+    assert.ok(md.includes(`~/.gemini/config/skills/${id}/SKILL.md`) && md.includes(`.agents/skills/${id}/SKILL.md`), 'tells the model where the installed copy is');
+    assert.doesNotMatch(md, /another agent host|map its tools/, 'the agy copy needs no tool mapping');
     assert.match(md, /not published yet/);
     assert.match(md, /read_file/);
     assert.match(md, /headless/i);
@@ -61,7 +65,8 @@ test('every route word and `lit <id>` still activates the stub, and the activati
     const ws = workspace();
     const text = injected(turn(ws, env, prompt, 0));
     assert.ok(text.includes(join(PLUGIN, 'skills', id, 'SKILL.md')), `${prompt}: reads the stub`);
-    assert.ok(text.includes(`agy plugin install ${PLACE}/plugins/${MOVED_SKILLS[id]}`), `${prompt}: install line`);
+    assert.ok(text.includes(movedInstallLine(id)), `${prompt}: install line`);
+    assert.ok(text.includes(`variants/litgravity/${id}/`), `${prompt}: names the folder`);
     assert.ok(Buffer.byteLength(text) <= 4096, `${prompt}: ${Buffer.byteLength(text)} B`);
   }
 });
@@ -132,7 +137,7 @@ test('doctor names the moved skills and checks no engine, design corpus or motio
   const moved = doc.checks.find((c) => c.name === 'moved skills');
   assert.equal(moved?.status, 'INFO');
   for (const [id] of MOVED) assert.ok(moved.detail.includes(id), id);
-  assert.match(moved.fix, /agy plugin install <path to your wjgoarxiv-skills clone>\/plugins\/<family>/);
+  assert.equal(moved.fix, 'mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/');
 });
 
 test('the lock holds stub-sized budgets for the moved ids and exempts only them from the family floor', () => {
