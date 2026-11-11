@@ -15,8 +15,8 @@ Every publish, tag or push needs the maintainer's explicit approval. Work throug
 - [ ] `npm run check:version` — package.json, plugin manifest and CHANGELOG agree
 - [ ] `npm run scan:legacy-tokens`
 - [ ] `npm run validate` — `agy plugin validate --json --strict` reports zero errors and zero warnings
-- [ ] `npm run sync:fixtures`, then read the diff of `test/fixtures/skill-depth.json` and `pack-files.json`
-- [ ] `npm pack --dry-run --json --ignore-scripts` — `[0].files` equals `test/fixtures/pack-files.json`
+- [ ] `npm run sync:lock` reads `already current`; after a skill or package change, read the diff of `skills.lock.json`
+- [ ] `npm pack --dry-run --json --ignore-scripts` — `[0].files` equals the `pack` list in `skills.lock.json`
 - [ ] Before any publish: run the umbrella decode-aware leak scan over every tracked and untracked file (`zsh ../plans/tools/leak-scan.sh` with each file as a target) and require rc 0
 - [ ] Motion: with a warm motion runtime, `node scripts/qa-cover-recipes.mjs --negatives` (the painted recipe uses its pinned five-panel base `test/fixtures/motion/painted-light-base.png`) reports the three recipes `PASS` and the four negatives and `feather-150` as caught; `motion.mjs cover-gate <cover.webp> --strict` reads `PASS+TARGET`
 - [ ] Live: `agy -p "lit plan a tiny todo app" --output-format json < /dev/null` in a throwaway project with the plugin at `.agents/plugins/litgravity/`; the reply or the ledger shows the activation. Real model calls count against the user's quota; keep them few.

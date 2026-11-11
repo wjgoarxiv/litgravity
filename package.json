@@ -26,7 +26,7 @@
     "check:version": "node scripts/check-version.mjs",
     "scan:legacy-tokens": "node scripts/scan-legacy-tokens.mjs",
     "validate": "node scripts/validate-plugin.mjs",
-    "sync:fixtures": "node scripts/sync-fixtures.mjs"
+    "sync:lock": "node scripts/sync-lock.mjs"
   },
   "files": [
     "bin",

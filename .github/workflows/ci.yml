@@ -59,12 +59,13 @@ jobs:
       - name: Validate plugin (skips cleanly without agy)
         run: npm run validate
 
-      # Re-pinning must be committed: a diff here means someone changed skills or
-      # package files without running `npm run sync:fixtures`.
-      - name: Fixtures current
+      # The lock must be committed: a diff here means someone changed skills or
+      # package files without running `npm run sync:lock`. sync:lock exits 1, and
+      # writes nothing, while any skill is outside its budget.
+      - name: Skills lock current
         run: |
-          npm run sync:fixtures
-          git diff --exit-code -- test/fixtures
+          npm run sync:lock
+          git diff --exit-code -- skills.lock.json
 
       # The payload gates inside the suite run their own `npm pack --dry-run`.
       # This step proves the package packs at all, independently of them.

@@ -5,17 +5,18 @@ import { readFileSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, PLUGIN } from './helpers.mjs';
 
-const pinned = () => JSON.parse(readFileSync(join(ROOT, 'test', 'fixtures', 'pack-files.json'), 'utf8'));
+const pinned = () => JSON.parse(readFileSync(join(ROOT, 'skills.lock.json'), 'utf8')).pack;
 
-// npm pack output is the same list `npm run sync:fixtures` writes, so a new file must be re-pinned on purpose.
-test('npm pack payload matches the pinned allow-list', () => {
+// The lock's pack list is the same list `npm run sync:lock` writes, so a new file must be re-pinned on purpose.
+test('npm pack payload matches the pack list in skills.lock.json', () => {
   const r = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: ROOT, encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
   const files = JSON.parse(r.stdout)[0].files.map((f) => f.path).sort();
-  assert.deepEqual(files, pinned());
+  assert.deepEqual(files, pinned(), 'pack list in skills.lock.json is stale: run npm run sync:lock');
   for (const f of files) {
     assert.doesNotMatch(f, /^(test|scripts|\.lit[a-z]*|evidence|plans)\//, f);
     assert.notEqual(f, 'AGENTS.md');
+    assert.notEqual(f, 'skills.lock.json');
     assert.doesNotMatch(f, /\.(pyc|tgz)$|__pycache__|node_modules/, f);
   }
   for (const f of ['plugin/plugin.json', 'plugin/hooks.json', 'plugin/rules/AGENTS.md', 'bin/litgravity.mjs', 'LICENSE']) assert.ok(files.includes(f), f);
@@ -28,7 +29,7 @@ test('package.json: scoped name, bin target, node floor, test and gate scripts, 
   assert.ok(existsSync(join(ROOT, pkg.bin.litgravity)));
   assert.equal(pkg.engines.node, '>=20');
   assert.equal(pkg.scripts.test, 'node --test test/*.test.mjs');
-  for (const s of ['check:version', 'scan:legacy-tokens', 'validate', 'sync:fixtures']) assert.ok(pkg.scripts[s], s);
+  for (const s of ['check:version', 'scan:legacy-tokens', 'validate', 'sync:lock']) assert.ok(pkg.scripts[s], s);
   assert.equal(JSON.parse(readFileSync(join(PLUGIN, 'plugin.json'), 'utf8')).version, pkg.version);
   assert.deepEqual(pkg.files.slice().sort(), ['CHANGELOG.md', 'LICENSE', 'README.md', 'README_ko-KR.md', 'TRADEMARK.md', 'bin', 'lib', 'plugin']);
 });

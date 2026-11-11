@@ -6,10 +6,13 @@ import { tmpdir } from 'node:os';
 import { inflateRawSync } from 'node:zlib';
 import { PLUGIN_DIR } from '../lib/bundle.mjs';
 import { runtimeModules, callRuntime } from '../lib/runtime.mjs';
+import { readLock } from '../scripts/sync-lock.mjs';
 
 const SKILLS = join(PLUGIN_DIR, 'skills');
 const skillIds = readdirSync(SKILLS).filter((d) => statSync(join(SKILLS, d)).isDirectory()).sort();
-const DEPTH = JSON.parse(readFileSync(new URL('./fixtures/skill-depth.json', import.meta.url), 'utf8'));
+// Floors, exemptions and the runtime list are the hand-owned half of skills.lock.json (npm run sync:lock).
+const LOCK = readLock();
+const DEPTH = LOCK.policy;
 
 function walk(dir, acc = []) {
   for (const n of readdirSync(dir).sort()) {
@@ -22,7 +25,6 @@ function walk(dir, acc = []) {
 
 const TEXT = new Set(['.md', '.mjs', '.js', '.cjs', '.ts', '.py', '.json', '.yaml', '.yml', '.txt', '.html', '.css', '.svg', '.sh', '.toml', '.lock', '']);
 const isText = (f) => TEXT.has(extname(f).toLowerCase()) && statSync(f).size < 4 * 1024 * 1024;
-const bodyOf = (text) => text.replace(/^---\n[\s\S]*?\n---\n/, '');
 // Verbatim third-party legal text may name other tools; everything else in the bundle may not.
 const LEGAL = /(^|\/)(LICENSE|NOTICE|ATTRIBUTION|THIRD[-_]PARTY|PROVENANCE|SOURCE-MANIFEST)[^/]*$|\/legal\//i;
 // Sibling products, their host tools and the leftover vocabulary of the sibling hosts: none of it belongs in an agy bundle.
@@ -32,23 +34,6 @@ const SIBLING = [
   /\bread_skill\b/, /\bsubagent_spawn\b/, /\brequest_user_input\b/, /\.litmuse\b/, /\.muse-plugin/, /\bwrite_todos\b/,
 ];
 const HOSTS = [/Claude Code/, /\bCodex\b/, /\bOpenCode\b/, /\bGrok\b/, /\bHermes\b/, /\bMuse\b/];
-
-test('every skill keeps its pinned depth, fits the host body cap, and the fixture lists every shipped skill', () => {
-  assert.deepEqual(Object.keys(DEPTH.skills).sort(), skillIds, 'depth fixture lists every shipped skill (npm run sync:fixtures re-pins it)');
-  for (const id of skillIds) {
-    const want = DEPTH.skills[id];
-    const md = readFileSync(join(SKILLS, id, 'SKILL.md'), 'utf8');
-    const bytes = Buffer.byteLength(md);
-    const body = Buffer.byteLength(bodyOf(md));
-    const files = walk(join(SKILLS, id));
-    const total = files.reduce((n, f) => n + statSync(f).size, 0);
-    assert.ok(body <= DEPTH.bodyCapBytes, `${id}: SKILL.md body ${body} B exceeds the ${DEPTH.bodyCapBytes} B agy loads; move detail into references/`);
-    assert.ok(bytes >= want.minSkillBytes, `${id}: SKILL.md ${bytes} B < pinned ${want.minSkillBytes} B`);
-    assert.ok(files.length >= want.minFiles, `${id}: ${files.length} files < pinned ${want.minFiles}`);
-    assert.ok(total >= want.minTotalBytes, `${id}: ${total} B in the folder < pinned ${want.minTotalBytes} B`);
-    assert.ok(bytes >= DEPTH.familyFloorBytes, `${id}: SKILL.md ${bytes} B is below the family floor ${DEPTH.familyFloorBytes} B`);
-  }
-});
 
 test('frontmatter agy accepts: name equals the folder, a quoted one-line description, nothing else breaks YAML', () => {
   for (const id of skillIds) {
@@ -100,7 +85,7 @@ test('runtime modules answer status --json inside a sandbox and cache under the 
   const home = mkdtempSync(join(tmpdir(), 'litgravity-rt-'));
   const env = { PATH: process.env.PATH, HOME: home, XDG_DATA_HOME: join(home, 'data') };
   const mods = runtimeModules();
-  assert.deepEqual(mods.map((m) => m.name), DEPTH.runtimes, 'shipped runtime modules (npm run sync:fixtures re-pins them)');
+  assert.deepEqual(mods.map((m) => m.name), DEPTH.runtimes, 'shipped runtime modules (skills.lock.json policy.runtimes; edit it by hand when a runtime is added or removed)');
   for (const m of mods) {
     const r = callRuntime(m, 'status', env);
     assert.equal(r.error, undefined, `${m.name}: ${r.error}`);
@@ -122,11 +107,11 @@ test('the legal and attribution files name no sibling product either: they credi
   assert.deepEqual(hits, []);
 });
 
-test('all 42 family skills ship and each carries a pin, with no byproduct files left in the bundle', () => {
+test('all 42 family skills ship and each carries a budget in skills.lock.json, with no byproduct files left in the bundle', () => {
   const family = JSON.parse(readFileSync(new URL('./fixtures/family-skills.json', import.meta.url), 'utf8')).sort();
   assert.equal(family.length, 42);
   assert.deepEqual(skillIds, family);
-  assert.deepEqual(Object.keys(DEPTH.skills).sort(), family);
+  assert.deepEqual(Object.keys(LOCK.budgets).sort(), family);
   const stray = walk(PLUGIN_DIR).filter((f) => /(^|\/)(__pycache__|node_modules|\.DS_Store|evidence|plans|\.litgravity)(\/|$)|\.pyc$/.test(relative(PLUGIN_DIR, f)));
   assert.deepEqual(stray, []);
 });
