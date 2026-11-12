@@ -52,6 +52,19 @@ LitGravity는 대화마다 따라갈 순서를 줍니다. 프롬프트를 `lit`�
 | 지난 대화를 잊습니다 | 계획에 맞춰 확인하고, 확인하지 못한 곳은 미확인으로 표시합니다 |
 | 모델이 그렇다고 하면 끝냅니다 | 다음 턴이 읽을 `.litgravity/` 인계를 남깁니다 |
 
+## lit 한 턴이 도는 방식
+
+agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않습니다. 그래서 LitGravity는 끼어들 수 있는 가장 이른 순간, 그 턴의 첫 모델 호출에서 방향을 잡습니다. PreInvocation 훅이 대화 기록에서 방금 입력한 프롬프트를 다시 읽고, `lit` 뒤에 온 단어로 경로를 정한 다음, 읽어야 할 스킬 파일을 적은 단계 하나를 끼워 넣습니다. 그다음 일은 스킬이 하고, 나머지 훅은 턴의 한 순간씩을 맡아 지켜봅니다. PreToolUse는 하위 에이전트가 시작되기 전에 살펴보고, PostToolUse는 도구 호출마다 ledger에 한 줄을 남기고, PostInvocation은 계획 턴이 `plans/` 밖을 건드리지 않았는지 확인하고, Stop은 이 턴을 지금 끝내도 되는지 정합니다.
+
+이 순간들은 하나같이 나중에 열어 볼 수 있는 파일을 남깁니다. 계획, ledger, 인계 메모입니다. 다음 턴들은 이 파일에서 이어 갑니다. `lit start`가 계획대로 만들고, `lit review`가 결과를 다섯 레인으로 검토하고, `lit handoff`가 메모를 쓰면, 다음 대화의 SessionStart 훅이 그 메모를 가리켜 줍니다.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/diagrams/lit-route.ko.dark.png">
+    <img src="./docs/assets/litgravity/diagrams/lit-route.ko.light.png" width="900" alt="agy에서 lit 한 턴이 도는 흐름도. lit plan a tiny todo app을 입력하면 PreInvocation 훅이 대화 기록에서 프롬프트를 읽고 lit-plan/SKILL.md를 먼저 읽으라는 단계 하나를 주입한다. 모델 호출 뒤 PreToolUse 훅이 invoke_subagent 직전에 확인하고 하위 에이전트 11종 가운데 하나를 시작하게 두는데, lit-plan 중에는 읽기 전용만 허용한다. 도구 호출마다 PostToolUse 훅이 .litgravity/ledger/<conversation>.jsonl에 한 줄을 기록한다. PostInvocation 훅은 경계와 문장을 검사해 plans/ 밖 변경을 되돌리라고 모델에게 알린다(턴마다 최대 두 번). Stop 훅은 남은 일이 있는지 묻는다. 붙잡으면 턴이 이어지고(연속 최대 세 번, pause로 풀림), 풀어 주면 턴이 끝난다. 아래 다음 턴들: plans/<slug>.md에 대한 lit start, 다섯 레인(goal, qa, quality, security, context)의 lit review, .litgravity/handoff/latest.md를 쓰는 lit handoff, 그리고 다음 대화에 그 메모를 가리켜 주는 SessionStart 훅.">
+  </picture>
+</p>
+
 ## 설치
 
 Node.js 20 이상과, 한 번 로그인해 둔 Antigravity CLI가 필요합니다. 터미널에서 실행하세요.
@@ -69,6 +82,15 @@ npx @litfamily/litgravity doctor
 `doctor`는 설치된 사본, 검증 결과, 훅 이벤트 6개와 각 훅 스크립트의 실행 확인, 전역 규칙 파일, 스킬과 에이전트 전체, 확장과 그 설치 명령, 남아 있는 옛 엔진 캐시나 잘못 놓인 보관 사본, 스킬이 부르는 호스트 프로그램을 보여 줍니다. 깨진 곳이 없으면 마지막 줄이 `LitGravity: ready`입니다.
 
 사용자 범위 설치는 `~/.gemini/config/rules/litgravity.md`에 LitGravity 전용 규칙 파일 하나를 남깁니다. agy가 매 세션 시작에 그 폴더를 읽기 때문입니다. 규칙은 일부러 짧습니다. lit 호출어, 계획과 핸드오프의 위치, 릴리스 동결만 담아서 어떤 스킬이 뜨기 전에 기본 규칙이 서도록 합니다. 대화형 설치는 먼저 묻고, No라고 답하면 규칙을 끈 채로 저장합니다. `--yes`는 규칙을 더하고, `--no-agent-file`은 한 번만 건너뛰고, `npx @litfamily/litgravity config agentFile off`는 언제든 규칙을 지웁니다. 저장소에는 `npx @litfamily/litgravity agent-file project --dir <경로>`로 맞는 프로젝트 관례를 넣습니다. `AGENTS.md`에 표시된 블록만 씁니다.
+
+설치기는 프로젝트 바깥 몇 군데에 파일을 씁니다. 글로 읽는 것보다 그림으로 보는 편이 빠릅니다. 설치기는 무엇이든 건드리기 전에 계획부터 출력합니다. 목적지가 심볼릭 링크이거나, 다른 데서 온 폴더이거나, 직접 고친 사본이면 `No files written.`을 남기고 거기서 멈춥니다. 문제가 없으면 패키지에 든 플러그인을 `agy plugin validate`로 검증하고, 복사한 뒤 사본을 한 번 더 검증하고, 마지막으로 규칙 파일과 작은 영수증을 씁니다. agy 설정의 상태 표시줄 항목은 `--status-line`을 줬을 때만 바뀌고, 바꾸기 전에 원래 값을 백업해 둡니다. LitGravity가 디스크에 남기는 나머지는 설치기가 아니라 대화가 나중에 씁니다. 직접 복사한 확장과 agy 자격 증명 파일은 설치기가 열지도 않습니다.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/diagrams/install-map.ko.dark.png">
+    <img src="./docs/assets/litgravity/diagrams/install-map.ko.light.png" width="900" alt="litgravity install의 흐름도. 계획을 출력한 뒤 목적지 상태를 확인한다. 심볼릭 링크, 남의 것, 수정본이면 No files written.을 남기고 멈추며, 수정본에는 saved/로 옮기는 명령을 안내한다. 새것이거나 LitGravity 사본이면 agy plugin validate로 검증하고, 플러그인을 ~/.gemini/config/plugins/litgravity(프로젝트 범위는 ./.agents/plugins/litgravity)에 복사한 뒤 다시 검증한다. 마지막 단계는 전역 규칙 파일 ~/.gemini/config/rules/litgravity.md를 쓰고, ~/.local/share/litgravity/ 아래에 receipt.json, backups/, saved/를 두고, --status-line일 때만 ~/.gemini/antigravity-cli/settings.json을 바꾼다. 아래 두 띠: 대화가 나중에 쓰는 곳(~/.local/state/litgravity/, plans/, ledger·handoff·goals가 든 .litgravity/)과 설치기가 건드리지 않는 곳(직접 복사한 확장 ~/.gemini/config/skills/<id>, agy 자격 증명 파일).">
+  </picture>
+</p>
 
 <p align="center"><img src="./docs/assets/litgravity/install-doctor.webp" width="960" alt="터미널 갈무리. 설치 명령은 Status: Ready로 끝나고, doctor 명령은 서른 개의 통과 확인 뒤에 LitGravity: ready로 끝납니다." /></p>
 
@@ -145,6 +167,15 @@ Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
 
 LitGravity는 agy용 LitFamily 코어이고, 그 자체로 완결되어 있습니다. 계획, 구현, 확인, 조사, 인계, `lit` 라우터가 모두 이 패키지에 들어 있습니다. 파일을 만드는 스킬은 성격이 조금 다릅니다. 슬라이드, Word 문서, 다이어그램, 장치도, 그림, 화면, 영상, README 커버는 저마다 엔진을 끌어오고, 예전에는 이 스킬들이 패키지의 대부분을 차지했지만 실제로는 대개 한두 개만 씁니다. 그래서 이제 이 스킬들은 LitFamily 확장으로, 확장 선반인 wjgoarxiv-skills 저장소 한곳에 있고, 스킬마다 agy용 폴더가 있습니다. 쓰는 확장을 LitGravity와 함께 설치하면 LitFamily를 온전히 쓸 수 있고, 나머지를 설치하지 않아도 코어에서 빠지는 것은 없습니다.
 
+나눈 모양은 나란히 놓고 보면 가장 잘 보입니다. 왼쪽은 모두 npm 패키지에 들어 있고, 코어는 오른쪽 없이도 계획하고, 구현하고, 확인하고, 조사하고, 인계까지 합니다. 파일을 만드는 아홉 스킬은 오른쪽 wjgoarxiv-skills에 있고, 스킬마다 `variants/litgravity/<id>` 폴더 하나씩입니다.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/diagrams/core-extensions.ko.dark.png">
+    <img src="./docs/assets/litgravity/diagrams/core-extensions.ko.light.png" width="900" alt="두 영역으로 나뉜 그림. 왼쪽 LitGravity 플러그인에는 아홉 묶음(루프와 목표, 아이디어와 계획, 구현, 검토와 정리, 조사와 지식, 팀, 글, 이어가기와 안내, 도구)으로 나눈 코어 스킬 33개, 에이전트 11개, 훅 6개, 그리고 옛 이름을 지키는 스텁 9개(lit-pptx, lit-docx, lit-diagram-drawer, lit-schematic, lit-scientific-visualization, frontend-ui-ux, visual-qa, lit-typographic-motion, readme-studio)가 있다. 오른쪽 wjgoarxiv-skills 확장은 decks, documents, figures, design, video-covers 다섯 패밀리이고 폴더는 variants/litgravity/<id>다. 그 폴더에서 git clone 후 cp -R 화살표가 agy 사용자 스킬 ~/.gemini/config/skills/<id>로 가고, 이 스킬은 /<id>로 응답한다. 스텁에서도 설치돼 있으면이라는 화살표가 같은 곳으로 간다. 설치돼 있지 않으면 스텁은 설치 한 줄을 알려 주고 아무것도 만들지 않는다는 메모가 붙어 있다.">
+  </picture>
+</p>
+
 LitGravity는 확장마다 옛 이름으로 짧은 스텁을 남겨 둡니다. 그래서 `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 그 스텁에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 아직 설치하지 않았으면 설치 명령 한 줄을 알려 주고 아무것도 만들지 않습니다. 설치기도 설치나 업데이트가 끝날 때마다 같은 안내를 보여 주고, 그 뒤 첫 agy 대화에서 한 번 더 알려 줍니다.
 
 wjgoarxiv-skills는 <https://github.com/wjgoarxiv/wjgoarxiv-skills>에 공개되어 있습니다. 저장소를 클론한 뒤(`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), 클론에서 스킬 폴더를 agy의 사용자 스킬 폴더로 복사합니다.
@@ -189,6 +220,18 @@ mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>
 경로 상태는 프로젝트 밖의 `~/.local/state/litgravity/`에 있어서, 계획 턴이 다루라고 안내받는 파일과 떨어져 있습니다. 그 상태가 손상되면 하위 에이전트 제한과 계획 게이트는 켜진 채로 남고, 사라지면 훅이 옆에 둔 경로 기록을 대신 읽습니다.
 
 ## 붙잡힌 턴과 ledger
+
+공정 설비로 생각하는 편이 편하다면, 같은 흐름을 플랜트로 그려 두었습니다. 프롬프트가 원료로 들어오고, PreInvocation 라우터가 헤더 노릇을 하고, 경로 단어마다 해당 용기로 가는 라인이 열립니다. 용기 사이에는 Stop 훅의 분석계 두 대가 있습니다. 하나는 계획 파일이 생길 때까지 계획 턴을 되돌려 보내고, 다른 하나는 열린 행이 남아 있는 동안 구현 턴을 되돌려 보냅니다. 용기마다 샘플 라인이 ledger로 빠지고, 인계 메모는 오른쪽으로 나가 다음 대화를 기다립니다. 읽기 쉽게 하려고 단계를 한 줄로 이어 그렸지만, agy에서는 단계마다 따로 입력하는 `lit` 프롬프트이고 보통 다음 턴에 옵니다.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/schematic/lit-plant.ko.dark.png">
+    <source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/litgravity/schematic/lit-plant.ko.png">
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/schematic/lit-plant-loop.ko.dark.webp">
+    <source media="(prefers-color-scheme: light)" srcset="./docs/assets/litgravity/schematic/lit-plant-loop.ko.webp">
+    <img src="./docs/assets/litgravity/schematic/lit-plant-loop.ko.webp" width="900" alt="agy의 lit 워크플로를 공정 흐름도로 그린 그림. lit 프롬프트와 지난 인계 메모가 PreInvocation 라우터로 들어간다. 위쪽 헤더에서 경로 단어마다 라인이 내려가 lit plan은 lit-plan, lit start는 start-work, lit review는 review-work 용기로, lit handoff는 lit-handoff 유닛으로 간다. lit-plan과 start-work 사이에는 분석계 AIC-101(Stop: 계획 파일 있나?)이 삼방 밸브를 움직여 턴을 풀어 주거나 되돌리고, start-work와 review-work 사이에서는 AIC-102(Stop: 열린 행 있나?)가 같은 일을 한다. 용기마다 샘플 라인이 PostToolUse ledger(.litgravity/ledger/<conversation>.jsonl)로 내려간다. lit-handoff 유닛은 latest.md를 도면 밖으로 내보낸다. 스트림 표에는 경로마다 스킬, 산출물(plans/<slug>.md, 계획 행 체크와 테스트 실행, file:line을 앞세운 발견 사항, .litgravity/handoff/latest.md), Stop 훅이 붙잡는지가 정리되어 있다. 움직이는 버전에서는 모든 스트림을 따라 점선이 흐른다.">
+  </picture>
+</p>
 
 기다려도 되는 턴이 있습니다. 계획 파일이 아직 없는 lit-plan 턴은 `plans/<slug>.md`가 생길 때까지 끝에서 붙잡히며, 진전 없이 연달아 최대 세 번입니다. start-work는 승인된 계획에 열린 행이 있는 동안, litgoal과 lit-loop는 목표 기록에 열린 기준이 있는 동안 기다립니다. `pause`라고 말하거나 ledger에 `BLOCKED at row N:`, `PAUSED at row N:`, `CANCELLED:`를 적으면 풀립니다. 아래 갈무리는 아무것도 쓰지 않은 계획 턴이 실제로 붙잡힌 모습입니다.
 

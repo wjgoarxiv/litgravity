@@ -52,6 +52,19 @@ agy still runs the conversation and picks the model, while LitGravity adds the r
 | Forgets the last conversation | Checks against the plan, marks the unchecked as unverified |
 | Calls it done when the model says so | A handoff in `.litgravity/` the next turn reads |
 
+## How a lit turn runs
+
+agy gives a plugin no hook on the prompt itself, so LitGravity steers from the first moment it can: the first model call of the turn. The PreInvocation hook reads your prompt back from the transcript, works out the route from the word after `lit`, and injects one step that names the skill file to read. From there the skill does the work, and the other hooks each watch one moment of the turn. PreToolUse looks at a child agent before it starts, PostToolUse writes a ledger line for every tool call, PostInvocation checks that a planning turn kept to `plans/`, and Stop decides whether the turn may end yet.
+
+Each of those moments leaves something you can open afterwards: the plan, the ledger, the handoff note. The next turns pick up from those files. `lit start` builds the plan, `lit review` checks the result in five lanes, `lit handoff` writes the note, and the SessionStart hook of your next conversation points to it.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/diagrams/lit-route.en.dark.png">
+    <img src="./docs/assets/litgravity/diagrams/lit-route.en.light.png" width="900" alt="Flowchart of one lit turn in agy. You type lit plan a tiny todo app. The PreInvocation hook reads the prompt from the transcript and injects one step: read lit-plan/SKILL.md. After the model call, the PreToolUse hook checks invoke_subagent and may start one of 11 child agent types, only read-only ones during lit-plan. After each tool call, the PostToolUse hook appends a line to .litgravity/ledger/<conversation>.jsonl. The PostInvocation hook runs boundary and prose checks and tells the model to undo changes outside plans/, at most twice per turn. The Stop hook asks whether work is left open: held, the turn continues for up to three holds and pause releases it; released, the turn ends. Below, the next turns: lit start on plans/<slug>.md, lit review with five lanes (goal, qa, quality, security, context), lit handoff writing .litgravity/handoff/latest.md, and the SessionStart hook pointing the next conversation to that note.">
+  </picture>
+</p>
+
 ## Install
 
 You need Node.js 20 or newer and the Antigravity CLI, signed in once. In a terminal, run:
@@ -69,6 +82,15 @@ npx @litfamily/litgravity doctor
 `doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, the global rule file, every skill and agent, the extensions with their install line, any old engine cache or stray saved copy, and the host programs the skills call. It ends with `LitGravity: ready` when nothing is broken.
 
 Every user-scope install also leaves one owned rule file at `~/.gemini/config/rules/litgravity.md`, because agy reads that folder at every session start. The rule stays short on purpose: the lit activation word, where plans and handoffs live, and the release freeze, so the ground rules hold before any skill loads. An interactive install asks first and a No stores the rule off; `--yes` adds it, `--no-agent-file` skips it for one run, and `npx @litfamily/litgravity config agentFile off` removes it at any time. A repo gets the matching project conventions with `npx @litfamily/litgravity agent-file project --dir <path>`, which writes only the marked block into its `AGENTS.md`.
+
+The installer writes in a few places outside your project, and it is easier to see them than to read them. It prints its plan before it touches anything. If the destination is a symlink, someone else's folder, or a copy you edited, it stops there with `No files written.` Otherwise it validates the packaged plugin with `agy plugin validate`, copies it, validates the copy again, and then writes the rule file and a small receipt. The status line key in agy's settings changes only when you pass `--status-line`, and the old value is backed up first. Everything else LitGravity leaves on disk is written later by your conversations, and the installer never opens your extension copies or agy's credential files.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/diagrams/install-map.en.dark.png">
+    <img src="./docs/assets/litgravity/diagrams/install-map.en.light.png" width="900" alt="Flowchart of litgravity install. Plan printed, then a destination check: a symlinked, foreign or edited destination stops the install with No files written and, for an edited copy, a command that moves it to saved/. A new or LitGravity-owned destination goes on to agy plugin validate, then copy and validate again into the plugin folder ~/.gemini/config/plugins/litgravity, or ./.agents/plugins/litgravity at project scope. The last step writes the global rule file ~/.gemini/config/rules/litgravity.md, records receipt.json, backups/ and saved/ under ~/.local/share/litgravity/, and changes ~/.gemini/antigravity-cli/settings.json only with --status-line. Below, two bands: written later by conversations (~/.local/state/litgravity/, plans/, .litgravity/ with ledger, handoff and goals) and left alone by the installer (~/.gemini/config/skills/<id> extension copies and agy credential files).">
+  </picture>
+</p>
 
 <p align="center"><img src="./docs/assets/litgravity/install-doctor.webp" width="960" alt="Terminal capture. The install command ends with Status: Ready, and the doctor command ends with LitGravity: ready after thirty passing checks." /></p>
 
@@ -145,6 +167,15 @@ The skills also call programs already on your machine: Python 3, Chrome or Chrom
 
 LitGravity is the LitFamily core for agy, and it is complete on its own: planning, building, checking, research, handoffs and the `lit` router all ship in this package. The skills that make files are a different kind of tool. Slides, Word documents, diagrams, schematics, figures, interfaces, films and README covers each pull in their own engines, and together they used to be most of the package, while most people use one or two of them. They are now LitFamily extensions, kept on one extension shelf, the wjgoarxiv-skills repository, where each skill has a folder written for agy. Install the ones you use alongside LitGravity and you get the full LitFamily experience; leave the rest out and nothing in the core is missing.
 
+The split is easiest to see side by side. Everything on the left ships in the npm package, and the core needs nothing on the right to plan, build, check, research or hand off. The nine skills that make files live on the right, in wjgoarxiv-skills, as one folder each under `variants/litgravity/<id>`.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/diagrams/core-extensions.en.dark.png">
+    <img src="./docs/assets/litgravity/diagrams/core-extensions.en.light.png" width="900" alt="Two areas. Left, the LitGravity plugin: 33 core skills in nine groups (loop and goals, ideas and planning, building, review and cleanup, research and knowledge, teams, prose, continuity and guidance, tools), 11 agents, 6 hooks, and nine stubs that keep the old names: lit-pptx, lit-docx, lit-diagram-drawer, lit-schematic, lit-scientific-visualization, frontend-ui-ux, visual-qa, lit-typographic-motion and readme-studio. Right, wjgoarxiv-skills extensions in five families: decks, documents, figures, design and video-covers, each folder at variants/litgravity/<id>. An arrow labelled git clone, then cp -R runs from that folder to agy user skills at ~/.gemini/config/skills/<id>, which answers as /<id>. Another arrow labelled if installed runs from the stubs to the same place. A note says that when the extension is not installed, the stub gives the one install line and makes nothing.">
+  </picture>
+</p>
+
 LitGravity keeps a short stub under each extension's old name, so `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` and the rest still land somewhere useful. The stub hands the turn to your installed copy, or, when the extension is not installed yet, gives you the one line that installs it and makes nothing. The installer says the same after every install or update, and the first agy conversation after it mentions it once.
 
 wjgoarxiv-skills is public at <https://github.com/wjgoarxiv/wjgoarxiv-skills>. Clone it (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), then copy a skill from your clone into agy's user skills folder:
@@ -189,6 +220,18 @@ These are the facts of agy 1.4.3, probed on a real install. LitGravity works ins
 Route state lives outside the project, under `~/.local/state/litgravity/`, away from the files a planning turn is asked to touch. If that state is damaged, the child-agent limit and the plan gate stay on; if it goes missing, the hooks fall back to the route journal kept beside it.
 
 ## Held turns and the ledger
+
+If you think in process plants, here is the same routine as one. Your prompt is the feed, the PreInvocation router is the header, and each route word opens the line to its vessel. Between the vessels sit the Stop hook's two analysers: one sends a planning turn back until the plan file exists, the other sends a build turn back while rows are still open. Every vessel bleeds a sample line into the ledger, and the handoff note leaves on the right for whichever conversation comes next. I drew the stages as one train to keep it readable; in agy each of them is a separate `lit` prompt, usually in a later turn.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/schematic/lit-plant.en.dark.png">
+    <source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/litgravity/schematic/lit-plant.en.png">
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/schematic/lit-plant-loop.en.dark.webp">
+    <source media="(prefers-color-scheme: light)" srcset="./docs/assets/litgravity/schematic/lit-plant-loop.en.webp">
+    <img src="./docs/assets/litgravity/schematic/lit-plant-loop.en.webp" width="900" alt="Process flow diagram of the lit workflow in agy. A lit prompt and the last handoff feed the PreInvocation router. A header runs along the top and drops into three vessels by route word: lit plan into lit-plan, lit start into start-work, lit review into review-work, and lit handoff into a lit-handoff unit. Between lit-plan and start-work, analyser AIC-101 (Stop: plan file yet?) drives a three-way valve that either releases the turn or sends it back; between start-work and review-work, AIC-102 (Stop: rows open?) does the same. Each vessel sends a sample line down to the PostToolUse ledger, .litgravity/ledger/<conversation>.jsonl. The lit-handoff unit sends latest.md off the sheet. A stream table lists, for each route, the skill, what leaves (plans/<slug>.md, plan rows ticked and tests run, findings with file:line first, .litgravity/handoff/latest.md) and whether the Stop hook holds it. In the animated version, dashes move along every stream.">
+  </picture>
+</p>
 
 Some turns are allowed to wait. A lit-plan turn with no plan file yet is held at the end until `plans/<slug>.md` exists, at most three holds in a row without progress. Start-work waits while an approved plan has open rows, and litgoal and lit-loop wait while a goal record has an open criterion. Say `pause`, or write `BLOCKED at row N:`, `PAUSED at row N:` or `CANCELLED:` in the ledger, to release a hold. The capture below is the real hold from a planning turn that wrote nothing.
 
