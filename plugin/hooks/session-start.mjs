@@ -41,8 +41,9 @@ run((payload) => {
   // The installer queued the extensions notice; a real conversation (one with an id) takes it once. The doctor's hook
   // smoke sends an empty payload, so it never uses the notice up.
   const data = litgravityData();
-  if (payload.conversationId && takeExtensionNotice(data)) {
-    parts.push(`LitGravity was installed or updated just before this conversation. Once, in your first reply and after answering the user, add this short note in the user's language and keep the commands as written. Do not bring it up again.\n${extensionNotice(data).join('\n')}`);
+  const queued = payload.conversationId ? takeExtensionNotice(data) : false;
+  if (queued) {
+    parts.push(`LitGravity was installed or updated just before this conversation. Once, in your first reply and after answering the user, add this short note in the user's language and keep the commands as written. Do not bring it up again.\n${extensionNotice(data, queued).join('\n')}`);
   }
   const ws = workspaceOf(payload);
   const handoff = join(ws, '.litgravity', 'handoff', 'latest.md');

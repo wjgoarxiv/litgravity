@@ -43,7 +43,8 @@ test('install prints the extensions notice after it succeeds: core complete, the
   assert.match(notice, /full LitFamily experience/);
   assert.doesNotMatch(notice, /runtime/, 'a fresh install has nothing left behind to mention');
   const lines = notice.split('\n').filter(Boolean);
-  assert.ok(lines.length >= 5 && lines.length <= 10, `${lines.length} lines`);
+  assert.ok(notice.includes('npx @litfamily/litgravity extensions install <id>'), 'names the command route first');
+  assert.ok(lines.length >= 5 && lines.length <= 12, `${lines.length} lines`);
 });
 
 test('an update over an old release also names the engine cache it left behind, with its exact path', async () => {

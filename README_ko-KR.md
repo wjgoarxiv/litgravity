@@ -83,7 +83,7 @@ npx @litfamily/litgravity doctor
 
 사용자 범위 설치는 `~/.gemini/config/rules/litgravity.md`에 LitGravity 전용 규칙 파일 하나를 남깁니다. agy가 매 세션 시작에 그 폴더를 읽기 때문입니다. 규칙은 일부러 짧습니다. lit 호출어, 계획과 핸드오프의 위치, 릴리스 동결만 담아서 어떤 스킬이 뜨기 전에 기본 규칙이 서도록 합니다. 대화형 설치는 먼저 묻고, No라고 답하면 규칙을 끈 채로 저장합니다. `--yes`는 규칙을 더하고, `--no-agent-file`은 한 번만 건너뛰고, `npx @litfamily/litgravity config agentFile off`는 언제든 규칙을 지웁니다. 저장소에는 `npx @litfamily/litgravity agent-file project --dir <경로>`로 맞는 프로젝트 관례를 넣습니다. `AGENTS.md`에 표시된 블록만 씁니다.
 
-설치기는 프로젝트 바깥 몇 군데에 파일을 씁니다. 글로 읽는 것보다 그림으로 보는 편이 빠릅니다. 설치기는 무엇이든 건드리기 전에 계획부터 출력합니다. 목적지가 심볼릭 링크이거나, 다른 데서 온 폴더이거나, 직접 고친 사본이면 `No files written.`을 남기고 거기서 멈춥니다. 문제가 없으면 패키지에 든 플러그인을 `agy plugin validate`로 검증하고, 복사한 뒤 사본을 한 번 더 검증하고, 마지막으로 규칙 파일과 작은 영수증을 씁니다. agy 설정의 상태 표시줄 항목은 `--status-line`을 줬을 때만 바뀌고, 바꾸기 전에 원래 값을 백업해 둡니다. LitGravity가 디스크에 남기는 나머지는 설치기가 아니라 대화가 나중에 씁니다. 직접 복사한 확장과 agy 자격 증명 파일은 설치기가 열지도 않습니다.
+설치기는 프로젝트 바깥 몇 군데에 파일을 씁니다. 글로 읽는 것보다 그림으로 보는 편이 빠릅니다. 설치기는 무엇이든 건드리기 전에 계획부터 출력합니다. 목적지가 심볼릭 링크이거나, 다른 데서 온 폴더이거나, 직접 고친 사본이면 `No files written.`을 남기고 거기서 멈춥니다. 문제가 없으면 패키지에 든 플러그인을 `agy plugin validate`로 검증하고, 복사한 뒤 사본을 한 번 더 검증하고, 마지막으로 규칙 파일과 작은 영수증을 씁니다. agy 설정의 상태 표시줄 항목은 `--status-line`을 줬을 때만 바뀌고, 바꾸기 전에 원래 값을 백업해 둡니다. LitGravity가 디스크에 남기는 나머지는 설치기가 아니라 대화가 나중에 씁니다. 설치한 확장과 agy 자격 증명 파일은 설치기가 바꾸지 않습니다. 확장 폴더는 `extensions check`에 보여 줄 것이 있는지 한 번 읽기만 합니다.
 
 <p align="center">
   <picture>
@@ -172,13 +172,22 @@ LitGravity는 agy용 LitFamily 코어이고, 그 자체로 완결되어 있습�
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/litgravity/diagrams/core-extensions.ko.dark.png">
-    <img src="./docs/assets/litgravity/diagrams/core-extensions.ko.light.png" width="900" alt="두 영역으로 나뉜 그림. 왼쪽 LitGravity 플러그인에는 아홉 묶음(루프와 목표, 아이디어와 계획, 구현, 검토와 정리, 조사와 지식, 팀, 글, 이어가기와 안내, 도구)으로 나눈 코어 스킬 33개, 에이전트 11개, 훅 6개, 그리고 옛 이름을 지키는 스텁 9개(lit-pptx, lit-docx, lit-diagram-drawer, lit-schematic, lit-scientific-visualization, frontend-ui-ux, visual-qa, lit-typographic-motion, readme-studio)가 있다. 오른쪽 wjgoarxiv-skills 확장은 decks, documents, figures, design, video-covers 다섯 패밀리이고 폴더는 variants/litgravity/<id>다. 그 폴더에서 git clone 후 cp -R 화살표가 agy 사용자 스킬 ~/.gemini/config/skills/<id>로 가고, 이 스킬은 /<id>로 응답한다. 스텁에서도 설치돼 있으면이라는 화살표가 같은 곳으로 간다. 설치돼 있지 않으면 스텁은 설치 한 줄을 알려 주고 아무것도 만들지 않는다는 메모가 붙어 있다.">
+    <img src="./docs/assets/litgravity/diagrams/core-extensions.ko.light.png" width="900" alt="두 영역으로 나뉜 그림. 왼쪽 LitGravity 플러그인에는 아홉 묶음(루프와 목표, 아이디어와 계획, 구현, 검토와 정리, 조사와 지식, 팀, 글, 이어가기와 안내, 도구)으로 나눈 코어 스킬 33개, 에이전트 11개, 훅 6개, 그리고 옛 이름을 지키는 스텁 9개(lit-pptx, lit-docx, lit-diagram-drawer, lit-schematic, lit-scientific-visualization, frontend-ui-ux, visual-qa, lit-typographic-motion, readme-studio)가 있다. 오른쪽 wjgoarxiv-skills 확장은 decks, documents, figures, design, video-covers 다섯 패밀리이고 폴더는 variants/litgravity/<id>다. 그 폴더에서 install <id> --yes 화살표가 litgravity extensions install 카드로 간다. 카드에는 네 단계가 번호로 적혀 있다. 같은 이름 스킬을 확인하고 있으면 멈춤, 옛 사본은 통째로 ~/.gemini/extension-backups/<날짜>/로 옮김, 비운 자리에 복사, 사본 안에 영수증 쓰기. 새 사본 + 영수증 화살표가 agy 사용자 스킬 ~/.gemini/config/skills/<id>로 이어지고, 이 스킬은 /<id>로 응답한다. 스텁에서도 설치돼 있으면이라는 화살표가 같은 곳으로 간다. 그 아래 카드에는 나머지 동사 list, check, update, remove, prune-backups가 있고 --yes 전에는 계획만 출력한다고 적혀 있다. 설치돼 있지 않으면 스텁은 이 명령과 손으로 붙여 넣는 네 줄을 알려 준다는 메모가 붙어 있다.">
   </picture>
 </p>
 
 LitGravity는 확장마다 옛 이름으로 짧은 스텁을 남겨 둡니다. 그래서 `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 그 스텁에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 아직 설치하지 않았으면 설치 명령을 알려 주고 아무것도 만들지 않습니다. 설치기도 설치나 업데이트가 끝날 때마다 같은 안내를 보여 주고, 그 뒤 첫 agy 대화에서 한 번 더 알려 줍니다.
 
-wjgoarxiv-skills는 <https://github.com/wjgoarxiv/wjgoarxiv-skills>에 공개되어 있습니다. 저장소는 한 번만 클론하면 됩니다(`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`). 확장 하나는 네 줄로 설치합니다. agy를 쓰는 워크스페이스에서 zsh나 bash에 한 줄씩 붙여 넣고, `<id>`와 클론 경로는 직접 채웁니다.
+가장 쉬운 길은 LitGravity의 `extensions` 명령입니다. 아래에서 설명하는 네 단계를 그대로 대신 해 줍니다. 무언가를 바꾸는 동사는 먼저 계획을 출력하고 `--yes`를 기다리므로, 어떤 폴더가 어디로 옮겨지는지 미리 읽어 볼 수 있습니다.
+
+```bash
+npx @litfamily/litgravity extensions install lit-pptx          # 계획만 출력
+npx @litfamily/litgravity extensions install lit-pptx --yes    # 실행 (--project: 이 워크스페이스에만)
+```
+
+wjgoarxiv-skills에서 agy 폴더만 얕게 받아 `~/.cache/litgravity/extensions-src`에 따로 두기 때문에 직접 클론할 일이 없습니다. 이미 클론해 둔 저장소가 있으면 `--from <경로>`로 그것을 읽습니다. 복사하기 전에는 agy가 읽는 모든 폴더에서 같은 이름의 스킬을 찾고, 있으면 그 경로를 알려 주며 멈춥니다. 내 스킬은 절대 옮기지 않으며, `--allow-shadow`를 주면 경고만 하고 설치합니다. 목적지에 이미 사본이 있으면 통째로 `~/.gemini/extension-backups/` 아래 날짜 폴더로 옮긴 뒤 새 사본과 영수증을 넣습니다. 설치한 뒤에는 다른 동사로 정리합니다. `list`는 확장마다 설치됨(영수증 포함), 설치 안 됨, 영수증 없는 폴더, 같은 이름의 다른 스킬에 가려짐 가운데 어느 상태인지 보여 줍니다. `update`는 원본을 새로 받아 파일이 바뀐 확장만 다시 설치합니다. `remove`는 자기가 설치한 사본을 백업 폴더로 옮기고, 영수증이 없는 폴더는 사용자 것이므로 거절합니다. `check`는 읽기만 하고 아무것도 바꾸지 않은 채, 중복이나 영수증 없는 사본, 사라진 원본마다 고치는 한 줄을 출력합니다. `prune-backups`는 백업과 크기를 보여 주고 `--yes`를 줄 때만 지웁니다. `--family <이름>`과 `--all`로 여러 개를 한 번에 고를 수 있습니다. 자세한 내용은 `npx @litfamily/litgravity extensions help`에 있고, `doctor`도 `check`를 돌려 요약을 보여 줍니다.
+
+직접 하고 싶다면 네 단계는 평범한 셸 줄입니다. wjgoarxiv-skills는 <https://github.com/wjgoarxiv/wjgoarxiv-skills>에 공개되어 있습니다. 저장소는 한 번만 클론하면 됩니다(`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`). 확장 하나는 네 줄로 설치합니다. agy를 쓰는 워크스페이스에서 zsh나 bash에 한 줄씩 붙여 넣고, `<id>`와 클론 경로는 직접 채웁니다.
 
 ```bash
 find .agents/skills _agents/skills ~/.gemini/config/skills ~/.gemini/skills -maxdepth 2 -name SKILL.md -exec grep -l -E '^name: *"?<id>"? *$' {} + 2>/dev/null
@@ -197,7 +206,7 @@ mkdir -p .agents/skills && [ ! -e .agents/skills/<id> ] && cp -R "<path to your 
 printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' <id> "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .agents/skills/<id>/.litfamily-extension.json
 ```
 
-새 대화를 열거나 `/skills reload`를 입력하면 스킬이 `/<id>`로 답합니다. 업데이트할 때는 같은 줄을 다시 실행합니다. 옛 사본은 새 날짜 폴더로 옮겨지고 영수증은 새로 씁니다. 지우고 싶으면 둘째 줄만 실행합니다. 어떤 줄도 파일을 지우지 않으니, 필요 없어진 백업은 `~/.gemini/extension-backups/`에서 직접 정리합니다. LitGravity 설치기는 자기 플러그인 폴더에만 쓰므로, LitGravity를 업그레이드하거나 지워도 복사본은 그대로이고, 스텁(`litgravity:<id>`)과 복사본(`<id>`)은 이름이 겹치지 않습니다.
+새 대화를 열거나 `/skills reload`를 입력하면 스킬이 `/<id>`로 답합니다. 업데이트할 때는 같은 줄을 다시 실행합니다. 옛 사본은 새 날짜 폴더로 옮겨지고 영수증은 새로 씁니다. 지우고 싶으면 둘째 줄만 실행합니다. 어떤 줄도 파일을 지우지 않으니, 필요 없어진 백업은 `~/.gemini/extension-backups/`에서 정리합니다(`extensions prune-backups`가 대신 해 줍니다). `litgravity install`은 자기 플러그인 폴더에만 쓰므로, LitGravity를 업그레이드하거나 지워도 복사본은 그대로이고, 스텁(`litgravity:<id>`)과 복사본(`<id>`)은 이름이 겹치지 않습니다.
 
 | wjgoarxiv-skills의 묶음 | 확장 |
 |---|---|
@@ -256,6 +265,7 @@ printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' 
 
 - 설치기는 자기 플러그인 폴더, 데이터 디렉터리(`$XDG_DATA_HOME/litgravity`), agy 전역 규칙 폴더의 전용 규칙 파일, 그리고 요청했을 때 agy 사용자 설정의 상태 표시줄 키만 씁니다. 설정 파일은 먼저 백업합니다. agy의 인증 파일은 읽지 않습니다. 설치기가 쓰지 않은 규칙 파일은 합치지 않고 첫 쓰기 전에 설치를 멈춥니다.
 - 심볼릭 링크이거나, 남의 파일이거나, 설치 뒤 수정된 대상은 첫 쓰기 전에 설치를 멈춥니다. 수정한 사본을 남기고 싶으면 설치기가 알려 주는 명령으로 `~/.local/share/litgravity/saved/<범위>-<날짜>`에 옮깁니다. 이 폴더를 agy 플러그인 폴더 밖에 둔 데는 이유가 있습니다. agy는 플러그인 폴더에 있는 폴더를 모두 불러오므로, 플러그인 옆에 둔 사본은 두 번째 LitGravity로 돌아갑니다. `doctor`는 그런 사본이 남아 있으면 경고합니다. `--dry-run`은 아무것도 바꾸지 않습니다.
+- `extensions`는 범위에 맞는 agy 스킬 폴더(`~/.gemini/config/skills/<id>` 또는 `.agents/skills/<id>`), `~/.gemini/extension-backups/`, 자기 원본 클론 `~/.cache/litgravity/extensions-src`에만 씁니다. `--yes`가 없으면 계획만 출력합니다. 다른 곳에 둔 같은 이름의 스킬은 옮기지 않고, 영수증 없는 폴더는 제거하지 않으며, 지우는 일은 `prune-backups --yes`로 `~/.gemini/extension-backups/` 안에서만 합니다.
 - 훅이 하나 깨져도 대화는 계속됩니다.
 - 0.1.8까지의 릴리스는 엔진 캐시를 `~/.local/share/litgravity/runtime/`에 두었습니다. 이제 그곳에 쓰는 것은 없고 `uninstall`도 남겨 두므로, 공간이 필요하면 그 폴더를 지우세요.
 - agy를 시작하기 전에 `LITGRAVITY_HOOK_TRACE=<파일>`을 지정하면 훅 호출마다 한 줄씩 기록합니다. 지정하지 않으면 꺼져 있습니다.
@@ -268,6 +278,7 @@ printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' 
 | 전역 규칙 끄기/켜기 | `npx @litfamily/litgravity config agentFile off` (또는 `on`) |
 | 프로젝트 블록 | `npx @litfamily/litgravity agent-file project --dir <경로>` |
 | 확인 | `npx @litfamily/litgravity doctor` |
+| 확장 | `npx @litfamily/litgravity extensions list` (그다음 `install`, `update`, `remove`, `check`, `prune-backups`) |
 | 제거 | `npx @litfamily/litgravity uninstall --yes` |
 
 대화가 프로젝트에 만든 파일(`plans/`, `.litgravity/`)은 그대로 남습니다.

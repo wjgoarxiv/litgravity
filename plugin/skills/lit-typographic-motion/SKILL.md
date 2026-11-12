@@ -11,6 +11,8 @@ This file keeps the id. `lit motion …`, `lit film …`, `lit video …`, `lit 
 
 ## Install it in agy
 
+The short route is LitGravity's own command, run in a terminal: `npx @litfamily/litgravity extensions install lit-typographic-motion` prints what it would do, and the same with `--yes` does it (`--project` for one workspace). It fetches the skill, stops if another skill named lit-typographic-motion sits where agy loads skills, moves an old copy aside and writes the receipt; `extensions update`, `remove` and `check` do the rest. The lines below are the same steps by hand.
+
 wjgoarxiv-skills is public at https://github.com/wjgoarxiv/wjgoarxiv-skills. Clone it (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), then paste these four lines one at a time (zsh or bash) in the workspace you use agy in. They put the skill in agy's user skills, which every workspace sees:
 
 ```bash
@@ -36,7 +38,7 @@ The folder is the whole skill, with its own scripts, references and engine locks
 
 1. Look for the installed copy with `read_file`: first `~/.gemini/config/skills/lit-typographic-motion/SKILL.md`, then `.agents/skills/lit-typographic-motion/SKILL.md` in the workspace.
 2. **Found.** Read it and follow it for this task; its folder is the root for every relative path it names. It was written for agy and needs no LitGravity hook: every check it names is a command it tells you to run.
-3. **Not found, asked directly.** Reply in a few lines: what lit-typographic-motion did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/lit-typographic-motion/`), the install lines above, and that you made nothing yet. Do not make the film another way in its place (an ffmpeg slideshow, a CSS animation recorded by hand).
+3. **Not found, asked directly.** Reply in a few lines: what lit-typographic-motion did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/lit-typographic-motion/`), the `extensions install` command and the install lines above, and that you made nothing yet. Do not make the film another way in its place (an ffmpeg slideshow, a CSS animation recorded by hand).
 4. **Not found, inside a workflow.** Inside a lit workflow (lit-loop, litwork, start-work, review-work) that reached this skill, write `lit-typographic-motion not installed` once in the ledger and the reply with the install lines, finish the parts that need no film, and mark the part that needs it BLOCKED, not done.
 
 LitGravity no longer holds a motion turn open until a render passes: that check left with the engine. The installed copy runs that check itself: `node <its folder>/scripts/motion.mjs done <output folder>` before it calls a film finished. Its engine installs with `node <its folder>/scripts/motion-runtime.mjs install`.

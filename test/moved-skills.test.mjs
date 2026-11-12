@@ -163,7 +163,8 @@ test('doctor names the moved skills and checks no engine, design corpus or motio
   const moved = doc.checks.find((c) => c.name === 'moved skills');
   assert.equal(moved?.status, 'INFO');
   for (const [id] of MOVED) assert.ok(moved.detail.includes(id), id);
-  assert.equal(moved.fix, extensionLines('<id>').join('\n'));
+  assert.ok(moved.fix.startsWith('npx @litfamily/litgravity extensions install <id>'), 'the command comes first');
+  assert.ok(moved.fix.endsWith(extensionLines('<id>').join('\n')), 'then the four lines by hand');
 });
 
 test('the lock holds stub-sized budgets for the moved ids and exempts only them from the family floor', () => {

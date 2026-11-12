@@ -11,6 +11,8 @@ This file keeps the id. `lit visual-qa …`, `/litgravity:visual-qa`, review-wor
 
 ## Install it in agy
 
+The short route is LitGravity's own command, run in a terminal: `npx @litfamily/litgravity extensions install visual-qa` prints what it would do, and the same with `--yes` does it (`--project` for one workspace). It fetches the skill, stops if another skill named visual-qa sits where agy loads skills, moves an old copy aside and writes the receipt; `extensions update`, `remove` and `check` do the rest. The lines below are the same steps by hand.
+
 wjgoarxiv-skills is public at https://github.com/wjgoarxiv/wjgoarxiv-skills. Clone it (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), then paste these four lines one at a time (zsh or bash) in the workspace you use agy in. They put the skill in agy's user skills, which every workspace sees:
 
 ```bash
@@ -36,7 +38,7 @@ The folder is the whole skill, with its own scripts, references and engine locks
 
 1. Look for the installed copy with `read_file`: first `~/.gemini/config/skills/visual-qa/SKILL.md`, then `.agents/skills/visual-qa/SKILL.md` in the workspace.
 2. **Found.** Read it and follow it for this task; its folder is the root for every relative path it names. It was written for agy and needs no LitGravity hook: every check it names is a command it tells you to run.
-3. **Not found, asked directly.** Reply in a few lines: what visual-qa did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/visual-qa/`), the install lines above, and that you made nothing yet. Do not describe the page from its source and call that a visual check.
+3. **Not found, asked directly.** Reply in a few lines: what visual-qa did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/visual-qa/`), the `extensions install` command and the install lines above, and that you made nothing yet. Do not describe the page from its source and call that a visual check.
 4. **Not found, inside a workflow.** Inside review-work or litwork, record `visual-qa not installed` in the lane and give no visual verdict: the surface stays unchecked, not passed.
 
 ## Hard stops

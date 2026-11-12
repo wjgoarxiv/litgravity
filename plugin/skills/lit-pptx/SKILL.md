@@ -11,6 +11,8 @@ This file keeps the id. `lit deck …`, `lit slides …`, `lit pptx …`, a `lit
 
 ## Install it in agy
 
+The short route is LitGravity's own command, run in a terminal: `npx @litfamily/litgravity extensions install lit-pptx` prints what it would do, and the same with `--yes` does it (`--project` for one workspace). It fetches the skill, stops if another skill named lit-pptx sits where agy loads skills, moves an old copy aside and writes the receipt; `extensions update`, `remove` and `check` do the rest. The lines below are the same steps by hand.
+
 wjgoarxiv-skills is public at https://github.com/wjgoarxiv/wjgoarxiv-skills. Clone it (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), then paste these four lines one at a time (zsh or bash) in the workspace you use agy in. They put the skill in agy's user skills, which every workspace sees:
 
 ```bash
@@ -36,7 +38,7 @@ The folder is the whole skill, with its own scripts, references and engine locks
 
 1. Look for the installed copy with `read_file`: first `~/.gemini/config/skills/lit-pptx/SKILL.md`, then `.agents/skills/lit-pptx/SKILL.md` in the workspace.
 2. **Found.** Read it and follow it for this task; its folder is the root for every relative path it names. It was written for agy and needs no LitGravity hook: every check it names is a command it tells you to run.
-3. **Not found, asked directly.** Reply in a few lines: what lit-pptx did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/lit-pptx/`), the install lines above, and that you made nothing yet. Do not write the deck another way in its place (python-pptx, soffice, an HTML page called slides).
+3. **Not found, asked directly.** Reply in a few lines: what lit-pptx did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/lit-pptx/`), the `extensions install` command and the install lines above, and that you made nothing yet. Do not write the deck another way in its place (python-pptx, soffice, an HTML page called slides).
 4. **Not found, inside a workflow.** Inside a lit workflow (lit-loop, litwork, start-work, review-work) that reached this skill, write `lit-pptx not installed` once in the ledger and the reply with the install lines, finish the parts that need no deck, and mark the part that needs it BLOCKED, not done.
 
 ## Hard stops

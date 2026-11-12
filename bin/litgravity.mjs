@@ -6,6 +6,7 @@ import { uninstall } from '../lib/uninstall.mjs';
 import { doctor } from '../lib/doctor.mjs';
 import { models } from '../lib/models.mjs';
 import { list } from '../lib/list.mjs';
+import { extensions, EXTENSION_HELP } from '../lib/extension-manager.mjs';
 import { packageVersion, destState } from '../lib/bundle.mjs';
 import { paths } from '../lib/paths.mjs';
 import { agyVersion } from '../lib/agy.mjs';
@@ -21,6 +22,9 @@ Commands
   status       Short version of doctor plus an update check
   models       List the models and efforts your agy offers
   list         Every skill with the words that reach it and its purpose, and where a moved skill went (--json for tools)
+  extensions   extensions list|check|install|update|remove|prune-backups: manage the LitFamily extensions in agy's
+               skill folders (check first, move an old copy aside, copy, write a receipt); a dry run until --yes.
+               litgravity extensions help explains each verb
   config       config agentFile on|off: keep or remove the LitGravity rule in agy's global rules folder
   agent-file   agent-file project [--dir <path>]: write the LitGravity block into a repo's AGENTS.md
   uninstall    Remove the copies this installer wrote (both scopes unless --scope is given)
@@ -33,7 +37,10 @@ Options
   --scope <s>      user (default): ~/.gemini/config/plugins/litgravity, or project: ./.agents/plugins/litgravity
   --status-line    install: also set the LitGravity status line in agy's user settings (opt-in, user scope only)
   --replace-status-line  install: replace a status line LitGravity did not write (saved first; uninstall puts it back)
-  --json           Machine-readable output (doctor, models, list)
+  --json           Machine-readable output (doctor, models, list, extensions list|check)
+  --project        extensions: ./.agents/skills in this workspace instead of ~/.gemini/config/skills
+  --from <path>    extensions install|update: use this wjgoarxiv-skills clone instead of LitGravity's own
+  --family <name>, --all, --allow-shadow, --older-than <days>   see: litgravity extensions help
   --offline        Skip the npm update check
   --discard-modified  uninstall: also remove a copy edited after install
   --version        Print the version`;
@@ -52,6 +59,12 @@ function parse(argv) {
     else if (a === '--replace-status-line') flags.replaceStatusLine = true;
     else if (a === '--discard-modified') flags.discardModified = true;
     else if (a === '--scope') flags.scope = argv[++i];
+    else if (a === '--project') flags.project = true;
+    else if (a === '--all') flags.all = true;
+    else if (a === '--allow-shadow') flags.allowShadow = true;
+    else if (a === '--from') flags.from = argv[++i];
+    else if (a === '--family') flags.family = argv[++i];
+    else if (a === '--older-than') flags.olderThan = argv[++i];
     else if (a === '--help' || a === '-h') flags.help = true;
     else if (a === '--version' || a === '-v') flags.version = true;
     else rest.push(a);
@@ -79,7 +92,7 @@ async function main() {
     return 0;
   }
   if (flags.help || command === 'help') {
-    print(HELP);
+    print(command === 'extensions' ? EXTENSION_HELP : HELP);
     return 0;
   }
   if (flags.scope && !['user', 'project'].includes(flags.scope)) {
@@ -98,6 +111,8 @@ async function main() {
       return models({ env, flags, print });
     case 'list':
       return list({ flags, print });
+    case 'extensions':
+      return extensions({ env, args, flags, cwd, print });
     case 'config':
       return runAgentFileConfig({ env, args, cwd, print });
     case 'agent-file':

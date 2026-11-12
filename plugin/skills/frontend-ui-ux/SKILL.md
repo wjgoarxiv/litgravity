@@ -11,6 +11,8 @@ This file keeps the id. `lit frontend …`, `lit ui …`, a `lit` prompt that as
 
 ## Install it in agy
 
+The short route is LitGravity's own command, run in a terminal: `npx @litfamily/litgravity extensions install frontend-ui-ux` prints what it would do, and the same with `--yes` does it (`--project` for one workspace). It fetches the skill, stops if another skill named frontend-ui-ux sits where agy loads skills, moves an old copy aside and writes the receipt; `extensions update`, `remove` and `check` do the rest. The lines below are the same steps by hand.
+
 wjgoarxiv-skills is public at https://github.com/wjgoarxiv/wjgoarxiv-skills. Clone it (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), then paste these four lines one at a time (zsh or bash) in the workspace you use agy in. They put the skill in agy's user skills, which every workspace sees:
 
 ```bash
@@ -36,7 +38,7 @@ The folder is the whole skill, with its own scripts, references and engine locks
 
 1. Look for the installed copy with `read_file`: first `~/.gemini/config/skills/frontend-ui-ux/SKILL.md`, then `.agents/skills/frontend-ui-ux/SKILL.md` in the workspace.
 2. **Found.** Read it and follow it for this task; its folder is the root for every relative path it names. It was written for agy and needs no LitGravity hook: every check it names is a command it tells you to run.
-3. **Not found, asked directly.** Reply in a few lines: what frontend-ui-ux did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/frontend-ui-ux/`), the install lines above, and that you made nothing yet. Do not build the page another way in its place; plain code edits to an existing interface stay with lit-code or litwork.
+3. **Not found, asked directly.** Reply in a few lines: what frontend-ui-ux did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/frontend-ui-ux/`), the `extensions install` command and the install lines above, and that you made nothing yet. Do not build the page another way in its place; plain code edits to an existing interface stay with lit-code or litwork.
 4. **Not found, inside a workflow.** A lit workflow that edits an interface keeps going without it: make the edit through lit-code or litwork, say once that frontend-ui-ux is not installed, and claim no design review.
 
 ## Hard stops

@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { PLUGIN_ROOT, sessionPath, safeId } from './common.mjs';
-import { MOVED_SKILLS, extensionLines } from './routes.mjs';
+import { MOVED_SKILLS, extensionLines, extensionCommand } from './routes.mjs';
 
 // The route a `lit` prompt finds already active in this conversation. A damaged, journal-only or odd-shaped state
 // counts as nothing active, so the prompt gets the full activation and rewrites the state.
@@ -76,7 +76,7 @@ export function resumeNote(plan) {
 
 // A moved skill's route reads its pointer stub; the note says so up front, with the install line, so the turn gives
 // that line (or hands over to the installed copy) and builds nothing from memory.
-const movedNote = (id) => `\`${id}\` is a LitFamily extension now, kept in wjgoarxiv-skills (variants/litgravity/${id}/); the file above is its pointer stub. If the stub finds no installed copy, give the user these four install lines, pasted in order, and make nothing:\n${extensionLines(id).join('\n')}`;
+const movedNote = (id) => `\`${id}\` is a LitFamily extension now, kept in wjgoarxiv-skills (variants/litgravity/${id}/); the file above is its pointer stub. If the stub finds no installed copy, make nothing and give the user the one command that installs it from a terminal (it prints its plan without --yes), \`${extensionCommand(id)}\`, or these four lines pasted in order:\n${extensionLines(id).join('\n')}`;
 
 export function activation(hit, conversationId, kind = 'ignite') {
   const id = safeId(conversationId);

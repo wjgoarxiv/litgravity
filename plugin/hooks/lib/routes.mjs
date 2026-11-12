@@ -87,6 +87,9 @@ export function extensionSteps(id, scope = 'user') {
   };
 }
 export const extensionLines = (id, scope = 'user') => Object.values(extensionSteps(id, scope));
+// The same four steps done by LitGravity's own CLI (`litgravity extensions`), a dry run until --yes.
+export const EXTENSIONS_CLI = 'npx @litfamily/litgravity extensions';
+export const extensionCommand = (id, scope = 'user') => `${EXTENSIONS_CLI} install ${id}${scope === 'project' ? ' --project' : ''} --yes`;
 // Skill ids that are another name for a skill: typed whole, slashed or after `lit`, they take its route.
 export const SKILL_ALIASES = { 'lit-rewind': 'lit-adhd' };
 const skillId = (word) => (SKILL_IDS.has(word) ? word : SKILL_ALIASES[word]);

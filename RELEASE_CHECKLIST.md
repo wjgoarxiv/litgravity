@@ -19,6 +19,7 @@ Every publish, tag or push needs the maintainer's explicit approval. Work throug
 - [ ] `npm pack --dry-run --json --ignore-scripts` — `[0].files` equals the `pack` list in `skills.lock.json`
 - [ ] Before any publish: run the umbrella decode-aware leak scan over every tracked and untracked file (`zsh ../plans/tools/leak-scan.sh` with each file as a target) and require rc 0
 - [ ] Moved skills: each of the nine stubs still names `wjgoarxiv-skills`, its `variants/litgravity/<id>/` folder and the four install lines for both scopes (preflight, move-aside into `~/.gemini/extension-backups/`, `cp -R` into `<dest>/<id>`, receipt) with the placeholder (`test/moved-skills.test.mjs`, `test/extension-lines.test.mjs`)
+- [ ] `litgravity extensions` verbs: each stub, the notice, `list`, doctor and both READMEs name `npx @litfamily/litgravity extensions install <id>`; `test/extension-manager.test.mjs` passes; a real `agy -p "/skills"` in an isolated HOME lists one copy after `extensions install --yes` over an existing folder
 - [ ] Live: `agy -p "lit plan a tiny todo app" --output-format json < /dev/null` in a throwaway project with the plugin at `.agents/plugins/litgravity/`; the reply or the ledger shows the activation. Real model calls count against the user's quota; keep them few.
 - [ ] Fresh clone: `git clone` the repo into a temp folder and run `npm test` there
 

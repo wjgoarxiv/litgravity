@@ -102,7 +102,9 @@ test('doctor names the moved skills and their install line, and lists no engine'
   await installAt(env, 'user', cwd);
   const r = await check(env, cwd);
   assert.match(r.text, /INFO moved skills — 9 are pointer stubs here/);
-  assert.ok(r.text.includes('fix: find .agents/skills _agents/skills ~/.gemini/config/skills ~/.gemini/skills'), r.text);
+  assert.ok(r.text.includes('fix: npx @litfamily/litgravity extensions install <id>'), r.text);
+  assert.ok(r.text.includes('\n          find .agents/skills _agents/skills ~/.gemini/config/skills ~/.gemini/skills'), r.text);
+  assert.match(r.text, /PASS extensions — 0 of 9 installed with a receipt/);
   assert.ok(r.text.includes('\n          mkdir -p ~/.gemini/config/skills && [ ! -e ~/.gemini/config/skills/<id> ] && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/<id>\n'), 'the four lines, indented under fix');
   assert.doesNotMatch(r.text, /engine |runtime install/);
 });
