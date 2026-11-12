@@ -7,6 +7,14 @@ import { ROOT, PLUGIN } from './helpers.mjs';
 
 const pinned = () => JSON.parse(readFileSync(join(ROOT, 'skills.lock.json'), 'utf8')).pack;
 
+// A file count quoted in the newest CHANGELOG entry is a promise about this package, so it follows the pinned pack list.
+test('the file count in the newest CHANGELOG entry matches the pinned pack list', () => {
+  const top = readFileSync(join(ROOT, 'CHANGELOG.md'), 'utf8').split(/^## /m)[1] ?? '';
+  for (const m of top.matchAll(/files to ([\d,]+)/g)) {
+    assert.equal(Number(m[1].replace(/,/g, '')), pinned().length, `CHANGELOG says "${m[0]}"`);
+  }
+});
+
 // The lock's pack list is the same list `npm run sync:lock` writes, so a new file must be re-pinned on purpose.
 test('npm pack payload matches the pack list in skills.lock.json', () => {
   const r = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: ROOT, encoding: 'utf8' });
