@@ -176,15 +176,28 @@ LitGravity는 agy용 LitFamily 코어이고, 그 자체로 완결되어 있습�
   </picture>
 </p>
 
-LitGravity는 확장마다 옛 이름으로 짧은 스텁을 남겨 둡니다. 그래서 `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 그 스텁에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 아직 설치하지 않았으면 설치 명령 한 줄을 알려 주고 아무것도 만들지 않습니다. 설치기도 설치나 업데이트가 끝날 때마다 같은 안내를 보여 주고, 그 뒤 첫 agy 대화에서 한 번 더 알려 줍니다.
+LitGravity는 확장마다 옛 이름으로 짧은 스텁을 남겨 둡니다. 그래서 `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 그 스텁에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 아직 설치하지 않았으면 설치 명령을 알려 주고 아무것도 만들지 않습니다. 설치기도 설치나 업데이트가 끝날 때마다 같은 안내를 보여 주고, 그 뒤 첫 agy 대화에서 한 번 더 알려 줍니다.
 
-wjgoarxiv-skills는 <https://github.com/wjgoarxiv/wjgoarxiv-skills>에 공개되어 있습니다. 저장소를 클론한 뒤(`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), 클론에서 스킬 폴더를 agy의 사용자 스킬 폴더로 복사합니다.
+wjgoarxiv-skills는 <https://github.com/wjgoarxiv/wjgoarxiv-skills>에 공개되어 있습니다. 저장소는 한 번만 클론하면 됩니다(`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`). 확장 하나는 네 줄로 설치합니다. agy를 쓰는 워크스페이스에서 zsh나 bash에 한 줄씩 붙여 넣고, `<id>`와 클론 경로는 직접 채웁니다.
 
 ```bash
-mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/
+find .agents/skills _agents/skills ~/.gemini/config/skills ~/.gemini/skills -maxdepth 2 -name SKILL.md -exec grep -l -E '^name: *"?<id>"? *$' {} + 2>/dev/null
+if [ -e ~/.gemini/config/skills/<id> ] || [ -L ~/.gemini/config/skills/<id> ]; then b=~/.gemini/extension-backups/$(date +%Y%m%d-%H%M%S); mkdir -p "$b" && mv ~/.gemini/config/skills/<id> "$b/" && echo "moved to $b/<id>"; fi
+mkdir -p ~/.gemini/config/skills && [ ! -e ~/.gemini/config/skills/<id> ] && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/<id>
+printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' <id> "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > ~/.gemini/config/skills/<id>/.litfamily-extension.json
 ```
 
-한 워크스페이스에서만 쓰려면 그 워크스페이스의 `.agents/skills/`에 복사합니다. 새 대화를 열거나 `/skills reload`를 입력하면 스킬이 `/<id>`로 답합니다. 업데이트할 때는 복사한 폴더를 지우고 다시 복사합니다. LitGravity 설치기는 자기 플러그인 폴더에만 쓰므로, LitGravity를 업그레이드하거나 지워도 복사본은 그대로이고, 스텁(`litgravity:<id>`)과 복사본(`<id>`)은 이름이 겹치지 않습니다.
+첫 줄은 살펴보기만 합니다. agy 1.5.6은 스킬을 이름으로 네 폴더에서 불러옵니다(워크스페이스의 `.agents/skills`와 `_agents/skills`, 그다음 `~/.gemini/config/skills`와 `~/.gemini/skills`). 이름이 같은 스킬이 둘이면 아무 말 없이 하나만 남기기 때문에, 첫 줄은 그 이름을 가진 스킬의 `SKILL.md`를 모두 출력하고 하나도 없으면 아무것도 출력하지 않습니다. 설치 폴더 바깥에서 나온 사본이 있으면 같은 방식으로 옮겨 둡니다. 둘째 줄은 이미 있는 사본을 통째로 `~/.gemini/extension-backups/` 아래 날짜 폴더로 옮깁니다. agy는 이 폴더를 읽지 않고, 사본 안에 둔 내 파일도 그대로 그곳에 남습니다. 셋째 줄은 비워 둔 자리에 확장을 복사하므로 옛 사본이 새 사본 안에 들어가거나 섞이지 않습니다. 넷째 줄은 사본 안에 작은 영수증 `.litfamily-extension.json`을 씁니다. id, 원본 폴더, 변형, 설치 시각이 들어갑니다.
+
+한 워크스페이스에서만 쓰려면 첫 줄을 실행한 뒤 워크스페이스 루트에서 아래 세 줄을 실행합니다.
+
+```bash
+if [ -e .agents/skills/<id> ] || [ -L .agents/skills/<id> ]; then b=~/.gemini/extension-backups/$(date +%Y%m%d-%H%M%S)-project; mkdir -p "$b" && mv .agents/skills/<id> "$b/" && echo "moved to $b/<id>"; fi
+mkdir -p .agents/skills && [ ! -e .agents/skills/<id> ] && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" .agents/skills/<id>
+printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' <id> "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .agents/skills/<id>/.litfamily-extension.json
+```
+
+새 대화를 열거나 `/skills reload`를 입력하면 스킬이 `/<id>`로 답합니다. 업데이트할 때는 같은 줄을 다시 실행합니다. 옛 사본은 새 날짜 폴더로 옮겨지고 영수증은 새로 씁니다. 지우고 싶으면 둘째 줄만 실행합니다. 어떤 줄도 파일을 지우지 않으니, 필요 없어진 백업은 `~/.gemini/extension-backups/`에서 직접 정리합니다. LitGravity 설치기는 자기 플러그인 폴더에만 쓰므로, LitGravity를 업그레이드하거나 지워도 복사본은 그대로이고, 스텁(`litgravity:<id>`)과 복사본(`<id>`)은 이름이 겹치지 않습니다.
 
 | wjgoarxiv-skills의 묶음 | 확장 |
 |---|---|

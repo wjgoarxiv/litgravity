@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
-import { MOVED_SKILLS, movedInstallLine } from './routes.mjs';
+import { MOVED_SKILLS, EXTENSION_BACKUPS, extensionLines } from './routes.mjs';
 
 // The file-making skills are LitFamily extensions on the wjgoarxiv-skills shelf. The installer prints this notice
 // after a successful install or update and leaves a flag; the next real SessionStart hands it to the model once and
@@ -20,9 +20,9 @@ export function extensionNotice(data) {
   const lines = [
     'LitGravity is the LitFamily core for agy. It is complete and works on its own.',
     `The ${Object.keys(MOVED_SKILLS).length} skills that make files (decks, documents, figures, design, video covers) are LitFamily extensions now, kept on the extension shelf at ${EXTENSION_SHELF}.`,
-    'Install the ones you use alongside LitGravity to get the full LitFamily experience:',
+    'Install the ones you use alongside LitGravity to get the full LitFamily experience. Clone the shelf once, then paste these four lines per skill, with its id: they list any same-name skill agy could load, move an existing copy into a dated folder under ' + EXTENSION_BACKUPS + ', copy the skill in and write a receipt. Run them again to update.',
     `  git clone ${EXTENSION_SHELF}`,
-    `  ${movedInstallLine('<id>')}`,
+    ...extensionLines('<id>').map((line) => `  ${line}`),
     '`npx @litfamily/litgravity list` names the ids. A new conversation, or /skills reload, picks a copy up.',
   ];
   const runtime = oldRuntimeDir(data);

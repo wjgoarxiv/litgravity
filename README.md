@@ -176,15 +176,28 @@ The split is easiest to see side by side. Everything on the left ships in the np
   </picture>
 </p>
 
-LitGravity keeps a short stub under each extension's old name, so `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` and the rest still land somewhere useful. The stub hands the turn to your installed copy, or, when the extension is not installed yet, gives you the one line that installs it and makes nothing. The installer says the same after every install or update, and the first agy conversation after it mentions it once.
+LitGravity keeps a short stub under each extension's old name, so `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` and the rest still land somewhere useful. The stub hands the turn to your installed copy, or, when the extension is not installed yet, gives you the lines that install it and makes nothing. The installer says the same after every install or update, and the first agy conversation after it mentions it once.
 
-wjgoarxiv-skills is public at <https://github.com/wjgoarxiv/wjgoarxiv-skills>. Clone it (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), then copy a skill from your clone into agy's user skills folder:
+wjgoarxiv-skills is public at <https://github.com/wjgoarxiv/wjgoarxiv-skills>. Clone it once (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`). Each extension then goes in with four lines, pasted one at a time in zsh or bash from the workspace you use agy in, with `<id>` and the clone path filled in:
 
 ```bash
-mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/
+find .agents/skills _agents/skills ~/.gemini/config/skills ~/.gemini/skills -maxdepth 2 -name SKILL.md -exec grep -l -E '^name: *"?<id>"? *$' {} + 2>/dev/null
+if [ -e ~/.gemini/config/skills/<id> ] || [ -L ~/.gemini/config/skills/<id> ]; then b=~/.gemini/extension-backups/$(date +%Y%m%d-%H%M%S); mkdir -p "$b" && mv ~/.gemini/config/skills/<id> "$b/" && echo "moved to $b/<id>"; fi
+mkdir -p ~/.gemini/config/skills && [ ! -e ~/.gemini/config/skills/<id> ] && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/<id>
+printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' <id> "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > ~/.gemini/config/skills/<id>/.litfamily-extension.json
 ```
 
-For one workspace only, copy it into that workspace's `.agents/skills/` instead. Start a new conversation (or type `/skills reload`), and the skill answers as `/<id>`. To update it, delete the copied folder and copy it again. The LitGravity installer writes only its own plugin folder, so upgrading or removing LitGravity never touches the copy, and the stub (`litgravity:<id>`) and the copy (`<id>`) keep different names.
+The first line only looks. agy 1.5.6 loads a skill by its name from four folders (a workspace's `.agents/skills` and `_agents/skills`, then `~/.gemini/config/skills` and `~/.gemini/skills`), and when two share a name it keeps one without saying so, so the line prints the `SKILL.md` of every skill with that name and prints nothing when there is none. Move any copy it names outside the install folder aside the same way. The second line moves an existing copy, whole, into a dated folder under `~/.gemini/extension-backups/`, which agy never loads; your own files inside it stay there. The third copies the extension into the emptied place, so an old copy can never nest or mix with the new one. The fourth writes a small receipt, `.litfamily-extension.json`, inside the copy: the id, the source folder, the variant and the time.
+
+For one workspace only, run the first line, then these three in the workspace root:
+
+```bash
+if [ -e .agents/skills/<id> ] || [ -L .agents/skills/<id> ]; then b=~/.gemini/extension-backups/$(date +%Y%m%d-%H%M%S)-project; mkdir -p "$b" && mv .agents/skills/<id> "$b/" && echo "moved to $b/<id>"; fi
+mkdir -p .agents/skills && [ ! -e .agents/skills/<id> ] && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" .agents/skills/<id>
+printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' <id> "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .agents/skills/<id>/.litfamily-extension.json
+```
+
+Start a new conversation (or type `/skills reload`), and the skill answers as `/<id>`. To update it, run the same lines again: the old copy moves to a new dated backup and the receipt is rewritten. To remove it, run the second line alone. Nothing is ever deleted, so clear old backups out of `~/.gemini/extension-backups/` yourself when you no longer need them. The LitGravity installer writes only its own plugin folder, so upgrading or removing LitGravity never touches the copy, and the stub (`litgravity:<id>`) and the copy (`<id>`) keep different names.
 
 | Family in wjgoarxiv-skills | Extensions |
 |---|---|

@@ -9,7 +9,7 @@ import { doctor } from '../lib/doctor.mjs';
 import { list } from '../lib/list.mjs';
 import { paths } from '../lib/paths.mjs';
 import { destState } from '../lib/bundle.mjs';
-import { MOVED_SKILLS, movedInstallLine } from '../plugin/hooks/lib/routes.mjs';
+import { MOVED_SKILLS, extensionLines } from '../plugin/hooks/lib/routes.mjs';
 import { activation } from '../plugin/hooks/lib/reentry.mjs';
 
 // The nine file-making skills are LitFamily extensions now. A user hears it twice: in the install or update output,
@@ -39,7 +39,7 @@ test('install prints the extensions notice after it succeeds: core complete, the
   assert.match(notice, /LitFamily extensions/);
   assert.ok(notice.includes(SHELF), 'names the extension shelf');
   assert.ok(notice.includes(`git clone ${SHELF}`), 'gives the clone line');
-  assert.ok(notice.includes(movedInstallLine('<id>')), 'gives the same install line the stubs print');
+  for (const line of extensionLines('<id>')) assert.ok(notice.includes(line), 'gives the same install lines the stubs print');
   assert.match(notice, /full LitFamily experience/);
   assert.doesNotMatch(notice, /runtime/, 'a fresh install has nothing left behind to mention');
   const lines = notice.split('\n').filter(Boolean);
@@ -80,7 +80,7 @@ test('the first agy conversation after an install carries the notice once; the n
   assert.equal((await run(env, { yes: true, scope: 'user' }, cwd)).code, 0);
   const first = startText(env);
   assert.ok(first.includes(SHELF), first);
-  assert.ok(first.includes(movedInstallLine('<id>')));
+  for (const line of extensionLines('<id>')) assert.ok(first.includes(line));
   assert.match(first, /complete and works on its own/);
   assert.ok(first.includes(runtime), 'the leftover path rides along on an update');
   assert.match(first, /first reply/);

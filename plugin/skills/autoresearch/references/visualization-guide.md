@@ -12,10 +12,13 @@ The figure needs Python with matplotlib. LitGravity ships no plotting engine and
 
 1. **The installed figure skill.** `lit-scientific-visualization` moved to wjgoarxiv-skills; LitGravity keeps only a stub of that name. Look for the user's installed copy with `read_file`: first `~/.gemini/config/skills/lit-scientific-visualization/SKILL.md`, then `.agents/skills/lit-scientific-visualization/SKILL.md` in the workspace. When one is there, follow its own runtime section (its folder is the root for every path it names, and its engine caches outside this plugin), still under this file's authority and figure rules.
 2. **A local matplotlib.** When no copy is installed but the project already has a Python environment that imports matplotlib (or the user named an interpreter), run the plotting script with it; the style preset below keeps the figure in the house style.
-3. **BLOCKED.** When neither exists, or `run_command` is refused, mark the figure step `BLOCKED` in one line of the report, give the optional install line from the stub, and keep the TSV as the evidence:
+3. **BLOCKED.** When neither exists, or `run_command` is refused, mark the figure step `BLOCKED` in one line of the report, give the optional install lines from the stub (pasted in order: look for same-name copies, move an old copy aside, copy, write the receipt), and keep the TSV as the evidence:
 
    ```bash
-   mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/lit-scientific-visualization" ~/.gemini/config/skills/
+   find .agents/skills _agents/skills ~/.gemini/config/skills ~/.gemini/skills -maxdepth 2 -name SKILL.md -exec grep -l -E '^name: *"?lit-scientific-visualization"? *$' {} + 2>/dev/null
+   if [ -e ~/.gemini/config/skills/lit-scientific-visualization ] || [ -L ~/.gemini/config/skills/lit-scientific-visualization ]; then b=~/.gemini/extension-backups/$(date +%Y%m%d-%H%M%S); mkdir -p "$b" && mv ~/.gemini/config/skills/lit-scientific-visualization "$b/" && echo "moved to $b/lit-scientific-visualization"; fi
+   mkdir -p ~/.gemini/config/skills && [ ! -e ~/.gemini/config/skills/lit-scientific-visualization ] && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/lit-scientific-visualization" ~/.gemini/config/skills/lit-scientific-visualization
+   printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' lit-scientific-visualization "<path to your wjgoarxiv-skills clone>/variants/litgravity/lit-scientific-visualization" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > ~/.gemini/config/skills/lit-scientific-visualization/.litfamily-extension.json
    ```
 
    Never copy the skill in or install packages yourself, and never claim a figure that was not drawn and looked at. A headless run that cannot plot stops the figure step, never the run.

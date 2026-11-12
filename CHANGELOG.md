@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Installing an extension over a folder that is already there is safe now. The stubs, both READMEs, the post-install extensions note, the router note, `litgravity list`, `doctor` and the autoresearch figure guide all give the same four lines, for user scope (`~/.gemini/config/skills`) and for one workspace (`.agents/skills`), pasted one at a time in zsh or bash:
+  1. A read-only `find` that prints the `SKILL.md` of every skill with that name in the four folders agy 1.5.6 loads bare skills from: a workspace's `.agents/skills` and `_agents/skills`, then `~/.gemini/config/skills` and `~/.gemini/skills`. agy keeps one same-name skill without a word, a workspace copy first, so a second copy anywhere there would shadow the extension.
+  2. When the destination exists, a move of the whole folder into `~/.gemini/extension-backups/<YYYYmmdd-HHMMSS>/<id>` (`…-project/<id>` for a workspace copy), a folder agy never scans. Your own files in the old copy stay there intact. An `<id>.bak` folder beside the skill would be loaded as a second skill with the same name, and agy may prefer it, so no line ever writes one.
+  3. A `cp -R` into the emptied `<dest>/<id>`, guarded so it never copies over a folder that is still there (the old line copied into `<dest>/`, which mixed the new files into an old copy and left its stale files in place).
+  4. A receipt, `<dest>/<id>/.litfamily-extension.json`, holding `id`, `source`, `variant` and `installed_at`. agy ignores the dot-file.
+
+  To update, run the same lines again; to remove, run the second line alone. Nothing deletes. LitGravity's own install and update still write only the plugin folder, so they leave the extension and its receipt alone.
+- When the global rule file `~/.gemini/config/rules/litgravity.md` holds text LitGravity did not write, or was edited, the refusal used to suggest moving it to `litgravity.md.saved-<date>` inside agy's rules folder, which agy and its agent read. It now suggests `~/.local/share/litgravity/saved/rules-litgravity-<time>.md` (`$XDG_DATA_HOME/litgravity/saved/`), outside every folder agy reads.
+- The nine stub budgets in `skills.lock.json` grew to fit the new lines (7,000-byte ceiling, 4,800-byte floor).
+
 ## 0.1.9 — 2026-11-11
 
 LitGravity is now the LitFamily core for agy, complete on its own. The nine skills that make files became LitFamily extensions, kept on the extension shelf at https://github.com/wjgoarxiv/wjgoarxiv-skills, so a LitGravity install stays small; install the ones you use alongside LitGravity for the full LitFamily experience. Their ids, route words and `/litgravity:<id>` forms still work, and each one now answers with a short stub that says it is a LitFamily extension and how to install it.

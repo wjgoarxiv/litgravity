@@ -62,8 +62,31 @@ export const MOVED_SKILLS = {
   'lit-typographic-motion': 'video-covers',
   'readme-studio': 'video-covers',
 };
-/** The one line that installs a moved skill for agy: copy its folder from a local clone into the user skills folder. */
-export const movedInstallLine = (id) => `mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/${id}" ~/.gemini/config/skills/`;
+// Every folder agy 1.5.6 loads a bare skill from (probed 2026-11-12). A same-name skill in any of them competes with an
+// installed copy, and agy keeps one without a word, so the preflight looks in all four.
+export const AGY_SKILL_FOLDERS = ['.agents/skills', '_agents/skills', '~/.gemini/config/skills', '~/.gemini/skills'];
+// Where a replaced or removed copy goes: a dated folder outside every folder above, so agy never loads it again.
+export const EXTENSION_BACKUPS = '~/.gemini/extension-backups';
+const CLONE = '<path to your wjgoarxiv-skills clone>';
+const SCOPE_FOLDERS = { user: '~/.gemini/config/skills', project: '.agents/skills' };
+
+/**
+ * The four lines that install, update or (the second alone) remove a moved skill, pasted one at a time in zsh or bash:
+ * look for every same-name skill, move an existing copy whole into a dated backup, copy into the emptied place, write
+ * a receipt inside the copy. Project scope runs in the workspace root.
+ */
+export function extensionSteps(id, scope = 'user') {
+  const root = SCOPE_FOLDERS[scope];
+  const dest = `${root}/${id}`;
+  const stamp = `$(date +%Y%m%d-%H%M%S)${scope === 'project' ? '-project' : ''}`;
+  return {
+    preflight: `find ${AGY_SKILL_FOLDERS.join(' ')} -maxdepth 2 -name SKILL.md -exec grep -l -E '^name: *"?${id}"? *$' {} + 2>/dev/null`,
+    moveAside: `if [ -e ${dest} ] || [ -L ${dest} ]; then b=${EXTENSION_BACKUPS}/${stamp}; mkdir -p "$b" && mv ${dest} "$b/" && echo "moved to $b/${id}"; fi`,
+    copy: `mkdir -p ${root} && [ ! -e ${dest} ] && cp -R "${CLONE}/variants/litgravity/${id}" ${dest}`,
+    receipt: `printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\\n' ${id} "${CLONE}/variants/litgravity/${id}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > ${dest}/.litfamily-extension.json`,
+  };
+}
+export const extensionLines = (id, scope = 'user') => Object.values(extensionSteps(id, scope));
 // Skill ids that are another name for a skill: typed whole, slashed or after `lit`, they take its route.
 export const SKILL_ALIASES = { 'lit-rewind': 'lit-adhd' };
 const skillId = (word) => (SKILL_IDS.has(word) ? word : SKILL_ALIASES[word]);

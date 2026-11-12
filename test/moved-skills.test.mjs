@@ -4,7 +4,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { sandbox, workspace, runHook, basePayload, turn, injected, walk, collect, ROOT, PLUGIN } from './helpers.mjs';
-import { SKILL_ROUTES, KEYWORD_ROUTES, MOVED_SKILLS, movedInstallLine } from '../plugin/hooks/lib/routes.mjs';
+import { SKILL_ROUTES, KEYWORD_ROUTES, MOVED_SKILLS, extensionLines } from '../plugin/hooks/lib/routes.mjs';
 import { activation } from '../plugin/hooks/lib/reentry.mjs';
 import { list, routeRows } from '../lib/list.mjs';
 import { doctor } from '../lib/doctor.mjs';
@@ -36,8 +36,8 @@ for (const [id, family] of MOVED) {
     const md = stubText(id);
     assert.match(md, new RegExp(`^---\\nname: ${id}\\ndescription: "[^"\\n]*wjgoarxiv-skills[^"\\n]*"\\n---\\n`));
     assert.ok(md.includes(`\`variants/litgravity/${id}/\``), 'names the folder in wjgoarxiv-skills');
-    assert.ok(md.includes(`mkdir -p ~/.gemini/config/skills && cp -R "${PLACE}/variants/litgravity/${id}" ~/.gemini/config/skills/`), 'one user-scope install line with the placeholder');
-    assert.ok(md.includes(`cp -R "${PLACE}/variants/litgravity/${id}" .agents/skills/`), 'the workspace-scope line');
+    assert.ok(md.includes(`cp -R "${PLACE}/variants/litgravity/${id}" ~/.gemini/config/skills/${id}\n`), 'the user-scope copy line with the placeholder');
+    assert.ok(md.includes(`cp -R "${PLACE}/variants/litgravity/${id}" .agents/skills/${id}\n`), 'the workspace-scope copy line');
     assert.doesNotMatch(md, /agy plugin install|plugins\/(decks|documents|figures|design|video-covers)/, 'no plugin-per-family install left');
     assert.ok(md.includes(`as \`/${id}\``), 'names the bare slash form after install');
     assert.ok(md.includes(`\`litgravity:${id}\``), 'says the stub and the copy keep different names');
@@ -47,7 +47,7 @@ for (const [id, family] of MOVED) {
     assert.match(md, /read_file/);
     assert.match(md, /headless/i);
     assert.doesNotMatch(md, /\/Users\/|\/home\/[a-z]|[A-Z]:\\\\Users/, 'no private path');
-    assert.ok(Buffer.byteLength(md) < 6000, `${Buffer.byteLength(md)} B`);
+    assert.ok(Buffer.byteLength(md) < 7000, `${Buffer.byteLength(md)} B`);
   });
 }
 
@@ -65,7 +65,7 @@ test('every route word and `lit <id>` still activates the stub, and the activati
     const ws = workspace();
     const text = injected(turn(ws, env, prompt, 0));
     assert.ok(text.includes(join(PLUGIN, 'skills', id, 'SKILL.md')), `${prompt}: reads the stub`);
-    assert.ok(text.includes(movedInstallLine(id)), `${prompt}: install line`);
+    for (const line of extensionLines(id)) assert.ok(text.includes(line), `${prompt}: install line ${line}`);
     assert.ok(text.includes(`variants/litgravity/${id}/`), `${prompt}: names the folder`);
     assert.ok(Buffer.byteLength(text) <= 4096, `${prompt}: ${Buffer.byteLength(text)} B`);
   }
@@ -123,7 +123,7 @@ test('autoresearch draws its convergence figure through the installed copy, a lo
   const guide = readFileSync(join(dir, 'references', 'visualization-guide.md'), 'utf8');
   assert.ok(guide.includes('~/.gemini/config/skills/lit-scientific-visualization/SKILL.md'), 'user-scope copy');
   assert.ok(guide.includes('.agents/skills/lit-scientific-visualization/SKILL.md'), 'workspace-scope copy');
-  assert.ok(guide.includes(movedInstallLine('lit-scientific-visualization')), 'the stub install line');
+  for (const line of extensionLines('lit-scientific-visualization')) assert.ok(guide.includes(line), `the stub install line: ${line}`);
   assert.match(guide, /BLOCKED/);
   assert.match(guide, /style_presets\.py/);
 });
@@ -163,7 +163,7 @@ test('doctor names the moved skills and checks no engine, design corpus or motio
   const moved = doc.checks.find((c) => c.name === 'moved skills');
   assert.equal(moved?.status, 'INFO');
   for (const [id] of MOVED) assert.ok(moved.detail.includes(id), id);
-  assert.equal(moved.fix, 'mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>/variants/litgravity/<id>" ~/.gemini/config/skills/');
+  assert.equal(moved.fix, extensionLines('<id>').join('\n'));
 });
 
 test('the lock holds stub-sized budgets for the moved ids and exempts only them from the family floor', () => {
