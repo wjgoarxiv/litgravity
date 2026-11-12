@@ -12,7 +12,7 @@
 <a href="https://github.com/wjgoarxiv/litgravity/stargazers"><img src="https://img.shields.io/github/stars/wjgoarxiv/litgravity?style=flat" alt="GitHub stars" /></a>
 </p>
 
-<p align="center"><a href="#install"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> Install</a> &nbsp; <a href="#demo"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> Demo</a> &nbsp; <a href="#safety-and-uninstall"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> Safety</a> &nbsp; <a href="#quick-start">Quick start</a> &nbsp; <a href="#what-you-can-make">What you can make</a> &nbsp; <a href="#what-you-get">What you get</a> &nbsp; <a href="#what-agy-limits-today">agy limits</a> &nbsp; <a href="./README_ko-KR.md">한국어</a></p>
+<p align="center"><a href="#install"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> Install</a> &nbsp; <a href="#demo"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> Demo</a> &nbsp; <a href="#safety-and-uninstall"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> Update &amp; remove</a> &nbsp; <a href="#quick-start">Quick start</a> &nbsp; <a href="#what-you-can-make">What you can make</a> &nbsp; <a href="#what-you-get">What you get</a> &nbsp; <a href="#what-agy-limits-today">agy limits</a> &nbsp; <a href="./README_ko-KR.md">한국어</a></p>
 
 > [!TIP]
 > One npm command installs LitGravity as an agy plugin ([Install](#install)). Then start any agy prompt with `lit`, as [Quick start](#quick-start) shows.
@@ -25,7 +25,7 @@ What ignition looks like, captured from the real hook and status line on this Ma
 
 ## Quick start
 
-1. Open agy in a project. Type `/skills` to see the LitGravity skills and `/hooks` to see the plugin's hooks.
+1. [Install LitGravity](#install), then open agy in a project. Type `/skills` to see the LitGravity skills and `/hooks` to see the plugin's hooks.
 2. Start a prompt with `lit`. The word after it picks the route, as the table below shows.
 3. Approve a plan, then `lit start plans/<slug>.md` builds it row by row with tests.
 4. Before you stop, `lit handoff`. Next time, `lit recap` reads where you were.
@@ -57,7 +57,9 @@ Each picture is a real output made on this Mac. The `lit-adhd` brief was drawn b
 | <img src="./docs/assets/litgravity/showcase/pid-dosing-skid.webp" width="480" alt="P&amp;ID of a sodium hypochlorite dosing skid on a framed sheet: a storage tank TK-101 with level transmitter and alarm, duty and standby metering pumps P-101A and P-101B behind filters and check valves, a relief valve PSV-101 back to the tank, a flow loop FE-101, FT-101 and FIC-101 signalling the pump, a legend, notes and a title block." /> | `lit-schematic` | A P&amp;ID with ISA-5.1 tags, line numbers, a legend and a title block. Its checker passed: no text on a line, no line through a symbol, no loose end. |
 | <img src="./docs/assets/litgravity/showcase/schematics.webp" width="480" alt="Two drawings side by side: an isometric cutaway of a shell-and-tube heat exchanger with copper tube bundle, baffles and saddle supports, each part labelled; and a journal-style two-panel figure of an adsorption rig, panel a a flow diagram with gas cylinders, mass flow controllers, an oven column and a mass spectrometer, panel b the column itself with adsorbent bed and thermocouples." /> | `lit-schematic` | The same skill drawing equipment as an isometric cutaway and as a two-panel figure for a paper. |
 | <img src="./docs/assets/litgravity/showcase/motion-film.webp" width="480" alt="Four frames of a 12-second film in one dark house style: a ring drawing on beside the Korean line 작게 시작해서 끝까지, a bar chart beside One clock for every frame, a line through points beside 한 화면에 한 가지 생각, and a grid of teal and amber tiles over Same house, every film." /> | `lit-typographic-motion` | Four frames of a 12-second film from a one-line Korean request. The skill wrote a treatment first, rendered it frame by frame with a sound bed, and its gate checked flashes, legibility and the loop. |
-| <img src="./docs/assets/litgravity/showcase/adhd-brief-en.webp" width="480" alt="The lit adhd brief in a dark chat pane: a headline counting three sessions, two active cards for a P&amp;ID and a landing page with what each wrote and its next step, a table row for an ended deck session, a roadmap line, and a box with the recommended next step." /> | `lit-adhd` | Type `lit adhd` after a scattered day: a KPI board with the one thing to do now and exactly what to type, done and remaining milestones with progress bars, and reminders shaped as `thing → what to do` (a conversation waiting on you, uncommitted changes, lanes still running, a plan left for a week). `lit adhd detail` adds the per-session brief shown in the picture. |
+| <img src="./docs/assets/litgravity/showcase/adhd-brief-en.webp" width="480" alt="The lit adhd brief in a dark chat pane: a headline counting three sessions, two active cards for a P&amp;ID and a landing page with what each wrote and its next step, a table row for an ended deck session, a roadmap line, and a box with the recommended next step." /> | `lit-adhd` | Type `lit adhd` after a scattered day for a KPI board. `lit adhd detail` adds the per-session brief shown here. |
+
+The lit-adhd board shows the one thing to do now and exactly what to type, done and remaining milestones with progress bars, and reminders shaped as `thing → what to do`. The reminders cover a conversation waiting on you, uncommitted changes, lanes still running and a plan left for a week.
 
 ## Install
 
@@ -68,21 +70,23 @@ npx @litfamily/litgravity install
 npx @litfamily/litgravity doctor
 ```
 
+To update later, run the same `install` again; [Safety and uninstall](#safety-and-uninstall) lists every lifecycle command. To let a coding agent do the install, paste the prompt in the [reference](./docs/reference.md#let-a-coding-agent-install-it).
+
 The installer shows every destination first and validates the plugin with `agy plugin validate` before and after copying. agy loads a plugin's hooks, skills and agents without a trust step, so there is nothing to approve. By default the plugin goes to `~/.gemini/config/plugins/litgravity`, so LitGravity is available in every project.
 
 | Switch | What it does |
 |---|---|
 | `--scope project` | Copies to `./.agents/plugins/litgravity` for one project |
 | `--dry-run` | Previews and writes nothing |
-| `--yes` | Lets an agent or CI shell install (a shell without a terminal otherwise only previews) |
+| `--yes` | Installs from a shell without a terminal (agent, CI), which otherwise only previews |
 | `--no-agent-file` | Skips the global rule file for one run |
-| `--status-line` | Adds the optional LitGravity status line to agy's user settings (never on by default), backing up the old value first |
+| `--status-line` | Adds the opt-in status line to agy's user settings, after a backup |
 
 Every user-scope install also leaves one owned rule file at `~/.gemini/config/rules/litgravity.md`, because agy reads that folder at every session start. The rule stays short on purpose (the lit activation word, where plans and handoffs live, and the release freeze), so the ground rules hold before any skill loads. An interactive install asks first and a No stores the rule off, while `--yes` adds it; the [lifecycle table](#safety-and-uninstall) turns it off later or adds a project block.
 
 `doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, the global rule file, every skill and agent, the extensions with their install line, any old engine cache or stray saved copy, and the host programs the skills call.
 
-The installer writes in a few places outside your project, and the map shows them. If the destination is a symlink, someone else's folder, or a copy you edited, it stops with `No files written.`; otherwise it copies the plugin, then writes the rule file and a small receipt. Everything else LitGravity leaves on disk is written later by your conversations, and the installer never changes your extension copies or agy's credential files (it only reads the skill folders to tell you, once, when `extensions check` has something to show).
+The installer writes in a few places outside your project, and the map shows them. If the destination is a symlink, someone else's folder, or a copy you edited, it stops with `No files written.`; otherwise it copies the plugin, then writes the rule file and a small receipt. Everything else LitGravity leaves on disk is written later by your conversations, and the installer never changes your extension copies (it only reads the skill folders to tell you, once, when `extensions check` has something to show).
 
 <p align="center">
   <picture>
@@ -92,8 +96,6 @@ The installer writes in a few places outside your project, and the map shows the
 </p>
 
 <p align="center"><img src="./docs/assets/litgravity/install-doctor.webp" width="960" alt="Terminal capture. The install command ends with Status: Ready, and the doctor command ends with LitGravity: ready after thirty passing checks." /></p>
-
-To let a coding agent do the install, paste the prompt in the [reference](./docs/reference.md#let-a-coding-agent-install-it).
 
 ## What you get
 
@@ -162,34 +164,31 @@ npx @litfamily/litgravity extensions install lit-pptx --yes    # do it (--projec
 
 | Verb | What it does |
 |---|---|
-| `install` | Stops and names the path when another skill with the same name sits in any folder agy loads (`--allow-shadow` installs anyway with a warning). An existing copy at the destination goes whole into a dated folder under `~/.gemini/extension-backups/`, then the new copy and its receipt go in |
-| `list` | Shows each extension as installed (with its receipt), not installed, a folder without a receipt, or shadowed by another same-name skill |
+| `install` | Backs up any old copy, then copies in the new one and its receipt |
+| `list` | Shows each as installed (with receipt), not installed, receipt-less, or shadowed by a same-name skill |
 | `update` | Fetches the source and reinstalls only the ones whose files changed |
-| `remove` | Moves a copy it installed into the backups, and refuses a folder that has no receipt, because that one is yours |
-| `check` | Reads everything and changes nothing, then prints one fix line for each duplicate, receipt-less copy or missing source |
+| `remove` | Moves its own copy into the backups; a folder without a receipt is yours, so it refuses |
+| `check` | Changes nothing; prints one fix line per duplicate, receipt-less copy or missing source |
 | `prune-backups` | Shows the backups with their sizes and deletes them only with `--yes` |
 
-It keeps its own shallow clone of just the agy folders of wjgoarxiv-skills in `~/.cache/litgravity/extensions-src` (or reads a clone you already have with `--from <path>`), so there is nothing to clone by hand. Your skill is never moved. `--family <name>` and `--all` pick several at once, `npx @litfamily/litgravity extensions help` has the details, and `doctor` runs `check` and prints its summary.
+A few rules keep the command safe and easy to drive:
 
-Start a new conversation (or type `/skills reload`), and the skill answers as `/<id>`.
+- **Same-name check.** Before copying, `install` looks in every folder agy loads and stops with the path of any skill sharing the name. Your skill is never moved, and `--allow-shadow` installs anyway with a warning.
+- **Backups.** An existing copy at the destination goes whole into a dated folder under `~/.gemini/extension-backups/` before the new copy goes in.
+- **Source.** It keeps its own shallow clone of just the agy folders of wjgoarxiv-skills in `~/.cache/litgravity/extensions-src` (or reads a clone you already have with `--from <path>`), so there is nothing to clone by hand.
+- **Several at once.** `--family <name>` and `--all` pick several. `npx @litfamily/litgravity extensions help` has the details, and `doctor` runs `check` and prints its summary.
 
-To install by hand, the [reference](./docs/reference.md#install-an-extension-by-hand) gives the four shell lines, the workspace-only version, and how to update and remove a copy.
+Start a new conversation (or type `/skills reload`), and the skill answers as `/<id>`. To install by hand, the [reference](./docs/reference.md#install-an-extension-by-hand) gives the four shell lines, the workspace-only version, and how to update and remove a copy.
 
 ## How a lit turn runs
 
-agy starts fast: you type a line and it gets to work. The trouble shows up later, when a long conversation fills its context, the next one begins without what the last one learned, and "done" often means the model said so. You end up re-explaining where you were and checking by hand what really works.
-
-agy still runs the conversation and picks the model, while LitGravity adds a routine around it. That routine lives in plain files you can read:
+agy still runs the conversation and picks the model. LitGravity adds a routine in plain files you can read, so you stop re-explaining where you were and checking by hand what really works:
 
 | What agy does | What lit adds |
 |---|---|
-| Starts from one typed line | A plan in `plans/` before the first edit |
-| Forgets the last conversation | Checks against the plan, marks the unchecked as unverified |
-| Calls it done when the model says so | A handoff in `.litgravity/` the next turn reads |
-
-agy gives a plugin no hook on the prompt itself, so LitGravity steers from the first moment it can: the first model call of the turn. The PreInvocation hook reads your prompt back from the transcript, works out the route from the word after `lit`, and injects one step that names the skill file to read. From there the skill does the work, and the other hooks each watch one moment of the turn, as the diagram shows.
-
-Each of those moments leaves something you can open afterwards (the plan, the ledger, the handoff note), and the next turns pick up from those files. `lit start` builds the plan, `lit review` checks the result in five lanes, `lit handoff` writes the note, and the SessionStart hook of your next conversation points to it. The work is checked against the plan with tests and a look at the real surface, and whatever nobody could check is marked as unverified.
+| Starts fast from one typed line | A plan in `plans/` before the first edit |
+| Forgets the last conversation once a long one fills its context | A handoff in `.litgravity/` the next turn reads |
+| Calls it done when the model says so | Checks against the plan, marks the unchecked as unverified |
 
 <p align="center">
   <picture>
@@ -197,6 +196,12 @@ Each of those moments leaves something you can open afterwards (the plan, the le
     <img src="./docs/assets/litgravity/diagrams/lit-route.en.light.png" width="900" alt="Flowchart of one lit turn in agy. You type lit plan a tiny todo app. The PreInvocation hook reads the prompt from the transcript and injects one step: read lit-plan/SKILL.md. After the model call, the PreToolUse hook checks invoke_subagent and may start one of 11 child agent types, only read-only ones during lit-plan. After each tool call, the PostToolUse hook appends a line to .litgravity/ledger/<conversation>.jsonl. The PostInvocation hook runs boundary and prose checks and tells the model to undo changes outside plans/, at most twice per turn. The Stop hook asks whether work is left open: held, the turn continues for up to three holds and pause releases it; released, the turn ends. Below, the next turns: lit start on plans/<slug>.md, lit review with five lanes (goal, qa, quality, security, context), lit handoff writing .litgravity/handoff/latest.md, and the SessionStart hook pointing the next conversation to that note.">
   </picture>
 </p>
+
+agy gives a plugin no hook on the prompt itself, so the PreInvocation hook steers from the first model call and the other hooks each watch one moment of the turn. Each moment leaves a file you can open afterwards (the plan, the ledger, the handoff note), and the next turns pick up from those files:
+
+- **`lit start`** builds the plan, checked with tests and a look at the real surface. Whatever nobody could check is marked as unverified.
+- **`lit review`** checks the result in five lanes.
+- **`lit handoff`** writes `.litgravity/handoff/latest.md` with what was built, how it was checked and what is left. The SessionStart hook of your next conversation points to it.
 
 ### What a planning turn may do
 
@@ -210,7 +215,7 @@ Route state lives outside the project, under `~/.local/state/litgravity/`, away 
 
 ### Held turns and the ledger
 
-If you think in process plants, here is the same routine as one: your prompt is the feed, the PreInvocation router is the header, and each route word opens the line to its vessel. The Stop hook's two analysers send a planning turn back until the plan file exists and a build turn back while rows are still open, every vessel bleeds a sample line into the ledger, and the handoff note leaves on the right for whichever conversation comes next. I drew the stages as one train to keep it readable; in agy each of them is a separate `lit` prompt, usually in a later turn.
+If you think in process plants, here is the same routine as one. Your prompt is the feed, the PreInvocation router is the header, and each route word opens the line to its vessel. I drew the stages as one train to keep it readable; in agy each of them is a separate `lit` prompt, usually in a later turn.
 
 <p align="center">
   <picture>
@@ -222,17 +227,23 @@ If you think in process plants, here is the same routine as one: your prompt is 
   </picture>
 </p>
 
-Some turns are allowed to wait. A lit-plan turn with no plan file yet is held at the end until `plans/<slug>.md` exists, start-work waits while an approved plan has open rows, and litgoal and lit-loop wait while a goal record has an open criterion, at most three holds in a row without progress. Say `pause`, or write `BLOCKED at row N:`, `PAUSED at row N:` or `CANCELLED:` in the ledger, to release a hold; the capture below is the real hold from a planning turn that wrote nothing.
+Every vessel bleeds a sample line into the ledger, and the handoff note leaves on the right for whichever conversation comes next. Between the vessels, the Stop hook's two analysers hold a turn while its work is open:
+
+| Route | Held at the end while |
+|---|---|
+| lit-plan | no `plans/<slug>.md` exists yet |
+| start-work | an approved plan has open rows |
+| litgoal, lit-loop | a goal record has an open criterion |
+
+A turn is held at most three times in a row without progress. Say `pause`, or write `BLOCKED at row N:`, `PAUSED at row N:` or `CANCELLED:` in the ledger, to release a hold. The capture below is the real hold from a planning turn that wrote nothing.
 
 <p align="center"><img src="./docs/assets/litgravity/handoff-hold.webp" width="960" alt="Terminal capture. After the prompt lit plan a tiny todo app with no plan file written, the Stop hook answers decision continue with the lit-plan gate reason asking for the plan file. A second block shows a ledger line recording a read_file tool call." /></p>
-
-While a route is active, every tool call lands in `.litgravity/ledger/<conversation>.jsonl` with key shapes redacted, one line per call. Before you stop, `lit handoff` writes `.litgravity/handoff/latest.md` with what was built, how it was checked and what is left, so the next conversation starts from that note.
 
 ## What agy limits today
 
 These are the facts of agy 1.4.3, probed on a real install. LitGravity works inside them, and the [reference](./docs/reference.md#what-agy-limits-today-in-detail) gives each one in full.
 
-- **No blocking before a write.** agy's PreToolUse hook has to decide every call it sees, so LitGravity checks writes, commands and prose after they happen. The one hard stop is a child agent that could write during a lit-plan turn.
+- **No blocking before a write.** agy's PreToolUse hook has to decide every call it sees, so LitGravity checks file changes and prose after the fact. The one hard stop is a child agent that could write during a lit-plan turn.
 - **Headless runs cannot ask.** In `agy -p`, a `run_command` or `write_file` that needs permission is denied and ends the run. The skills read first and report `BLOCKED` with the permission they need.
 - **Seeing images.** agy's model reads a PNG through `read_file`, and every look step in the visual skills relies on that.
 - **Starter Quota.** Every model call counts against your account's quota, so tests and probes use the free `agy plugin validate` and `/hooks`, `/skills`, `/agents`.
@@ -272,13 +283,11 @@ The installer writes only its own plugin folder, its data directory, its rule fi
 
 ## Family
 
-LitGravity is one of the seven LitFamily packages. Each one brings the same way of working to a single coding agent, and each installs and runs on its own: install the one for the agent you use, and it needs none of the others.
+LitGravity is one of the seven LitFamily packages. Each one brings the same way of working to a single coding agent, and each installs and runs on its own: install the one for the agent you use, and it needs none of the others. [LitFamily](https://github.com/wjgoarxiv/litfamily) lists all seven and the agent each one is for.
 
 The seven armored machines on the cover are those seven packages, and LitGravity is the orbit machine in the seventh bay. The cover is brand motion made with the LitFamily motion skill: drawn and animated artwork, with no agy session recorded in it. If your system asks for reduced motion, you see a still frame instead.
 
 <p align="center"><img src="./docs/assets/litfamily-machines.png" width="100%" alt="The seven LitFamily machines side by side, all lit: LitClaude, LitHermes, LitCodex, LitOpenCode, LitGrok, LitMuse and LitGravity, under LITFAMILY and KEEP THE WORK LIT." /></p>
-
-[LitFamily](https://github.com/wjgoarxiv/litfamily) lists all seven and the agent each one is for.
 
 ## License
 

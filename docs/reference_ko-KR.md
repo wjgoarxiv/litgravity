@@ -2,7 +2,7 @@
 
 <p align="right"><a href="./reference.md">English</a> · <b>한국어</b></p>
 
-설치와 일상적인 사용은 [README](../README_ko-KR.md)에 있습니다. 이 문서에는 그 가운데 네 절의 자세한 내용을 모았습니다.
+설치와 일상적인 사용은 [README](../README_ko-KR.md)에 있습니다.
 
 ## 상태 표시줄
 
@@ -14,7 +14,7 @@
 [LIT] | GF3.8 | ctx [#--] 42%/1049k | [LIT] . lit-loop 2:20 | [PIN] = RED . - GREEN . - VERIFY . - REVIEW . - RECORD .
 ```
 
-몇몇 순간에는 줄의 모양이 바뀝니다. `lit adhd`가 경로일 때는 칸마다 색이 다른 느린 무지개가 됩니다. `lit-rewind`로 부르든, 스킬 이름을 그대로 치거나 `/` 뒤에 치든, 모델이 스스로 스킬을 불러오든 똑같습니다. 턴이 질문, 승인 요청, BLOCKED 보고로 끝나거나 목표가 결정을 기다리면, 줄이 호박색이 되고 다시 입력할 때까지 `⚠ YOUR TURN · <이유>`를 띄웁니다. `lit review work`가 도는 동안에는 다섯 레인(goal, qa, quality, security, context)이 보고하는 대로 레인마다 제 색과 판정 표시를 달고 나타나며, `2/5` 같은 수도 함께 보입니다. 경로가 도는 사이 계획이나 목표가 끝나면 `✦ DONE ✦`이 20초 동안 뜹니다. agy는 줄을 다시 그리는 때를 스스로 정하므로 모든 모양은 멈춰 있는 그림이고, `NO_COLOR`에서도 표시 글자는 평문으로 남습니다.
+몇몇 순간에는 줄의 모양이 바뀝니다. `lit adhd`가 경로일 때는 칸마다 색이 다른 느린 무지개가 됩니다. `lit-rewind`로 부르든, 스킬 이름을 그대로 치거나 `/` 뒤에 치든, 모델이 스스로 스킬을 불러오든 똑같습니다. 턴이 질문, 승인 요청, BLOCKED 보고로 끝나거나 목표가 결정을 기다리면, 줄이 호박색이 되고 다시 입력할 때까지 `⚠ YOUR TURN · <이유>`를 띄웁니다. `lit review work`가 도는 동안에는 다섯 레인(goal, qa, quality, security, context)이 보고하는 대로 레인마다 제 색과 판정 표시를 달고 나타나며, `2/5` 같은 수도 함께 보입니다. 경로가 도는 사이 계획이나 목표가 끝나면 `✦ DONE ✦`이 20초 동안 뜹니다. 같은 워크스페이스의 다른 대화는 `+2 running · 1 idle` 같은 수 하나로 보이고(줄이 좁으면 `+3 others`로 줄어듭니다), 각 대화의 훅이 남기는 작은 liveness 기록에서 읽습니다. 방금 끝난 start-work는 1분 동안 끝난 것으로 셉니다. agy는 줄을 다시 그리는 때를 스스로 정하므로 모든 모양은 멈춰 있는 그림이고, `NO_COLOR`에서도 표시 글자는 평문으로 남습니다.
 
 ## 코딩 에이전트에게 설치 맡기기
 
@@ -57,7 +57,7 @@ printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' 
 
 `litgravity install`은 자기 플러그인 폴더에만 쓰므로, LitGravity를 업그레이드하거나 지워도 복사본은 그대로이고, 스텁(`litgravity:<id>`)과 복사본(`<id>`)은 이름이 겹치지 않습니다.
 
-고정 엔진(`office`, `diagram`, `readme`, `sciviz`, `motion`)과 `litgravity runtime`, 렌더가 통과할 때까지 영상 턴을 붙잡던 훅도 함께 옮겨 갔습니다. wjgoarxiv-skills의 agy용 사본은 엔진 설치 스크립트와 엔진 캐시를 따로 갖고 있고 검사도 명령으로 실행하므로, LitGravity 내부에 기대지 않고 동작합니다.
+옮겨 간 스킬 아홉 개는 고정 엔진(`office`, `diagram`, `readme`, `sciviz`, `motion`)을 함께 가져갔고, `litgravity runtime`과 렌더가 통과할 때까지 영상 턴을 붙잡던 훅도 같이 옮겨 갔습니다. wjgoarxiv-skills의 agy용 사본은 엔진 설치 스크립트와 엔진 캐시를 따로 갖고 있고 검사도 명령으로 실행하므로, LitGravity 내부에 기대지 않고 동작합니다.
 
 ## 지금 agy가 막아 두는 것, 자세히
 

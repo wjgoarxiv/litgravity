@@ -12,7 +12,7 @@
 <a href="https://github.com/wjgoarxiv/litgravity/stargazers"><img src="https://img.shields.io/github/stars/wjgoarxiv/litgravity?style=flat" alt="GitHub 스타" /></a>
 </p>
 
-<p align="center"><a href="#설치"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> 설치</a> &nbsp; <a href="#데모"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> 데모</a> &nbsp; <a href="#안전과-제거"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> 안전</a> &nbsp; <a href="#빠른-시작">빠른 시작</a> &nbsp; <a href="#만들-수-있는-것">만들 수 있는 것</a> &nbsp; <a href="#들어-있는-것">들어 있는 것</a> &nbsp; <a href="#지금-agy가-막아-두는-것">agy의 한계</a> &nbsp; <a href="./README.md">English</a></p>
+<p align="center"><a href="#설치"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> 설치</a> &nbsp; <a href="#데모"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> 데모</a> &nbsp; <a href="#안전과-제거"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> 업데이트·제거</a> &nbsp; <a href="#빠른-시작">빠른 시작</a> &nbsp; <a href="#만들-수-있는-것">만들 수 있는 것</a> &nbsp; <a href="#들어-있는-것">들어 있는 것</a> &nbsp; <a href="#지금-agy가-막아-두는-것">agy의 한계</a> &nbsp; <a href="./README.md">English</a></p>
 
 > [!TIP]
 > npm 명령 하나로 LitGravity를 agy 플러그인으로 설치합니다([설치](#설치)). 그다음 agy 프롬프트를 `lit`으로 시작하면 되고, 순서는 [빠른 시작](#빠른-시작)에 있습니다.
@@ -25,7 +25,7 @@
 
 ## 빠른 시작
 
-1. 프로젝트에서 agy를 엽니다. `/skills`로 LitGravity 스킬을, `/hooks`로 플러그인의 훅을 볼 수 있습니다.
+1. [LitGravity를 설치](#설치)한 뒤 프로젝트에서 agy를 엽니다. `/skills`로 LitGravity 스킬을, `/hooks`로 플러그인의 훅을 볼 수 있습니다.
 2. 프롬프트를 `lit`으로 시작합니다. 뒤에 오는 단어가 경로를 고르며, 아래 표에 정리했습니다.
 3. 계획을 승인한 뒤 `lit start plans/<slug>.md`를 실행하면 계획의 행을 하나씩 테스트와 함께 만들어 갑니다.
 4. 멈추기 전에 `lit handoff`. 다음에는 `lit recap`이 어디까지 했는지 읽어 줍니다.
@@ -57,7 +57,9 @@
 | <img src="./docs/assets/litgravity/showcase/pid-dosing-skid.webp" width="480" alt="차아염소산나트륨 주입 스키드의 P&amp;ID. 레벨 전송기와 경보가 달린 저장 탱크 TK-101, 필터와 체크 밸브 뒤의 주·예비 정량 펌프 P-101A와 P-101B, 탱크로 돌아가는 안전 밸브 PSV-101, 펌프로 신호를 보내는 FE-101·FT-101·FIC-101 유량 루프, 범례, 노트, 표제란이 있습니다." /> | `lit-schematic` | ISA-5.1 태그, 라인 번호, 범례, 표제란을 갖춘 P&amp;ID입니다. 선 위 글자, 기호를 지나는 선, 끊긴 선이 없다는 검사를 통과했습니다. |
 | <img src="./docs/assets/litgravity/showcase/schematics.webp" width="480" alt="두 그림. 구리 튜브 다발과 배플, 새들 받침이 보이는 셸앤튜브 열교환기 등각 절단도에 부품 이름이 달려 있고, 옆에는 논문용 두 패널 흡착 장치 그림이 있습니다. a는 가스 실린더, 질량 유량 조절기, 오븐 안의 컬럼, 질량 분석기의 흐름도, b는 흡착층과 열전대가 있는 컬럼입니다." /> | `lit-schematic` | 같은 스킬이 장치를 등각 절단도로, 그리고 논문용 두 패널 그림으로 그린 예입니다. |
 | <img src="./docs/assets/litgravity/showcase/motion-film.webp" width="480" alt="어두운 한 가지 스타일로 된 12초 영상의 네 장면. 작게 시작해서 끝까지 옆에 그려지는 고리, One clock for every frame 옆의 막대 차트, 한 화면에 한 가지 생각 옆의 점을 잇는 선, Same house, every film 위의 청록과 호박색 타일." /> | `lit-typographic-motion` | 한 줄짜리 한국어 요청으로 만든 12초 영상의 네 장면입니다. 스킬이 먼저 트리트먼트를 쓰고, 사운드와 함께 한 프레임씩 렌더링한 뒤, 깜빡임·가독성·루프 검사를 거쳤습니다. |
-| <img src="./docs/assets/litgravity/showcase/adhd-brief-ko.webp" width="480" alt="어두운 대화 창에 뜬 lit adhd 브리프. 세션 세 개를 세는 제목, P&amp;ID와 랜딩 페이지를 만들던 진행 중 카드 두 장과 각각 쓴 파일, 다음 단계, 끝난 덱 세션 한 줄짜리 표, 로드맵 한 줄, 추천 다음 단계 상자가 있습니다." /> | `lit-adhd` | 정신없던 하루 끝에 `lit adhd`를 입력하면 지금 할 일 하나와 입력할 말, 끝난 마일스톤과 남은 마일스톤의 진행 막대, `할 일 → 어떻게` 모양의 알림(나를 기다리는 대화, 커밋 안 된 변경, 아직 도는 레인, 일주일 넘게 멈춘 계획)을 KPI 보드 한 장으로 보여 줍니다. 그림 속 세션별 브리프는 `lit adhd 자세히`로 보드 아래에 붙습니다. |
+| <img src="./docs/assets/litgravity/showcase/adhd-brief-ko.webp" width="480" alt="어두운 대화 창에 뜬 lit adhd 브리프. 세션 세 개를 세는 제목, P&amp;ID와 랜딩 페이지를 만들던 진행 중 카드 두 장과 각각 쓴 파일, 다음 단계, 끝난 덱 세션 한 줄짜리 표, 로드맵 한 줄, 추천 다음 단계 상자가 있습니다." /> | `lit-adhd` | 정신없던 하루 끝에 `lit adhd`를 입력하면 KPI 보드가 나옵니다. 그림 속 세션별 브리프는 `lit adhd 자세히`로 보드 아래에 붙습니다. |
+
+lit-adhd 보드에는 지금 할 일 하나와 입력할 말, 끝난 마일스톤과 남은 마일스톤의 진행 막대, `할 일 → 어떻게` 모양의 알림이 들어갑니다. 알림은 나를 기다리는 대화, 커밋 안 된 변경, 아직 도는 레인, 일주일 넘게 멈춘 계획을 다룹니다.
 
 ## 설치
 
@@ -68,21 +70,23 @@ npx @litfamily/litgravity install
 npx @litfamily/litgravity doctor
 ```
 
+나중에 업데이트할 때는 같은 `install`을 다시 실행합니다. 수명 주기 명령은 모두 [안전과 제거](#안전과-제거)에 있습니다. 코딩 에이전트에게 설치를 맡기려면 [참고 문서](./docs/reference_ko-KR.md#코딩-에이전트에게-설치-맡기기)의 프롬프트를 붙여 넣으세요.
+
 설치기는 먼저 쓸 위치를 모두 보여 주고, 복사 전후에 `agy plugin validate`로 플러그인을 검증합니다. agy는 플러그인의 훅, 스킬, 에이전트를 신뢰 단계 없이 불러오므로 따로 승인할 것이 없습니다. 기본값은 플러그인을 `~/.gemini/config/plugins/litgravity`에 복사하는 것이라 모든 프로젝트에서 LitGravity를 쓸 수 있습니다.
 
 | 옵션 | 하는 일 |
 |---|---|
 | `--scope project` | 한 프로젝트의 `./.agents/plugins/litgravity`에만 복사합니다 |
 | `--dry-run` | 미리 보기만 하고 아무것도 쓰지 않습니다 |
-| `--yes` | 터미널이 붙지 않은 에이전트나 CI 셸에서 설치를 허용합니다(그런 셸에서는 기본으로 미리 보기만 합니다) |
+| `--yes` | 터미널 없는 셸(에이전트, CI)은 미리 보기만 하는데, 이때도 설치합니다 |
 | `--no-agent-file` | 전역 규칙 파일을 한 번만 건너뜁니다 |
-| `--status-line` | agy 사용자 설정에 선택형 LitGravity 상태 표시줄을 추가합니다(기본값은 꺼짐). 바꾸기 전에 원래 값을 백업합니다 |
+| `--status-line` | 백업 뒤 agy 사용자 설정에 선택형 상태 표시줄을 더합니다 |
 
 사용자 범위 설치는 `~/.gemini/config/rules/litgravity.md`에 LitGravity 전용 규칙 파일 하나를 남깁니다. agy가 매 세션 시작에 그 폴더를 읽기 때문입니다. 규칙은 일부러 짧게(lit 호출어, 계획과 핸드오프의 위치, 릴리스 동결) 두어서 어떤 스킬이 뜨기 전에 기본 규칙이 서도록 합니다. 대화형 설치는 먼저 묻고 No라고 답하면 규칙을 끈 채로 저장하며, `--yes`는 규칙을 더합니다. 나중에 끄거나 프로젝트 블록을 넣는 명령은 [수명 주기 표](#안전과-제거)에 있습니다.
 
 `doctor`는 설치된 사본, 검증 결과, 훅 이벤트 6개와 각 훅 스크립트의 실행 확인, 전역 규칙 파일, 스킬과 에이전트 전체, 확장과 그 설치 명령, 남아 있는 옛 엔진 캐시나 잘못 놓인 보관 사본, 스킬이 부르는 호스트 프로그램을 보여 줍니다.
 
-설치기는 프로젝트 바깥 몇 군데에 파일을 쓰고, 그 위치는 아래 그림에 있습니다. 목적지가 심볼릭 링크이거나, 다른 데서 온 폴더이거나, 직접 고친 사본이면 `No files written.`을 남기고 멈춥니다. 문제가 없으면 플러그인을 복사하고 규칙 파일과 작은 영수증을 씁니다. LitGravity가 디스크에 남기는 나머지는 대화가 나중에 쓰고, 설치한 확장과 agy 자격 증명 파일은 설치기가 바꾸지 않습니다(확장 폴더는 `extensions check`에 보여 줄 것이 있는지 한 번 읽기만 합니다).
+설치기는 프로젝트 바깥 몇 군데에 파일을 쓰고, 그 위치는 아래 그림에 있습니다. 목적지가 심볼릭 링크이거나, 다른 데서 온 폴더이거나, 직접 고친 사본이면 `No files written.`을 남기고 멈춥니다. 문제가 없으면 플러그인을 복사하고 규칙 파일과 작은 영수증을 씁니다. LitGravity가 디스크에 남기는 나머지는 대화가 나중에 쓰고, 설치한 확장은 설치기가 바꾸지 않습니다(확장 폴더는 `extensions check`에 보여 줄 것이 있는지 한 번 읽기만 합니다).
 
 <p align="center">
   <picture>
@@ -92,8 +96,6 @@ npx @litfamily/litgravity doctor
 </p>
 
 <p align="center"><img src="./docs/assets/litgravity/install-doctor.webp" width="960" alt="터미널 갈무리. 설치 명령은 Status: Ready로 끝나고, doctor 명령은 서른 개의 통과 확인 뒤에 LitGravity: ready로 끝납니다." /></p>
-
-코딩 에이전트에게 설치를 맡기려면 [참고 문서](./docs/reference_ko-KR.md#코딩-에이전트에게-설치-맡기기)의 프롬프트를 붙여 넣으세요.
 
 ## 들어 있는 것
 
@@ -151,7 +153,7 @@ LitGravity는 agy용 LitFamily 코어이고, 그 자체로 완결되어 있습�
 | `design` | `frontend-ui-ux`, `visual-qa` |
 | `video-covers` | `lit-typographic-motion`, `readme-studio` |
 
-LitGravity는 확장마다 옛 이름으로 짧은 스텁을 남겨 둡니다. 그래서 `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 그 스텁에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 아직 설치하지 않았으면 설치 명령을 알려 주고 아무것도 만들지 않으며, 설치기도 설치나 업데이트가 끝날 때마다 같은 안내를 보여 주고 그 뒤 첫 agy 대화에서 한 번 더 알려 줍니다.
+LitGravity는 확장마다 옛 이름으로 짧은 스텁을 남겨 두므로, `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` 같은 요청은 여전히 쓸모 있는 곳에 닿습니다. 스텁은 설치된 사본이 있으면 턴을 그 사본에 넘기고, 아직 설치하지 않았으면 설치 명령을 알려 줄 뿐 아무것도 만들지 않습니다. 설치기도 설치나 업데이트가 끝날 때마다 같은 안내를 보여 주고, 그 뒤 첫 agy 대화에서 한 번 더 알려 줍니다.
 
 가장 쉬운 길은 LitGravity의 `extensions` 명령입니다. 무언가를 바꾸는 동사는 먼저 계획을 출력하고 `--yes`를 기다리므로, 어떤 폴더가 어디로 옮겨지는지 미리 읽어 볼 수 있습니다.
 
@@ -162,34 +164,31 @@ npx @litfamily/litgravity extensions install lit-pptx --yes    # 실행 (--proje
 
 | 동사 | 하는 일 |
 |---|---|
-| `install` | agy가 읽는 폴더 어디든 같은 이름의 스킬이 있으면 그 경로를 알려 주며 멈춥니다(`--allow-shadow`를 주면 경고만 하고 설치). 목적지에 이미 사본이 있으면 통째로 `~/.gemini/extension-backups/` 아래 날짜 폴더로 옮긴 뒤 새 사본과 영수증을 넣습니다 |
-| `list` | 확장마다 설치됨(영수증 포함), 설치 안 됨, 영수증 없는 폴더, 같은 이름의 다른 스킬에 가려짐 가운데 어느 상태인지 보여 줍니다 |
+| `install` | 옛 사본을 백업한 뒤 새 사본과 영수증을 넣습니다 |
+| `list` | 확장마다 설치됨(영수증 포함), 설치 안 됨, 영수증 없음, 같은 이름 스킬에 가려짐을 보여 줍니다 |
 | `update` | 원본을 새로 받아 파일이 바뀐 확장만 다시 설치합니다 |
-| `remove` | 자기가 설치한 사본을 백업 폴더로 옮기고, 영수증이 없는 폴더는 사용자 것이므로 거절합니다 |
-| `check` | 읽기만 하고 아무것도 바꾸지 않은 채, 중복이나 영수증 없는 사본, 사라진 원본마다 고치는 한 줄을 출력합니다 |
+| `remove` | 자기 사본을 백업으로 옮깁니다. 영수증 없는 폴더는 사용자 것이라 거절합니다 |
+| `check` | 아무것도 바꾸지 않고, 중복·영수증 없는 사본·사라진 원본마다 고칠 한 줄을 출력합니다 |
 | `prune-backups` | 백업과 크기를 보여 주고 `--yes`를 줄 때만 지웁니다 |
 
-wjgoarxiv-skills에서 agy 폴더만 얕게 받아 `~/.cache/litgravity/extensions-src`에 따로 두기 때문에 직접 클론할 일이 없고, 이미 클론해 둔 저장소가 있으면 `--from <경로>`로 그것을 읽습니다. 내 스킬은 절대 옮기지 않습니다. `--family <이름>`과 `--all`로 여러 개를 한 번에 고를 수 있고, 자세한 내용은 `npx @litfamily/litgravity extensions help`에 있으며, `doctor`도 `check`를 돌려 요약을 보여 줍니다.
+몇 가지 규칙 덕분에 이 명령은 안전하고 다루기 쉽습니다.
 
-새 대화를 열거나 `/skills reload`를 입력하면 스킬이 `/<id>`로 답합니다.
+- **같은 이름 확인.** `install`은 복사하기 전에 agy가 읽는 모든 폴더를 살펴, 같은 이름의 스킬이 있으면 그 경로를 알려 주며 멈춥니다. 내 스킬은 절대 옮기지 않으며, `--allow-shadow`를 주면 경고만 하고 설치합니다.
+- **백업.** 목적지에 이미 사본이 있으면 새 사본을 넣기 전에 통째로 `~/.gemini/extension-backups/` 아래 날짜 폴더로 옮깁니다.
+- **원본.** wjgoarxiv-skills에서 agy 폴더만 얕게 받아 `~/.cache/litgravity/extensions-src`에 따로 두므로 직접 클론할 일이 없습니다. 이미 클론해 둔 저장소가 있으면 `--from <경로>`로 그것을 읽습니다.
+- **여러 개 한 번에.** `--family <이름>`과 `--all`로 여러 개를 고릅니다. 자세한 내용은 `npx @litfamily/litgravity extensions help`에 있고, `doctor`도 `check`를 돌려 요약을 보여 줍니다.
 
-손으로 설치하는 네 줄과 워크스페이스 전용 줄, 사본을 업데이트하고 지우는 방법은 [참고 문서](./docs/reference_ko-KR.md#확장을-손으로-설치하기)에 있습니다.
+새 대화를 열거나 `/skills reload`를 입력하면 스킬이 `/<id>`로 답합니다. 손으로 설치하는 네 줄과 워크스페이스 전용 줄, 사본을 업데이트하고 지우는 방법은 [참고 문서](./docs/reference_ko-KR.md#확장을-손으로-설치하기)에 있습니다.
 
 ## lit 한 턴이 도는 방식
 
-agy는 시작이 빠릅니다. 한 줄 적으면 바로 일을 시작합니다. 그런데 대화가 길어지면 컨텍스트가 차고, 다음 대화는 지난 대화가 알던 것을 모른 채 시작하며, "끝났다"는 말도 모델이 그렇게 말했다는 뜻일 때가 많아서, 결국 어디까지 했는지 다시 설명하고 무엇이 실제로 돌아가는지 손으로 확인하게 됩니다.
-
-대화를 돌리고 모델을 고르는 것은 여전히 agy이고, LitGravity는 그 주위에 따라갈 순서를 더합니다. 그 순서는 직접 읽을 수 있는 평범한 파일로 남습니다.
+대화를 돌리고 모델을 고르는 것은 여전히 agy입니다. LitGravity는 직접 읽을 수 있는 평범한 파일로 정해진 순서를 더하므로, 어디까지 했는지 다시 설명하거나 무엇이 실제로 돌아가는지 손으로 확인할 일이 줄어듭니다.
 
 | agy가 하는 일 | lit이 더하는 일 |
 |---|---|
-| 한 줄을 치면 시작합니다 | 첫 편집 전에 `plans/`에 계획을 적습니다 |
-| 지난 대화를 잊습니다 | 계획에 맞춰 확인하고, 확인하지 못한 곳은 미확인으로 표시합니다 |
-| 모델이 그렇다고 하면 끝냅니다 | 다음 턴이 읽을 `.litgravity/` 인계를 남깁니다 |
-
-agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로, LitGravity는 끼어들 수 있는 가장 이른 순간인 그 턴의 첫 모델 호출에서 방향을 잡습니다. PreInvocation 훅이 대화 기록에서 방금 입력한 프롬프트를 다시 읽고, `lit` 뒤에 온 단어로 경로를 정한 다음, 읽어야 할 스킬 파일을 적은 단계 하나를 끼워 넣습니다. 그다음 일은 스킬이 하고, 나머지 훅은 그림처럼 턴의 한 순간씩을 맡아 지켜봅니다.
-
-이 순간들은 하나같이 나중에 열어 볼 수 있는 파일(계획, ledger, 인계 메모)을 남기고, 다음 턴들은 이 파일에서 이어 갑니다. `lit start`가 계획대로 만들고, `lit review`가 결과를 다섯 레인으로 검토하고, `lit handoff`가 메모를 쓰면, 다음 대화의 SessionStart 훅이 그 메모를 가리켜 줍니다. 작업은 그 계획에 맞춰 테스트와 실제 화면 확인으로 검증하고, 확인하지 못한 부분은 미확인으로 표시합니다.
+| 한 줄만 치면 빠르게 시작합니다 | 첫 편집 전에 `plans/`에 계획을 적습니다 |
+| 대화가 길어져 컨텍스트가 차면 지난 대화를 잊습니다 | 다음 턴이 읽을 `.litgravity/` 인계를 남깁니다 |
+| 모델이 그렇다고 하면 끝냅니다 | 계획에 맞춰 확인하고, 확인하지 못한 곳은 미확인으로 표시합니다 |
 
 <p align="center">
   <picture>
@@ -197,6 +196,12 @@ agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로,
     <img src="./docs/assets/litgravity/diagrams/lit-route.ko.light.png" width="900" alt="agy에서 lit 한 턴이 도는 흐름도. lit plan a tiny todo app을 입력하면 PreInvocation 훅이 대화 기록에서 프롬프트를 읽고 lit-plan/SKILL.md를 먼저 읽으라는 단계 하나를 주입한다. 모델 호출 뒤 PreToolUse 훅이 invoke_subagent 직전에 확인하고 하위 에이전트 11종 가운데 하나를 시작하게 두는데, lit-plan 중에는 읽기 전용만 허용한다. 도구 호출마다 PostToolUse 훅이 .litgravity/ledger/<conversation>.jsonl에 한 줄을 기록한다. PostInvocation 훅은 경계와 문장을 검사해 plans/ 밖 변경을 되돌리라고 모델에게 알린다(턴마다 최대 두 번). Stop 훅은 남은 일이 있는지 묻는다. 붙잡으면 턴이 이어지고(연속 최대 세 번, pause로 풀림), 풀어 주면 턴이 끝난다. 아래 다음 턴들: plans/<slug>.md에 대한 lit start, 다섯 레인(goal, qa, quality, security, context)의 lit review, .litgravity/handoff/latest.md를 쓰는 lit handoff, 그리고 다음 대화에 그 메모를 가리켜 주는 SessionStart 훅.">
   </picture>
 </p>
+
+agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로, PreInvocation 훅이 그 턴의 첫 모델 호출에서 방향을 잡고 나머지 훅은 턴의 한 순간씩을 맡아 지켜봅니다. 순간마다 나중에 열어 볼 수 있는 파일(계획, ledger, 인계 메모)이 남고, 다음 턴들은 이 파일에서 이어 갑니다.
+
+- **`lit start`** 는 계획대로 만들고, 테스트와 실제 화면 확인으로 검증합니다. 아무도 확인하지 못한 부분은 미확인으로 표시합니다.
+- **`lit review`** 는 결과를 다섯 레인으로 검토합니다.
+- **`lit handoff`** 는 무엇을 만들었고 어떻게 확인했고 무엇이 남았는지 `.litgravity/handoff/latest.md`에 적습니다. 다음 대화의 SessionStart 훅이 그 메모를 가리켜 줍니다.
 
 ### 계획 턴이 할 수 있는 일
 
@@ -210,7 +215,7 @@ agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로,
 
 ### 붙잡힌 턴과 ledger
 
-공정 설비로 생각하는 편이 편하다면, 같은 흐름을 플랜트로 그려 두었습니다. 프롬프트가 원료로 들어오고, PreInvocation 라우터가 헤더 노릇을 하고, 경로 단어마다 해당 용기로 가는 라인이 열리며, 용기 사이의 Stop 훅 분석계 두 대가 계획 파일이 생길 때까지 계획 턴을, 열린 행이 남아 있는 동안 구현 턴을 되돌려 보냅니다. 용기마다 샘플 라인이 ledger로 빠지고, 인계 메모는 오른쪽으로 나가 다음 대화를 기다리며, 읽기 쉽게 단계를 한 줄로 이어 그렸지만 agy에서는 단계마다 따로 입력하는 `lit` 프롬프트이고 보통 다음 턴에 옵니다.
+공정 설비로 생각하는 편이 편하다면, 같은 흐름을 플랜트로 그려 두었습니다. 프롬프트가 원료로 들어오고, PreInvocation 라우터가 헤더 노릇을 하며, 경로 단어마다 해당 용기로 가는 라인이 열립니다. 읽기 쉽게 하려고 단계를 한 줄로 이어 그렸지만, agy에서는 단계마다 따로 입력하는 `lit` 프롬프트이고 보통 다음 턴에 옵니다.
 
 <p align="center">
   <picture>
@@ -222,17 +227,23 @@ agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로,
   </picture>
 </p>
 
-기다려도 되는 턴이 있습니다. 계획 파일이 아직 없는 lit-plan 턴은 `plans/<slug>.md`가 생길 때까지 끝에서 붙잡히고, start-work는 승인된 계획에 열린 행이 있는 동안, litgoal과 lit-loop는 목표 기록에 열린 기준이 있는 동안 기다리며, 진전 없이 연달아 최대 세 번입니다. `pause`라고 말하거나 ledger에 `BLOCKED at row N:`, `PAUSED at row N:`, `CANCELLED:`를 적으면 풀리고, 아래 갈무리는 아무것도 쓰지 않은 계획 턴이 실제로 붙잡힌 모습입니다.
+용기마다 샘플 라인이 ledger로 빠지고, 인계 메모는 오른쪽으로 나가 다음 대화를 기다립니다. 용기 사이에서는 Stop 훅의 분석계 두 대가 일이 남은 턴을 붙잡습니다.
+
+| 경로 | 끝에서 붙잡히는 동안 |
+|---|---|
+| lit-plan | `plans/<slug>.md`가 아직 없습니다 |
+| start-work | 승인된 계획에 열린 행이 있습니다 |
+| litgoal, lit-loop | 목표 기록에 열린 기준이 있습니다 |
+
+진전 없이 연달아 붙잡히는 것은 최대 세 번입니다. `pause`라고 말하거나 ledger에 `BLOCKED at row N:`, `PAUSED at row N:`, `CANCELLED:`를 적으면 풀립니다. 아래 갈무리는 아무것도 쓰지 않은 계획 턴이 실제로 붙잡힌 모습입니다.
 
 <p align="center"><img src="./docs/assets/litgravity/handoff-hold.webp" width="960" alt="터미널 갈무리. 계획 파일 없이 끝난 lit plan a tiny todo app 프롬프트 뒤에 Stop 훅이 decision continue와 계획 파일을 요구하는 lit-plan 게이트 사유로 답합니다. 아래쪽에는 read_file 도구 호출을 기록한 ledger 한 줄이 보입니다." /></p>
-
-경로가 켜져 있는 동안 모든 도구 호출은 `.litgravity/ledger/<대화>.jsonl`에 한 줄씩 남고, 키 모양의 값은 가려집니다. 멈추기 전에 `lit handoff`를 치면 무엇을 만들었고 어떻게 확인했고 무엇이 남았는지 `.litgravity/handoff/latest.md`에 적히고, 다음 대화는 그 메모에서 시작합니다.
 
 ## 지금 agy가 막아 두는 것
 
 아래는 실제 설치에서 확인한 agy 1.4.3의 사실입니다. LitGravity는 이 한계 안에서 동작하며, 항목마다 전체 내용은 [참고 문서](./docs/reference_ko-KR.md#지금-agy가-막아-두는-것-자세히)에 있습니다.
 
-- **쓰기 전에 막을 수 없습니다.** agy의 PreToolUse 훅은 보이는 모든 호출에 결정을 내려야 하므로, LitGravity는 쓰기, 명령, 글을 일어난 뒤에 확인합니다. 유일한 사전 차단은 lit-plan 턴에서 쓰기가 가능한 하위 에이전트입니다.
+- **쓰기 전에 막을 수 없습니다.** agy의 PreToolUse 훅은 보이는 모든 호출에 결정을 내려야 하므로, LitGravity는 파일 변경과 글을 일어난 뒤에 확인합니다. 유일한 사전 차단은 lit-plan 턴에서 쓰기가 가능한 하위 에이전트입니다.
 - **헤드리스 실행은 물어볼 수 없습니다.** `agy -p`에서 권한이 필요한 `run_command`나 `write_file`은 거부되고 실행이 끝납니다. 스킬은 먼저 읽고, 필요한 권한을 적어 `BLOCKED`로 보고합니다.
 - **이미지 보기.** agy의 모델은 `read_file`로 PNG를 보고, 시각 스킬의 모든 확인 단계가 이것에 기댑니다.
 - **Starter Quota.** 모델 호출은 모두 계정 할당량에서 차감되므로, 테스트와 확인은 비용이 들지 않는 `agy plugin validate`와 `/hooks`, `/skills`, `/agents`를 씁니다.
@@ -253,12 +264,12 @@ agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로,
 | 확장 | `npx @litfamily/litgravity extensions list` (그다음 `install`, `update`, `remove`, `check`, `prune-backups`) |
 | 제거 | `npx @litfamily/litgravity uninstall --yes` |
 
-설치기는 자기 플러그인 폴더, 데이터 디렉터리, 규칙 파일, 그리고 요청했을 때 상태 표시줄 키만 쓰며, agy의 인증 파일은 읽지 않습니다.
+설치기는 자기 플러그인 폴더, 데이터 디렉터리, 규칙 파일, 그리고 요청했을 때 상태 표시줄 키만 쓰며, agy 자격 증명 파일은 읽지 않습니다.
 
 <details>
 <summary>각 부분이 쓰는 곳과 남기는 것</summary>
 
-- 설치기는 자기 플러그인 폴더, 데이터 디렉터리(`$XDG_DATA_HOME/litgravity`), agy 전역 규칙 폴더의 전용 규칙 파일, 그리고 요청했을 때 agy 사용자 설정의 상태 표시줄 키만 씁니다. 설정 파일은 먼저 백업합니다. agy의 인증 파일은 읽지 않습니다. 설치기가 쓰지 않은 규칙 파일은 합치지 않고 첫 쓰기 전에 설치를 멈춥니다.
+- 설치기는 자기 플러그인 폴더, 데이터 디렉터리(`$XDG_DATA_HOME/litgravity`), agy 전역 규칙 폴더의 전용 규칙 파일, 그리고 요청했을 때 agy 사용자 설정의 상태 표시줄 키만 씁니다. 설정 파일은 먼저 백업합니다. agy 자격 증명 파일은 읽지 않습니다. 설치기가 쓰지 않은 규칙 파일은 합치지 않고 첫 쓰기 전에 설치를 멈춥니다.
 - 심볼릭 링크이거나, 남의 파일이거나, 설치 뒤 수정된 대상은 첫 쓰기 전에 설치를 멈춥니다. 수정한 사본을 남기고 싶으면 설치기가 알려 주는 명령으로 `~/.local/share/litgravity/saved/<범위>-<날짜>`에 옮깁니다. 이 폴더를 agy 플러그인 폴더 밖에 둔 데는 이유가 있습니다. agy는 플러그인 폴더에 있는 폴더를 모두 불러오므로, 플러그인 옆에 둔 사본은 두 번째 LitGravity로 돌아갑니다. `doctor`는 그런 사본이 남아 있으면 경고합니다. `--dry-run`은 아무것도 바꾸지 않습니다.
 - `extensions`는 범위에 맞는 agy 스킬 폴더(`~/.gemini/config/skills/<id>` 또는 `.agents/skills/<id>`), `~/.gemini/extension-backups/`, 자기 원본 클론 `~/.cache/litgravity/extensions-src`에만 씁니다. `--yes`가 없으면 계획만 출력합니다. 다른 곳에 둔 같은 이름의 스킬은 옮기지 않고, 영수증 없는 폴더는 제거하지 않으며, 지우는 일은 `prune-backups --yes`로 `~/.gemini/extension-backups/` 안에서만 합니다.
 - 0.1.8까지의 릴리스는 엔진 캐시를 `~/.local/share/litgravity/runtime/`(`$XDG_DATA_HOME/litgravity/runtime/`)에 두었고, 150 MB가 넘기도 합니다. 이제 확장을 포함해 그곳을 읽거나 쓰는 것은 없고 `uninstall`도 남겨 두므로, 공간이 필요하면 그 폴더를 지우세요. 폴더가 남아 있는 동안은 `doctor`가 알려 줍니다.
@@ -272,13 +283,11 @@ agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로,
 
 ## 패밀리
 
-LitGravity는 LitFamily 패키지 일곱 개 중 하나입니다. 각 패키지는 같은 일하는 방식을 코딩 에이전트 하나에 붙여 주고, 따로 설치되고 따로 동작합니다. 쓰는 에이전트에 맞는 것 하나만 설치하면 되고, 다른 패키지는 필요 없습니다.
+LitGravity는 LitFamily 패키지 일곱 개 중 하나이고, 각 패키지는 같은 일하는 방식을 코딩 에이전트 하나에 붙여 주며 따로 설치되고 따로 동작합니다. 쓰는 에이전트에 맞는 것 하나만 설치하면 되고, 다른 패키지는 필요 없습니다. 일곱 패키지와 각 패키지가 맡은 에이전트는 [LitFamily](https://github.com/wjgoarxiv/litfamily)에 모여 있습니다.
 
 커버의 장갑 기계 일곱 대가 이 일곱 패키지이고, 일곱 번째 칸의 궤도 기계가 LitGravity입니다. 커버의 모션은 LitFamily 모션 스킬로 만든 브랜드 연출로, 그려서 움직인 그림이라 실제 agy 세션을 녹화한 장면은 들어 있지 않습니다. 시스템에서 동작 줄이기를 켜 두었다면 정지 프레임이 대신 보입니다.
 
 <p align="center"><img src="./docs/assets/litfamily-machines.png" width="100%" alt="LitFamily 기계 일곱 대가 모두 불이 켜진 채 나란히 서 있습니다. LitClaude, LitHermes, LitCodex, LitOpenCode, LitGrok, LitMuse, LitGravity. 위에는 LITFAMILY, 아래에는 KEEP THE WORK LIT." /></p>
-
-일곱 패키지와 각 패키지가 맡은 에이전트는 [LitFamily](https://github.com/wjgoarxiv/litfamily)에 모여 있습니다.
 
 ## 라이선스
 

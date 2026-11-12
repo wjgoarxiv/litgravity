@@ -2,7 +2,7 @@
 
 <p align="right"><b>English</b> · <a href="./reference_ko-KR.md">한국어</a></p>
 
-The [README](../README.md) covers install and daily use. This page keeps the detail behind four of its sections.
+The [README](../README.md) covers install and daily use.
 
 ## The status line
 
@@ -57,7 +57,7 @@ Start a new conversation (or type `/skills reload`), and the skill answers as `/
 
 `litgravity install` writes only its own plugin folder, so upgrading or removing LitGravity never touches the copy, and the stub (`litgravity:<id>`) and the copy (`<id>`) keep different names.
 
-Their pinned engines (`office`, `diagram`, `readme`, `sciviz`, `motion`) left with them, and so did `litgravity runtime` and the hook that held a film turn until its render passed. The agy copies in wjgoarxiv-skills carry their own engine installers, keep their own engine cache and run their checks as commands, so they need nothing from LitGravity's internals.
+The nine moved skills took their pinned engines (`office`, `diagram`, `readme`, `sciviz`, `motion`) with them, and `litgravity runtime` and the hook that held a film turn until its render passed went too. The agy copies in wjgoarxiv-skills carry their own engine installers, keep their own engine cache and run their checks as commands, so they need nothing from LitGravity's internals.
 
 ## What agy limits today, in detail
 
