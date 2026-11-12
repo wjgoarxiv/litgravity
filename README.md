@@ -22,7 +22,7 @@ What ignition looks like, captured from the real hook and status line on this Ma
 
 ## What you can make
 
-Each picture is a real output made on this Mac. The `lit-adhd` brief was drawn by its collector over three real agy conversations; the others were made by each skill's own engine from the skill's worked example. The deck, the P&ID, the schematics and the film come from skills that now live in wjgoarxiv-skills (see [Moved skills](#moved-skills)); install their family and agy makes them the same way.
+Each picture is a real output made on this Mac. The `lit-adhd` brief was drawn by its collector over three real agy conversations; the others were made by each skill's own engine from the skill's worked example. The deck, the P&ID, the schematics and the film come from skills that now live in wjgoarxiv-skills (see [Extensions](#extensions)); install those extensions and agy makes them the same way.
 
 | Picture | Skill | What it shows |
 |---|---|---|
@@ -66,7 +66,7 @@ The installer shows every destination first. By default it copies the plugin to 
 npx @litfamily/litgravity doctor
 ```
 
-`doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, the global rule file, every skill and agent, the moved skills with their install line, and the host programs the skills call. It ends with `LitGravity: ready` when nothing is broken.
+`doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, the global rule file, every skill and agent, the extensions with their install line, any old engine cache or stray saved copy, and the host programs the skills call. It ends with `LitGravity: ready` when nothing is broken.
 
 Every user-scope install also leaves one owned rule file at `~/.gemini/config/rules/litgravity.md`, because agy reads that folder at every session start. The rule stays short on purpose: the lit activation word, where plans and handoffs live, and the release freeze, so the ground rules hold before any skill loads. An interactive install asks first and a No stores the rule off; `--yes` adds it, `--no-agent-file` skips it for one run, and `npx @litfamily/litgravity config agentFile off` removes it at any time. A repo gets the matching project conventions with `npx @litfamily/litgravity agent-file project --dir <path>`, which writes only the marked block into its `AGENTS.md`.
 
@@ -115,7 +115,7 @@ Some moments change the look of the row. While `lit adhd` (or `lit-rewind`, the 
 
 ## What you get
 
-**42 skills**: 33 dense agy skills read on demand, each with the references, scripts and templates it needs inside its own folder, and nine stubs for the skills that moved (see [Moved skills](#moved-skills)). agy loads only the first 24,000 bytes of a `SKILL.md`, so the long material sits in the skill's `references/` folder and the skill names the file to open.
+**42 skills**: 33 dense agy skills read on demand, each with the references, scripts and templates it needs inside its own folder, and nine stubs for the LitFamily extensions (see [Extensions](#extensions)). agy loads only the first 24,000 bytes of a `SKILL.md`, so the long material sits in the skill's `references/` folder and the skill names the file to open.
 
 A lit turn runs the same routine through these parts. A bigger change gets a written plan first, the work is built row by row with tests under a goal record that outlives one conversation, a second look reviews it before anything merges, research shows its sources, documents and prose read clean, and the turn ends with a handoff the next conversation reads:
 
@@ -141,9 +141,11 @@ The skills also call programs already on your machine: Python 3, Chrome or Chrom
 
 **Models**: `npx @litfamily/litgravity models` lists the models and effort tiers your agy offers, read from agy itself, so a model Google adds later shows up with no LitGravity update.
 
-## Moved skills
+## Extensions
 
-LitGravity used to carry its own slide, document, diagram, schematic, figure, interface, film and README makers, and together they were most of the package. Most people never touch most of them, so they now live in one separate place, the wjgoarxiv-skills repository, where each skill has a folder written for agy that you copy in on its own. LitGravity keeps a short stub under each old name: `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` and the rest still land there. The stub hands the turn to the installed copy, or, when that family is not installed, gives you the one line that installs it and makes nothing.
+LitGravity is the LitFamily core for agy, and it is complete on its own: planning, building, checking, research, handoffs and the `lit` router all ship in this package. The skills that make files are a different kind of tool. Slides, Word documents, diagrams, schematics, figures, interfaces, films and README covers each pull in their own engines, and together they used to be most of the package, while most people use one or two of them. They are now LitFamily extensions, kept on one extension shelf, the wjgoarxiv-skills repository, where each skill has a folder written for agy. Install the ones you use alongside LitGravity and you get the full LitFamily experience; leave the rest out and nothing in the core is missing.
+
+LitGravity keeps a short stub under each extension's old name, so `lit deck …`, `lit motion …`, `/litgravity:lit-pptx` and the rest still land somewhere useful. The stub hands the turn to your installed copy, or, when the extension is not installed yet, gives you the one line that installs it and makes nothing. The installer says the same after every install or update, and the first agy conversation after it mentions it once.
 
 wjgoarxiv-skills is public at <https://github.com/wjgoarxiv/wjgoarxiv-skills>. Clone it (`git clone https://github.com/wjgoarxiv/wjgoarxiv-skills`), then copy a skill from your clone into agy's user skills folder:
 
@@ -153,7 +155,7 @@ mkdir -p ~/.gemini/config/skills && cp -R "<path to your wjgoarxiv-skills clone>
 
 For one workspace only, copy it into that workspace's `.agents/skills/` instead. Start a new conversation (or type `/skills reload`), and the skill answers as `/<id>`. To update it, delete the copied folder and copy it again. The LitGravity installer writes only its own plugin folder, so upgrading or removing LitGravity never touches the copy, and the stub (`litgravity:<id>`) and the copy (`<id>`) keep different names.
 
-| Family in wjgoarxiv-skills | Skills that moved |
+| Family in wjgoarxiv-skills | Extensions |
 |---|---|
 | `decks` | `lit-pptx` |
 | `documents` | `lit-docx` |
@@ -161,7 +163,9 @@ For one workspace only, copy it into that workspace's `.agents/skills/` instead.
 | `design` | `frontend-ui-ux`, `visual-qa` |
 | `video-covers` | `lit-typographic-motion`, `readme-studio` |
 
-Their pinned engines (`office`, `diagram`, `readme`, `sciviz`, `motion`) left with them, and so did `litgravity runtime` and the hook that held a film turn until its render passed. The agy copies in wjgoarxiv-skills carry their own engine installers and run their checks as commands, so they need nothing from LitGravity.
+Their pinned engines (`office`, `diagram`, `readme`, `sciviz`, `motion`) left with them, and so did `litgravity runtime` and the hook that held a film turn until its render passed. The agy copies in wjgoarxiv-skills carry their own engine installers, keep their own engine cache and run their checks as commands, so they need nothing from LitGravity's internals.
+
+If you upgraded from 0.1.8 or earlier, the old engine cache may still sit in `~/.local/share/litgravity/runtime/` (`$XDG_DATA_HOME/litgravity/runtime/`), and it can take 150 MB or more. Nothing reads it now, the extensions included, so you can delete it; `doctor` names it while it is there.
 
 ## What agy limits today
 
@@ -195,9 +199,9 @@ While a route is active, every tool call lands in `.litgravity/ledger/<conversat
 ## Safety and uninstall
 
 - The installer writes only its own plugin folder, its data directory (`$XDG_DATA_HOME/litgravity`), the owned rule file in agy's global rules folder, and, when you ask, the status line key in agy's user settings, after a backup. It never reads agy's credential files. A rule file it did not write stops the install before the first write instead of being merged into.
-- A symlinked, foreign or edited destination stops the install before the first write, with the command to move it aside. `--dry-run` never mutates.
+- A symlinked, foreign or edited destination stops the install before the first write. To keep an edited copy, the installer gives a command that moves it to `~/.local/share/litgravity/saved/<scope>-<date>`. That folder is outside agy's plugins folder on purpose: agy loads every folder it finds there, so a copy saved beside the plugin would run as a second LitGravity. `doctor` warns about any such leftover. `--dry-run` never mutates.
 - Hooks fail open: if one breaks, your conversation continues.
-- Releases before the move cached engines under `~/.local/share/litgravity/runtime/`. Nothing writes there now and `uninstall` leaves it, so delete that folder to free the space.
+- Releases up to 0.1.8 cached engines under `~/.local/share/litgravity/runtime/`. Nothing writes there now and `uninstall` leaves it, so delete that folder to free the space.
 - Set `LITGRAVITY_HOOK_TRACE=<file>` before starting agy to log one line per hook call. It is off otherwise.
 Three commands cover the lifecycle, and every one previews with `--dry-run`:
 

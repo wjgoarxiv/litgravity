@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { run, injectSystem, workspaceOf, pluginVersion, cachedLatest, newerThan, sessionPath } from './lib/common.mjs';
 import { SKILL_ROUTES } from './lib/routes.mjs';
+import { extensionNotice, litgravityData, takeExtensionNotice } from './lib/extensions.mjs';
 
 const HANDOFF_MAX_AGE_MS = 3 * 24 * 60 * 60 * 1000;
 const RECENT_SESSION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -36,6 +37,12 @@ run((payload) => {
   const latest = cachedLatest();
   if (latest && newerThan(latest, version)) {
     parts.push(`Update: LitGravity ${latest} is available (installed ${version}). Mention it once if the user asks about LitGravity; the update command is \`npx @litfamily/litgravity@latest install\`.`);
+  }
+  // The installer queued the extensions notice; a real conversation (one with an id) takes it once. The doctor's hook
+  // smoke sends an empty payload, so it never uses the notice up.
+  const data = litgravityData();
+  if (payload.conversationId && takeExtensionNotice(data)) {
+    parts.push(`LitGravity was installed or updated just before this conversation. Once, in your first reply and after answering the user, add this short note in the user's language and keep the commands as written. Do not bring it up again.\n${extensionNotice(data).join('\n')}`);
   }
   const ws = workspaceOf(payload);
   const handoff = join(ws, '.litgravity', 'handoff', 'latest.md');

@@ -1,11 +1,11 @@
 ---
 name: visual-qa
-description: "Checking a built interface in a real browser at several widths. Moved to wjgoarxiv-skills: this stub loads the installed copy, or gives the agy install line."
+description: "Checking a built interface in a real browser at several widths. A LitFamily extension in wjgoarxiv-skills: this stub loads the installed copy, or gives the agy install line."
 ---
 
-# visual-qa: moved to wjgoarxiv-skills
+# visual-qa: a LitFamily extension in wjgoarxiv-skills
 
-visual-qa checked a built interface the way a user sees it: its states at several widths in a real browser, screenshots, and visible breakage reported with that evidence or a named blocker. It no longer ships inside LitGravity. The whole skill folder now lives in the separate wjgoarxiv-skills repository at `variants/litgravity/visual-qa/`, a copy written for agy, so a LitGravity install stays small and anyone who wants a visual check copies in this one folder.
+visual-qa checked a built interface the way a user sees it: its states at several widths in a real browser, screenshots, and visible breakage reported with that evidence or a named blocker. It no longer ships inside LitGravity. It is a LitFamily extension now, and the whole skill folder lives in the separate wjgoarxiv-skills repository at `variants/litgravity/visual-qa/`, a copy written for agy, so a LitGravity install stays small and anyone who wants a visual check copies in this one folder.
 
 This file keeps the id. `lit visual-qa …`, `/litgravity:visual-qa`, review-work lane 5 and a litwork surface check that reach a user interface still land here, and the steps below take it from there.
 
@@ -25,7 +25,7 @@ The folder is the whole skill, with its own scripts, references and engine locks
 
 1. Look for the installed copy with `read_file`: first `~/.gemini/config/skills/visual-qa/SKILL.md`, then `.agents/skills/visual-qa/SKILL.md` in the workspace.
 2. **Found.** Read it and follow it for this task; its folder is the root for every relative path it names. It was written for agy and needs no LitGravity hook: every check it names is a command it tells you to run.
-3. **Not found, asked directly.** Reply in a few lines: what visual-qa did, that it moved to wjgoarxiv-skills (`variants/litgravity/visual-qa/`), the install line above, and that you made nothing yet. Do not describe the page from its source and call that a visual check.
+3. **Not found, asked directly.** Reply in a few lines: what visual-qa did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/visual-qa/`), the install line above, and that you made nothing yet. Do not describe the page from its source and call that a visual check.
 4. **Not found, inside a workflow.** Inside review-work or litwork, record `visual-qa not installed` in the lane and give no visual verdict: the surface stays unchecked, not passed.
 
 ## Hard stops

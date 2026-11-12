@@ -1,11 +1,11 @@
 ---
 name: lit-docx
-description: "Word documents (.docx) and DOCX/PDF to Markdown. Moved to wjgoarxiv-skills: this stub loads the installed copy, or gives the agy install line."
+description: "Word documents (.docx) and DOCX/PDF to Markdown. A LitFamily extension in wjgoarxiv-skills: this stub loads the installed copy, or gives the agy install line."
 ---
 
-# lit-docx: moved to wjgoarxiv-skills
+# lit-docx: a LitFamily extension in wjgoarxiv-skills
 
-lit-docx built finished Word documents (reports, proposals, manuals, memos, manuscripts) in a tonality chosen for the content, DOCX or PDF converted to Markdown, in-place edits and a gate with rendered pages. It no longer ships inside LitGravity. The whole skill folder now lives in the separate wjgoarxiv-skills repository at `variants/litgravity/lit-docx/`, a copy written for agy, so a LitGravity install stays small and anyone who wants a document copies in this one folder.
+lit-docx built finished Word documents (reports, proposals, manuals, memos, manuscripts) in a tonality chosen for the content, DOCX or PDF converted to Markdown, in-place edits and a gate with rendered pages. It no longer ships inside LitGravity. It is a LitFamily extension now, and the whole skill folder lives in the separate wjgoarxiv-skills repository at `variants/litgravity/lit-docx/`, a copy written for agy, so a LitGravity install stays small and anyone who wants a document copies in this one folder.
 
 This file keeps the id. `lit docx …`, `lit lit-docx …`, and `/litgravity:lit-docx` still land here, and the steps below take it from there.
 
@@ -25,7 +25,7 @@ The folder is the whole skill, with its own scripts, references and engine locks
 
 1. Look for the installed copy with `read_file`: first `~/.gemini/config/skills/lit-docx/SKILL.md`, then `.agents/skills/lit-docx/SKILL.md` in the workspace.
 2. **Found.** Read it and follow it for this task; its folder is the root for every relative path it names. It was written for agy and needs no LitGravity hook: every check it names is a command it tells you to run.
-3. **Not found, asked directly.** Reply in a few lines: what lit-docx did, that it moved to wjgoarxiv-skills (`variants/litgravity/lit-docx/`), the install line above, and that you made nothing yet. Do not produce the .docx another way in its place (python-docx, pandoc, soffice).
+3. **Not found, asked directly.** Reply in a few lines: what lit-docx did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/lit-docx/`), the install line above, and that you made nothing yet. Do not produce the .docx another way in its place (python-docx, pandoc, soffice).
 4. **Not found, inside a workflow.** Inside a lit workflow (lit-loop, litwork, start-work, review-work) that reached this skill, write `lit-docx not installed` once in the ledger and the reply with the install line, finish the parts that need no document, and mark the part that needs it BLOCKED, not done.
 
 ## Hard stops

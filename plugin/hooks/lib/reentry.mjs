@@ -76,7 +76,7 @@ export function resumeNote(plan) {
 
 // A moved skill's route reads its pointer stub; the note says so up front, with the install line, so the turn gives
 // that line (or hands over to the installed copy) and builds nothing from memory.
-const movedNote = (id) => `\`${id}\` moved to wjgoarxiv-skills (variants/litgravity/${id}/); the file above is its pointer stub. If the stub finds no installed copy, give the user this install line and make nothing: ${movedInstallLine(id)}`;
+const movedNote = (id) => `\`${id}\` is a LitFamily extension now, kept in wjgoarxiv-skills (variants/litgravity/${id}/); the file above is its pointer stub. If the stub finds no installed copy, give the user this install line and make nothing: ${movedInstallLine(id)}`;
 
 export function activation(hit, conversationId, kind = 'ignite') {
   const id = safeId(conversationId);

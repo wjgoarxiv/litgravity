@@ -1,11 +1,11 @@
 ---
 name: readme-studio
-description: "Writing or refreshing a README from repository facts. Moved to wjgoarxiv-skills: this stub loads the installed copy, or gives the agy install line."
+description: "Writing or refreshing a README from repository facts. A LitFamily extension in wjgoarxiv-skills: this stub loads the installed copy, or gives the agy install line."
 ---
 
-# readme-studio: moved to wjgoarxiv-skills
+# readme-studio: a LitFamily extension in wjgoarxiv-skills
 
-readme-studio wrote READMEs from repository facts that were checked (purpose, install, quick start, commands that ran), with an optional inspected cover. It no longer ships inside LitGravity. The whole skill folder now lives in the separate wjgoarxiv-skills repository at `variants/litgravity/readme-studio/`, a copy written for agy, so a LitGravity install stays small and anyone who wants a README copies in this one folder.
+readme-studio wrote READMEs from repository facts that were checked (purpose, install, quick start, commands that ran), with an optional inspected cover. It no longer ships inside LitGravity. It is a LitFamily extension now, and the whole skill folder lives in the separate wjgoarxiv-skills repository at `variants/litgravity/readme-studio/`, a copy written for agy, so a LitGravity install stays small and anyone who wants a README copies in this one folder.
 
 This file keeps the id. `lit readme …`, `lit readme-studio …`, and `/litgravity:readme-studio` still land here, and the steps below take it from there.
 
@@ -25,7 +25,7 @@ The folder is the whole skill, with its own scripts, references and engine locks
 
 1. Look for the installed copy with `read_file`: first `~/.gemini/config/skills/readme-studio/SKILL.md`, then `.agents/skills/readme-studio/SKILL.md` in the workspace.
 2. **Found.** Read it and follow it for this task; its folder is the root for every relative path it names. It was written for agy and needs no LitGravity hook: every check it names is a command it tells you to run.
-3. **Not found, asked directly.** Reply in a few lines: what readme-studio did, that it moved to wjgoarxiv-skills (`variants/litgravity/readme-studio/`), the install line above, and that you made nothing yet. A plain README edit the user asks for by line can still be made directly; a new or refreshed README from this skill cannot.
+3. **Not found, asked directly.** Reply in a few lines: what readme-studio did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/readme-studio/`), the install line above, and that you made nothing yet. A plain README edit the user asks for by line can still be made directly; a new or refreshed README from this skill cannot.
 4. **Not found, inside a workflow.** Inside a lit workflow (lit-loop, litwork, start-work, review-work) that reached this skill, write `readme-studio not installed` once in the ledger and the reply with the install line, finish the parts that need no README, and mark the part that needs it BLOCKED, not done.
 
 ## Hard stops

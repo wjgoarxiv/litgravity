@@ -1,11 +1,11 @@
 ---
 name: lit-schematic
-description: "P&ID, PFD, equipment layout, apparatus figure and isometric cutaway drawings. Moved to wjgoarxiv-skills: this stub loads the installed copy, or gives the agy install line."
+description: "P&ID, PFD, equipment layout, apparatus figure and isometric cutaway drawings. A LitFamily extension in wjgoarxiv-skills: this stub loads the installed copy, or gives the agy install line."
 ---
 
-# lit-schematic: moved to wjgoarxiv-skills
+# lit-schematic: a LitFamily extension in wjgoarxiv-skills
 
-lit-schematic drew physical schematics of real hardware: P&IDs with ISA-5.1 tags, PFDs, equipment layouts, journal apparatus figures and isometric cutaways, as editable SVG with a QA gate and a 600 dpi render. It no longer ships inside LitGravity. The whole skill folder now lives in the separate wjgoarxiv-skills repository at `variants/litgravity/lit-schematic/`, a copy written for agy, so a LitGravity install stays small and anyone who wants a schematic copies in this one folder.
+lit-schematic drew physical schematics of real hardware: P&IDs with ISA-5.1 tags, PFDs, equipment layouts, journal apparatus figures and isometric cutaways, as editable SVG with a QA gate and a 600 dpi render. It no longer ships inside LitGravity. It is a LitFamily extension now, and the whole skill folder lives in the separate wjgoarxiv-skills repository at `variants/litgravity/lit-schematic/`, a copy written for agy, so a LitGravity install stays small and anyone who wants a schematic copies in this one folder.
 
 This file keeps the id. `lit schematic …`, `lit pid …`, `lit pfd …`, `lit cutaway …`, `lit` prompts with 공정도, 계장도, 모식도 or 장치도, and `/litgravity:lit-schematic` still land here, and the steps below take it from there.
 
@@ -25,7 +25,7 @@ The folder is the whole skill, with its own scripts, references and engine locks
 
 1. Look for the installed copy with `read_file`: first `~/.gemini/config/skills/lit-schematic/SKILL.md`, then `.agents/skills/lit-schematic/SKILL.md` in the workspace.
 2. **Found.** Read it and follow it for this task; its folder is the root for every relative path it names. It was written for agy and needs no LitGravity hook: every check it names is a command it tells you to run.
-3. **Not found, asked directly.** Reply in a few lines: what lit-schematic did, that it moved to wjgoarxiv-skills (`variants/litgravity/lit-schematic/`), the install line above, and that you made nothing yet. Do not draw the schematic another way in its place (a hand-written SVG, a box-and-arrow diagram).
+3. **Not found, asked directly.** Reply in a few lines: what lit-schematic did, that it is a LitFamily extension now, kept in wjgoarxiv-skills (`variants/litgravity/lit-schematic/`), the install line above, and that you made nothing yet. Do not draw the schematic another way in its place (a hand-written SVG, a box-and-arrow diagram).
 4. **Not found, inside a workflow.** Inside a lit workflow (lit-loop, litwork, start-work, review-work) that reached this skill, write `lit-schematic not installed` once in the ledger and the reply with the install line, finish the parts that need no schematic, and mark the part that needs it BLOCKED, not done.
 
 ## Hard stops
