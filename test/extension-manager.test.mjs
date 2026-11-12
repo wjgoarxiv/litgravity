@@ -1,4 +1,6 @@
-import test from 'node:test';
+import test, { mock } from 'node:test';
+import fs from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -299,6 +301,15 @@ test('a destination that is a symbolic link, or a skills root behind one, fails 
   const r2 = await ext(s2, ['install', 'lit-docx'], { from: shelf, yes: true });
   assert.equal(r2.code, 1, r2.text);
   assert.deepEqual(readdirSync(real), []);
+
+  const s3 = setup();
+  const away = mkdtempSync(join(tmpdir(), 'litgravity-away-'));
+  mkdirSync(join(s3.cwd, '.agents'), { recursive: true });
+  symlinkSync(away, join(s3.cwd, '.agents', '.litgravity-staging'));
+  const r3 = await ext(s3, ['install', 'lit-docx'], { from: shelf, yes: true, project: true });
+  assert.equal(r3.code, 1, r3.text);
+  assert.match(r3.text, /\.litgravity-staging is a symbolic link/);
+  assert.deepEqual(readdirSync(away), []);
 });
 
 test('check: clean exits 0; a copy without a receipt or with a vanished source exits 1 with its fix', async () => {
@@ -356,4 +367,107 @@ test('existing users: an install that finds an old copy without a receipt adds o
   const out2 = collect();
   await install({ env: clean.env, flags: { yes: true, scope: 'user' }, cwd, print: out2.print });
   assert.doesNotMatch(out2.text(), /extensions check` found/, 'a clean machine gets no extra line');
+});
+
+// Review fixes. `renameSync` is swapped on the CommonJS fs object and synced into the ESM bindings, so a test can make
+// one rename fail without a seam in the module.
+async function withFailingRename(fails, fn) {
+  const calls = [];
+  const real = fs.renameSync;
+  mock.method(fs, 'renameSync', (from, to) => {
+    calls.push({ from: String(from), to: String(to) });
+    if (fails(String(from), String(to))) throw Object.assign(new Error('simulated rename failure'), { code: 'EIO' });
+    return real(from, to);
+  });
+  syncBuiltinESMExports();
+  try {
+    return { result: await fn(), calls };
+  } finally {
+    mock.restoreAll();
+    syncBuiltinESMExports();
+  }
+}
+
+test('the staging copy sits outside every folder agy loads: under the backups (user) or beside skills/ (project)', async () => {
+  const s = setup();
+  const shelf = fakeShelf();
+  const scanned = [join(s.cwd, '.agents', 'skills'), join(s.cwd, '_agents', 'skills'), s.user, join(s.home, '.gemini', 'skills')];
+  const inside = (p) => scanned.some((f) => p === f || p.startsWith(`${f}/`));
+  for (const [flags, root] of [[{}, join(s.backups, '.staging')], [{ project: true }, join(s.cwd, '.agents', '.litgravity-staging')]]) {
+    const dest = join(flags.project ? join(s.cwd, '.agents', 'skills') : s.user, 'lit-pptx');
+    const { result, calls } = await withFailingRename((_from, to) => to === dest, () => ext(s, ['install', 'lit-pptx'], { from: shelf, yes: true, ...flags }));
+    assert.equal(result.code, 1, result.text);
+    const staged = calls.find((c) => c.to === dest).from;
+    assert.ok(!inside(staged), `staged inside a scanned folder: ${staged}`);
+    assert.ok(staged.startsWith(`${root}/`), `staged at ${staged}, expected under ${root}`);
+    assert.ok(!existsSync(staged) && !existsSync(root), 'the staging folder is cleaned up');
+  }
+  const r = await ext(s, ['install', 'lit-pptx'], { from: shelf, yes: true });
+  assert.equal(r.code, 0, r.text);
+  assert.deepEqual(backupsOf(s), [], 'a clean install leaves no staging folder behind');
+});
+
+test('a failed final rename puts the old copy back, and a multi-id run names the ids already done', async () => {
+  const s = setup();
+  const shelf = fakeShelf('new');
+  skill(join(s.user, 'lit-docx'), 'lit-docx', 'OLD COPY');
+  const dest = join(s.user, 'lit-docx');
+  // Only the staged copy's rename fails; putting the old copy back from its dated backup still works.
+  const { result } = await withFailingRename((from, to) => to === dest && !/extension-backups\/\d{8}-/.test(from), () => ext(s, ['install', 'lit-pptx', 'lit-docx'], { from: shelf, yes: true }));
+  assert.equal(result.code, 1, result.text);
+  assert.match(readFileSync(join(dest, 'SKILL.md'), 'utf8'), /OLD COPY/, 'the old copy is back in place');
+  assert.match(result.text, /lit-docx is unchanged/);
+  assert.match(result.text, /Already done: lit-pptx/);
+  assert.ok(existsSync(join(s.user, 'lit-pptx', RECEIPT)));
+});
+
+test('update --yes writes no receipt when a planned copy stops, and rewrites a moved source atomically otherwise', async () => {
+  const s = setup();
+  const a = fakeShelf('v1', ['lit-pptx', 'lit-docx']);
+  await ext(s, ['install', 'lit-pptx', 'lit-docx'], { from: a, yes: true });
+  const b = fakeShelf('v1', ['lit-pptx', 'lit-docx']);
+  writeFileSync(join(b, 'variants', 'litgravity', 'lit-pptx', 'references', 'guide.md'), 'guide v2\n');
+  const mine = skill(join(s.home, '.gemini', 'skills', 'my-pptx'), 'lit-pptx');
+  const docxReceipt = join(s.user, 'lit-docx', RECEIPT);
+  const before = readFileSync(docxReceipt, 'utf8');
+  const stopped = await ext(s, ['update'], { from: b, yes: true });
+  assert.equal(stopped.code, 1, stopped.text);
+  assert.match(stopped.text, /Stopped before writing anything/);
+  assert.equal(readFileSync(docxReceipt, 'utf8'), before, 'the receipt-only rewrite waited for the plan');
+
+  fs.rmSync(mine, { recursive: true });
+  const ok = await ext(s, ['update'], { from: b, yes: true });
+  assert.equal(ok.code, 0, ok.text);
+  assert.equal(JSON.parse(readFileSync(docxReceipt, 'utf8')).source, join(b, 'variants', 'litgravity', 'lit-docx'));
+  assert.deepEqual(readdirSync(join(s.user, 'lit-docx')).sort(), [RECEIPT, 'SKILL.md', 'references'].sort(), 'no temp receipt left');
+});
+
+test('prune-backups --older-than with no value exits 2 and deletes nothing', () => {
+  const s = setup();
+  const kept = join(s.backups, '20200101-000000', 'lit-pptx');
+  mkdirSync(kept, { recursive: true });
+  for (const argv of [['--yes', '--older-than'], ['--older-than', '--yes']]) {
+    const r = spawnSync(process.execPath, [join(ROOT, 'bin', 'litgravity.mjs'), 'extensions', 'prune-backups', ...argv], { env: s.env, cwd: s.cwd, encoding: 'utf8' });
+    assert.equal(r.status, 2, r.stdout + r.stderr);
+    assert.match(r.stdout, /--older-than takes a number of days/);
+    assert.ok(existsSync(kept));
+  }
+});
+
+test('treeHash hashes a link by its target, so the same skill hashes the same wherever it lives', () => {
+  const make = (target) => {
+    const dir = mkdtempSync(join(tmpdir(), 'litgravity-hash-'));
+    writeFileSync(join(dir, 'SKILL.md'), 'x\n');
+    symlinkSync(target, join(dir, 'link'));
+    return dir;
+  };
+  assert.equal(treeHash(make('SKILL.md')).hash, treeHash(make('SKILL.md')).hash);
+  assert.notEqual(treeHash(make('SKILL.md')).hash, treeHash(make('other.md')).hash);
+});
+
+test('update of an id that is not installed exits 1', async () => {
+  const s = setup();
+  const r = await ext(s, ['update', 'lit-pptx'], { from: fakeShelf() });
+  assert.equal(r.code, 1, r.text);
+  assert.match(r.text, /lit-pptx: not installed/);
 });
