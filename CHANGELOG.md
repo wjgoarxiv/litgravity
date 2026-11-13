@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.10 — 2026-11-14
 
 - New `litgravity extensions` command, so the four install lines no longer have to be pasted by hand. It writes nothing until you add `--yes`; without it, it prints which folder moves where.
   - `extensions install <id...>` (or `--family <name>`, `--all`; `--project` for `.agents/skills`) looks for another skill with the same name in every folder agy 1.5.6 loads and stops, naming its path, when there is one (`--allow-shadow` installs anyway and only warns). It moves an existing copy whole into `~/.gemini/extension-backups/<stamp>[-project]/<id>`, copies the skill in through a temporary folder so a failed copy changes nothing, and writes the receipt. The temporary folder sits outside every folder agy loads (`~/.gemini/extension-backups/.staging` for user scope, `.agents/.litgravity-staging` beside a workspace's `skills/`), so a copy cut short by Ctrl-C never appears as a second skill with the same name; if the last step fails, the old copy is put back and the ids already installed are named. The receipt keeps the four keys of the hand lines and adds `scope`, `hash`, `files`, `source_commit` and `installed_by`.
@@ -19,6 +19,7 @@
   To update, run the same lines again; to remove, run the second line alone. Nothing deletes. LitGravity's own install and update still write only the plugin folder, so they leave the extension and its receipt alone.
 - When the global rule file `~/.gemini/config/rules/litgravity.md` holds text LitGravity did not write, or was edited, the refusal used to suggest moving it to `litgravity.md.saved-<date>` inside agy's rules folder, which agy and its agent read. It now suggests `~/.local/share/litgravity/saved/rules-litgravity-<time>.md` (`$XDG_DATA_HOME/litgravity/saved/`), outside every folder agy reads.
 - The nine stub budgets in `skills.lock.json` grew to fit the new lines (7,000-byte ceiling, 4,800-byte floor).
+- Both READMEs are shorter and easier to scan. The status line, hand install, agent prompt and limit details moved to `docs/reference.md` (and `docs/reference_ko-KR.md`), run-on paragraphs are split, Quick start points at Install, and the update line is there.
 
 ## 0.1.9 — 2026-11-11
 
