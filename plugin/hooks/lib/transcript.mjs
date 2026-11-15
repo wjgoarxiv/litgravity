@@ -25,6 +25,26 @@ export function extractRequest(content) {
   return (m ? m[1] : content).trim();
 }
 
+// The text of the newest model reply that has any, or null.
+export function lastModelText(transcriptPath) {
+  if (typeof transcriptPath !== 'string' || !transcriptPath) return null;
+  let text;
+  try {
+    text = tailText(transcriptPath);
+  } catch {
+    return null;
+  }
+  const lines = text.split('\n');
+  for (let i = lines.length - 1; i >= 0; i -= 1) {
+    if (!lines[i].includes('"PLANNER_RESPONSE"')) continue;
+    try {
+      const rec = JSON.parse(lines[i]);
+      if (rec?.type === 'PLANNER_RESPONSE' && typeof rec.content === 'string' && rec.content.trim()) return rec.content.trim();
+    } catch { /* partial line */ }
+  }
+  return null;
+}
+
 // {text, stepIndex} of the newest user prompt, or null when the transcript is absent or has none.
 export function lastUserRequest(transcriptPath) {
   if (typeof transcriptPath !== 'string' || !transcriptPath) return null;

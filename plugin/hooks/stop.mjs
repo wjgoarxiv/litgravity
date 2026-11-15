@@ -8,6 +8,8 @@ import { makeBudget, readTranscriptLines, waitingReason } from './lib/rewind/tra
 import { writeNextStep } from './lib/rewind/next-step.mjs';
 import { uncoveredPaths } from '../skills/lit-plan/scripts/check-plan.mjs';
 import { markLive } from './lib/liveness.mjs';
+import { saveAutoHandoff } from './lib/auto-handoff.mjs';
+import { recordRunEnd } from './lib/shown.mjs';
 
 // The newest plans/*.md written since the route started, as `plans/<name>.md`, or null.
 function planWrittenSince(cwd, since) {
@@ -31,6 +33,7 @@ function settle(payload, out) {
   if (!state || state.corrupt || !state.route) return out;
   const lines = readTranscriptLines(payload.transcriptPath, makeBudget(WAIT_READ_BYTES), { head: 0, tail: WAIT_READ_BYTES });
   const reason = waitingReason(lines);
+  recordRunEnd(payload, state, Boolean(reason));
   if (reason || state.waiting) writeSession(payload, { ...state, waiting: reason ? { reason, at: Date.now() } : null });
   return out;
 }
@@ -40,6 +43,8 @@ function settle(payload, out) {
 // holds are bounded by continuation.mjs. Only a normal end of turn is held: errors, cancellations and limits end.
 run((payload) => {
   const finish = (r) => {
+    // agy has no compaction hook, so the note a fresh conversation resumes from is saved at every turn end, held or not.
+    saveAutoHandoff(payload);
     // A held turn goes on; any other end leaves the conversation idle until the next tool call.
     if (r?.decision !== 'continue') {
       try { markLive(workspaceOf(payload), payload.conversationId, 'idle'); } catch { /* liveness never blocks */ }

@@ -86,7 +86,7 @@ function isLink(p) {
 
 // State lives in real directories only: a `.litgravity` (or subdirectory) that is a link, for example one shipped in a
 // cloned repository, would send the hook's writes somewhere else, so the write is skipped.
-function realStateDir(payload, sub) {
+export function realStateDir(payload, sub) {
   const top = join(workspaceOf(payload), '.litgravity');
   for (const dir of [top, join(top, sub)]) {
     try {

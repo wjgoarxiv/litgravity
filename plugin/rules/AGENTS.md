@@ -18,7 +18,7 @@ LitGravity agents are started with `invoke_subagent` by their type name: lit-pla
 ## Workspace state
 
 - Plans: `plans/<slug>.md`, task rows at column zero as `- [ ] N. <title>`. A lit-plan turn is planning only: product files stay untouched and the turn ends once the plan file exists.
-- Everything else is under `.litgravity/`: goals `goals/<slug>.json`, the ledger `ledger/<conversation>.jsonl` (the hooks append tool events while a route is active; add your own note, evidence and decision lines), evidence `evidence/<slug>/`, handoffs `handoff/latest.md`, wiki `wiki/`.
+- Everything else is under `.litgravity/`: goals `goals/<slug>.json`, the ledger `ledger/<conversation>.jsonl` (the hooks append tool events while a route is active; add your own note, evidence and decision lines), evidence `evidence/<slug>/`, handoffs `handoff/latest.md` (yours) and `handoff/auto.md` (saved by a hook when a turn ends), the list of notices already shown `shown/notices.jsonl` (hook-owned), wiki `wiki/`.
 - Route state belongs to the hooks and lives outside the workspace; tools cannot write it.
 
 ## Reader-facing replies

@@ -116,7 +116,8 @@ agy loads only the first 24,000 bytes of a `SKILL.md`, so each of the 33 dense s
 <details>
 <summary>The six hook events</summary>
 
-- SessionStart adds the LitGravity route list, an update notice and a pointer to a fresh handoff note, once per new conversation.
+- SessionStart adds the LitGravity route list, the newest handoff note (cut to 6,000 characters) and an update notice, once per new conversation. An update notice or the `lit adhd` nudge is not repeated in a project that already saw it (`.litgravity/shown/notices.jsonl`).
+- Stop saves `.litgravity/handoff/auto.md` at every turn end of a conversation a lit route has touched: the last request, the plan row that is next, the open goal criterion and the tail of the last reply. This replaces the compaction event agy lacks. `LITGRAVITY_AUTO_HANDOFF=0` turns the save and the full-note carry off; SessionStart then points at `latest.md` as before.
 - PreInvocation is the `lit` router. agy has no prompt hook, so on the first model call of a turn the router reads the newest prompt from the transcript, applies the re-entry rule and injects one step that names the skill file to read.
 - PostInvocation and Stop run the checks that agy cannot run in advance (see [the limits](#what-agy-limits-today)). Stop also holds an unfinished turn, as [Held turns](#held-turns-and-the-ledger) describes.
 - PreToolUse refuses child agents that could write while lit-plan is active.

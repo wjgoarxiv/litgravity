@@ -116,7 +116,8 @@ agy는 `SKILL.md`의 앞 24,000바이트만 불러오므로, 필요할 때 읽�
 <details>
 <summary>훅 이벤트 6개</summary>
 
-- SessionStart는 새 대화가 시작될 때 한 번, LitGravity 경로 목록과 업데이트 알림, 최근 인계 메모 위치를 알려 줍니다.
+- SessionStart는 새 대화가 시작될 때 한 번, LitGravity 경로 목록과 가장 최근 인계 메모(6,000자까지), 업데이트 알림을 알려 줍니다. 업데이트 알림과 `lit adhd` 안내는 프로젝트마다 한 번만 나옵니다(`.litgravity/shown/notices.jsonl`).
+- Stop 훅은 lit 경로가 한 번이라도 지나간 대화의 턴이 끝날 때마다 `.litgravity/handoff/auto.md`를 저장합니다. 마지막 요청, 다음 계획 행, 열려 있는 목표 기준, 마지막 답의 끝부분이 담깁니다. agy에 없는 압축 이벤트를 대신하는 장치입니다. `LITGRAVITY_AUTO_HANDOFF=0`이면 저장과 전체 메모 전달이 꺼지고, SessionStart는 예전처럼 `latest.md`만 가리킵니다.
 - PreInvocation은 `lit` 라우터입니다. agy에는 프롬프트 훅이 없으므로, 한 턴의 첫 모델 호출에서 라우터가 대화 기록의 가장 최근 프롬프트를 읽고, 다시 진입 규칙을 적용한 뒤, 읽을 스킬 파일을 알리는 단계 하나를 끼워 넣습니다.
 - PostInvocation과 Stop은 agy가 미리 실행할 수 없는 검사를 맡습니다([한계](#지금-agy가-막아-두는-것) 참고). Stop은 끝나지 않은 턴도 붙잡으며, 자세한 내용은 [붙잡힌 턴](#붙잡힌-턴과-ledger)에 있습니다.
 - PreToolUse는 lit-plan이 켜져 있는 동안 쓰기가 가능한 하위 에이전트를 거절합니다.
