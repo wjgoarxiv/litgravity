@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.11 — 2026-11-16
 
 - The handoff is saved for you. agy has no compaction event, so the Stop hook now writes `.litgravity/handoff/auto.md` at every turn end of a conversation a lit route has touched (the last request, the next plan row, the open goal criterion, the tail of the last reply; credentials redacted), and a new conversation's SessionStart carries the newest of that note and `latest.md` whole instead of only pointing at `latest.md`. It is on by default; `LITGRAVITY_AUTO_HANDOFF=0` turns both halves off and restores the pointer.
 - A notice is no longer repeated in a project that already saw it. The update notice (per release), the extensions notice and the `lit adhd` nudge are recorded in `.litgravity/shown/notices.jsonl`; a missing or corrupt record shows them as before. The same file gets one `run-end` line (`waiting`, `nothing` or `sent`) when a start-work, lit-loop or litgoal turn ends.
