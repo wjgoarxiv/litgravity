@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.12 — 2026-11-18
 
 - One prompt can start more than one skill. The router collects every skill whose words match the task, three at most, and the activation note lists them with the first as the lead; a moved skill you have not installed comes with its install line. `lit +x +y <task>` names them yourself.
 - New `ultra-brainstorm` skill. It prints the quota cost, asks how many idea agents to start (100 or more), then runs them on the cheapest model tier through one `run_workflow` script, with reducers and one judge, and ends on a top list and one question. Its cost line is a range calibrated on a real 100-agent run on agy 1.5.10 (about 28k tokens per idea agent, the system and tool prompt every workflow agent carries; 3.4M for the run): 100 agents ≈ 3.0M-4.8M tokens. A picked option label such as `(Recommended) 100 (recommended minimum)` now reads as 100. Without `run_workflow` it falls back to batched subagents, and without either it reports BLOCKED and offers `lit brainstorm`.
