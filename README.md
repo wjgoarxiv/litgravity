@@ -28,7 +28,7 @@ What ignition looks like, captured from the real hook and status line on this Ma
 1. [Install LitGravity](#install), then open agy in a project. Type `/skills` to see the LitGravity skills and `/hooks` to see the plugin's hooks.
 2. Start a prompt with `lit`. The word after it picks the route, as the table below shows.
 3. Approve a plan, then `lit start plans/<slug>.md` builds it row by row with tests.
-4. Before you stop, `lit handoff`. Next time, `lit recap` reads where you were.
+4. Before you stop, `lit handoff`. Next time, `lit adhd` tells you the one thing to do now.
 
 ```text
 you type    lit plan a tiny todo app
@@ -40,7 +40,8 @@ it ends     "Plan saved. Run `lit start plans/todo-app.md` when you are happy wi
 |---|---|
 | `lit` | Runs the default loop, or picks up a plan you started with `lit start` |
 | `lit` while its route is already active | A short "continues" note |
-| `lit plan`, `lit review`, `lit research`, `lit debug`, `lit handoff`, `lit recap`, `lit brainstorm`, `lit korean` | Picks that route |
+| `lit plan`, `lit review`, `lit research`, `lit debug`, `lit handoff`, `lit adhd`, `lit brainstorm`, `lit team`, `lit korean` | Picks that route |
+| `lit +x +y <task>` | Runs the skills you name, the first one leading |
 | `lit <other route>` | Switches |
 | Any skill id as that word (`lit debugging`, `lit structural-search`) | Runs that skill; `/litgravity:<skill-id>` does the same as a slash command |
 | `lit new` | Starts over |
@@ -203,6 +204,18 @@ agy gives a plugin no hook on the prompt itself, so the PreInvocation hook steer
 - **`lit start`** builds the plan, checked with tests and a look at the real surface. Whatever nobody could check is marked as unverified.
 - **`lit review`** checks the result in five lanes.
 - **`lit handoff`** writes `.litgravity/handoff/latest.md` with what was built, how it was checked and what is left. The SessionStart hook of your next conversation points to it.
+
+### Five things a turn does for you
+
+A single prompt often asks for more than one kind of work. `lit explain the export code and draw its data flow` needs the explainer and the diagram, so the router collects every skill whose words match, up to three, and the activation note lists them in order with the first marked as the lead. A skill that moved to wjgoarxiv-skills is listed only when you installed it; otherwise the note carries the one line that installs it. When the router guesses wrong, name the skills yourself: `lit +comprehend +diagram <task>`.
+
+Some questions deserve more than one head. `ultra-brainstorm <topic>` first prints what the run will cost in quota and asks how many idea agents to start (100 is the floor it suggests). On your number it writes one `run_workflow` script: hundreds of small agents on agy's cheapest model tier each look at the topic through a different lens, reducers fold their ideas into clusters, and one judge scores the clusters. You get a top list and one question. On a build without `run_workflow` it says it is blocked and offers `lit brainstorm`.
+
+`lit team <goal>` makes this conversation the team lead. It splits the goal, decides by itself whether the slices run as subagents, as one workflow, as herdr panes (only inside herdr, with `herdr` on PATH) or in separate worktrees when they touch the same files, then briefs, watches, merges, verifies and gives you one short report. Members never commit.
+
+A plan now says when it is done in a form a machine can check: a `## Done when` block with one command such as `npm test`. At approval lit-plan compiles it into a goal sentence, refuses vague words and outward-only steps, runs the command once to prove the goal is false today, and asks `Approve plan, start work and set goal: /goal <cond>? (yes / edit / no)`. Your `yes` does both at once: the hook starts start-work on that plan and arms the goal. When the check cannot become a goal, the question shrinks to `Approve plan and start work? (yes / no)` with one line saying why. If the start is refused (the plan is gone, or this conversation already runs start-work), no goal is armed either. A hook cannot type agy's own `/goal`, so the reply gives you that line to paste, and LitGravity checks the same condition at every turn end and tells you when it is met. `lit cancel` clears a goal LitGravity armed and never one you set yourself.
+
+`lit adhd` now answers with one card of about six lines: what changed since you last looked, the one thing to do now, the exact words to type, why, and how much of the record it read. A claimed finish never counts as done; only a commit or a fully ticked plan does. `lit adhd detail` keeps the old board, and `lit adhd recap [session]` is where `lit recap` went (that word still works and says it moved).
 
 ### What a planning turn may do
 

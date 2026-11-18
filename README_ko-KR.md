@@ -28,7 +28,7 @@
 1. [LitGravity를 설치](#설치)한 뒤 프로젝트에서 agy를 엽니다. `/skills`로 LitGravity 스킬을, `/hooks`로 플러그인의 훅을 볼 수 있습니다.
 2. 프롬프트를 `lit`으로 시작합니다. 뒤에 오는 단어가 경로를 고르며, 아래 표에 정리했습니다.
 3. 계획을 승인한 뒤 `lit start plans/<slug>.md`를 실행하면 계획의 행을 하나씩 테스트와 함께 만들어 갑니다.
-4. 멈추기 전에 `lit handoff`. 다음에는 `lit recap`이 어디까지 했는지 읽어 줍니다.
+4. 멈추기 전에 `lit handoff`. 다음에는 `lit adhd`가 지금 할 일 하나를 알려 줍니다.
 
 ```text
 입력      lit plan a tiny todo app
@@ -40,7 +40,8 @@
 |---|---|
 | `lit` | 기본 루프가 돌거나, `lit start`로 시작해 둔 계획을 이어받습니다 |
 | 경로가 이미 켜진 상태에서 다시 `lit` | 짧은 "이어 갑니다" 메모만 갑니다 |
-| `lit plan`, `lit review`, `lit research`, `lit debug`, `lit handoff`, `lit recap`, `lit brainstorm`, `lit korean` | 그 경로를 고릅니다 |
+| `lit plan`, `lit review`, `lit research`, `lit debug`, `lit handoff`, `lit adhd`, `lit brainstorm`, `lit team`, `lit korean` | 그 경로를 고릅니다 |
+| `lit +x +y <task>` | 이름을 댄 스킬을 돌리고, 첫 번째가 주 스킬입니다 |
 | `lit <다른 경로>` | 경로를 바꿉니다 |
 | 그 자리에 쓴 스킬 id(`lit debugging`, `lit structural-search`) | 그 스킬을 실행합니다. `/litgravity:<스킬-id>`는 같은 일을 슬래시 명령으로 합니다 |
 | `lit new` | 처음부터 다시 시작합니다 |
@@ -203,6 +204,18 @@ agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로,
 - **`lit start`** 는 계획대로 만들고, 테스트와 실제 화면 확인으로 검증합니다. 아무도 확인하지 못한 부분은 미확인으로 표시합니다.
 - **`lit review`** 는 결과를 다섯 레인으로 검토합니다.
 - **`lit handoff`** 는 무엇을 만들었고 어떻게 확인했고 무엇이 남았는지 `.litgravity/handoff/latest.md`에 적습니다. 다음 대화의 SessionStart 훅이 그 메모를 가리켜 줍니다.
+
+### 한 턴이 대신 해 주는 다섯 가지
+
+프롬프트 하나에 일이 여러 가지 섞여 있을 때가 많습니다. `lit explain the export code and draw its data flow`에는 설명 스킬과 다이어그램 스킬이 둘 다 필요합니다. 그래서 라우터는 말이 맞는 스킬을 세 개까지 모두 모으고, 활성화 메모에 순서대로 적으며 첫 번째를 주 스킬로 표시합니다. wjgoarxiv-skills로 옮겨 간 스킬은 설치했을 때만 목록에 오르고, 설치하지 않았다면 설치하는 한 줄이 대신 붙습니다. 라우터가 잘못 고르면 직접 이름을 대면 됩니다: `lit +comprehend +diagram <task>`.
+
+머리 하나로는 모자란 질문도 있습니다. `ultra-brainstorm <주제>`는 먼저 이번 실행이 할당량을 얼마나 쓸지 보여 주고, 아이디어 에이전트를 몇 개 띄울지 묻습니다(권하는 최소는 100개). 숫자를 답하면 `run_workflow` 스크립트 하나를 씁니다. agy의 가장 싼 모델 등급에서 작은 에이전트 수백 개가 저마다 다른 렌즈로 주제를 보고, 정리 에이전트가 아이디어를 묶음으로 합치고, 심사 에이전트 하나가 묶음에 점수를 매깁니다. 받는 것은 상위 목록과 질문 하나입니다. `run_workflow`가 없는 빌드에서는 막혔다고 말하고 `lit brainstorm`을 권합니다.
+
+`lit team <목표>`를 치면 이 대화가 팀장이 됩니다. 목표를 나누고, 조각을 서브에이전트로 돌릴지, 워크플로 하나로 돌릴지, herdr 창으로 돌릴지(herdr 안에서 `herdr`가 PATH에 있을 때만), 같은 파일을 만지면 작업 트리를 따로 쓸지 스스로 정합니다. 그다음 지시를 쓰고, 지켜보고, 합치고, 확인한 뒤 짧은 보고 하나를 줍니다. 팀원은 커밋하지 않습니다.
+
+이제 계획은 끝났는지를 기계가 확인할 수 있는 모양으로 적습니다. `## Done when` 블록에 `npm test` 같은 명령 하나를 씁니다. 승인할 때 lit-plan이 이를 목표 문장으로 바꾸고, 애매한 말과 바깥으로 내보내기만 하는 단계는 거절하고, 명령을 한 번 돌려 지금은 목표가 거짓임을 확인한 뒤 `Approve plan, start work and set goal: /goal <cond>? (yes / edit / no)`라고 묻습니다. `yes` 한 번이면 둘 다 됩니다. 훅이 그 계획으로 start-work를 시작하고 목표를 겁니다. 확인 명령을 목표로 만들 수 없으면 질문이 `Approve plan and start work? (yes / no)`로 줄고, 왜 그런지 한 줄이 붙습니다. 시작이 거절되면(계획이 없거나 이 대화가 이미 start-work를 돌리는 중) 목표도 걸리지 않습니다. 훅은 agy의 `/goal`을 대신 칠 수 없어서 답장에 붙여 넣을 한 줄을 주고, LitGravity는 턴이 끝날 때마다 같은 조건을 확인해 달성되면 알려 줍니다. `lit cancel`은 LitGravity가 건 목표만 지우고, 직접 건 목표는 건드리지 않습니다.
+
+`lit adhd`는 이제 여섯 줄쯤 되는 카드 하나로 답합니다. 지난번 이후 바뀐 것, 지금 할 일 하나, 그대로 칠 말, 이유, 기록을 얼마나 읽었는지가 들어 있습니다. 끝났다는 말만으로는 끝난 것으로 치지 않고, 커밋이나 줄이 모두 체크된 계획만 셉니다. 예전 보드는 `lit adhd detail`에 있고, `lit recap`이 하던 일은 `lit adhd recap [세션]`으로 옮겼습니다(예전 말도 아직 통하고 옮겼다고 알려 줍니다).
 
 ### 계획 턴이 할 수 있는 일
 

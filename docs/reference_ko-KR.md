@@ -69,3 +69,10 @@ printf '{"id":"%s","source":"%s","variant":"litgravity","installed_at":"%s"}\n' 
 - **Starter Quota.** 모델 호출은 모두 계정 할당량에서 차감됩니다. 그래서 테스트와 확인은 비용이 들지 않는 `agy plugin validate`와 `/hooks`, `/skills`, `/agents`를 쓰고, LitGravity를 만드는 동안 실제 호출은 몇 번에 그쳤습니다.
 - **압축 이벤트도, 슬래시 명령 폴더도, 플러그인의 MCP 서버도 아직 없습니다.** `lit-handoff`가 `.litgravity/handoff/latest.md`를 쓰고 새 대화가 그곳을 안내받습니다. 명령 역할은 스킬이 합니다(`/litgravity:<스킬-id>`). `wikify`는 스킬 안의 스크립트 하위 명령으로 돌아갑니다.
 - **lsp 도구가 없습니다.** `lsp`와 `lsp-setup` 스킬은 언어별 검사기를 명령줄에서 돌립니다.
+- **`/goal`과 `run_workflow` (1.5.10).** agy의 `/goal`은 대화형 프롬프트에만 있고, 훅은 슬래시 명령을 칠 수 없습니다. 그래서 걸린 계획 목표는 LitGravity의 Stop 훅이 턴이 끝날 때마다(최대 7초) 확인하고, 답장은 붙여 넣을 `/goal <cond>` 한 줄을 줍니다. `run_workflow`는 에이전트를 부르는 Python 스크립트를 돌립니다(`agent`, `parallel`, `pipeline`, 에이전트마다 모델 등급, 따로 떨어진 복제본을 쓰는 `workspace="branch"`). `ultra-brainstorm`과 `lit team`이 이것을 쓰고, 워크플로 에이전트는 사용자에게 아무것도 묻지 못합니다.
+
+## 스킬 계획, 목표 파일, adhd 커서
+
+- **스킬 계획.** 활성화 메모는 스킬을 세 개까지 적습니다. 첫 번째는 경로이고, 나머지는 작업에 쓰인 말에서 나옵니다(계통도, 영상, 발표 자료, 웹 페이지, 그림, 다이어그램, 설명서, crucible 점검). `.agents/skills/<id>`와 `~/.gemini/config/skills/<id>` 어디에도 없는 확장은 설치하는 줄과 함께 보입니다. `lit +a +b <task>`는 추측 대신 적은 이름을 적은 순서대로 씁니다. 스킬이 아닌 이름은 메모와 함께 빠집니다.
+- **목표 파일.** `.litgravity/goal/consent.json`은 물어본 조건을 30분 동안 들고 있고, `owner.json`은 `yes`에 따라 LitGravity가 건 목표를 적어 둡니다. 같은 `yes`가 그 계획으로 start-work도 시작하고, 시작이 거절되면 목표도 걸지 않습니다. 확인 명령을 목표로 만들 수 없는 계획은 `Approve plan and start work? (yes / no)`로 묻습니다. lit-plan의 질문만 목표를 걸 수 있고, 읽기 전용 스킬은 절대 걸지 않습니다. `lit cancel`과 달성된 확인은 `owner.json`을 지웁니다. 새 대화는 7일이 지났거나 계획이 사라진 기록을 지우고 한 번 알려 줍니다.
+- **adhd 커서.** `lit adhd`는 폴더마다 작은 파일 하나를 LitGravity 상태 폴더 아래(`adhd/<hash>.cursor.json`)에 둡니다. 카드를 그린 시각, 이미 본 완료, 보여 준 할 일이 들어 있습니다. 기본 카드만 커서를 옮깁니다. 망가진 커서는 처음 보는 것으로 읽습니다.
