@@ -5,6 +5,7 @@ import { SKILL_ROUTES } from './lib/routes.mjs';
 import { extensionNotice, litgravityData, takeExtensionNotice } from './lib/extensions.mjs';
 import { HANDOFF_MAX_AGE_MS, autoHandoffOn, handoffContext } from './lib/auto-handoff.mjs';
 import { noticeOnce } from './lib/shown.mjs';
+import { sweepGoal } from './lib/goal.mjs';
 
 const RECENT_SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -66,6 +67,9 @@ run((payload) => {
       // no handoff, no pointer
     }
   }
+  // A goal record a crashed conversation left behind (stale, or its plan is gone) is dropped here and named once.
+  const swept = payload.conversationId ? sweepGoal(ws) : null;
+  if (swept) parts.push(`LitGravity goal: tell the user this line once, in your first reply: ${swept}`);
   const env = payload.env ?? process.env;
   const nudge = 'This workspace has recent lit sessions. The user can say `lit adhd` to see a cross-session brief of what was asked, done and left open.';
   if (hasRecentLitSessions(ws, env) && noticeOnce(payload, 'adhd', nudge)) parts.push(nudge);

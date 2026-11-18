@@ -5,7 +5,7 @@ description: "Set, check or close a durable goal in .litgravity/goals with crite
 
 # litgoal
 
-litgoal SETS the goal and KEEPS the finish line; `lit-loop` and `start-work` RUN toward it. The goal record is the one file that tells any later conversation what was promised, what is proven and what is stuck, and this skill owns its schema and every operation on it. It mirrors the objective to the host's goal tool when one is offered, and it closes a goal only with a verdict backed by evidence on disk.
+litgoal SETS the goal and KEEPS the finish line; `lit-loop` and `start-work` RUN toward it. The goal record is the one file that tells any later conversation what was promised, what is proven and what is stuck, and this skill owns its schema and every operation on it. agy's own `/goal` stays the user's command (`references/host-goal-binding.md`), and this skill closes a goal only with a verdict backed by evidence on disk.
 
 Binding and judging live here. Implementation, test runs and evidence capture live in the running route. If you catch yourself writing production code under this skill, the goal is already set: hand the work to `lit-loop`.
 
@@ -28,7 +28,7 @@ Skip the record for a bounded task that finishes inside one conversation: `lit-l
 - Supporting files, read with `read_file` from this skill's folder:
   - `templates/goal.json`: the record skeleton.
   - `scripts/check-goal.mjs`: validates a record and tests its evidence on disk (`node "<skill-folder>/scripts/check-goal.mjs" .litgravity/goals/<slug>.json [--json]`; it writes nothing).
-  - `references/host-goal-binding.md`: the binding table for the host's goal tool, with the degraded path.
+  - `references/host-goal-binding.md`: how agy's own `/goal` and the record meet, and why this skill never calls it.
   - `references/close-gate.md`: the final quality gate for a `met` verdict and the shape of the closing reply.
 
 ### Schema
@@ -85,7 +85,7 @@ Field rules:
 - `criteria[].evidence`: repo-relative paths (usually under `.litgravity/evidence/<slug>/`) or ledger references written as `ledger:<conversation-id>#<line>`. The file name carries the kind: `-red`, `-green`, `-surface`, `-cleanup`.
 - `status`: `active`, `review_blocked` (an open blocker whose source is `review`), `needs_user_decision`, `blocked`, `done` or `dropped`.
 - `conversation_id`: the conversation that owns the Stop hold (see below).
-- `host_goal.state`: `created`, `adopted`, `conflict`, `unavailable` or `closed`; `synced` is the last time the host goal was touched.
+- `host_goal.state`: `paste` when the user pasted a plan's `/goal` line into agy, else `unavailable`; `synced` is when that was recorded.
 - `steering[]`: `{kind, directive, evidence, rationale, at}` entries.
 - `blockers[]`: `{id, source, detail, resolved}`; source is `qa`, `review` or `user`.
 - `verdict`: `null` while open; on close `{"result": "met" | "not met", "failing_criterion": "c2" | null, "reason": "...", "at": "<UTC ISO-8601>"}`.
@@ -108,7 +108,7 @@ Older records without the optional fields stay valid; read the missing ones as `
 4. **Pick the channel and the adversarial classes** per criterion: malformed input, prompt injection, cancel and resume, stale state, dirty worktree, hung or long commands, flaky tests, misleading success output, repeated interruptions. Record a one-line reason in the ledger for each class that does not apply.
 5. **Write the file** with `write_file`: every criterion `open`, goal `active`, `conversation_id` set, `verdict: null`.
 6. **Validate**: `run_command` with `node "<skill-folder>/scripts/check-goal.mjs" .litgravity/goals/<slug>.json` (a fresh record prints `PASS` with `0/N backed`), or the bare JSON parse `python3 -m json.tool .litgravity/goals/<slug>.json > /dev/null` when node is unavailable.
-7. **Bind the host goal** (`references/host-goal-binding.md`), then append a `decision` ledger line: `goal created: <slug>`.
+7. **Record the agy goal state** (`references/host-goal-binding.md`), then append a `decision` ledger line: `goal created: <slug>`.
 8. **Show** the criteria table and the record path, then hand off.
 
 ### update (record results)
@@ -156,7 +156,7 @@ Closing writes a verdict, and a verdict follows the check.
 - **not met** → `status: blocked` (or `needs_user_decision`), `verdict.result: "not met"`, `failing_criterion` set to the first criterion that is not `pass`, and `reason` naming why in one line. Keep the open criteria listed.
 - **dropped** → only on the user's explicit word; record their reason as a `decision` line and set `status: dropped`.
 
-After the file is written, close the host goal as the binding table says, and append a `decision` ledger line with the verdict.
+After the file is written, append a `decision` ledger line with the verdict; agy's own `/goal`, if the user set one, is theirs to clear.
 
 ### show and list
 
@@ -203,7 +203,7 @@ When a hold arrives, treat the named criterion as the next piece of work, or clo
 - `read_file` (older builds: `view_file`) and `rg` through `run_command` to load records and find evidence.
 - `write_file` (older builds: `write_to_file`) for whole-record writes; the goal directory is workspace state.
 - `run_command` for JSON validation and `test -e` checks, both offline. Headless runs auto-deny `run_command` unless agy runs in a permissive mode: then write the record by hand, say validation could not run, and keep the `BLOCKED` note short.
-- A host goal tool, when offered, is used as the binding reference describes; otherwise the record stands alone.
+- No goal tool: agy's `/goal` is the user's interactive command, and the record stands on its own.
 - `invoke_subagent` with `lit-verifier` (and `quality-reviewer` for the gate) when the agents are installed.
 - `ask_question` to confirm a criterion text change, a `dropped` close, a host-goal replacement or an ambiguous objective; where nobody can answer, write the question into the reply and stop with BLOCKED.
 
@@ -248,7 +248,7 @@ The user types `lit goal ship the csv export`. The route is `litgoal`; the activ
 1. Objective: "Users can export the report table as CSV from the CLI". Slug `csv-export-flag`. No record exists, so this is **set**.
 2. Criteria: `c1` happy path (the command above), `c2` edge (commas and newlines quoted), `c3` regression (the JSON export output is byte-identical to the stored fixture). The task touches no security surface, so no adversarial criterion; the ledger gets `decision: adversarial classes skipped: no untrusted input beyond table cells, covered by c2`.
 3. `write_file` creates `.litgravity/goals/csv-export-flag.json` with every criterion `open`; `check-goal.mjs` prints `PASS csv-export-flag 0/3 backed, canClose=false`.
-4. The host goal is bound or skipped as the binding table says, the reply shows the three-row table and the path, and the turn ends with "captured; `lit loop` runs it".
+4. `host_goal.state` stays `unavailable`, the reply shows the three-row table and the path, and the turn ends with "captured; `lit loop` runs it".
 5. Later `lit-loop` finishes `c1`: `c1-red.log`, `c1-green.log`, `c1-surface.log` (last line `cleanup: removed out.csv`). It re-reads the record, sets `c1` to `pass`, lists the three paths and appends an `evidence` line.
 6. **check** after `c2` finishes finds `c2-surface.log` missing, demotes `c2` to `open`, and the ledger says why. The Stop hook then names `c2` as the next piece of work.
 7. When all three are backed, the final gate runs, `status` becomes `done`, `verdict.result` is `met`, and the reply is `PASS`, the path and the line "CSV export verified on the real CLI".
@@ -261,7 +261,7 @@ The user types `lit goal ship the csv export`. The route is `litgoal`; the activ
 - Absolute paths in evidence; keep them repo-relative so the record survives a move.
 - Closing as `met` while a linked log shows a failure; read the tail of each log during **check**.
 - Two goals for the same objective under different slugs; search first.
-- Replacing a different active host goal without the user's word.
+- Telling the user to clear or replace an agy goal they set themselves.
 - Letting `host_goal.state` outrank the criteria.
 - Writing the record from a child agent or from a stale read.
 - Starting to implement under this skill; the running route does that.

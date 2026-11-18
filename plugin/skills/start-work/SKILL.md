@@ -160,7 +160,7 @@ When the last implementation row is ticked, the F rows run against the final tre
 | Gates, scenarios, read-only git | `run_command` (`CommandLine`, `Cwd`) | a long command returns early; read it with `command_status` and drive prompts with `send_command_input` |
 | Delegation | `invoke_subagent`, `send_message` | always with `TypeName`: `lit-executor`, `qa-runner`, `lit-verifier`, `quality-reviewer` |
 | Plan choice, approvals, scope changes | `ask_question` | unanswerable headless: the question goes in the reply, a default is logged and the run stops at the boundary |
-| Host goal | the host's goal tool when offered | optional, see the binding reference |
+| agy goal | the user's own `/goal`, never called by the model | see the binding reference |
 
 Tool names differ between agy builds, so use what the tool list offers. A headless `agy -p` run ends with no output when `run_command` is refused, so begin with `read_file`, ask for the permission a gate needs, and report BLOCKED when it is withheld. Skills load by reading their `SKILL.md` (`../lit-code/SKILL.md`, `../debugging/SKILL.md`, `../visual-qa/SKILL.md`, `../review-work/SKILL.md`, `../litgoal/SKILL.md`, `../lit-commit/SKILL.md` on request, `../lit-handoff/SKILL.md`). agy has no approval step for plugin skills, hooks or agents, and the skill never runs `agy plugin install`, `update` or `remove`.
 

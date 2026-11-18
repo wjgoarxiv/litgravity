@@ -219,10 +219,10 @@ test('lit adhd detail and 자세히 route to lit-adhd and hand the collector --d
   assert.ok(!detectRoute('lit adhd').detail);
   const { env } = sandbox();
   const ws = workspace();
-  assert.match(injected(turn(ws, env, 'lit adhd 자세히', 0)), /rewind\.mjs --brief --lang <ko\|en> --session conv-test-0001 --detail/);
+  assert.match(injected(turn(ws, env, 'lit adhd 자세히', 0)), /rewind\.mjs --brief --lang ko --session conv-test-0001 --detail/);
   const { env: env2 } = sandbox();
   const ws2 = workspace();
   const plain = injected(turn(ws2, env2, 'lit rewind', 0));
-  assert.match(plain, /rewind\.mjs --brief --lang <ko\|en> --session conv-test-0001/);
+  assert.match(plain, /rewind\.mjs --brief --lang ko --session conv-test-0001/);
   assert.ok(!/--detail/.test(plain));
 });

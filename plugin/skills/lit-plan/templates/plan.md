@@ -37,7 +37,7 @@ Scope roots: <absolute path> (<actions: read, write, execute>) -->
 - PIN: <mutable facts to re-read before acting: branch, versions, manifests, gate commands>
 - Dirty worktree (leave alone): <paths or none>
 - Approvals withheld: commit, push, publish, version bump (list any the user granted)
-- Active host goal at planning time: <what the goal tool reported, or "none / tool not offered">
+- Goal records at planning time: <what .litgravity/goal/ and .litgravity/goals/ hold, or "none">
 - Resume ledger: `.litgravity/ledger/<conversation-id>.jsonl`; evidence under `.litgravity/evidence/{{slug}}/`
 - Cleanup rules: <bounded to artifacts this plan creates>
 
@@ -95,6 +95,9 @@ Scope roots: <absolute path> (<actions: read, write, execute>) -->
 
 ## Success criteria
 - [ ] C001 | channel: <shell|http|browser|agy -p> | test: <path::test_id> | scenario: <user-visible outcome>
+
+## Done when
+- check: `<fill: one allowlisted command that exits 0 only when the work is done, such as npm test>`
 
 ## DoneClaim
 <fill: the outputs, gates, real-surface checks, cleanup receipts and approvals that must exist before completion may be claimed>

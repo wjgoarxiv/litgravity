@@ -117,7 +117,7 @@ On any verdict, go to SYNTHESIS. When the next round is the last, put the ENDGAM
 
 **12. Worktree disposition** (worktree mode). Ask with `ask_question`, no default: merge `conference/best` into the original branch (the Chair prints the exact command; the user decides and nothing is pushed), keep the worktrees for inspection, or delete the worktrees and branches this conference created (listed first). Headless runs keep them and say so.
 
-**13. Completion.** Append `conference.completed` with links to the synthesis and the report, run `review-work` over changed files and worktrees, then report rounds run, iterations, children and model calls used, best validated result, dissent and the synthesis path. Offer `lit-recap` or `lit-handoff`.
+**13. Completion.** Append `conference.completed` with links to the synthesis and the report, run `review-work` over changed files and worktrees, then report rounds run, iterations, children and model calls used, best validated result, dissent and the synthesis path. Offer `lit adhd recap` or `lit-handoff`.
 
 ## Turns, pauses and silence
 

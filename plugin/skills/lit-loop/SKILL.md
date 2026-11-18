@@ -96,7 +96,7 @@ Write criteria before editing anything. Each names a command or an observation o
 - Every criterion pairs with a failing automated check or reproduction, and with one real-surface channel (see below).
 - Each criterion names its evidence artifact path, what content proves the verdict, the adversarial classes that apply, and the processes, sessions, ports, browser contexts or temp paths that need a cleanup receipt.
 
-Durable path: create or reuse the record following `litgoal` (read `skills/litgoal/SKILL.md` when the record is missing), every criterion `open`. litgoal also mirrors the objective to the host's goal tool when one is offered; this loop leaves that to litgoal and updates the record and ledger itself. Ask the user to confirm only when a criterion rests on a guess about intent.
+Durable path: create or reuse the record following `litgoal` (read `skills/litgoal/SKILL.md` when the record is missing), every criterion `open`. agy's own `/goal` is the user's command; this loop updates the record and ledger itself. Ask the user to confirm only when a criterion rests on a guess about intent.
 
 For a goal with several units, write a dependency map before delegating:
 

@@ -206,7 +206,7 @@
       "name": "recap-requested-not-handoff",
       "prompt": "lit recap - where are we?",
       "setup": "workspace with goals, a plan and an existing latest.md",
-      "expected_output": "The recap route answers; this skill writes no packet. If this skill was loaded by mistake, it points to lit-recap and writes nothing.",
+      "expected_output": "The recap route answers; this skill writes no packet. If this skill was loaded by mistake, it points to lit adhd recap and writes nothing.",
       "files": [],
       "expectations": [
         "No file under .litgravity/handoff/ changes",

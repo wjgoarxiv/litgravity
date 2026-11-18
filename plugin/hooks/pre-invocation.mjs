@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { run, inject, readSession, writeSession, appendLedger, workspaceOf, safeId, stateRoot } from './lib/common.mjs';
@@ -9,23 +9,36 @@ import { PAUSE_WORD, planRows } from './lib/continuation.mjs';
 import { saveSnapshot } from './lib/boundary.mjs';
 import { applyStackEvent, readStack, writeStack } from './lib/workflow-stack.mjs';
 import { isGoPrompt, takeNextStep } from './lib/rewind/next-step.mjs';
+import { buildSkillPlan, skillPlanContext, skillPlanIds } from './lib/skill-plan.mjs';
+import { answerConsent, cancelOwnedGoal } from './lib/goal.mjs';
 
 // agy has no UserPromptSubmit event. PreInvocation fires before every model call; invocationNum 0 is the first call of a
 // user turn, and its transcript already holds the prompt. The router reads that prompt, applies the D1 re-entry rule
 // and injects one ephemeral step, so a `lit` prompt is steered before the model has answered anything.
 
-function textFor(decision, hit, payload) {
+function textFor(decision, hit, payload, plan = null) {
   switch (decision.kind) {
     case 'continue': return continueNote(decision.route);
     case 'resume': return resumeNote(decision.plan);
-    default: return activation(hit, payload.conversationId, decision.kind);
+    default: {
+      const text = activation(hit, payload.conversationId, decision.kind);
+      return plan ? `${text}\n${skillPlanContext(plan, { workspace: workspaceOf(payload) })}` : text;
+    }
   }
 }
 
-function stackEvent(decision, hit) {
+// `lit start plans/<x>.md` names its plan; the frame keeps it so a finished plan reads finished (lit-adhd).
+const namedPlan = (decision, hit, workspace) => {
+  if (decision.route !== 'start-work') return null;
+  const plan = String(hit?.task ?? '').split(/\s+/u).find((w) => /^plans\/[^/\\]+\.md$/u.test(w));
+  return plan && existsSync(join(workspace, plan)) ? plan : null;
+};
+
+function stackEvent(decision, hit, workspace) {
   if (decision.kind === 'continue' && decision.route) return { type: 'continue' };
   if (decision.kind === 'ignite' || decision.kind === 'switch' || decision.kind === 'confirm') {
-    return { type: 'start', skill: decision.route, restart: hit?.restart === true };
+    const plan = namedPlan(decision, hit, workspace);
+    return { type: 'start', skill: decision.route, restart: hit?.restart === true, ...(plan ? { ref: { plan } } : {}) };
   }
   return null;
 }
@@ -67,6 +80,24 @@ function stillHolds(step, workspace, conversationId) {
     default:
       return false;
   }
+}
+
+// The `yes` to lit-plan's approval question starts the plan here, by the same writes `go` and `lit start` make: route
+// start-work, a fresh boundary snapshot, a start-work frame on this conversation's stack. A missing plan, a plan with
+// no open row, or a start-work run this conversation already holds refuses the start, and then no goal is armed.
+function startPlanRun(payload, workspace, turnId, plan) {
+  if (typeof plan !== 'string' || !/^plans\/[^/\\]+\.md$/u.test(plan)) return { ok: false, reason: 'the plan path is not plans/<name>.md' };
+  let rows;
+  try { rows = planRows(readFileSync(join(workspace, plan), 'utf8')); } catch { return { ok: false, reason: `${plan} was not found` }; }
+  if (!rows.some((r) => !r.done)) return { ok: false, reason: `${plan} has no open row` };
+  const stack = readStack(workspace, payload.conversationId);
+  if (stack.frames.some((f) => f.skill === 'start-work' && f.status === 'active')) return { ok: false, reason: 'a start-work run is already active in this conversation' };
+  writeSession(payload, { route: 'start-work', turnId, activatedAt: Date.now(), stopHeldFor: null, pauseRequested: false, lastKind: 'ignite' });
+  saveSnapshot(payload);
+  const { stack: next } = applyStackEvent(stack, { type: 'start', skill: 'start-work', ref: { plan } });
+  writeStack(workspace, payload.conversationId, next);
+  appendLedger(payload, { kind: 'route', route: 'start-work', how: 'consent', plan });
+  return { ok: true };
 }
 
 function staleGoText(step) {
@@ -113,7 +144,7 @@ run((payload) => {
           writeSession(payload, { route: 'start-work', turnId, activatedAt: Date.now(), stopHeldFor: null, pauseRequested: false, lastKind: 'ignite' });
           saveSnapshot(payload);
           const stack = readStack(workspace, payload.conversationId);
-          const { stack: next } = applyStackEvent(stack, { type: 'start', skill: 'start-work' });
+          const { stack: next } = applyStackEvent(stack, { type: 'start', skill: 'start-work', ...(step.target?.plan ? { ref: { plan: step.target.plan } } : {}) });
           writeStack(workspace, payload.conversationId, next);
           appendLedger(payload, { kind: 'route', route: 'start-work', how: 'go', plan: step.target?.plan ?? null });
         } else {
@@ -123,6 +154,27 @@ run((payload) => {
       }
     }
     return {};
+  }
+
+  // The approval question lit-plan asked: an exact `yes` to a live consent record starts the plan and arms its goal;
+  // `edit` asks again; `no` does nothing. Any other prompt is not an answer and falls through.
+  const answered = answerConsent(workspace, request.text, safeId(payload.conversationId), Date.now(), {
+    startWork: (plan) => startPlanRun(payload, workspace, turnId, plan),
+  });
+  if (answered) {
+    appendLedger(payload, { kind: 'decision', decision: 'goal', answer: request.text.trim().toLowerCase(), started: answered.start });
+    const note = `LitGravity goal: tell the user this line once, verbatim, and nothing else about the goal:\n${answered.line}`;
+    if (!answered.start) return inject(`${note}\nStart nothing.`);
+    const start = activation({ route: 'start-work', keyword: 'start', bare: false, resume: false, restart: false, direct: false, empty: false }, payload.conversationId, 'ignite');
+    return inject(`${start}\nThe user approved ${answered.start} with \`yes\`: this is the typed approval for start-work, and the plan to execute is ${answered.start}.\n${note}`);
+  }
+  // `lit cancel` clears a goal LitGravity owns; a goal set by hand in agy is out of reach and stays.
+  if (/^lit\s+cancel\s*$/u.test(request.text.trim())) {
+    const cleared = cancelOwnedGoal(workspace);
+    if (cleared) {
+      appendLedger(payload, { kind: 'decision', decision: 'goal-cancel' });
+      return inject(`LitGravity goal: tell the user this line once, verbatim, then stop the work:\n${cleared}`);
+    }
   }
 
   const hit = detectRoute(request.text);
@@ -160,7 +212,8 @@ run((payload) => {
     const again = previous.lastKind === 'resume'
       ? { kind: 'resume', route: 'start-work', plan: resumablePlan(workspace) }
       : { kind: previous.lastKind, route: previous.route };
-    return inject(textFor(again, { ...hit, route: previous.route }, payload));
+    const againPlan = ['ignite', 'switch', 'confirm'].includes(again.kind) && previous.route === hit.route ? buildSkillPlan(hit, { workspace }) : null;
+    return inject(textFor(again, { ...hit, route: previous.route }, payload, againPlan));
   }
 
   const plan = !hit.restart && (hit.bare || hit.resume) ? resumablePlan(workspace) : null;
@@ -174,16 +227,19 @@ run((payload) => {
   saveSnapshot(payload);
 
   // Update the workflow stack on every route change.
-  const event = stackEvent(decision, hit);
+  const event = stackEvent(decision, hit, workspace);
   if (event) {
     const stack = readStack(workspace, payload.conversationId);
     const { stack: next } = applyStackEvent(stack, event);
     writeStack(workspace, payload.conversationId, next);
   }
 
+  // The skill plan rides only on a fresh activation of the routed skill; a continue or a resume keeps its own text.
+  const skillPlan = ['ignite', 'switch', 'confirm'].includes(decision.kind) && decision.route === hit.route ? buildSkillPlan(hit, { workspace }) : null;
   appendLedger(payload, {
     kind: 'route', route: decision.route, how: decision.kind, keyword: hit.keyword ?? null,
     ...(decision.plan ? { path: decision.plan.file } : {}),
+    ...(skillPlan ? { plan: skillPlanIds(skillPlan) } : {}),
   });
-  return inject(textFor(decision, hit, payload));
+  return inject(textFor(decision, hit, payload, skillPlan));
 });

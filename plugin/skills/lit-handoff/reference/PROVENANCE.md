@@ -7,7 +7,7 @@ The handoff contract bundled in this skill comes from an owner-authorized MIT so
 | `reference/canonical-handoff.md` | `SKILL.md` | snapshot, unchanged | `e5bbd253dfa5b5baa9739dfaebc458003daab43cb27c4a407423da1e7a31dec6` |
 | `templates/HANDOFF.md` | `templates/HANDOFF.md` | snapshot, unchanged | `2a795a06e7bb81a57e6675ae70ed26db0dbfdb792c01f0a60f96f02cbef49fbd` |
 | `examples/HANDOFF-example-generic-auth-refactor.md` | `examples/HANDOFF-example-generic-auth-refactor.md` | snapshot, unchanged | `43c767e573ac8c8900832d2b7a92ee1e83fd2d3d794fe2c82ecef87e5737f2a3` |
-| `evals/evals.json` | `evals/evals.json` (origin SHA-256 `0a70f0d149e59641100c7dcf8b9f2f1c0ceae57b98518e165f08088f2c2484da`) | re-expressed for agy | `86a504e5c964c02c7a89eabffdf85c56b2579435cd3ff360c8f78e5178a31645` |
+| `evals/evals.json` | `evals/evals.json` (origin SHA-256 `0a70f0d149e59641100c7dcf8b9f2f1c0ceae57b98518e165f08088f2c2484da`) | re-expressed for agy | `03ff82705cbb55c902fd513361aaef4c5114e07e99cfda8b5d15b5a55b8df8f4` |
 
 - Source commit of the snapshot: `235ed3af614a7becaee6ef1d1a18e5c4b13994f4`. It is provenance only; nothing here reads the original checkout at runtime.
 - The MIT licence in `../LICENSE` covers the snapshot files and the re-expressed evaluation set. Its copyright and permission notice are kept as issued.

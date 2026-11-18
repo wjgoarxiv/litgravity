@@ -21,12 +21,12 @@ Route to a neighbour when it fits better, and say so in one line:
 
 | The user needs | Route | Why |
 | --- | --- | --- |
-| what happened and where things stand | `lit-recap` | status, chronology, blockers, read-only and in the conversation |
+| what happened and where things stand | `lit adhd recap` (lit-adhd's recap view) | status, chronology, blockers, read-only and in the conversation |
 | to understand what was built | `lit-comprehend` | intuition, mental model, checked understanding |
 | a verdict on whether it is right or safe to merge | `review-work` | judgment against criteria |
 | to continue in a fresh conversation | `lit-handoff` | machine-resumable state |
 
-`lit-recap` answers questions about the work; this skill gives the reader the model they need to ask better questions. When someone asks for a recap and the real complaint is bewilderment, name that and offer this skill. A one-line question about one function gets a direct answer in the conversation and no page.
+`lit adhd recap` answers questions about the work; this skill gives the reader the model they need to ask better questions. When someone asks for a recap and the real complaint is bewilderment, name that and offer this skill. A one-line question about one function gets a direct answer in the conversation and no page.
 
 ## Inputs and state
 

@@ -1,0 +1,608 @@
+[
+ {
+  "name": "another conversation asked the user a question",
+  "label": "answer-session",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [
+    {
+     "id8": "a1b2c3d4",
+     "worktree": "~/code/app",
+     "status": "waiting-on-user",
+     "last": "2026-11-18T09:00:00Z",
+     "result": "I can write the tests first. Should I?",
+     "self": false,
+     "waitingReason": "asked the user"
+    }
+   ],
+   "roadmap": {
+    "plans": [],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "none",
+    "target": null
+   }
+  }
+ },
+ {
+  "name": "own paused frame while nothing else waits",
+  "label": "resume-own-frame",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [
+    {
+     "id8": "a1b2c3d4",
+     "worktree": "~/code/app",
+     "status": "idle",
+     "last": "2026-11-18T09:00:00Z",
+     "result": "Done.",
+     "self": true
+    }
+   ],
+   "roadmap": {
+    "plans": [],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "resume-frame",
+    "target": {
+     "skill": "lit-loop",
+     "stage": "GREEN"
+    }
+   }
+  }
+ },
+ {
+  "name": "own start-work running",
+  "label": "continue-own-work",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [],
+   "roadmap": {
+    "plans": [
+     {
+      "plan": "plans/export.md",
+      "worktree": "~/code/app",
+      "local": true,
+      "progress": {
+       "done": 2,
+       "total": 5
+      },
+      "current": "Add the CSV writer",
+      "finished": false
+     }
+    ],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "continue-work",
+    "target": {
+     "plan": "plans/export.md"
+    }
+   }
+  }
+ },
+ {
+  "name": "other lanes at work hold the plan start",
+  "label": "other-lanes-at-work",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [
+    {
+     "id8": "a1b2c3d4",
+     "worktree": "~/code/app",
+     "status": "active",
+     "last": "2026-11-18T09:00:00Z",
+     "result": "Done.",
+     "self": false
+    }
+   ],
+   "roadmap": {
+    "plans": [
+     {
+      "plan": "plans/export.md",
+      "worktree": "~/code/app",
+      "local": true,
+      "progress": {
+       "done": 2,
+       "total": 5
+      },
+      "current": "Add the CSV writer",
+      "finished": false
+     }
+    ],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "none",
+    "target": null,
+    "held": {
+     "lanes": 2,
+     "plan": "plans/export.md"
+    }
+   }
+  }
+ },
+ {
+  "name": "one open plan and nothing running",
+  "label": "start-single-plan",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [],
+   "roadmap": {
+    "plans": [
+     {
+      "plan": "plans/export.md",
+      "worktree": "~/code/app",
+      "local": true,
+      "progress": {
+       "done": 2,
+       "total": 5
+      },
+      "current": "Add the CSV writer",
+      "finished": false
+     }
+    ],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "start-plan",
+    "target": {
+     "plan": "plans/export.md"
+    }
+   }
+  }
+ },
+ {
+  "name": "uncommitted changes, nothing else",
+  "label": "uncommitted-work",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [],
+   "roadmap": {
+    "plans": [],
+    "stale": []
+   },
+   "repo": [
+    {
+     "worktree": "~/code/app",
+     "uncommitted": 3,
+     "unpushed": 0
+    }
+   ],
+   "commits": [],
+   "next": {
+    "kind": "none",
+    "target": null
+   }
+  }
+ },
+ {
+  "name": "an open plan of another folder",
+  "label": "next-plan-row",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [],
+   "roadmap": {
+    "plans": [
+     {
+      "plan": "plans/export.md",
+      "worktree": "~/code/app-wt",
+      "local": false,
+      "progress": {
+       "done": 2,
+       "total": 5
+      },
+      "current": "Add the CSV writer",
+      "finished": false
+     }
+    ],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "none",
+    "target": null
+   }
+  }
+ },
+ {
+  "name": "everything read, nothing open",
+  "label": "ALL_CLEAR",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [
+    {
+     "id8": "a1b2c3d4",
+     "worktree": "~/code/app",
+     "status": "ended",
+     "last": "2026-11-18T09:00:00Z",
+     "result": "Done.",
+     "self": false
+    }
+   ],
+   "roadmap": {
+    "plans": [],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [
+    {
+     "hash": "abc1234",
+     "subject": "feat: x"
+    }
+   ],
+   "next": {
+    "kind": "none",
+    "target": null
+   }
+  }
+ },
+ {
+  "name": "nothing open but the read budget ran out",
+  "label": "UNKNOWN",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 4,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [],
+   "roadmap": {
+    "plans": [],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "none",
+    "target": null
+   }
+  }
+ },
+ {
+  "name": "a session that says done is only a claim",
+  "label": "ALL_CLEAR",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [
+    {
+     "id8": "a1b2c3d4",
+     "worktree": "~/code/app",
+     "status": "ended",
+     "last": "2026-11-18T09:00:00Z",
+     "result": "All done, everything shipped!",
+     "self": false
+    }
+   ],
+   "roadmap": {
+    "plans": [],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "none",
+    "target": null
+   }
+  }
+ },
+ {
+  "name": "a paused workflow of another session is not an answer request",
+  "label": "start-single-plan",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [
+    {
+     "id8": "a1b2c3d4",
+     "worktree": "~/code/app",
+     "status": "waiting-on-user",
+     "last": "2026-11-18T09:00:00Z",
+     "result": "Done.",
+     "self": false,
+     "waitingReason": "paused workflow"
+    }
+   ],
+   "roadmap": {
+    "plans": [
+     {
+      "plan": "plans/export.md",
+      "worktree": "~/code/app",
+      "local": true,
+      "progress": {
+       "done": 2,
+       "total": 5
+      },
+      "current": "Add the CSV writer",
+      "finished": false
+     }
+    ],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "start-plan",
+    "target": {
+     "plan": "plans/export.md"
+    }
+   }
+  }
+ },
+ {
+  "name": "unpushed commits alone are a question, never an action",
+  "label": "ALL_CLEAR",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [],
+   "roadmap": {
+    "plans": [],
+    "stale": []
+   },
+   "repo": [
+    {
+     "worktree": "~/code/app",
+     "uncommitted": 0,
+     "unpushed": 2
+    }
+   ],
+   "commits": [],
+   "next": {
+    "kind": "none",
+    "target": null
+   }
+  }
+ },
+ {
+  "name": "a waiting conversation outranks own work",
+  "label": "answer-session",
+  "data": {
+   "sources": {
+    "transcripts": "ok",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [
+    {
+     "id8": "a1b2c3d4",
+     "worktree": "~/code/api",
+     "status": "waiting-on-user",
+     "last": "2026-11-18T09:00:00Z",
+     "result": "Done.",
+     "self": false,
+     "waitingReason": "asked the user"
+    }
+   ],
+   "roadmap": {
+    "plans": [],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "continue-work",
+    "target": {
+     "plan": "plans/export.md"
+    }
+   }
+  }
+ },
+ {
+  "name": "no agy conversation records at all",
+  "label": "UNKNOWN",
+  "data": {
+   "sources": {
+    "transcripts": "unknown",
+    "litgoal": "ok",
+    "plans": "ok",
+    "handoffs": "ok",
+    "git": "ok",
+    "workflowStack": "ok"
+   },
+   "coverage": {
+    "notRead": {
+     "budget": 0,
+     "limit": 0,
+     "unreadable": 0
+    }
+   },
+   "sessions": [],
+   "roadmap": {
+    "plans": [],
+    "stale": []
+   },
+   "repo": [],
+   "commits": [],
+   "next": {
+    "kind": "none",
+    "target": null
+   }
+  }
+ }
+]

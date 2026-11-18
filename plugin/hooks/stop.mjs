@@ -10,6 +10,7 @@ import { uncoveredPaths } from '../skills/lit-plan/scripts/check-plan.mjs';
 import { markLive } from './lib/liveness.mjs';
 import { saveAutoHandoff } from './lib/auto-handoff.mjs';
 import { recordRunEnd } from './lib/shown.mjs';
+import { advisoryCheck } from './lib/goal.mjs';
 
 // The newest plans/*.md written since the route started, as `plans/<name>.md`, or null.
 function planWrittenSince(cwd, since) {
@@ -54,7 +55,17 @@ run((payload) => {
   return finish(decide(payload));
 });
 
+// A goal LitGravity armed is checked at every normal turn end (advisory: agy's own /goal is not reachable from a hook).
+// When it is met the record is cleared and the turn is held once, so the user hears the fixed status line.
+function goalAtTurnEnd(payload) {
+  if (payload.terminationReason && payload.terminationReason !== 'NO_TOOL_CALL') return null;
+  const result = advisoryCheck(workspaceOf(payload));
+  return result?.state === 'met' ? holdStop(`LitGravity goal: tell the user this line once, verbatim, then end the turn:\n${result.line}`) : null;
+}
+
 function decide(payload) {
+  const goal = goalAtTurnEnd(payload);
+  if (goal) return goal;
   if (payload.terminationReason && payload.terminationReason !== 'NO_TOOL_CALL') return {};
   const state = activeRoute(payload);
   if (!state) return {};

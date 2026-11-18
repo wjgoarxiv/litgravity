@@ -16,10 +16,10 @@ Each member needs a concrete focus, a deliverable, in-scope paths (if it may wri
 | --- | --- |
 | read-only analysis | shared checkout |
 | disjoint file ownership | shared checkout with explicit `--paths` |
-| overlapping implementation | separate worktrees, each authorized by the user |
+| overlapping implementation | `run_workflow` agents with `workspace="branch"`, or one worktree per member under `.worktrees/` that the leader creates and removes |
 | release, secrets or remote settings | keep in the leader lane unless explicitly delegated |
 
-The packet records worktree intent and paths. It grants no permission to create, merge, delete or push a worktree or branch, so Git authority is applied separately and requested with `ask_question`.
+The packet records worktree intent and paths. The leader creates a member's worktree with `git worktree add`, applies verified diffs back itself and removes only the worktrees this team created; merging a branch, deleting one it did not create and pushing stay outside team mode.
 
 ## 2. Initialize the packet
 
@@ -119,7 +119,7 @@ Report the team id, composition, member-to-child bindings, the ownership map, de
 | Symptom | Cause | Response |
 | --- | --- | --- |
 | `focus overlaps member X` | two members on one slice | re-slice the work or drop a member |
-| `owned path … overlaps` | two writers can collide | split paths or use authorized worktrees |
+| `owned path … overlaps` | two writers can collide | split paths, or isolate each member in a branch workspace or its own worktree |
 | `… can write; give member … explicit --paths` | write-capable agent with no ownership | declare paths, or choose a read-only agent |
 | `cannot bind agents until the team has at least 2 distinct members` | under-staffed team | add the second member first |
 | `evidence path does not exist` | claim without an artifact | have the member produce the artifact, then report |

@@ -127,7 +127,12 @@ function realPath(p) {
 }
 
 function planChecker(args, pluginRoot) {
-  if (!pluginRoot || args.length !== 3) return false;
+  if (!pluginRoot) return false;
+  // goal-propose writes only .litgravity/goal/consent.json and runs the plan's allowlisted check once.
+  if (args.length === 2 && realPath(args[0]) === realPath(join(pluginRoot, 'skills', 'lit-plan', 'scripts', 'goal-propose.mjs'))) {
+    return /^plans\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.md$/u.test(args[1]);
+  }
+  if (args.length !== 3) return false;
   const [script, flag, target] = args;
   if (realPath(script) !== realPath(join(pluginRoot, 'skills', 'lit-plan', 'scripts', 'check-plan.mjs'))) return false;
   if (!['--check', '--complete', '--skeleton'].includes(flag)) return false;

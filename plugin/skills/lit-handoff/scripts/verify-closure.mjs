@@ -15,7 +15,7 @@ const EXPECTED = {
   'reference/canonical-handoff.md': { origin: 'snapshot', sha256: 'e5bbd253dfa5b5baa9739dfaebc458003daab43cb27c4a407423da1e7a31dec6' },
   'templates/HANDOFF.md': { origin: 'snapshot', sha256: '2a795a06e7bb81a57e6675ae70ed26db0dbfdb792c01f0a60f96f02cbef49fbd' },
   'examples/HANDOFF-example-generic-auth-refactor.md': { origin: 'snapshot', sha256: '43c767e573ac8c8900832d2b7a92ee1e83fd2d3d794fe2c82ecef87e5737f2a3' },
-  'evals/evals.json': { origin: 'agy', sha256: '86a504e5c964c02c7a89eabffdf85c56b2579435cd3ff360c8f78e5178a31645' },
+  'evals/evals.json': { origin: 'agy', sha256: '03ff82705cbb55c902fd513361aaef4c5114e07e99cfda8b5d15b5a55b8df8f4' },
 };
 
 const args = process.argv.slice(2);

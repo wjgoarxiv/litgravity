@@ -63,7 +63,7 @@ test('S1: an idle or ended conversation is no lane, and the plan still starts on
   assert.equal(data.next.kind, 'start-plan');
 });
 
-test('S1: under HERDR_ENV=1 working and blocked herdr agents of this workspace are lanes, one lane seen twice counts once', () => {
+test('S1: under HERDR_ENV=1 working and blocked herdr agents in this repo are lanes, one lane seen twice counts once', () => {
   const { env } = sandbox();
   const ws = workspace();
   openPlan(ws.dir);
@@ -80,12 +80,27 @@ test('S1: under HERDR_ENV=1 working and blocked herdr agents of this workspace a
   ];
   const data = collectRewind({ cwd: ws.dir, sessionId: SELF, env: herdrEnv, record: false, exec: herdr(agents) });
   assert.equal(data.sources.herdr, 'ok');
-  assert.equal(data.lanes.count, 3);
+  assert.equal(data.lanes.count, 2, 'the live session and the blocked agent in this repo; w1:p2 shares the herdr workspace only');
   assert.equal(data.lanes.waiting, 1);
   assert.equal(data.next.kind, 'none');
   const text = renderBrief(data);
   assert.match(text, /│ Answer the lane waiting on you in pane w9:p3/);
   assert.match(text, /Do not type `go` until they finish\./);
+});
+
+test('R2: a herdr agent whose cwd is outside this repo is never a lane, even in the same herdr workspace', () => {
+  const { env } = sandbox();
+  const ws = workspace();
+  openPlan(ws.dir);
+  const herdrEnv = { ...env, HERDR_ENV: '1', HERDR_WORKSPACE_ID: 'w1', HERDR_PANE_ID: 'w1:p1' };
+  const foreign = [
+    { agent: 'claude', agent_status: 'working', pane_id: 'w1:p2', workspace_id: 'w1', cwd: '/Users/someone/other-repo' },
+    { agent: 'codex', agent_status: 'blocked', pane_id: 'w1:p3', workspace_id: 'w1', cwd: `${ws.dir}-sibling` },
+  ];
+  const data = collectRewind({ cwd: ws.dir, sessionId: SELF, env: herdrEnv, record: false, exec: herdr(foreign) });
+  assert.equal(data.sources.herdr, 'ok');
+  assert.equal(data.lanes.count, 0);
+  assert.equal(data.next.kind, 'start-plan', 'nothing holds the plan start');
 });
 
 test('S1: herdr is read only under HERDR_ENV=1, and a failing or garbled herdr reads unknown', () => {

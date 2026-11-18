@@ -16,16 +16,16 @@ export const MAX_FRAMES = 3;
 export const MAX_HISTORY = 20;
 export const MAX_STACK_BYTES = 64 * 1024;
 export const STACK_DROP_MS = 24 * 60 * 60 * 1000;
-export const READ_ONLY_DISCIPLINES = Object.freeze(['lit-recap', 'lit-comprehend', 'lit-handoff', 'lit-adhd', 'lit-rewind']);
+export const READ_ONLY_DISCIPLINES = Object.freeze(['lit-comprehend', 'lit-handoff', 'lit-adhd', 'lit-rewind']);
 
 // The main-chain stage families and entry points; a newcomer of a higher rank succeeds the frame below.
 const CHAIN_RANK = Object.freeze({
-  'deep-interview': 0, 'lit-brainstorm': 0, 'lit-crucible': 1, 'lit-plan': 1,
+  'deep-interview': 0, 'lit-brainstorm': 0, 'ultra-brainstorm': 0, 'lit-crucible': 1, 'lit-plan': 1,
   'start-work': 2, litwork: 2, litgoal: 2, autoresearch: 2, 'lit-loop': 2, 'review-work': 3,
 });
 
 const DISCIPLINE_FAMILY = {
-  'deep-interview': 'main', 'lit-brainstorm': 'main', 'lit-crucible': 'main', 'lit-plan': 'main',
+  'deep-interview': 'main', 'lit-brainstorm': 'main', 'ultra-brainstorm': 'main', 'lit-crucible': 'main', 'lit-plan': 'main',
   'start-work': 'main', litwork: 'main', litgoal: 'main', autoresearch: 'main', 'review-work': 'main',
   litresearch: 'research', 'lit-loop': 'loop',
 };

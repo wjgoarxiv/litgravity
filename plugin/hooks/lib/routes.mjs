@@ -8,6 +8,7 @@ export const SKILL_ROUTES = [
   { id: 'lit-hijack', when: 'port the know-how from someone else\'s published work into your own skill or system, clean-room' },
   { id: 'lit-plan', when: 'plan before code; the turn writes plans/<slug>.md and nothing else' },
   { id: 'lit-brainstorm', when: 'open ideation: spread out on options, score a shortlist, hand off' },
+  { id: 'ultra-brainstorm', when: 'hundreds of cheap idea agents through run_workflow, then a judged top list to pick from' },
   { id: 'deep-interview', when: 'the request is vague or broad and needs questions first' },
   { id: 'lit-crucible', when: 'attack a brief for risks before anyone plans it' },
   { id: 'start-work', when: 'carry out an approved plan row by row' },
@@ -24,7 +25,6 @@ export const SKILL_ROUTES = [
   { id: 'wikify', when: 'save findings to, or query, the task wiki under .litgravity/wiki' },
   { id: 'lit-comprehend', when: 'explain agent-written work so a person can follow it' },
   { id: 'lit-humanizer', when: 'polish Korean or English prose into the writer\'s own voice' },
-  { id: 'lit-recap', when: 'where does the work stand (read-only)' },
   { id: 'lit-handoff', when: 'before stopping or switching conversations' },
   { id: 'lit-init', when: 'orient in an unfamiliar repository and leave AGENTS.md behind' },
   { id: 'frontend-ui-ux', when: 'build or restyle a user interface (moved)' },
@@ -38,7 +38,7 @@ export const SKILL_ROUTES = [
   { id: 'autoresearch', when: 'a budgeted experiment loop against a metric' },
   { id: 'structural-search', when: 'find or rewrite code by syntax shape' },
   { id: 'browser-drive', when: 'the answer only exists inside a running web page' },
-  { id: 'lit-adhd', when: 'cross-session KPI board: the one thing to do now, done and remaining milestones, reminders' },
+  { id: 'lit-adhd', when: 'what to do now across sessions, as a short verdict card; `detail` shows the board, `recap` one conversation' },
   { id: 'lit-team', when: 'two or more child agents behind one durable team packet' },
   { id: 'autoconference', when: 'a budgeted research conference: parallel researchers, review, synthesis' },
   { id: 'rules', when: 'which rules, AGENTS.md files and skills agy loads, and in what order' },
@@ -47,6 +47,9 @@ export const SKILL_ROUTES = [
 ];
 
 export const SKILL_IDS = new Set(SKILL_ROUTES.map((r) => r.id));
+// Skills that only read, ask or advise. None of them may arm a goal: only lit-plan's approval question does.
+export const GOAL_NEVER = new Set(['lit-adhd', 'review-work', 'litresearch', 'lit-brainstorm', 'ultra-brainstorm', 'lit-crucible',
+  'deep-interview', 'lit-comprehend', 'lit-handoff', 'lit-init', 'rules', 'lsp', 'comment-checker', 'browser-drive']);
 
 // Five content families moved to the separate wjgoarxiv-skills repository. Each id keeps its route and a same-name
 // pointer stub; the value is the family that holds the skill there. agy installs it from the repository's agy copy,
@@ -91,7 +94,9 @@ export const extensionLines = (id, scope = 'user') => Object.values(extensionSte
 export const EXTENSIONS_CLI = 'npx @litfamily/litgravity extensions';
 export const extensionCommand = (id, scope = 'user') => `${EXTENSIONS_CLI} install ${id}${scope === 'project' ? ' --project' : ''} --yes`;
 // Skill ids that are another name for a skill: typed whole, slashed or after `lit`, they take its route.
-export const SKILL_ALIASES = { 'lit-rewind': 'lit-adhd' };
+// `lit-recap` and `litrecap` open lit-adhd's recap view, with a one-line note that the skill moved there.
+export const SKILL_ALIASES = { 'lit-rewind': 'lit-adhd', 'lit-recap': 'lit-adhd', litrecap: 'lit-adhd' };
+export const RECAP_ALIASES = new Set(['lit-recap', 'litrecap']);
 const skillId = (word) => (SKILL_IDS.has(word) ? word : SKILL_ALIASES[word]);
 
 // The word after a leading `lit` picks the route: a word below, or any skill id typed whole (`lit debugging …`,
@@ -108,8 +113,8 @@ export const KEYWORD_ROUTES = {
   research: 'litresearch',
   review: 'review-work',
   start: 'start-work',
-  recap: 'lit-recap',
-  status: 'lit-recap',
+  recap: 'lit-adhd',
+  status: 'lit-adhd',
   handoff: 'lit-handoff',
   init: 'lit-init',
   debug: 'debugging',
@@ -238,6 +243,39 @@ export function frontendIntent(task) {
   return UI_DESIGN_VERB.test(text) && UI_SURFACE_NOUN.test(text);
 }
 
+// Scientific figures and conceptual diagrams have route words only; as companions they are found by intent too.
+const FIGURE_NOUN = /\b(?:plots?|charts?|graphs?|figures?|histograms?|heat\s?maps?)\b|그래프|차트|플롯|히스토그램|그림/iu;
+const FIGURE_VERB = /\b(?:plot|chart|graph|draw|make|create|render|generate|visuali[sz]e)\b|그려|그리|만들|시각화/iu;
+export function figureIntent(task) {
+  const text = String(task ?? '');
+  return FIGURE_NOUN.test(text) && FIGURE_VERB.test(text) && !SCHEMATIC_STRONG.test(text);
+}
+const DIAGRAM_NOUN = /\b(?:diagrams?|flow\s?charts?|architecture\s+(?:map|diagram|figure)|sequence\s+diagrams?|timelines?)\b|다이어그램|도식|흐름도|구조도/iu;
+export function diagramIntent(task) {
+  const text = String(task ?? '');
+  return DIAGRAM_NOUN.test(text) && !schematicIntent(text);
+}
+
+// Every intent route a task matches, in the router's priority order. The first is the route a `lit <task>` with no
+// route word takes; the rest are companion candidates for the skill plan (skill-plan.mjs).
+export function intentRoutes(task) {
+  const found = [];
+  if (schematicIntent(task)) found.push('lit-schematic');
+  if (motionIntent(task)) found.push('lit-typographic-motion');
+  if (deckIntent(task)) found.push('lit-pptx');
+  if (frontendIntent(task)) found.push('frontend-ui-ux');
+  return found;
+}
+export function companionIntents(task) {
+  const found = intentRoutes(task);
+  if (figureIntent(task)) found.push('lit-scientific-visualization');
+  if (diagramIntent(task)) found.push('lit-diagram-drawer');
+  return found;
+}
+
+// Skill ids that route when typed first even without `lit` or a slash: names nobody types in ordinary prose.
+const BARE_SKILL_WORDS = new Set(['ultra-brainstorm']);
+const PLAN_HATCH = /^(?:\+[A-Za-z][A-Za-z-]{0,30}(?=$|\s)\s*)+/u;
 const RESTART_WORDS = new Set(['new', 'restart']);
 const CONTINUE_WORDS = new Set(['continue', 'resume']);
 const APPROVE_WORDS = new Set(['approve', 'deny']);
@@ -249,6 +287,21 @@ const firstWord = (s) => (/^([^\s:,.!?]+)/.exec(s)?.[1] ?? '').toLowerCase();
 // (`lit new` / `lit restart`), `empty` (nothing follows the keyword) and `direct` (a skill id typed as the first word, which is never a continue).
 // `lit adhd detail` / `lit adhd 자세히` asks for the per-session detail under the board.
 const ADHD_DETAIL = /(?:^|[\s,.:])(?:detail|details|detailed|자세히|자세하게|상세|상세히)(?=$|[\s,.!?])/iu;
+const ADHD_RECAP = /^(?:recap|리캡|요약)(?=$|[\s,.:!?])/iu;
+// The card is Korean unless the prompt asks for English in so many words; the hook passes the flag, the model never guesses.
+// English only on an explicit ask: `--en` anywhere, `en` / `english` as the whole request after `adhd`, the phrase
+// "in English", or 영어로. A passing mention ("english homework", "the en dash", 영어 공부) stays Korean.
+const ADHD_EN_ANY = /(?:^|\s)--en(?=$|\s)|\bin english\b|영어로/iu;
+const ADHD_EN_ALONE = /^(?:en|english)[.!?]*$/iu;
+const wantsEnglish = (after) => ADHD_EN_ANY.test(after) || ADHD_EN_ALONE.test(after.trim());
+const RECAP_WORDS = new Set(['recap', 'status']);
+// `recap [conversation]`: the recap view, of one conversation when an id (or its first 8 characters) follows.
+function recapOf(hit, after, recap) {
+  if (!recap) return;
+  hit.recap = true;
+  const id = /^[\s:,.]*([A-Za-z0-9][A-Za-z0-9._:-]{3,159})(?=$|\s)/u.exec(after)?.[1];
+  if (id && /\d/u.test(id)) hit.recapOf = id;
+}
 
 export function detectRoute(prompt) {
   if (typeof prompt !== 'string') return null;
@@ -264,6 +317,10 @@ export function detectRoute(prompt) {
   if (lower === 'lit') {
     if (slash) return null;
     let rest = text.slice(token.length).replace(SEPARATORS, '');
+    // `lit +viz +ui <task>` names the skill plan outright; the words after the `+` names route as usual.
+    const hatch = PLAN_HATCH.exec(rest);
+    const forced = hatch ? hatch[0].trim().split(/\s+/u).map((w) => w.slice(1).toLowerCase()) : null;
+    if (hatch) rest = rest.slice(hatch[0].length).replace(SEPARATORS, '');
     let word = firstWord(rest);
     const restart = RESTART_WORDS.has(word);
     if (restart) {
@@ -276,22 +333,37 @@ export function detectRoute(prompt) {
     const route = KEYWORD_ROUTES[word] ?? skillId(word);
     const base = { keyword: route ? word : null, bare, resume, restart, approve: approve ? word : null, direct: false, empty: word === '' || (resume && rest.slice(word.length).trim() === '') };
     if (!route && !bare && !resume) {
-      if (schematicIntent(rest)) return { route: 'lit-schematic', ...base, keyword: null };
-      if (motionIntent(rest)) return { route: 'lit-typographic-motion', ...base, keyword: null };
-      if (deckIntent(rest)) return { route: 'lit-pptx', ...base, keyword: null };
-      if (frontendIntent(rest)) return { route: 'frontend-ui-ux', ...base, keyword: null };
+      const intent = intentRoutes(rest)[0];
+      if (intent) return { route: intent, ...base, keyword: null, task: rest, ...(forced ? { forced } : {}) };
     }
     const hit = { route: route ?? 'lit-loop', ...base };
-    if (hit.route === 'lit-adhd') hit.detail = ADHD_DETAIL.test(rest.slice(word.length));
+    const task = rest.slice(route && word ? word.length : 0).replace(SEPARATORS, '');
+    if (task) hit.task = task;
+    if (forced) hit.forced = forced;
+    if (hit.route === 'lit-adhd') {
+      const after = rest.slice(word.length).replace(SEPARATORS, '');
+      const recap = RECAP_WORDS.has(word) || RECAP_ALIASES.has(word) || ADHD_RECAP.test(after);
+      hit.detail = !recap && ADHD_DETAIL.test(rest.slice(word.length));
+      recapOf(hit, recap && !RECAP_WORDS.has(word) && !RECAP_ALIASES.has(word) ? after.replace(ADHD_RECAP, '') : after, recap);
+      if (RECAP_ALIASES.has(word) || RECAP_WORDS.has(word)) hit.recapMoved = true;
+      if (wantsEnglish(rest.slice(word.length).replace(SEPARATORS, ''))) hit.lang = 'en';
+    }
     if (hit.route === 'review-work') {
       hit.reviewMode = REVIEW_MODES[firstWord(rest.slice(word.length).replace(SEPARATORS, ''))] ?? null;
     }
     return hit;
   }
   const id = skillId(lower);
-  if (id && (lower.startsWith('lit') || slash)) {
+  if (id && (lower.startsWith('lit') || slash || BARE_SKILL_WORDS.has(lower))) {
     const hit = { route: id, keyword: null, bare: false, resume: false, restart: false, direct: true, empty: false };
-    if (id === 'lit-adhd') hit.detail = ADHD_DETAIL.test(text.slice(token.length));
+    if (id === 'lit-adhd') {
+      const after = text.slice(token.length).replace(SEPARATORS, '');
+      const recap = RECAP_ALIASES.has(lower) || ADHD_RECAP.test(after);
+      hit.detail = !recap && ADHD_DETAIL.test(text.slice(token.length));
+      recapOf(hit, RECAP_ALIASES.has(lower) ? after : after.replace(ADHD_RECAP, ''), recap);
+      if (RECAP_ALIASES.has(lower)) hit.recapMoved = true;
+      if (wantsEnglish(text.slice(token.length).replace(SEPARATORS, ''))) hit.lang = 'en';
+    }
     return hit;
   }
   return null;

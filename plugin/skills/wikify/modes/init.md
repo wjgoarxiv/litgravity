@@ -40,7 +40,7 @@ Inspection and the proposal are read-only and need no approval. Every write wait
 - Each created file sits inside the base (`realpath` check).
 - Run `review-work` on the result; it reads the packet and the changed-file list.
 
-For continuity afterwards, `lit-recap` summarizes the run read-only and `lit-handoff` writes a continuation packet.
+For continuity afterwards, `lit adhd recap` summarizes the run read-only and `lit-handoff` writes a continuation packet.
 
 ## Stop conditions
 

@@ -23,7 +23,7 @@ The deeper mapping rules (boundary, discovery packet, location decision, hierarc
 - A repository has no `AGENTS.md`, or its `AGENTS.md` describes commands or paths that no longer exist.
 - A newly inherited or unfamiliar repository is about to receive real work and nobody has mapped it.
 
-It does not apply to changing product code, writing a README or user documentation, editing personal guidance files outside the repository, or summarizing a session (`lit-recap`, `lit-handoff`).
+It does not apply to changing product code, writing a README or user documentation, editing personal guidance files outside the repository, or summarizing a session (`lit adhd recap`, `lit-handoff`).
 
 ## Inputs and state
 

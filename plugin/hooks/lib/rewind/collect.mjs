@@ -3,7 +3,8 @@
 // A source that is not there reads `unknown`; nothing is inferred.
 
 import { execFileSync } from 'node:child_process';
-import { closeSync, constants, fstatSync, lstatSync, openSync, readSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { closeSync, constants, fstatSync, lstatSync, mkdirSync, openSync, readFileSync, readSync, readdirSync, realpathSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 
@@ -14,6 +15,7 @@ import { renderBrief } from './brief.mjs';
 import { buildBoard, renderBoard } from './board.mjs';
 import { chooseNextStep, writeNextStep } from './next-step.mjs';
 import { makeRedactor } from './redact.mjs';
+import { nextCursor, renderVerdict } from './verdict.mjs';
 import { findTranscripts, makeBudget, readTranscriptLines, sessionRecord } from './transcripts.mjs';
 import { listLive } from '../liveness.mjs';
 
@@ -167,7 +169,8 @@ const insideAny = (path, roots) => {
 };
 
 // herdr's agents that work on this repo, read only under HERDR_ENV=1: working or blocked (blocked waits on its user),
-// in this herdr workspace or with a cwd inside one of the roots, never this pane. Any failure reads `unknown`.
+// with a cwd inside one of the roots, never this pane. Sharing the herdr workspace is not enough: herdr lists every
+// agent on the machine. Any failure reads `unknown`.
 const herdrLanes = (env, roots, sessionId, exec) => {
   if (env.HERDR_ENV !== '1') return null;
   let agents;
@@ -183,8 +186,7 @@ const herdrLanes = (env, roots, sessionId, exec) => {
     && ['working', 'blocked'].includes(a.agent_status)
     && !(ownPane && a.pane_id === ownPane)
     && !(sessionId && a.agent_session?.value === sessionId)
-    && ((typeof env.HERDR_WORKSPACE_ID === 'string' && env.HERDR_WORKSPACE_ID && a.workspace_id === env.HERDR_WORKSPACE_ID)
-      || insideAny(a.cwd, realRoots) || insideAny(a.foreground_cwd, realRoots)))
+    && (insideAny(a.cwd, realRoots) || insideAny(a.foreground_cwd, realRoots)))
     .map((a) => ({
       pane: typeof a.pane_id === 'string' && PANE.test(a.pane_id) ? a.pane_id : null,
       session: typeof a.agent_session?.value === 'string' ? a.agent_session.value : null,
@@ -328,9 +330,15 @@ export const collectRewind = ({
   const geminiDir = join(home, '.gemini', 'antigravity-cli');
   const transcripts = owner.size ? findTranscripts(geminiDir, [...owner.keys()]) : { status: 'unknown', files: [] };
   const sessions = [];
-  for (const { id, path } of transcripts.files) {
-    if (sessions.length >= limit || budget.exhausted) break;
+  // What the verdict card's coverage line names: conversations left unread, by reason.
+  const notRead = { budget: 0, limit: 0, unreadable: 0 };
+  for (const [index, { id, path }] of transcripts.files.entries()) {
+    if (sessions.length >= limit || budget.exhausted) {
+      notRead[budget.exhausted ? 'budget' : 'limit'] = transcripts.files.length - index;
+      break;
+    }
     const lines = readTranscriptLines(path, budget);
+    if (!lines) notRead.unreadable += 1;
     const session = lines ? sessionRecord(lines, { redact, now, cwd: owner.get(id), live: liveness.get(id) ?? null, finished: finishedIn(id, owner.get(id)) }) : null;
     if (!session || (session.lastMs !== null && now - session.lastMs > sinceMs)) continue;
     session.sessionId = id;
@@ -388,6 +396,7 @@ export const collectRewind = ({
       ...(herdr ? { herdr: herdr.status } : {}),
     },
     budget: { bytesRead: budget.used, limit: budget.limit, exhausted: budget.exhausted },
+    coverage: { notRead },
     summary: {
       sessions: sessions.length,
       waitingOnUser: sessions.filter((s) => s.status === 'waiting-on-user').length,
@@ -406,8 +415,12 @@ export const collectRewind = ({
     },
     repo,
     workflows: (workflows ?? []).map((f) => ({ ...f, self: Boolean(sessionId) && f.sessionId === sessionId })),
-    // A start-work run is a start-work frame on a workflow stack; agy keeps no other record of one.
-    startWork: (workflows ?? []).filter((f) => f.skill === 'start-work').map((f) => ({ sessionId: f.sessionId, status: f.status, plan: f.ref?.plan ?? null })),
+    // A start-work run is a start-work frame on a workflow stack; agy keeps no other record of one. The frame outlives
+    // the work (nothing pops it when the last row is ticked), so a run whose plan is fully ticked is finished and left
+    // out. `lit start`, `go` and the approval `yes` record the plan on the frame; only an older frame without one falls
+    // back to the guess: finished once no plan of this folder has an open row.
+    startWork: (workflows ?? []).filter((f) => f.skill === 'start-work' && !runFinished(f.ref?.plan ?? null, plans))
+      .map((f) => ({ sessionId: f.sessionId, status: f.status, plan: f.ref?.plan ?? null })),
     handoffs,
     commits: (commits ?? []).slice(0, 20).map(({ atMs: _atMs, ...c }) => c),
   };
@@ -443,13 +456,62 @@ export const renderRewind = (data, { lang = 'en', width = 72, detail = false } =
   return tail.length ? `${board}\n*${tail.join(' ')}*\n` : board;
 };
 
-export const runRewindCli = (args, cwd = process.cwd(), { env = process.env, stdout = process.stdout, stderr = process.stderr } = {}) => {
-  const options = { cwd, env, here: false, since: DEFAULT_SINCE, max: DEFAULT_MAX, sessionId: null };
+// The cursor of the verdict card: when this user last looked at this folder's card, kept per workspace under the
+// LitGravity state root (outside the route-state folders, so no reader mistakes it for a conversation).
+export const cursorPath = (cwd, env = process.env) => {
+  let real;
+  try { real = realpathSync(cwd); } catch { real = resolve(cwd); }
+  return join(stateRoot(env), 'adhd', `${createHash('sha256').update(real).digest('hex').slice(0, 16)}.cursor.json`);
+};
+const readCursor = (path) => {
+  try {
+    const value = JSON.parse(readFileSync(path, 'utf8'));
+    return value && typeof value === 'object' ? value : null;
+  } catch {
+    return null;
+  }
+};
+const writeCursor = (path, value) => {
+  try {
+    mkdirSync(dirname(path), { recursive: true });
+    const tmp = `${path}.tmp-${process.pid}`;
+    writeFileSync(tmp, `${JSON.stringify(value)}\n`);
+    renameSync(tmp, path);
+  } catch { /* a card without a cursor shows "first look" next time */ }
+};
+
+// The recap view (`lit adhd recap [conversation]`, and the old `lit recap`): one conversation's own card, this one by
+// default, with the plan and goal it touched. Read-only, and the cursor is left alone.
+export const RECAP_MOVED_NOTE = 'lit-recap moved into lit-adhd: this is its recap view.';
+const isOpen = (p) => p.progress?.total !== null && p.progress?.total !== undefined && p.progress.done < p.progress.total;
+const runFinished = (plan, plans) => {
+  const local = (plans ?? []).filter((p) => p.local);
+  if (!plan) return !local.some(isOpen);
+  const own = local.find((p) => p.plan === plan);
+  return Boolean(own && own.progress?.total && !isOpen(own));
+};
+
+export const renderRecap = (data, { lang = 'ko', width = 72, of = null, moved = false } = {}) => {
+  // Reached by an old lit-recap name: the moved note is the view's first line, drawn here so no model can bury it.
+  if (moved) return `${RECAP_MOVED_NOTE}\n${renderRecap(data, { lang, width, of })}`;
+  const want = typeof of === 'string' && of ? of.slice(0, 8) : null;
+  const sessions = (data.sessions ?? []).filter((s) => (want ? s.id8 === want : s.self));
+  const picked = sessions.length ? sessions : (want ? [] : (data.sessions ?? []).slice(0, 1));
+  const head = lang === 'ko' ? '## 🧾 리캡' : '## 🧾 Recap';
+  if (!picked.length) return `${head}\n${lang === 'ko' ? `기록 없음${want ? `: ${want}` : ''} — \`lit adhd\`로 전체를 보세요.` : `No record${want ? ` for ${want}` : ''} — \`lit adhd\` shows every conversation.`}\n`;
+  return `${head}\n${renderBrief({ ...data, sessions: picked }, { lang, width: Math.max(40, Math.min(width, 100)) })}`;
+};
+
+export const runRewindCli = (args, cwd = process.cwd(), { env = process.env, stdout = process.stdout, stderr = process.stderr, now = Date.now() } = {}) => {
+  const options = { cwd, env, here: false, since: DEFAULT_SINCE, max: DEFAULT_MAX, sessionId: null, now };
   let json = false;
   let detail = false;
-  let lang = 'en';
+  let recap = false;
+  let recapOf = null;
+  let moved = false;
+  let lang = 'ko';
   let width = Math.min(Number(stdout.columns) || 72, 72);
-  const usage = 'Usage: rewind.mjs [--brief|--json] [--detail] [--lang en|ko] [--here] [--since 7d] [--max 12] [--session <id>] [--width N]';
+  const usage = 'Usage: rewind.mjs [--brief|--json] [--detail] [--recap [--of <conversation>] [--moved]] [--lang ko|en] [--en] [--here] [--since 7d] [--max 12] [--session <id>] [--width N]';
   if (args.some((a) => a === '--help' || a === '-h')) {
     stdout.write(`${usage}\n`);
     return 0;
@@ -459,6 +521,10 @@ export const runRewindCli = (args, cwd = process.cwd(), { env = process.env, std
     if (arg === '--json') json = true;
     else if (arg === '--brief') json = false;
     else if (arg === '--detail') detail = true;
+    else if (arg === '--recap') recap = true;
+    else if (arg === '--moved') moved = true;
+    else if (arg === '--of' && /^[A-Za-z0-9._:-]{1,160}$/u.test(args[i + 1] ?? '')) recapOf = args[++i];
+    else if (arg === '--en') lang = 'en';
     else if (arg === '--lang' && ['en', 'ko'].includes(args[i + 1])) lang = args[++i];
     else if (arg === '--here') options.here = true;
     else if (arg === '--since' && parseSince(args[i + 1])) options.since = args[++i];
@@ -471,7 +537,25 @@ export const runRewindCli = (args, cwd = process.cwd(), { env = process.env, std
     }
   }
   const data = collectRewind(options);
-  if (json) data.boardText = renderBoard(data, { lang });
-  stdout.write(json ? `${JSON.stringify(data, null, 2)}\n` : renderRewind(data, { lang, width, detail }));
+  const cursorFile = cursorPath(cwd, env);
+  const cursor = readCursor(cursorFile);
+  if (json) {
+    data.boardText = renderBoard(data, { lang });
+    data.verdict = renderVerdict(data, { lang, cursor }).verdict;
+    stdout.write(`${JSON.stringify(data, null, 2)}\n`);
+    return 0;
+  }
+  if (recap) {
+    stdout.write(renderRecap(data, { lang, width, of: recapOf, moved }));
+    return 0;
+  }
+  if (detail) {
+    stdout.write(renderRewind(data, { lang, width, detail: true }));
+    return 0;
+  }
+  // The default: the verdict card, then the cursor moves to now, so the next card counts from this look.
+  const card = renderVerdict(data, { lang, cursor });
+  writeCursor(cursorFile, nextCursor(card.verdict, now));
+  stdout.write(card.text);
   return 0;
 };

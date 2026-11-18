@@ -1,32 +1,40 @@
-# litgoal: binding the host's goal tool
+# litgoal: agy's own /goal and the record
 
-The record in `.litgravity/goals/<slug>.json` decides what is true. agy may also expose a goal tool of its own (the binary names `update_goal`, and a status or percentage the interface can show). That tool is a convenience for the person watching the session: it never outranks the criteria, and the skill works the same with no goal tool at all.
+The record in `.litgravity/goals/<slug>.json` decides what is true. agy 1.5.10 also has a goal of its own: the `/goal`
+command in its interactive prompt, which keeps a conversation working until a condition holds. It is the user's
+command. A LitGravity hook can inject text or decide a tool call and cannot type a slash command, and the model is
+given no goal tool to call, so this skill never sets, reads or clears agy's goal.
 
 What has been observed, and what has not:
 
-- Observed: the record, the ledger and the Stop-hook hold work on every agy build the product was probed on (1.4.3).
-- Not observed: the argument shapes of the host goal tool. The product ships no schema for it. When a call is rejected with a schema error, report that error verbatim, set `host_goal.state` to `unavailable`, and continue with the record alone. Guessing around the error hides the real contract.
+- Observed: the record, the ledger and the Stop-hook hold work on every agy build the product was probed on (1.4.3 to
+  1.5.10). `/goal` exists in the interactive prompt (agy's changelog: no run limit, cancelled at a fork point) and is
+  absent from print mode's command list.
+- Not observed: whether a met agy goal clears itself, and what the transcript records for one. Nothing here depends on
+  either.
 
-## Binding table
+## How the two meet
 
-Before anything else, find out what the host already holds. When the host exposes a way to read its current goal, read it once. Then:
-
-| What the host shows | Action | `host_goal.state` |
+| Situation | What happens | `host_goal.state` |
 | --- | --- | --- |
-| no active goal | set one whose objective is the record's objective sentence | `created` |
-| an active goal with the same objective | adopt it, create nothing | `adopted` |
-| an active goal with a different objective | adopt nothing and overwrite nothing: report the conflict, keep the record, replace the host objective only on the user's explicit word | `conflict` |
-| no goal tool offered, a read-only session, or a refused call | keep the record alone and say so once | `unavailable` |
-
-## When the host goal is touched
-
-- Once at set, as the table says.
-- On each criterion change, to refresh the status word (active, blocked, complete) and the percentage (criteria passed over total), when the tool takes them.
-- Once more at the verdict: complete and 100 for `met`; blocked and the real percentage for `not met`; then set `host_goal.state` to `closed`. A `conflict` or `unavailable` binding skips the call.
-- Never from a planning turn. `lit-plan` creates no runtime state, so setting a goal from a planning turn waits for the next route.
+| A plan's `## Done when` check was armed with the user's `yes` | lit-plan's goal question (`../lit-plan/references/goal-condition.md`) gave the user one line to paste, `/goal <cond>`; LitGravity's Stop hook checks the same condition at every turn end | `paste` once the user says they pasted it, else `unavailable` |
+| The user set an agy goal by hand | It is theirs. Mention it once if its objective differs from the record's, and change nothing | `unavailable` |
+| No agy goal | The record stands alone; say nothing about agy's goal | `unavailable` |
 
 ## Rules that do not bend
 
-- The record decides. `host_goal.state` never overrides what the criteria say, and a green host indicator is not evidence.
-- One host goal per conversation is the assumption; a second objective for the same work layers criteria onto the existing record through steering and does not open a second host goal.
-- A call that fails does not fail the goal. Write one `note` ledger line with the error text and carry on.
+- The record decides. An agy goal, met or not, is never evidence for a criterion.
+- Never tell the user to clear or replace an agy goal they set themselves. When LitGravity's own advisory check clears
+  an armed plan goal, its fixed line already tells the user that `/goal clear` is theirs to type.
+- Never from a planning turn: `lit-plan` arms nothing itself; the user's `yes` does.
+
+## What to tell the user, and when
+
+- When a plan's goal is armed, the reply already carries the fixed line with `Paste: /goal <cond>`. Repeat it only if
+  the user asks how to set agy's goal too.
+- When the user says they pasted it, set `host_goal.state` to `paste` and `synced` to now with one record write, and
+  append a `note` ledger line. Nothing else changes: the criteria still decide.
+- When a criterion turns `pass` or the verdict is written, say nothing about agy's goal unless the user asks. A met
+  plan goal is announced by the Stop hook's own fixed line, which also tells the user that `/goal clear` is theirs.
+- When the user asks whether agy's goal is met, answer from the record and the plan's check, and say that agy's own
+  indicator is not read by LitGravity.

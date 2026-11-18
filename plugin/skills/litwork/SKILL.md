@@ -86,7 +86,7 @@ Do all four steps before any other work.
 
 Fire the first discovery wave (see "Finding things" in `references/execution-details.md`), then run the tier triage. Start `lit-planner` with `invoke_subagent` only when open design decisions remain (unclear module boundaries, several viable decompositions, a build whose dependency order is not obvious) and pass it the gathered findings. A known procedure, however many steps, justifies no planner, and planning is never delegated before the discovery wave returns.
 
-**1. Bind the goal with checkable success criteria.** For HEAVY work create or read the goal record by the `litgoal` rules. When agy offers a goal tool, follow `../litgoal/references/host-goal-binding.md`: the record decides, a host call that is rejected is reported once, and the run continues on the record. The criteria state, up front:
+**1. Bind the goal with checkable success criteria.** For HEAVY work create or read the goal record by the `litgoal` rules. agy's own `/goal` is the user's interactive command (`../litgoal/references/host-goal-binding.md`), which this route never sets, reads or clears; the record alone decides. The criteria state, up front:
 
 - the user-visible deliverable in one line, plus the tier and its justification;
 - success criteria sized by tier, each naming its exact scenario (literal command, page action or payload), the binary PASS/FAIL observable and the evidence artifact it will capture;
@@ -149,7 +149,7 @@ New input mid-run is additive, corrective, a replacement or a status request (`r
 | Gates, scenarios, git | `run_command` (`CommandLine`, `Cwd`); `command_status` and `send_command_input` for long or interactive commands | a refused command ends a headless run with no output; ask for the permission, record the answer as a `decision`, and treat a refusal as a pause |
 | Delegation | `invoke_subagent`, `send_message` | always with `TypeName` |
 | Intent you cannot infer | `ask_question` | unanswerable headless: ask in the reply, log any default taken as a `decision` and stop at the question |
-| Host goal | the host's goal tool when offered | optional, see the binding reference |
+| agy goal | the user's own `/goal`, never called by the model | see the binding reference |
 
 Tool names differ between agy builds, so use what the tool list offers. Boundaries that need the user's explicit word: commit, push, tag, publish, version bump, registry writes, host configuration (`~/.gemini`, other tools' home folders), `agy plugin install`, `update` or `remove`, credentials, and deletion outside the change set.
 

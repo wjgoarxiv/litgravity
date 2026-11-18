@@ -34,7 +34,7 @@ Read `reference/canonical-handoff.md` in full before the first handoff of a conv
 - The conversation has grown long and the work continues in a new one.
 - A multi-conversation task reached a break point where another agent or person is likely to continue.
 
-Route elsewhere for a status answer with no file (`lit-recap`), a summary, changelog, commit message, PR description or release note (each has its own format), and work that continues in this same conversation with no transition. When the user asks only to inspect an existing handoff, run inspect mode: read it and the live state, report the differences, write nothing.
+Route elsewhere for a status answer with no file (`lit adhd recap`), a summary, changelog, commit message, PR description or release note (each has its own format), and work that continues in this same conversation with no transition. When the user asks only to inspect an existing handoff, run inspect mode: read it and the live state, report the differences, write nothing.
 
 ## Inputs and state
 
@@ -52,7 +52,7 @@ LitGravity writes one packet, in up to three byte-identical copies:
 
 | Copy | Path | When |
 |---|---|---|
-| continuity copy | `.litgravity/handoff/latest.md` | always; this is what the SessionStart hook points at and what `lit-recap` reads first |
+| continuity copy | `.litgravity/handoff/latest.md` | always; this is what the SessionStart hook points at and what `lit adhd recap` reads first |
 | dated copy | `.litgravity/handoff/<YYYY-MM-DD-HHMM>.md` (stamp from `date +%Y-%m-%d-%H%M`) | whenever a `latest.md` already exists (written first, so the previous packet's history survives the overwrite), and whenever the user asks for history |
 | project copy | resolved by the canonical policy below | when the user asks for a `HANDOFF.md`, or when `.handoff/HANDOFF.md` or root `HANDOFF.md` already exists (refreshing it keeps the two from diverging) |
 

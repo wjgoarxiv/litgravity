@@ -23,7 +23,7 @@ Pair the review with a hypothesis audit even when the review passes. Name at lea
 ## Completion steps
 
 1. `node "<skill-folder>/../lit-plan/scripts/check-plan.mjs" --complete plans/<slug>.md` prints `PLAN_COMPLETE_PASS` once every row is ticked and the structure holds.
-2. Close the goal record by the `litgoal` rules: `done` only when every criterion is `pass` with evidence on disk. When a host goal tool was used for this run, update it too.
+2. Close the goal record by the `litgoal` rules: `done` only when every criterion is `pass` with evidence on disk. An armed plan goal is cleared by the Stop hook's own check once the rows are ticked and the check passes.
 3. Remove the run's worktrees, scratch files and processes and verify their absence. Write `cleanup.md` and a ledger `note` with the receipt.
 4. Write the internal receipt (shape in `execution-templates.md`) to `.litgravity/evidence/<slug>/final-receipt.md`.
 5. Stop before commit, push, tag, version bump or publish. State plainly which of those happened (none, unless the user granted them). When the conversation stops at a checkpoint instead of completing, leave a handoff with `lit-handoff`.

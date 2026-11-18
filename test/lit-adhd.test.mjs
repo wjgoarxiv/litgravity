@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { renderVerdict } from '../plugin/hooks/lib/rewind/verdict.mjs';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, readdirSync, realpathSync, symlinkSync, utimesSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -13,6 +14,8 @@ import { collectRewind, renderRewind, runRewindCli } from '../plugin/hooks/lib/r
 import { renderBrief } from '../plugin/hooks/lib/rewind/brief.mjs';
 import { readTranscriptLines, makeBudget, sessionRecord, transcriptPathOf } from '../plugin/hooks/lib/rewind/transcripts.mjs';
 import { sessionPath } from '../plugin/hooks/lib/common.mjs';
+import { proposeGoal } from '../plugin/hooks/lib/goal.mjs';
+import { readStack } from '../plugin/hooks/lib/workflow-stack.mjs';
 
 // --- Route tests ---
 
@@ -394,16 +397,18 @@ test('collector leaves out unfilled plan scaffolds and stale plans of another fo
   assert.deepEqual(data.roadmap.plans.map((p) => p.plan), ['plans/real.md']);
 });
 
-test('rewind.mjs --brief --lang ko prints the Korean board, --detail adds the brief under it; an unknown language is refused', () => {
+test('rewind.mjs --brief prints the verdict card, --detail keeps the Korean board with the brief under it; an unknown language is refused', () => {
   const cwd = mkdtempSync(join(tmpdir(), 'litgravity-cli-'));
   const env = { HOME: tmpdir(), XDG_STATE_HOME: join(cwd, '.state') };
   let out = '';
   const io = { env, stdout: { write: (t) => { out += t; }, columns: 100 }, stderr: { write: () => {} } };
   assert.equal(runRewindCli(['--brief', '--lang', 'ko', '--here'], cwd, io), 0);
-  assert.match(out, /^## 🎯 지금 할 일\n/);
-  assert.ok(!out.includes('## 🧭'), 'the per-session brief only on request');
+  assert.match(out, /^처음 봄 — 기준 없음\n/);
+  assert.match(out, /^읽음 0\/0 세션/m);
+  assert.ok(!out.includes('## 🎯') && !out.includes('## 🧭'), 'the board and the per-session brief only on request');
   out = '';
   assert.equal(runRewindCli(['--brief', '--lang', 'ko', '--here', '--detail'], cwd, io), 0);
+  assert.match(out, /^## 🎯 지금 할 일\n/);
   assert.match(out, /^## 🧭 세션 0개/m);
   assert.match(out, /```\n╭─ 추천 다음 단계/, 'an untagged fence: a language tag would colour the box');
   assert.equal(runRewindCli(['--lang', 'fr'], cwd, io), 64);
@@ -438,7 +443,7 @@ test('the lit-adhd activation hands the collector this conversation id, so go ca
   const { env } = sandbox();
   const ws = workspace();
   const text = injected(turn(ws, env, 'lit adhd', 0));
-  assert.match(text, /rewind\.mjs --brief --lang <ko\|en> --session conv-test-0001/);
+  assert.match(text, /rewind\.mjs --brief --lang ko --session conv-test-0001/);
 });
 
 test('a running start-work fills startWork: its own session continues, any other blocks a second lit start', () => {
@@ -456,6 +461,49 @@ test('a running start-work fills startWork: its own session continues, any other
   const own = collectRewind({ cwd: ws.dir, sessionId: 'conv-work-0001', env, record: false, exec: noGit });
   assert.equal(own.next.kind, 'continue-work');
   assert.equal(own.next.target.plan, 'plans/ship.md');
+});
+
+test('a start-work run whose plan has every row ticked is finished: no continue, and the card offers no go for it', () => {
+  const { env } = sandbox();
+  const ws = workspace();
+  mkdirp(join(ws.dir, 'plans'));
+  const stateDir = dirname(sessionPath(ws.dir, 'x', env));
+  mkdirp(stateDir);
+  const noGit = () => { throw new Error('no git'); };
+  const frame = (ref) => JSON.stringify({ sessionId: 'conv-work-0001', frames: [{ skill: 'start-work', role: 'spine', status: 'active', at: new Date().toISOString(), ...(ref ? { ref } : {}) }] });
+  writeFileSync(join(ws.dir, 'plans', 'ship.md'), '# Ship\n\n- [x] 1. Draft\n- [x] 2. Write the release notes\n');
+  writeFileSync(join(stateDir, 'conv-work-0001.stack.json'), frame({ plan: 'plans/ship.md' }));
+  const named = collectRewind({ cwd: ws.dir, sessionId: 'conv-work-0001', env, record: false, exec: noGit });
+  assert.deepEqual(named.startWork, [], 'the finished run is not a run');
+  assert.notEqual(named.next.kind, 'continue-work');
+  assert.doesNotMatch(renderVerdict(named, { lang: 'en' }).text, /continue/i);
+  // A frame without a plan reference (the route was started with no plan named) is finished once no local plan is open.
+  writeFileSync(join(stateDir, 'conv-work-0001.stack.json'), frame(null));
+  const bare = collectRewind({ cwd: ws.dir, sessionId: 'conv-work-0001', env, record: false, exec: noGit });
+  assert.notEqual(bare.next.kind, 'continue-work');
+  writeFileSync(join(ws.dir, 'plans', 'next.md'), '# Next\n\n- [ ] 1. Open row\n');
+  const open = collectRewind({ cwd: ws.dir, sessionId: 'conv-work-0001', env, record: false, exec: noGit });
+  assert.equal(open.next.kind, 'continue-work', 'an open plan keeps an unnamed run going');
+});
+
+test('lit start and the approval yes record the plan on the start-work frame, so a finished plan A reads finished while plan B is open', () => {
+  const noGit = () => { throw new Error('no git'); };
+  const PLAN = (row) => `# A\n\n## TODOs\n- [${row}] 1. Do it\n\n## Done when\n- check: \`npm test\`\n`;
+  for (const how of ['lit start', 'yes']) {
+    const { env } = sandbox();
+    const ws = workspace();
+    mkdirp(join(ws.dir, 'plans'));
+    writeFileSync(join(ws.dir, 'plans', 'a.md'), PLAN(' '));
+    if (how === 'yes') proposeGoal({ workspace: ws.dir, plan: 'plans/a.md', run: () => ({ status: 1 }) });
+    injected(turn(ws, env, how === 'yes' ? 'yes' : 'lit start plans/a.md', 0));
+    const frame = readStack(ws.dir, 'conv-test-0001', env).frames.find((f) => f.skill === 'start-work');
+    assert.deepEqual(frame?.ref, { plan: 'plans/a.md' }, `${how} writes the plan path`);
+    writeFileSync(join(ws.dir, 'plans', 'a.md'), PLAN('x'));
+    writeFileSync(join(ws.dir, 'plans', 'b.md'), '# B\n\n- [ ] 1. Still open\n');
+    const data = collectRewind({ cwd: ws.dir, sessionId: 'conv-test-0001', env, record: false, exec: noGit });
+    assert.deepEqual(data.startWork, [], `${how}: run A is finished although B is open`);
+    assert.notEqual(data.next.kind, 'continue-work', how);
+  }
 });
 
 test('redactor: JSON-quoted secret keys and one-time codes beside an auth word are masked', () => {
