@@ -51,6 +51,10 @@ export const SKILL_IDS = new Set(SKILL_ROUTES.map((r) => r.id));
 export const GOAL_NEVER = new Set(['lit-adhd', 'review-work', 'litresearch', 'lit-brainstorm', 'ultra-brainstorm', 'lit-crucible',
   'deep-interview', 'lit-comprehend', 'lit-handoff', 'lit-init', 'rules', 'lsp', 'comment-checker', 'browser-drive']);
 
+// The run routes that get one goal question of their own when no plan carries a goal (see lib/goal.mjs). litgoal, the
+// hand-held goal tool, and every GOAL_NEVER skill stay out.
+export const LOOP_GOAL_ROUTES = new Set(['lit-loop', 'litwork', 'lit-hijack']);
+
 // Five content families moved to the separate wjgoarxiv-skills repository. Each id keeps its route and a same-name
 // pointer stub; the value is the family that holds the skill there. agy installs it from the repository's agy copy,
 // one folder per skill (variants/litgravity/<id>), as a standalone user skill.

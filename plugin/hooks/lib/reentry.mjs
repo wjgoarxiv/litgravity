@@ -78,7 +78,16 @@ export function resumeNote(plan) {
 // that line (or hands over to the installed copy) and builds nothing from memory.
 const movedNote = (id) => `\`${id}\` is a LitFamily extension now, kept in wjgoarxiv-skills (variants/litgravity/${id}/); the file above is its pointer stub. If the stub finds no installed copy, make nothing and give the user the one command that installs it from a terminal (it prints its plan without --yes), \`${extensionCommand(id)}\`, or these four lines pasted in order:\n${extensionLines(id).join('\n')}`;
 
-export function activation(hit, conversationId, kind = 'ignite') {
+// The goal question of a run with no plan (lit-loop, litwork, lit-hijack). agy gives a prompt-time hook no way to show
+// the user text, so the question reaches them through the model: advisory, never typed or sent as /goal by the model.
+// With a test command the hook already recorded the question and hands the model its exact line; without one the model
+// runs goal-propose --loop once a failing check exists.
+const goalScript = () => join(PLUGIN_ROOT, 'skills', 'lit-plan', 'scripts', 'goal-propose.mjs');
+export const loopGoalNote = (offer) => (offer
+  ? `LitGravity goal question (advisory: a prompt hook cannot draw text for the user in agy, so you show it): end your first reply with this exact line, last and once, and say nothing else about the goal:\n${offer.line}\nOnly the user's exact \`yes\` on a later prompt arms it, and then LitGravity starts no start-work run. Never type or send /goal yourself, and do not ask the question again.`
+  : `Native goal: LitGravity can arm a goal for this run. Once one failing check proves the objective (after the RED test), run \`node ${goalScript()} --loop --check "<check>" <objective>\` and end that reply with the line it prints; only the user's exact \`yes\` on a later prompt arms it. If it prints \`Goal skipped: <reason>.\`, or no single check proves the objective, go on without a goal and keep the ledger authoritative. Never type or send /goal yourself.`);
+
+export function activation(hit, conversationId, kind = 'ignite', { loopGoal } = {}) {
   const id = safeId(conversationId);
   const lines = [
     `LitGravity activation: the prompt starts with the lit keyword, so this turn runs the \`${hit.route}\` route${kind === 'switch' ? ' (switched from the route that was active)' : ''}.`,
@@ -90,6 +99,7 @@ export function activation(hit, conversationId, kind = 'ignite') {
   ];
   lines.push(HEADLESS_NOTE);
   if (hit.route === 'lit-plan') lines.push(PLAN_REMINDER);
+  if (loopGoal !== undefined) lines.push(loopGoalNote(loopGoal));
   if (MOVED_SKILLS[hit.route]) lines.push(movedNote(hit.route));
   // `go` reads the step the brief offered for this conversation, so the collector needs its id.
   if (hit.route === 'lit-adhd' && id) {

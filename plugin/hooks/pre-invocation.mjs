@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { run, inject, readSession, writeSession, appendLedger, workspaceOf, safeId, stateRoot } from './lib/common.mjs';
-import { detectRoute } from './lib/routes.mjs';
+import { detectRoute, LOOP_GOAL_ROUTES } from './lib/routes.mjs';
 import { decide, resumablePlan, activation, continueNote, resumeNote } from './lib/reentry.mjs';
 import { lastUserRequest } from './lib/transcript.mjs';
 import { PAUSE_WORD, planRows } from './lib/continuation.mjs';
@@ -10,18 +10,18 @@ import { saveSnapshot } from './lib/boundary.mjs';
 import { applyStackEvent, readStack, writeStack } from './lib/workflow-stack.mjs';
 import { isGoPrompt, takeNextStep } from './lib/rewind/next-step.mjs';
 import { buildSkillPlan, skillPlanContext, skillPlanIds } from './lib/skill-plan.mjs';
-import { answerConsent, cancelOwnedGoal } from './lib/goal.mjs';
+import { answerConsent, cancelOwnedGoal, offerLoopGoal, readGoalRecord, STATUS } from './lib/goal.mjs';
 
 // agy has no UserPromptSubmit event. PreInvocation fires before every model call; invocationNum 0 is the first call of a
 // user turn, and its transcript already holds the prompt. The router reads that prompt, applies the D1 re-entry rule
 // and injects one ephemeral step, so a `lit` prompt is steered before the model has answered anything.
 
-function textFor(decision, hit, payload, plan = null) {
+function textFor(decision, hit, payload, plan = null, extra = {}) {
   switch (decision.kind) {
     case 'continue': return continueNote(decision.route);
     case 'resume': return resumeNote(decision.plan);
     default: {
-      const text = activation(hit, payload.conversationId, decision.kind);
+      const text = activation(hit, payload.conversationId, decision.kind, extra);
       return plan ? `${text}\n${skillPlanContext(plan, { workspace: workspaceOf(payload) })}` : text;
     }
   }
@@ -33,6 +33,18 @@ const namedPlan = (decision, hit, workspace) => {
   const plan = String(hit?.task ?? '').split(/\s+/u).find((w) => /^plans\/[^/\\]+\.md$/u.test(w));
   return plan && existsSync(join(workspace, plan)) ? plan : null;
 };
+
+// A run route's first activation asks the goal question (see lib/goal.mjs): the offer when the project has a test
+// command and no goal is owned or pending, otherwise the note that points the model at goal-propose --loop. A repeated
+// call for the same turn finds its own question on disk and repeats it.
+function loopGoalExtra(decision, hit, workspace, turnId, repeat, payload) {
+  if (!['ignite', 'switch'].includes(decision.kind) || decision.route !== hit.route || !LOOP_GOAL_ROUTES.has(hit.route)) return {};
+  if (repeat) {
+    const asked = readGoalRecord(workspace, 'consent');
+    return { loopGoal: asked?.kind === 'loop' && asked.turnId === turnId && typeof asked.condition === 'string' ? { line: STATUS.askLoop(asked.condition) } : null };
+  }
+  return { loopGoal: offerLoopGoal(workspace, { route: hit.route, objective: hit.task, conversationId: safeId(payload.conversationId), turnId }) };
+}
 
 function stackEvent(decision, hit, workspace) {
   if (decision.kind === 'continue' && decision.route) return { type: 'continue' };
@@ -160,10 +172,13 @@ run((payload) => {
   // `edit` asks again; `no` does nothing. Any other prompt is not an answer and falls through.
   const answered = answerConsent(workspace, request.text, safeId(payload.conversationId), Date.now(), {
     startWork: (plan) => startPlanRun(payload, workspace, turnId, plan),
+    turnId,
   });
   if (answered) {
-    appendLedger(payload, { kind: 'decision', decision: 'goal', answer: request.text.trim().toLowerCase(), started: answered.start });
+    appendLedger(payload, { kind: 'decision', decision: 'goal', answer: request.text.trim().toLowerCase(), started: answered.start, ...(answered.loop ? { loop: true } : {}) });
     const note = `LitGravity goal: tell the user this line once, verbatim, and nothing else about the goal:\n${answered.line}`;
+    // A run's goal answer starts no plan: the lit-loop work this conversation holds goes on.
+    if (answered.loop) return inject(`${note}\nThen go on with the work you hold; start no start-work run and begin no new route.`);
     if (!answered.start) return inject(`${note}\nStart nothing.`);
     const start = activation({ route: 'start-work', keyword: 'start', bare: false, resume: false, restart: false, direct: false, empty: false }, payload.conversationId, 'ignite');
     return inject(`${start}\nThe user approved ${answered.start} with \`yes\`: this is the typed approval for start-work, and the plan to execute is ${answered.start}.\n${note}`);
@@ -213,7 +228,8 @@ run((payload) => {
       ? { kind: 'resume', route: 'start-work', plan: resumablePlan(workspace) }
       : { kind: previous.lastKind, route: previous.route };
     const againPlan = ['ignite', 'switch', 'confirm'].includes(again.kind) && previous.route === hit.route ? buildSkillPlan(hit, { workspace }) : null;
-    return inject(textFor(again, { ...hit, route: previous.route }, payload, againPlan));
+    const againHit = { ...hit, route: previous.route };
+    return inject(textFor(again, againHit, payload, againPlan, loopGoalExtra(again, againHit, workspace, turnId, true, payload)));
   }
 
   const plan = !hit.restart && (hit.bare || hit.resume) ? resumablePlan(workspace) : null;
@@ -236,10 +252,12 @@ run((payload) => {
 
   // The skill plan rides only on a fresh activation of the routed skill; a continue or a resume keeps its own text.
   const skillPlan = ['ignite', 'switch', 'confirm'].includes(decision.kind) && decision.route === hit.route ? buildSkillPlan(hit, { workspace }) : null;
+  const goalExtra = loopGoalExtra(decision, hit, workspace, turnId, false, payload);
   appendLedger(payload, {
     kind: 'route', route: decision.route, how: decision.kind, keyword: hit.keyword ?? null,
     ...(decision.plan ? { path: decision.plan.file } : {}),
     ...(skillPlan ? { plan: skillPlanIds(skillPlan) } : {}),
+    ...(goalExtra.loopGoal ? { goalAsked: goalExtra.loopGoal.condition } : {}),
   });
-  return inject(textFor(decision, hit, payload, skillPlan));
+  return inject(textFor(decision, hit, payload, skillPlan, goalExtra));
 });

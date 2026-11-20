@@ -572,13 +572,13 @@
     },
     "lit-loop": {
       "skillMd": {
-        "bytes": 23493,
-        "bodyBytes": 23316,
-        "sha256": "b18ed1736cf9f80dcd610163773f1e677382cb5974473196c7168da16b05a993"
+        "bytes": 23836,
+        "bodyBytes": 23659,
+        "sha256": "9f4b433b0e272dc4250abd1aee86a8319f2aa07d36184afbcb4a7e4cb9395a85"
       },
       "files": 3,
-      "bytes": 30223,
-      "sha256": "d02df731f6773bcad0426f1a37368d381a2659d33edc9325b43b540130b342fb"
+      "bytes": 32127,
+      "sha256": "1f93b9bc19f16b346068a137638e37d41fb3209231aecb8133c535e047384248"
     },
     "lit-plan": {
       "skillMd": {
@@ -587,8 +587,8 @@
         "sha256": "5b776f7050546f62807fddb428f7fad1e623688f4883c6d18942f88c8f3489b5"
       },
       "files": 12,
-      "bytes": 83814,
-      "sha256": "ef1d8a00a2a4845b615ab83bbed867f9fb69f9575d029e4a7425904cd2119723"
+      "bytes": 84655,
+      "sha256": "e62fe0eea1db5c356abe7941060d7cf2fa545addb5191f62ca74665511bd3d37"
     },
     "lit-pptx": {
       "skillMd": {

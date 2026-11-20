@@ -45,3 +45,11 @@ Use it after a compaction, a restart, or a handoff from another agent. Do not sk
 4. List live resources the earlier run may have left: processes, ports, tmux sessions, browser contexts, temp directories. Decide for each whether this run owns it, and clean what is yours.
 5. Re-run the failing check of the first non-pass criterion before touching code. A failure that no longer reproduces is a finding, and it goes into the ledger before you continue.
 6. Continue with the per-criterion loop. The first reply of the resumed run says which criterion it resumes at.
+
+## Native goal question
+
+A loop with no plan gets one native goal question too, `Set goal for this lit-loop: /goal <cond>? (yes / no)`, where the condition is the check exiting 0 with the objective done. It is advisory: a prompt hook cannot draw text for the user in agy, so the question reaches them through you.
+
+- The project has a test command (`npm test`, `pytest`, `cargo test`, `go test ./...`): the hook recorded the question when the loop started and put its exact line in your activation note. End your first reply with that line, last and once, and do not ask it again.
+- No test command: once one failing check proves the objective (after the RED step), run `node <plugin>/skills/lit-plan/scripts/goal-propose.mjs --loop --check "<check>" <objective>` (the path is in your activation note) and end that reply with the line it prints. A check that already passes, cannot run or is not an allowlisted test command prints `Goal skipped: <reason>.` and records nothing; go on without a goal.
+- Only the user's exact `yes` (any case) on the next prompt arms it: the hook records a goal LitGravity owns, replies with the line to paste into agy's `/goal`, and starts no `start-work` run. `no`, `edit` and any other text drop the question. `lit cancel` clears an owned goal; a new run with another objective, or from another conversation, replaces a finished loop goal when it asks its own question; an old one is dropped at the next session start. Never type or send `/goal` yourself, and never set a goal on `litgoal`, `lit-plan` or any read-only route.

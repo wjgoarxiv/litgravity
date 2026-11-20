@@ -11,12 +11,17 @@
 // one line to paste for agy's goal. The check runs at every turn end through the Stop hook as an advisory: when the
 // rows are ticked and the command exits 0, the owned record is cleared. A goal the user set by hand in agy is never
 // touched, because nothing here can reach it.
+//
+// A run with no plan (lit-loop, litwork, lit-hijack) gets one question of its own, kind "loop": its first activation
+// records a consent whose condition is `<check>` exits 0 and the objective is done, and the same yes arms it, with no
+// start-work run. See offerLoopGoal and proposeLoopGoal.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { planRows } from './continuation.mjs';
-import { GOAL_NEVER } from './routes.mjs';
+import { redact } from './redact.mjs';
+import { GOAL_NEVER, LOOP_GOAL_ROUTES } from './routes.mjs';
 
 export const GOAL_MAX_CHARS = 500;
 export const CONSENT_TTL_MS = 30 * 60 * 1000;
@@ -24,6 +29,10 @@ export const FALSIFY_TIMEOUT_MS = 120_000;
 // The Stop hook has 10 s in hooks.json; the advisory check gets most of it and reports a slow check as unfinished.
 export const STOP_CHECK_TIMEOUT_MS = 7_000;
 export const OWNER_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+// A loop goal has no plan whose disappearance could retire it, and nothing at turn end can judge its objective, so the
+// record ages out sooner than a plan's.
+export const LOOP_OWNER_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+export const LOOP_OBJECTIVE_MAX_CHARS = 180;
 export const GOAL_DIR = join('.litgravity', 'goal');
 
 const JUDGMENT_WORDS = [
@@ -70,6 +79,32 @@ export const compileCondition = ({ plan, check }) => {
   return { ok: true, condition, id };
 };
 
+/** A run's condition: its check exits 0 and its objective is done. No plan, so no rows. */
+export const compileLoopCondition = ({ objective, check }) => {
+  const id = goalId(`loop\u0000${objective}`, check);
+  const condition = `\`${check}\` exits 0 and this is done: ${objective} [lit:${id}]`;
+  if (condition.length > GOAL_MAX_CHARS) return { ok: false, reason: `the condition is over ${GOAL_MAX_CHARS} characters; shorten the objective` };
+  return { ok: true, condition, id };
+};
+
+/** The objective text a prompt carries after `lit`: no slash-command lines, credentials redacted, one line, capped. */
+export const normalizeGoalObjective = (value) => {
+  if (typeof value !== 'string') return '';
+  const lines = value.split(/\r?\n/u).filter((line) => !line.trimStart().startsWith('/'));
+  return redact(lines.join(' ')).replace(/\s+/gu, ' ').trim().slice(0, LOOP_OBJECTIVE_MAX_CHARS).trim();
+};
+
+/** The project's own test command, for the question the prompt hook asks; null when there is none. */
+export const detectCheck = (workspace) => {
+  try {
+    if (typeof JSON.parse(readFileSync(join(workspace, 'package.json'), 'utf8'))?.scripts?.test === 'string') return 'npm test';
+  } catch { /* no readable package.json */ }
+  for (const [file, check] of [['pytest.ini', 'pytest'], ['pyproject.toml', 'pytest'], ['Cargo.toml', 'cargo test'], ['go.mod', 'go test ./...']]) {
+    if (existsSync(join(workspace, file))) return check;
+  }
+  return null;
+};
+
 /** Rejects judgment words, outward-only success, unlisted commands and conditions over the cap. */
 export const lintCondition = (condition, check) => {
   const reasons = [];
@@ -102,6 +137,15 @@ export const falsify = ({ cwd, plan, planText, check, timeoutMs = FALSIFY_TIMEOU
   return { ok: true, open, exit: plannedScript ? null : result.status };
 };
 
+/** A run has no unticked rows to keep its goal false, so its check must fail right now. */
+export const falsifyLoop = ({ cwd, check, timeoutMs = FALSIFY_TIMEOUT_MS, run = spawnSync }) => {
+  const { result } = runCheck(cwd, check, timeoutMs, run);
+  if (result.error?.code === 'ETIMEDOUT' || result.signal === 'SIGTERM') return { ok: false, reason: `\`${check}\` did not finish within ${Math.round(timeoutMs / 1000)} s` };
+  if (result.error || result.status === 127) return { ok: false, reason: `\`${check}\` cannot run here` };
+  if (result.status === 0) return { ok: false, reason: `\`${check}\` already passes, so the goal would be met at once; write the failing test first` };
+  return { ok: true, exit: result.status };
+};
+
 /** `yes`, `edit` and `no` (exactly, any case) are answers; anything else is no answer at all. */
 export const consentAnswer = (prompt) => {
   const text = String(prompt ?? '').trim().toLowerCase();
@@ -117,6 +161,7 @@ export const consentIsLive = (consent, now = Date.now()) => Boolean(consent && c
 
 // The fixed status lines. Nothing else about a goal is ever said in another wording.
 export const STATUS = Object.freeze({
+  askLoop: (condition) => `Set goal for this lit-loop: /goal ${condition}? (yes / no)`,
   ask: (condition) => `Approve plan, start work and set goal: /goal ${condition}? (yes / edit / no)`,
   askStart: (reason) => `No goal for this plan: ${reason}.\nApprove plan and start work? (yes / no)`,
   started: (plan) => `Plan approved: start-work runs ${plan} now. No goal is set.`,
@@ -171,10 +216,11 @@ const setStatus = (workspace, kind, line, now) => writeGoalRecord(workspace, 'st
  * one `lit start <plan>` takes) and, when the record carries a goal, arms it. A refused start arms nothing. Returns
  * `{ line, start }` (`start` is the plan the hook started, or null) or null when the prompt answers no live question.
  */
-export const answerConsent = (workspace, prompt, conversationId, now = Date.now(), { startWork = () => ({ ok: false, reason: 'no start path' }) } = {}) => {
+export const answerConsent = (workspace, prompt, conversationId, now = Date.now(), { startWork = () => ({ ok: false, reason: 'no start path' }), turnId = null } = {}) => {
   const answer = consentAnswer(prompt);
-  if (!answer) return null;
   const consent = readGoalRecord(workspace, 'consent');
+  if (consent?.kind === 'loop') return answerLoopConsent(workspace, consent, answer, conversationId, now, turnId);
+  if (!answer) return null;
   if (!consentIsLive(consent, now) || consent.route !== 'lit-plan' || GOAL_NEVER.has(consent.route)) return null;
   const withGoal = typeof consent.condition === 'string';
   if (answer === 'edit') return { line: withGoal ? STATUS.edit(consent.condition) : STATUS.editStart(), start: null };
@@ -201,6 +247,29 @@ export const answerConsent = (workspace, prompt, conversationId, now = Date.now(
   writeGoalRecord(workspace, 'owner', { condition: consent.condition, hash: consent.hash, plan: consent.plan, check: consent.check, conversationId, armedAt: new Date(now).toISOString(), native: 'paste' });
   setStatus(workspace, 'set', STATUS.set(consent.condition), now);
   return { line: STATUS.set(consent.condition), start: consent.plan };
+};
+
+// A run's question is answered by the very next prompt or not at all: yes arms the goal (no start-work, the run goes
+// on), no sets nothing, and edit or any other text drops the question unanswered. The prompt that asked it (same
+// turn) leaves it alone, so a repeated call for that turn cannot spend it.
+const answerLoopConsent = (workspace, consent, answer, conversationId, now, turnId) => {
+  if (Number.isInteger(turnId) && consent.turnId === turnId) return null;
+  dropGoalRecord(workspace, 'consent');
+  if (!consentIsLive(consent, now) || consent.plan !== null || !LOOP_GOAL_ROUTES.has(consent.route) || GOAL_NEVER.has(consent.route)) return null;
+  if (answer === 'no') {
+    const line = STATUS.skipped('you answered no');
+    setStatus(workspace, 'declined', line, now);
+    return { line, start: null, loop: true };
+  }
+  if (answer !== 'yes') return null;
+  const owner = readGoalRecord(workspace, 'owner');
+  if (owner && owner.hash !== consent.hash) {
+    setStatus(workspace, 'other-active', STATUS.otherActive(owner.condition), now);
+    return { line: STATUS.otherActive(owner.condition), start: null, loop: true };
+  }
+  writeGoalRecord(workspace, 'owner', { kind: 'loop', condition: consent.condition, hash: consent.hash, plan: null, check: consent.check, objective: consent.objective, conversationId, armedAt: new Date(now).toISOString(), native: 'paste' });
+  setStatus(workspace, 'set', STATUS.set(consent.condition), now);
+  return { line: STATUS.set(consent.condition), start: null, loop: true };
 };
 
 /** `lit cancel`: clears only the goal LitGravity owns. */
@@ -237,8 +306,10 @@ export const sweepGoal = (workspace, now = Date.now()) => {
   const owner = readGoalRecord(workspace, 'owner');
   if (!owner) return null;
   const age = now - Date.parse(owner.armedAt);
-  const planGone = typeof owner.plan !== 'string' || !existsSync(join(workspace, owner.plan));
-  if (!(planGone || !Number.isFinite(age) || age > OWNER_MAX_AGE_MS)) return null;
+  // A loop goal names no plan; only its age retires it.
+  const loop = owner.kind === 'loop';
+  const planGone = !loop && (typeof owner.plan !== 'string' || !existsSync(join(workspace, owner.plan)));
+  if (!(planGone || !Number.isFinite(age) || age > (loop ? LOOP_OWNER_MAX_AGE_MS : OWNER_MAX_AGE_MS))) return null;
   dropGoalRecord(workspace, 'owner');
   setStatus(workspace, 'swept', STATUS.swept(owner.condition), now);
   return STATUS.swept(owner.condition);
@@ -264,4 +335,53 @@ export const proposeGoal = ({ workspace, plan, run = spawnSync, now = Date.now()
   if (!dry.ok) return startOnly(dry.reason);
   writeGoalRecord(workspace, 'consent', { condition: built.condition, hash: conditionHash(built.condition), plan, check: done.check, id: built.id, route: 'lit-plan', askedAt: new Date(now).toISOString(), falsifier: { open: dry.open, exit: dry.exit } });
   return { ok: true, condition: built.condition, line: STATUS.ask(built.condition) };
+};
+
+// A loop goal has no plan whose last tick would finish it, so a new run replaces it when it is plainly another run:
+// another objective, or another conversation (both ids known). The same loop asked again keeps its goal, and a plan's
+// goal is never replaced here.
+const staleLoopOwner = (owner, { objective, conversationId }) => owner.kind === 'loop'
+  && (owner.objective !== objective || (typeof conversationId === 'string' && typeof owner.conversationId === 'string' && owner.conversationId !== conversationId));
+
+/**
+ * goal-propose --loop: compile, lint and (unless falsifyNow is false) dry-run a run's condition; on success write the
+ * consent record. The prompt hook cannot wait on a test run, so it passes falsifyNow false: the objective clause still
+ * keeps such a goal false until the work is done. A goal already owned, an empty objective, an unlisted or unrunnable
+ * check or a check that already passes record nothing and return the fixed `Goal skipped: <reason>.` line.
+ */
+export const proposeLoopGoal = ({ workspace, check, objective, route = 'lit-loop', conversationId = null, turnId = null, run = spawnSync, now = Date.now(), timeoutMs = FALSIFY_TIMEOUT_MS, falsifyNow = true }) => {
+  const skip = (reason) => ({ ok: false, line: STATUS.skipped(reason) });
+  const goal = normalizeGoalObjective(String(objective ?? ''));
+  const command = String(check ?? '').trim();
+  if (!LOOP_GOAL_ROUTES.has(route) || GOAL_NEVER.has(route)) return skip(`${route} sets no goal of its own`);
+  if (!goal) return skip('name what the loop should finish');
+  const owner = readGoalRecord(workspace, 'owner');
+  if (owner && !staleLoopOwner(owner, { objective: goal, conversationId })) return skip('a goal is already active');
+  const built = compileLoopCondition({ objective: goal, check: command });
+  if (!built.ok) return skip(built.reason);
+  const lint = lintCondition(built.condition, command);
+  if (!lint.ok) return skip(lint.reasons.join('; '));
+  const dry = falsifyNow ? falsifyLoop({ cwd: workspace, check: command, timeoutMs, run }) : { ok: true };
+  if (!dry.ok) return skip(dry.reason);
+  if (owner) dropGoalRecord(workspace, 'owner');
+  writeGoalRecord(workspace, 'consent', { kind: 'loop', route, condition: built.condition, hash: conditionHash(built.condition), plan: null, check: command, objective: goal, id: built.id, turnId, askedAt: new Date(now).toISOString() });
+  return { ok: true, condition: built.condition, line: STATUS.askLoop(built.condition) };
+};
+
+/**
+ * A run's first activation: when the prompt carries an objective, the project has a test command and no goal is owned or
+ * pending, record the question and return it. Returns { line, condition } or null (nothing recorded).
+ */
+export const offerLoopGoal = (workspace, { route, objective, conversationId = null, turnId = null, now = Date.now() }) => {
+  try {
+    if (!LOOP_GOAL_ROUTES.has(route) || !normalizeGoalObjective(objective ?? '')) return null;
+    const owner = readGoalRecord(workspace, 'owner');
+    if ((owner && !staleLoopOwner(owner, { objective: normalizeGoalObjective(objective), conversationId })) || readGoalRecord(workspace, 'consent')) return null;
+    const check = detectCheck(workspace);
+    if (!check) return null;
+    const offer = proposeLoopGoal({ workspace, check, objective, route, conversationId, turnId, now, falsifyNow: false });
+    return offer.ok ? { line: offer.line, condition: offer.condition } : null;
+  } catch {
+    return null;
+  }
 };
