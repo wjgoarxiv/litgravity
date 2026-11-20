@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.13 — 2026-11-21
 
 - A `lit` run with no plan (lit-loop, litwork, lit-hijack) can get an agy `/goal` line too. At its first activation, when the prompt names an objective, the project has a test command (`npm test`, `pytest`, `cargo test`, `go test ./...`) and no goal is active or pending, the hook records the question `Set goal for this lit-loop: /goal <cond>? (yes / no)`, where the condition is that command exiting 0 with the objective done, and tells the model to end its first reply with that exact line. A prompt hook cannot draw text for the user in agy, so this reaches you through the model and is advisory. An exact `yes` arms a goal LitGravity owns and gives the line to paste into agy's `/goal`; it starts no start-work run. `no`, `edit` or any other prompt drops the question. With no test command, `goal-propose.mjs --loop --check "<check>" <objective>` asks the same question after the first failing check, and prints `Goal skipped: <reason>.` and records nothing when the check already passes, cannot run or is not an allowlisted test command. `litgoal` and the read-only skills never ask; a loop goal never blocks the next run: a question with another objective, or from another conversation, replaces it, and an old one is dropped at the next session start.
 

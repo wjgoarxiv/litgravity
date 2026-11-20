@@ -1,6 +1,6 @@
 {
   "name": "@litfamily/litgravity",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Installer for LitGravity: skills, hooks and agents that help Google's Antigravity CLI (agy) plan, build, check and hand off work.",
   "keywords": [
     "antigravity",
