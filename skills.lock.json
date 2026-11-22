@@ -572,23 +572,23 @@
     },
     "lit-loop": {
       "skillMd": {
-        "bytes": 23836,
-        "bodyBytes": 23659,
-        "sha256": "9f4b433b0e272dc4250abd1aee86a8319f2aa07d36184afbcb4a7e4cb9395a85"
+        "bytes": 23853,
+        "bodyBytes": 23676,
+        "sha256": "1fbb71d4f7c9ac27d921d70761ae05954a6cf85d0e51d6537bc21091c07e2e00"
       },
       "files": 3,
-      "bytes": 32127,
-      "sha256": "1f93b9bc19f16b346068a137638e37d41fb3209231aecb8133c535e047384248"
+      "bytes": 32292,
+      "sha256": "0fd21d4d9e6aff3c5df951810f79685a70ea7b01d18578818da0498681766333"
     },
     "lit-plan": {
       "skillMd": {
-        "bytes": 23981,
-        "bodyBytes": 23790,
-        "sha256": "5b776f7050546f62807fddb428f7fad1e623688f4883c6d18942f88c8f3489b5"
+        "bytes": 23998,
+        "bodyBytes": 23807,
+        "sha256": "382c32f6a8714cca91844cbe8064a3c58998c28daeb3528e7a4efc6134d0d8ba"
       },
       "files": 12,
-      "bytes": 84655,
-      "sha256": "e62fe0eea1db5c356abe7941060d7cf2fa545addb5191f62ca74665511bd3d37"
+      "bytes": 85404,
+      "sha256": "41190406930fb50e0f05e7c71b677c1225f46c206234d45bb9c9c95b3c882543"
     },
     "lit-pptx": {
       "skillMd": {
@@ -823,6 +823,7 @@
     "plugin/hooks/lib/common.mjs",
     "plugin/hooks/lib/continuation.mjs",
     "plugin/hooks/lib/extensions.mjs",
+    "plugin/hooks/lib/goal-guide.mjs",
     "plugin/hooks/lib/goal.mjs",
     "plugin/hooks/lib/lanes.mjs",
     "plugin/hooks/lib/liveness.mjs",

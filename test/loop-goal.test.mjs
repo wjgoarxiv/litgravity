@@ -265,7 +265,7 @@ test('goal-propose --loop prints the question for a failing check and refuses a 
   assert.match(unlisted.stdout, /^Goal skipped: .*not an allowlisted test command/);
   const red = go('--loop', '--check', 'node --test test/red.test.mjs', 'fix', 'the', 'parser');
   assert.equal(red.status, 0);
-  assert.match(red.stdout, /^Set goal for this lit-loop: \/goal `node --test test\/red\.test\.mjs` exits 0 and this is done: fix the parser \[lit:[0-9a-f]{8}\]\? \(yes \/ no\)\n$/);
+  assert.match(red.stdout, /^Set goal for this lit-loop: \/goal `node --test test\/red\.test\.mjs` exits 0 and this is done: fix the parser \[lit:[0-9a-f]{8}\]\? \(yes \/ no\)\n\n> \*\*▶ Answer: set goal for this lit-loop\*\*\n/u);
   const rec = readGoalRecord(ws.dir, 'consent');
   assert.equal(rec.kind, 'loop');
   assert.equal(rec.plan, null);

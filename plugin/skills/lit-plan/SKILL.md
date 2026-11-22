@@ -116,7 +116,7 @@ If the question cannot be asked in this turn but a human is present, write the p
 
 ### Phase 3: bind the goal text and the Done when check
 
-The plan carries a `Goal` block (one outcome sentence, two to six criteria, each naming its proof; `litgoal` sets it when execution begins) and a `## Done when` block with one `check: \`<command>\`` line: an allowlisted test command that exits 0 only when the work is done (a long plan points it at one `scripts/<name>.sh`). After the self-check passes, run `node <skill-root>/scripts/goal-propose.mjs plans/<slug>.md` once. It builds `Every row in plans/<slug>.md is ticked and \`<cmd>\` exits 0 [lit:<id>]`, rejects judgment words, push- or publish-only success and anything over 500 characters, and runs the check once to prove it fails today. Its one printed line goes, unchanged, last in your approval question: `Approve plan and set goal: /goal <cond>? (yes / edit / no)` or `Goal skipped: <reason>.` Only the user's exact `yes` arms it (`references/goal-condition.md`).
+The plan carries a `Goal` block (one outcome sentence, two to six criteria, each naming its proof; `litgoal` sets it when execution begins) and a `## Done when` block with one `check: \`<command>\`` line: an allowlisted test command that exits 0 only when the work is done (a long plan points it at one `scripts/<name>.sh`). After the self-check passes, run `node <skill-root>/scripts/goal-propose.mjs plans/<slug>.md` once. It builds `Every row in plans/<slug>.md is ticked and \`<cmd>\` exits 0 [lit:<id>]`, rejects judgment words, push- or publish-only success and anything over 500 characters, and runs the check once to prove it fails today. Its output ends your approval question: the line, unchanged (`Approve plan and set goal: /goal <cond>? (yes / edit / no)` or `Goal skipped: <reason>.`), then its answer guide. Only the user's exact `yes` arms it (`references/goal-condition.md`).
 
 ### Phase 4: write the plan
 
@@ -204,7 +204,7 @@ Off limits on this route: `send_command_input`, `define_subagent`, `browser_suba
 
 Stop when the plan file is written and passes the checklist, or when a missing answer blocks every useful task (then the plan carries the question as row 1 and the reply says `BLOCKED: <question>`). After two failed attempts at one section, surface what you tried and ask.
 
-Reply in reader form: the plan path, the TL;DR, the number of tasks, any assumption the user should confirm, and, last, the approval question `goal-propose` printed: the user's `yes` starts the run and arms the goal (when it carries one), and the hook does both. Approval covers plan generation and starting that run; commit, push, versioning and publishing each need their own go-ahead. Keep logs, lane verdicts and command lists in the draft and ledger unless the user asks for them.
+Reply in reader form: the plan path, the TL;DR, the number of tasks, any assumption the user should confirm, and, last, the question and guide `goal-propose` printed: the user's `yes` starts the run and arms the goal (when it carries one), and the hook does both. Approval covers plan generation and starting that run; commit, push, versioning and publishing each need their own go-ahead. Keep logs, lane verdicts and command lists in the draft and ledger unless the user asks for them.
 
 ## Pitfalls
 

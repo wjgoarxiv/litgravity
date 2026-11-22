@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { PLUGIN_ROOT, sessionPath, safeId } from './common.mjs';
 import { MOVED_SKILLS, extensionLines, extensionCommand } from './routes.mjs';
+import { answerGuide } from './goal-guide.mjs';
 
 // The route a `lit` prompt finds already active in this conversation. A damaged, journal-only or odd-shaped state
 // counts as nothing active, so the prompt gets the full activation and rewrites the state.
@@ -84,8 +85,8 @@ const movedNote = (id) => `\`${id}\` is a LitFamily extension now, kept in wjgoa
 // runs goal-propose --loop once a failing check exists.
 const goalScript = () => join(PLUGIN_ROOT, 'skills', 'lit-plan', 'scripts', 'goal-propose.mjs');
 export const loopGoalNote = (offer) => (offer
-  ? `LitGravity goal question (advisory: a prompt hook cannot draw text for the user in agy, so you show it): end your first reply with this exact line, last and once, and say nothing else about the goal:\n${offer.line}\nOnly the user's exact \`yes\` on a later prompt arms it, and then LitGravity starts no start-work run. Never type or send /goal yourself, and do not ask the question again.`
-  : `Native goal: LitGravity can arm a goal for this run. Once one failing check proves the objective (after the RED test), run \`node ${goalScript()} --loop --check "<check>" <objective>\` and end that reply with the line it prints; only the user's exact \`yes\` on a later prompt arms it. If it prints \`Goal skipped: <reason>.\`, or no single check proves the objective, go on without a goal and keep the ledger authoritative. Never type or send /goal yourself.`);
+  ? `LitGravity goal question (advisory: a prompt hook cannot draw text for the user in agy, so you show it): end your first reply with this exact line, then the answer guide right under it, once, and say nothing else about the goal. Render the guide in the user's language; the answer words stay \`yes\` and \`no\`:\n${offer.line}\n${answerGuide('loop', offer.condition)}\nOnly the user's exact \`yes\` on a later prompt arms it, and then LitGravity starts no start-work run. Never type or send /goal yourself, and do not ask the question again.`
+  : `Native goal: LitGravity can arm a goal for this run. Once one failing check proves the objective (after the RED test), run \`node ${goalScript()} --loop --check "<check>" <objective>\` and end that reply with what it prints: the line unchanged, then its answer guide in the user's language (the answer words stay \`yes\` and \`no\`); only the user's exact \`yes\` on a later prompt arms it. If it prints \`Goal skipped: <reason>.\`, or no single check proves the objective, go on without a goal and keep the ledger authoritative. Never type or send /goal yourself.`);
 
 export function activation(hit, conversationId, kind = 'ignite', { loopGoal } = {}) {
   const id = safeId(conversationId);

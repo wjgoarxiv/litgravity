@@ -15,7 +15,8 @@ import { proposeGoal, proposeLoopGoal } from '../../../hooks/lib/goal.mjs';
 const args = process.argv.slice(2);
 const json = args.includes('--json');
 const rest = args.filter((a) => a !== '--json');
-const out = (result) => process.stdout.write(json ? `${JSON.stringify(result)}\n` : `${result.line}\n`);
+// The answer guide goes under the question, after a blank line, for the model to render in the user's language.
+const out = (result) => process.stdout.write(json ? `${JSON.stringify(result)}\n` : `${result.line}\n${result.guide ? `\n${result.guide}\n` : ''}`);
 if (rest[0] === '--loop') {
   if (rest[1] !== '--check' || !rest[2] || rest[2].startsWith('-') || rest.length < 4) {
     process.stderr.write('usage: node goal-propose.mjs --loop --check "<command>" <objective...> [--json]\n');

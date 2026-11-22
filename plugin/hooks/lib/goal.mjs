@@ -18,6 +18,7 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
+import { answerChoices, answerGuide } from './goal-guide.mjs';
 import { join } from 'node:path';
 import { planRows } from './continuation.mjs';
 import { redact } from './redact.mjs';
@@ -161,15 +162,15 @@ export const consentIsLive = (consent, now = Date.now()) => Boolean(consent && c
 
 // The fixed status lines. Nothing else about a goal is ever said in another wording.
 export const STATUS = Object.freeze({
-  askLoop: (condition) => `Set goal for this lit-loop: /goal ${condition}? (yes / no)`,
-  ask: (condition) => `Approve plan, start work and set goal: /goal ${condition}? (yes / edit / no)`,
-  askStart: (reason) => `No goal for this plan: ${reason}.\nApprove plan and start work? (yes / no)`,
+  askLoop: (condition) => `Set goal for this lit-loop: /goal ${condition}? ${answerChoices('loop')}`,
+  ask: (condition) => `Approve plan, start work and set goal: /goal ${condition}? ${answerChoices('plan')}`,
+  askStart: (reason) => `No goal for this plan: ${reason}.\nApprove plan and start work? ${answerChoices('start')}`,
   started: (plan) => `Plan approved: start-work runs ${plan} now. No goal is set.`,
   startRefused: (reason) => `Plan not started and no goal set: ${reason}.`,
   set: (condition) => `Goal armed by LitGravity: ${condition}. agy's own goal is not confirmed (a hook cannot type it). Paste: /goal ${condition}`,
   skipped: (reason) => `Goal skipped: ${reason}.`,
-  edit: (condition) => `Nothing started and no goal set. Edit the \`## Done when\` check, then answer again: /goal ${condition}? (yes / edit / no)`,
-  editStart: () => 'Nothing started. Edit the plan, then answer again: Approve plan and start work? (yes / no)',
+  edit: (condition) => `Nothing started and no goal set. Edit the \`## Done when\` check, then answer again: /goal ${condition}? ${answerChoices('plan')}`,
+  editStart: () => `Nothing started. Edit the plan, then answer again: Approve plan and start work? ${answerChoices('start')}`,
   declined: () => 'Nothing started and no goal set: you answered no.',
   otherActive: (condition) => `A goal is already active (${condition}); LitGravity left it as it is.`,
   met: (condition) => `Goal met and cleared: ${condition}. If you pasted it into agy and it still shows, type /goal clear.`,
@@ -323,7 +324,7 @@ export const proposeGoal = ({ workspace, plan, run = spawnSync, now = Date.now()
   // A plan that cannot carry a goal can still be approved and started: the question drops the goal half and names why.
   const startOnly = (reason) => {
     writeGoalRecord(workspace, 'consent', { condition: null, hash: conditionHash(`start ${plan}`), plan, reason, route: 'lit-plan', askedAt: new Date(now).toISOString() });
-    return { ok: false, startOnly: true, reason, line: STATUS.askStart(reason) };
+    return { ok: false, startOnly: true, reason, line: STATUS.askStart(reason), guide: answerGuide('start') };
   };
   const done = parseDoneWhen(planText);
   if (!done.ok) return startOnly(done.reason);
@@ -334,7 +335,7 @@ export const proposeGoal = ({ workspace, plan, run = spawnSync, now = Date.now()
   const dry = falsify({ cwd: workspace, plan, planText, check: done.check, timeoutMs, run });
   if (!dry.ok) return startOnly(dry.reason);
   writeGoalRecord(workspace, 'consent', { condition: built.condition, hash: conditionHash(built.condition), plan, check: done.check, id: built.id, route: 'lit-plan', askedAt: new Date(now).toISOString(), falsifier: { open: dry.open, exit: dry.exit } });
-  return { ok: true, condition: built.condition, line: STATUS.ask(built.condition) };
+  return { ok: true, condition: built.condition, line: STATUS.ask(built.condition), guide: answerGuide('plan', built.condition) };
 };
 
 // A loop goal has no plan whose last tick would finish it, so a new run replaces it when it is plainly another run:
@@ -365,7 +366,7 @@ export const proposeLoopGoal = ({ workspace, check, objective, route = 'lit-loop
   if (!dry.ok) return skip(dry.reason);
   if (owner) dropGoalRecord(workspace, 'owner');
   writeGoalRecord(workspace, 'consent', { kind: 'loop', route, condition: built.condition, hash: conditionHash(built.condition), plan: null, check: command, objective: goal, id: built.id, turnId, askedAt: new Date(now).toISOString() });
-  return { ok: true, condition: built.condition, line: STATUS.askLoop(built.condition) };
+  return { ok: true, condition: built.condition, line: STATUS.askLoop(built.condition), guide: answerGuide('loop', built.condition) };
 };
 
 /**

@@ -43,8 +43,13 @@ that script a row. A script the plan creates may be missing today; that counts a
    a goal-less consent record and prints `No goal for this plan: <reason>.` and `Approve plan and start work? (yes / no)`.
    An unreadable plan prints `Goal skipped: <reason>.` and writes nothing.
 
-Put the printed line, unchanged, last in the reply that asks for approval. Do not reword it, and do not answer it
-yourself.
+Under the question it prints a blank line and an answer guide, a Markdown quote built from the same answers as the
+question: a `▶ Answer` heading, the goal as `/goal <cond>` (none on a start-only question), a `Type | What happens`
+table with one row per answer (`yes`, `edit`, `no`, or `yes` and `no`) and the closing line `Type the word alone.`
+
+End the reply that asks for approval with both: the question line unchanged, then the answer guide right under it.
+Do not reword the question line, and do not answer it yourself. Render the guide's heading, effects and closing line in
+the user's language; the answer words stay the exact English `yes`, `edit` and `no`, since only those are answers.
 
 ## The answer
 

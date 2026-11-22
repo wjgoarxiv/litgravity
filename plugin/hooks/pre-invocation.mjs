@@ -41,7 +41,7 @@ function loopGoalExtra(decision, hit, workspace, turnId, repeat, payload) {
   if (!['ignite', 'switch'].includes(decision.kind) || decision.route !== hit.route || !LOOP_GOAL_ROUTES.has(hit.route)) return {};
   if (repeat) {
     const asked = readGoalRecord(workspace, 'consent');
-    return { loopGoal: asked?.kind === 'loop' && asked.turnId === turnId && typeof asked.condition === 'string' ? { line: STATUS.askLoop(asked.condition) } : null };
+    return { loopGoal: asked?.kind === 'loop' && asked.turnId === turnId && typeof asked.condition === 'string' ? { line: STATUS.askLoop(asked.condition), condition: asked.condition } : null };
   }
   return { loopGoal: offerLoopGoal(workspace, { route: hit.route, objective: hit.task, conversationId: safeId(payload.conversationId), turnId }) };
 }

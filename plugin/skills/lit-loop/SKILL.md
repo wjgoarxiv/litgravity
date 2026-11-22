@@ -98,7 +98,7 @@ Write criteria before editing anything. Each names a command or an observation o
 
 Durable path: create or reuse the record following `litgoal` (read `skills/litgoal/SKILL.md` when the record is missing), every criterion `open`. agy's own `/goal` is the user's command; this loop updates the record and ledger itself. Ask the user to confirm only when a criterion rests on a guess about intent.
 
-A loop with no plan gets one advisory goal question, `Set goal for this lit-loop: /goal <cond>? (yes / no)`: end your first reply with the exact line your activation note carries, once, or run `goal-propose.mjs --loop` after the RED step when it carries none. Never type `/goal` yourself; the steps are in `references/ledger-and-records.md`.
+A loop with no plan gets one advisory goal question, `Set goal for this lit-loop: /goal <cond>? (yes / no)`: end your first reply with the exact line and answer guide your activation note carries, once, or run `goal-propose.mjs --loop` after the RED step when it carries none. Never type `/goal` yourself; the steps are in `references/ledger-and-records.md`.
 
 For a goal with several units, write a dependency map before delegating:
 
