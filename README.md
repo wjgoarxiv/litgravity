@@ -3,7 +3,7 @@
 <h1 align="center">LitGravity</h1>
 <p align="center"><strong>Keep the work lit.</strong></p>
 
-<p align="center">LitGravity gives Google's Antigravity CLI (<code>agy</code>) the habit of planning before it edits, checking what it built, and leaving a handoff, so the next conversation starts where this one stopped. One npm command installs it as an agy plugin.</p>
+<p align="center">LitGravity is an add-on for Google's Antigravity CLI (<code>agy</code>). It makes agy check its own work before it says "done", and leaves a note so the next session starts where this one stopped.</p>
 
 <p align="center">
 <a href="https://www.npmjs.com/package/@litfamily/litgravity"><img src="https://img.shields.io/npm/v/@litfamily/litgravity?color=FF6337&amp;label=npm" alt="npm version" /></a>
@@ -12,10 +12,43 @@
 <a href="https://github.com/wjgoarxiv/litgravity/stargazers"><img src="https://img.shields.io/github/stars/wjgoarxiv/litgravity?style=flat" alt="GitHub stars" /></a>
 </p>
 
+You ask agy for a feature. It writes the code and says it is finished, and a day later you find the tests
+never ran. You open a new conversation and explain the whole project again.
+
+With LitGravity you start the same request with `lit`. agy first writes down what "finished" means for this
+task, adds a test that fails, makes it pass, and ends by telling you what it checked and what it could not.
+When you stop, type `lit handoff`. agy saves a note, and the next conversation finds it and carries on.
+
 <p align="center"><a href="#install"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> Install</a> &nbsp; <a href="#demo"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> Demo</a> &nbsp; <a href="#safety-and-uninstall"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> Update &amp; remove</a> &nbsp; <a href="#quick-start">Quick start</a> &nbsp; <a href="#what-you-can-make">What you can make</a> &nbsp; <a href="#what-you-get">What you get</a> &nbsp; <a href="#what-agy-limits-today">agy limits</a> &nbsp; <a href="./README_ko-KR.md">한국어</a></p>
 
-> [!TIP]
-> One npm command installs LitGravity as an agy plugin ([Install](#install)). Then start any agy prompt with `lit`, as [Quick start](#quick-start) shows.
+## Two ways to use it
+
+**The easy way.** Write your request as usual and put `lit` in front of it. In agy the word has to come first:
+
+```text
+lit fix the date parsing bug in src/dates.js
+```
+
+agy sets the goal, writes a failing test, fixes the bug, checks the result and tells you what it checked.
+Most tasks need nothing more.
+
+**The full workflow.** For a bigger job, go one step at a time. Each step leaves a file the next step reads,
+and you can skip any step you do not need.
+
+| Step | Type | What happens |
+| --- | --- | --- |
+| 1. Explore | `lit brainstorm <question>` | Many options, scored, cut to a short list |
+| 2. Clarify | `lit interview <idea>` | agy asks questions until the goal is clear, and saves a spec |
+| 3. Plan | `lit crucible <approach>` or `lit plan <task>` | Crucible attacks the approach first and hands what survives to the plan; `lit plan` writes `plans/<slug>.md` and asks for your approval |
+| 4. Build | `yes` to the plan's question, `lit start plans/<slug>.md`, or `lit loop <task>` | agy builds it step by step, with tests and checks |
+| 5. Review | `lit review` | A review in five lanes, findings first |
+| 6. Hand off | `lit handoff` | What was done, what was checked and the next step, saved to `.litgravity/handoff/latest.md` |
+
+Install with one line, then open agy in your project ([Install](#install) has the details and [Quick start](#quick-start) the first run):
+
+```bash
+npx @litfamily/litgravity install
+```
 
 ## Demo
 

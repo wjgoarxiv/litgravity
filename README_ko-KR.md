@@ -3,7 +3,7 @@
 <h1 align="center">LitGravity</h1>
 <p align="center"><strong>Keep the work lit.</strong></p>
 
-<p align="center">LitGravity는 Google의 Antigravity CLI(<code>agy</code>)에 일하는 습관을 붙여 줍니다. 고치기 전에 계획하고, 만든 것을 확인하고, 끝낼 때 인계 메모를 남깁니다. 그래서 다음 대화가 이번 대화가 멈춘 자리에서 바로 이어집니다. npm 명령 하나로 agy 플러그인으로 설치됩니다.</p>
+<p align="center">LitGravity는 Google의 Antigravity CLI(<code>agy</code>)에 붙이는 추가 기능입니다. agy가 "다 됐어요"라고 말하기 전에 자기 작업을 직접 확인하게 하고, 다음 세션이 이어서 시작할 수 있도록 기록을 남기게 합니다.</p>
 
 <p align="center">
 <a href="https://www.npmjs.com/package/@litfamily/litgravity"><img src="https://img.shields.io/npm/v/@litfamily/litgravity?color=FF6337&amp;label=npm" alt="npm 버전" /></a>
@@ -12,10 +12,38 @@
 <a href="https://github.com/wjgoarxiv/litgravity/stargazers"><img src="https://img.shields.io/github/stars/wjgoarxiv/litgravity?style=flat" alt="GitHub 스타" /></a>
 </p>
 
+agy에게 기능을 하나 부탁하면 코드를 쓰고 끝났다고 말합니다. 그런데 다음 날 보니 테스트는 한 번도 돌지 않았습니다. 새 대화를 열면 프로젝트 설명을 처음부터 다시 해야 합니다.
+
+LitGravity를 쓰면 같은 요청 앞에 `lit`만 붙이면 됩니다. agy는 먼저 이 작업에서 "끝났다"가 무슨 뜻인지 적고, 실패하는 테스트를 추가해 통과시킨 뒤, 무엇을 확인했고 무엇을 확인하지 못했는지 알려 줍니다. 작업을 멈출 때 `lit handoff`라고 치면 agy가 기록을 남기고, 다음 대화가 그 기록을 찾아 이어서 합니다.
+
 <p align="center"><a href="#설치"><img src="./docs/assets/readme/icon-book.svg" width="16" alt="" /> 설치</a> &nbsp; <a href="#데모"><img src="./docs/assets/readme/icon-play.svg" width="16" alt="" /> 데모</a> &nbsp; <a href="#안전과-제거"><img src="./docs/assets/readme/icon-shield.svg" width="16" alt="" /> 업데이트·제거</a> &nbsp; <a href="#빠른-시작">빠른 시작</a> &nbsp; <a href="#만들-수-있는-것">만들 수 있는 것</a> &nbsp; <a href="#들어-있는-것">들어 있는 것</a> &nbsp; <a href="#지금-agy가-막아-두는-것">agy의 한계</a> &nbsp; <a href="./README.md">English</a></p>
 
-> [!TIP]
-> npm 명령 하나로 LitGravity를 agy 플러그인으로 설치합니다([설치](#설치)). 그다음 agy 프롬프트를 `lit`으로 시작하면 되고, 순서는 [빠른 시작](#빠른-시작)에 있습니다.
+## 두 가지 사용법
+
+**간단하게.** 평소처럼 요청을 쓰고 맨 앞에 `lit`을 붙입니다. agy에서는 이 단어가 꼭 처음에 와야 합니다.
+
+```text
+lit src/dates.js의 날짜 파싱 버그 고쳐줘
+```
+
+agy가 목표를 정하고, 실패하는 테스트를 쓰고, 버그를 고치고, 결과를 확인한 뒤 확인한 내용을 알려 줍니다. 대부분의 작업은 이것으로 충분합니다.
+
+**본격적으로.** 큰 작업은 한 단계씩 나아갑니다. 각 단계가 남긴 파일을 다음 단계가 읽고, 필요 없는 단계는 건너뛰면 됩니다.
+
+| 단계 | 입력 | 하는 일 |
+| --- | --- | --- |
+| 1. 넓게 보기 | `lit brainstorm <질문>` | 선택지를 많이 낸 뒤 점수를 매겨 몇 개로 추립니다 |
+| 2. 구체화 | `lit interview <아이디어>` | 목표가 분명해질 때까지 agy가 묻고, 정리한 명세를 저장합니다 |
+| 3. 계획 | `lit crucible <접근법>` 또는 `lit plan <작업>` | crucible은 접근법의 약점부터 찔러 보고 살아남은 조건을 계획으로 넘깁니다. `lit plan`은 `plans/<slug>.md`를 쓰고 승인을 묻습니다 |
+| 4. 실행 | 계획 질문에 `yes`, `lit start plans/<slug>.md`, 또는 `lit loop <작업>` | 테스트와 확인을 거치며 한 단계씩 만들어 갑니다 |
+| 5. 검토 | `lit review` | 다섯 갈래로 검토하고 발견한 문제부터 알려 줍니다 |
+| 6. 넘겨주기 | `lit handoff` | 한 일, 확인한 것, 다음 할 일을 `.litgravity/handoff/latest.md`에 남깁니다 |
+
+설치는 한 줄입니다. 그다음 프로젝트에서 agy를 여세요(자세한 내용은 [설치](#설치), 처음 써 보는 과정은 [빠른 시작](#빠른-시작)에 있습니다).
+
+```bash
+npx @litfamily/litgravity install
+```
 
 ## 데모
 
