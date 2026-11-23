@@ -79,6 +79,26 @@ test('activation is case-sensitive and ignores prose, code fences and look-alike
   assert.equal(detectRoute(42), null);
 });
 
+test('a run word typed last routes like one typed first, and the words before it are the task', () => {
+  for (const [prompt, route, task] of [
+    ['fix the parser bug lit', 'lit-loop', 'fix the parser bug'],
+    ['로그인 버튼 고쳐줘. 부탁해 lit', 'lit-loop', '로그인 버튼 고쳐줘. 부탁해'],
+    ['fix the parser bug LIT.', 'lit-loop', 'fix the parser bug'],
+    ['로그인 버튼 고쳐줘 lit-loop', 'lit-loop', '로그인 버튼 고쳐줘'],
+    ['fix the parser litwork', 'litwork', 'fix the parser'],
+    ['port the ranker lit-hijack', 'lit-hijack', 'port the ranker'],
+  ]) {
+    const hit = detectRoute(prompt);
+    assert.equal(hit?.route, route, prompt);
+    assert.equal(hit.task, task, prompt);
+    assert.equal(hit.trailing, true, prompt);
+    assert.equal(hit.bare, false, prompt);
+  }
+  for (const prompt of ['what does lit-loop do?', 'should I use lit?', 'the lit fuse', 'Fix it Lit', 'fix it lit-plan', 'fix it lit-humanizer', 'fix it splitlit', '```\nfix it lit\n```']) {
+    assert.equal(detectRoute(prompt), null, prompt);
+  }
+});
+
 test('skill ids typed as the first word, plain or as a slash command, route directly', () => {
   for (const p of ['lit-plan x', '/lit-plan x', '/litgravity:lit-plan x', 'litgoal set it', '/start-work plans/a.md', '/debugging the crash']) {
     assert.equal(detectRoute(p).direct, true, p);

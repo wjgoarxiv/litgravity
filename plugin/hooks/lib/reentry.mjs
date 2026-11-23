@@ -91,9 +91,9 @@ export const loopGoalNote = (offer) => (offer
 export function activation(hit, conversationId, kind = 'ignite', { loopGoal } = {}) {
   const id = safeId(conversationId);
   const lines = [
-    `LitGravity activation: the prompt starts with the lit keyword, so this turn runs the \`${hit.route}\` route${kind === 'switch' ? ' (switched from the route that was active)' : ''}.`,
+    `LitGravity activation: the prompt ${hit.trailing ? 'ends' : 'starts'} with the lit keyword, so this turn runs the \`${hit.route}\` route${kind === 'switch' ? ' (switched from the route that was active)' : ''}.`,
     `Before any other tool, read the skill with your file-reading tool (read_file; older builds call it view_file) and follow it: ${skillPath(hit.route)}`,
-    `Begin your reply with the line \`🔥 LIT IGNITED · ${hit.route}\` exactly once, then work. The task is the rest of the prompt after the keyword${hit.keyword ? ` "${hit.keyword}"` : ''}.`,
+    `Begin your reply with the line \`🔥 LIT IGNITED · ${hit.route}\` exactly once, then work. ${hit.trailing ? 'The task is the prompt before the keyword.' : `The task is the rest of the prompt after the keyword${hit.keyword ? ` "${hit.keyword}"` : ''}.`}`,
     id
       ? `Conversation ${id}: hooks record tool events in .litgravity/ledger/${id}.jsonl while the route is active; add your own note, evidence and decision lines there. Route state is kept by the hooks outside the workspace.`
       : 'Hooks record tool events in .litgravity/ledger/ while the route is active.',

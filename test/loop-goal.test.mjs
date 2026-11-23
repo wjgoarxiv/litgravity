@@ -157,6 +157,52 @@ test('PreInvocation: litwork and lit-hijack ask too; litgoal, lit-plan, a bare l
   assert.doesNotMatch(next, /Set goal for this lit-loop|goal-propose/, 'a continue asks nothing');
 });
 
+test('PreInvocation: a request that ends with lit, lit-loop or litwork asks the goal question with the words before it', () => {
+  const { env } = sandbox();
+  for (const [prompt, route, objective] of [
+    ['fix the parser bug lit', 'lit-loop', 'fix the parser bug'],
+    ['로그인 버튼 고쳐줘. 부탁해 lit', 'lit-loop', '로그인 버튼 고쳐줘. 부탁해'],
+    ['로그인 버튼 고쳐줘 lit-loop', 'lit-loop', '로그인 버튼 고쳐줘'],
+    ['fix the parser litwork', 'litwork', 'fix the parser'],
+  ]) {
+    const ws = project();
+    const text = injected(turn(ws, env, prompt, 0));
+    assert.ok(text.includes(`runs the \`${route}\` route`), prompt);
+    assert.match(text, /Set goal for this lit-loop: \/goal /, prompt);
+    const rec = readGoalRecord(ws.dir, 'consent');
+    assert.equal(rec.route, route, prompt);
+    assert.equal(rec.objective, objective, prompt);
+  }
+  for (const prompt of ['lit', 'lit continue', 'what does lit-loop do?']) {
+    const ws = project();
+    assert.doesNotMatch(injected(turn(ws, env, prompt, 0)), /Set goal for this lit-loop/, prompt);
+    assert.equal(readGoalRecord(ws.dir, 'consent'), null, prompt);
+  }
+});
+
+test('PreInvocation: a run skill typed first (lit-loop, litwork, lit-hijack) carries its task and asks the goal question', () => {
+  const { env } = sandbox();
+  for (const [prompt, route, objective] of [
+    ['lit-loop fix the parser bug', 'lit-loop', 'fix the parser bug'],
+    ['/lit-loop 로그인 버튼 고쳐줘', 'lit-loop', '로그인 버튼 고쳐줘'],
+    ['litwork fix the parser', 'litwork', 'fix the parser'],
+    ['lit-hijack port the ranker', 'lit-hijack', 'port the ranker'],
+  ]) {
+    const ws = project();
+    const text = injected(turn(ws, env, prompt, 0));
+    assert.ok(text.includes(`runs the \`${route}\` route`), prompt);
+    assert.match(text, /Set goal for this lit-loop: \/goal /, prompt);
+    const rec = readGoalRecord(ws.dir, 'consent');
+    assert.equal(rec.route, route, prompt);
+    assert.equal(rec.objective, objective, prompt);
+  }
+  for (const prompt of ['lit-loop', 'lit-plan fix the parser', 'litgoal ship it']) {
+    const ws = project();
+    assert.doesNotMatch(injected(turn(ws, env, prompt, 0)), /Set goal for this lit-loop/, prompt);
+    assert.equal(readGoalRecord(ws.dir, 'consent'), null, prompt);
+  }
+});
+
 test('PreInvocation: with a goal pending or owned the question is not asked again', () => {
   const { env } = sandbox();
   const pending = project();

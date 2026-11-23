@@ -307,8 +307,28 @@ function recapOf(hit, after, recap) {
   if (id && /\d/u.test(id)) hit.recapOf = id;
 }
 
+// A run word typed last (`fix the parser bug lit`, `로그인 버튼 고쳐줘 lit-loop`) takes the route it takes typed first,
+// and the words before it are the task. Only the run words count there, with the same case rule as the leading word;
+// a question mark after the word, or no words before it, leaves the prompt to the leading rule.
+const TRAILING_RUN = /(?<=^|[\s,.:!])(lit|lit-loop|litwork|lit-hijack)[.!]*$/iu;
+function trailingRoute(prompt) {
+  const text = prompt.trim();
+  if (text.startsWith('```')) return null;
+  const m = TRAILING_RUN.exec(text);
+  if (!m || (m[1] !== m[1].toLowerCase() && m[1] !== m[1].toUpperCase())) return null;
+  const task = text.slice(0, m.index).replace(/[\s,.:!]+$/u, '');
+  if (!task) return null;
+  const word = m[1].toLowerCase();
+  const route = word === 'lit' ? intentRoutes(task)[0] ?? 'lit-loop' : word;
+  return { route, keyword: null, bare: false, resume: false, restart: false, approve: null, direct: false, empty: false, trailing: true, task };
+}
+
 export function detectRoute(prompt) {
   if (typeof prompt !== 'string') return null;
+  return leadingRoute(prompt) ?? trailingRoute(prompt);
+}
+
+function leadingRoute(prompt) {
   let text = prompt.trimStart();
   if (text.startsWith('```')) return null;
   const slash = /^\/(?:litgravity:)?(?=[a-z])/.exec(text);
@@ -360,6 +380,11 @@ export function detectRoute(prompt) {
   const id = skillId(lower);
   if (id && (lower.startsWith('lit') || slash || BARE_SKILL_WORDS.has(lower))) {
     const hit = { route: id, keyword: null, bare: false, resume: false, restart: false, direct: true, empty: false };
+    // A run skill typed first (`lit-loop fix the parser`) carries its task, so the goal question has an objective.
+    if (LOOP_GOAL_ROUTES.has(id)) {
+      const task = text.slice(token.length).replace(SEPARATORS, '');
+      if (task) hit.task = task;
+    }
     if (id === 'lit-adhd') {
       const after = text.slice(token.length).replace(SEPARATORS, '');
       const recap = RECAP_ALIASES.has(lower) || ADHD_RECAP.test(after);
