@@ -11,6 +11,7 @@ import { packageVersion, destState } from '../lib/bundle.mjs';
 import { paths } from '../lib/paths.mjs';
 import { agyVersion } from '../lib/agy.mjs';
 import { checkUpdate } from '../lib/update-check.mjs';
+import { printMark } from '../lib/mark.mjs';
 
 const HELP = `LitGravity ${packageVersion()}: LitFamily workflows for Google's Antigravity CLI (agy)
 
@@ -87,11 +88,13 @@ async function main() {
   const cwd = process.cwd();
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY && !env.CI);
   const print = (line) => process.stdout.write(`${line}\n`);
+  const banner = () => printMark(print, env);
   if (flags.version) {
     print(packageVersion());
     return 0;
   }
   if (flags.help || command === 'help') {
+    if (command !== 'extensions') banner();
     print(command === 'extensions' ? EXTENSION_HELP : HELP);
     return 0;
   }
@@ -102,11 +105,11 @@ async function main() {
   switch (command) {
     case 'install':
     case 'update':
-      return install({ env, flags, interactive, ask, cwd, print });
+      return install({ env, flags, interactive, ask, cwd, print, banner });
     case 'uninstall':
       return uninstall({ env, flags, interactive, ask, cwd, print });
     case 'doctor':
-      return doctor({ env, flags, cwd, print });
+      return doctor({ env, flags, cwd, print, banner });
     case 'models':
       return models({ env, flags, print });
     case 'list':

@@ -278,7 +278,9 @@ test('rainbow paint: at 60 to 160 columns and across 40 buckets the line measure
     for (let frame = 0; frame < 40; frame += 1) {
       const flat = renderStatus(input, { env: { ...env, NO_COLOR: '1' }, width, now: t0 + frame * 10_000 });
       const line = renderStatus(input, { env: { ...env, COLORTERM: 'truecolor' }, width, now: t0 + frame * 10_000 });
-      assert.equal(line.replace(/\u001b\[[0-9;]*m/g, ''), flat, `text changed at ${width} cols, frame ${frame}`);
+      // Truecolor draws the mark as a pill: its brackets become the pill's padding, same cells.
+      assert.equal(line.replace(/\u001b\[[0-9;]*m/g, ''), flat.replace(/^\[([^\]]*)\]/, ' $1 '), `text changed at ${width} cols, frame ${frame}`);
+      assert.equal(visibleWidth(line), visibleWidth(flat));
       assert.ok(visibleWidth(flat) <= width, `wider than ${width}`);
     }
   }

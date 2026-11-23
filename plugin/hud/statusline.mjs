@@ -13,7 +13,7 @@ try {
 }
 let line;
 try {
-  line = renderStatus(input);
+  line = renderStatus(input, { columns: process.stdout.columns });
 } catch {
   line = fallbackLine();
 }

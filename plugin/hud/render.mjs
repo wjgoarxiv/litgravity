@@ -5,7 +5,7 @@
 //   [🔥LIT v0.1.0] | GF3.8 [medium] │ ctx [█▎░] 42%/1049k │ quota [▌░]28% ↻ 2h5m │  🔥 LIT  · litwork 14:03 │
 //     PIN ✓ ━ RED ✓ ━  GREEN  ━ VERIFY · ─ REVIEW · ─ RECORD · · goal 1/3 │ git feat/hud +3 ✓
 //
-// The look is the family's: the bold `[🔥LIT v…]` mark with L, I and T on the pink, violet, cyan gradient, then every
+// The look is the family's: the bold `[🔥LIT v…]` mark (on truecolor the ` 🔥LIT v… ` pill on the blue chrome), then every
 // segment in ONE product accent (LitGravity's flame orange, 255 99 55 from the v7 armory), `|` after the mark and `│`
 // between segments, bracketed block gauges, model [effort] first, then context, then quota. Colour means something
 // only in the warning bands (context and quota at 70% and 90%), the pink `🔥 LIT` chip and the current-stage chip.
@@ -60,7 +60,6 @@ export const ROLES = {
   lane4: { rgb: [255, 110, 110], c256: 203, c16: 31 },
   lane5: { rgb: [90, 160, 255], c256: 75, c16: 34 },
 };
-export const BRAND_STOPS = [[255, 45, 149], [128, 137, 202], [0, 229, 255]];
 
 const GLYPHS = {
   unicode: { fire: '🔥', mid: '·', sep: '│', head: '|', done: '✓', todo: '·', rail: '━', link: '─', now: '●', warn: '⚠', fail: '✗', reset: '↻', next: '▸', lane: '●', idle: '◌', ellipsis: '…', spark: '✦', full: '█', empty: '░', partial: ['', '▏', '▎', '▍', '▌', '▋', '▊', '▉'] },
@@ -87,16 +86,21 @@ function sgr(role, depth, bg) {
   return `${bg ? 48 : 38};5;${r.c256}`;
 }
 
-// The mark: bold, the fire and the brackets in the terminal's own colour, L I T on the gradient, the version in its
-// last stop. 256 colours make it bold magenta (201) and 16 colours bold cyan, as the family mark falls back.
+// The mark. On truecolor it is the family pill: the brackets become padding and ` 🔥LIT v… ` sits in bold dark ink on a
+// ground that runs from LitGravity's sky chrome (#93c5fd) to its pale chrome (#bfdbfe), one step per cell, so the
+// pill is exactly as wide as the bracketed label. 256 colours keep bold magenta (201) and 16 colours bold cyan, with
+// the brackets, as before.
+export const PILL_STOPS = [[147, 197, 253], [191, 219, 254]];
+export const PILL_INK = [11, 14, 20];
 function brandText(label, depth) {
   if (depth === 'plain') return label;
   if (depth === '256') return `\u001b[0m\u001b[1m\u001b[38;5;201m${label}\u001b[0m`;
   if (depth === '16') return `\u001b[0m\u001b[1m\u001b[36m${label}\u001b[0m`;
-  const at = label.indexOf('LIT');
-  const end = BRAND_STOPS[2].join(';');
-  const letters = 'LIT'.split('').map((ch, i) => `\u001b[38;2;${BRAND_STOPS[i].join(';')}m${ch}`).join('');
-  return `\u001b[0m\u001b[1m${label.slice(0, at)}${letters}\u001b[38;2;${end}m${label.slice(at + 3)}\u001b[0m`;
+  const chars = [...label.replace(/^\[/, ' ').replace(/\]$/, ' ')];
+  const [from, to] = PILL_STOPS;
+  const ground = (i) => from.map((v, k) => Math.round(v + (to[k] - v) * (chars.length > 1 ? i / (chars.length - 1) : 0)));
+  const cells = chars.map((ch, i) => `\u001b[48;2;${ground(i).join(';')}m${ch}`).join('');
+  return `\u001b[0m\u001b[1;38;2;${PILL_INK.join(';')}m${cells}\u001b[0m`;
 }
 
 const ANSI = /\u001b\[[0-9;]*m/g;
@@ -832,14 +836,15 @@ function paint(spans, depth, rainbow = null, amber = false) {
   return out;
 }
 
-function widthOf(input, env, override) {
-  const w = num(override) ?? num(input.width) ?? num(input.terminal_width) ?? num(obj(input.terminal)?.columns) ?? num(env.COLUMNS);
+// The terminal width of the status line process (opts.columns, from statusline.mjs) is the last word before 120.
+function widthOf(input, env, override, columns) {
+  const w = num(override) ?? num(input.width) ?? num(input.terminal_width) ?? num(obj(input.terminal)?.columns) ?? num(env.COLUMNS) ?? num(columns);
   return w && w >= 10 ? Math.floor(w) : 120;
 }
 
 const asciiOnly = (env) => env.LITGRAVITY_HUD_ASCII === '1' || /^dumb$/i.test(env.TERM ?? '');
 
-/** One status line, without the trailing newline. `opts.now` and `opts.width` exist for tests. */
+/** One status line, without the trailing newline. `opts.now` and `opts.width` exist for tests; `opts.columns` is the tty width. */
 export function renderStatus(input, opts = {}) {
   const env = opts.env ?? process.env;
   const data = obj(input) ?? {};
@@ -852,7 +857,7 @@ export function renderStatus(input, opts = {}) {
   const look = lookOf({ route: route?.state.route ?? null, waiting, done });
   const ctx = { g, env, now, route, waiting, done };
   const rainbow = look === 'rewind' && depth !== 'plain' ? { now } : null;
-  return paint(fit(segments(data, ctx), widthOf(data, env, opts.width), g), depth, rainbow, look === 'your-turn');
+  return paint(fit(segments(data, ctx), widthOf(data, env, opts.width, opts.columns), g), depth, rainbow, look === 'your-turn');
 }
 
 /** The line printed when anything above throws: the mark alone, never an error. */

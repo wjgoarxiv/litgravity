@@ -55,15 +55,16 @@ function runScript(input, env, extra = {}) {
 // The family status-line tokens this line must keep: the mark, one accent, the separators, bracketed gauges, the bands
 // and the six-stop loop map. The exact escape sequences are pinned so a restyle cannot drift by accident.
 const ACCENT = '38;2;255;99;55';
-const BRAND_TRUE = '\u001b[0m\u001b[1m[🔥\u001b[38;2;255;45;149mL\u001b[38;2;128;137;202mI\u001b[38;2;0;229;255mT\u001b[38;2;0;229;255m v';
+const BRAND_TRUE = '\u001b[0m\u001b[1;38;2;11;14;20m\u001b[48;2;147;197;253m \u001b[48;2;';
 const spansOf = (line) => [...line.matchAll(/\u001b\[([0-9;]*)m([^\u001b]+)/g)].map((m) => ({ codes: m[1], text: m[2] }));
 
-test('the mark is the family mark: bold [🔥LIT v…] on the pink, violet, cyan gradient, with its 256 and 16 colour forms', () => {
+test('the mark is the family mark: the ` 🔥LIT v… ` pill on the blue chrome in truecolor, bold [🔥LIT v…] in 256 and 16 colours', () => {
   const f = fixture();
   assert.ok(render(f).startsWith(BRAND_TRUE), JSON.stringify(render(f).slice(0, 120)));
   assert.match(render(f, {}, { env: { ...f.env, COLORTERM: '', TERM: 'xterm-256color' } }), /^\u001b\[0m\u001b\[1m\u001b\[38;5;201m\[🔥LIT v\d+\.\d+\.\d+\]\u001b\[0m/);
   assert.match(render(f, {}, { env: { ...f.env, LITGRAVITY_HUD_COLOR: '16' } }), /^\u001b\[0m\u001b\[1m\u001b\[36m\[🔥LIT v[\d.]+\]\u001b\[0m/);
-  assert.match(strip(render(f)), /^\[🔥LIT v\d+\.\d+\.\d+\] \| /);
+  assert.match(strip(render(f)), /^ 🔥LIT v\d+\.\d+\.\d+  \| /);
+  assert.match(strip(render(f, {}, { env: { ...f.env, NO_COLOR: '1' } })), /^\[🔥LIT v\d+\.\d+\.\d+\] \| /);
 });
 
 test('one accent: every word after the mark is LitGravity orange, separators included', () => {
@@ -80,7 +81,7 @@ test('one accent: every word after the mark is LitGravity orange, separators inc
 test('order, separators and bracketed gauges follow the family line: model [effort] │ ctx [..] n%/size │ quota [..]n%', () => {
   const f = fixture();
   const text = strip(render(f, { quota: [{ model: 'Gemini 3.8 Flash', remaining_fraction: 0.72, reset_in_seconds: 7500 }], vcs: { branch: 'feat/hud', modified: 3 } }));
-  assert.match(text, /^\[🔥LIT v[\d.]+\] \| GF3\.8 \[medium\] │ ctx \[█▎░\] 42%\/1049k │ quota \[▌░\]28% ↻ 2h5m │ git feat\/hud \+3 ✓$/);
+  assert.match(text, /^ 🔥LIT v[\d.]+  \| GF3\.8 \[medium\] │ ctx \[█▎░\] 42%\/1049k │ quota \[▌░\]28% ↻ 2h5m │ git feat\/hud \+3 ✓$/);
   assert.match(strip(render(f, { context_window: { used_percentage: 7, context_window_size: 1000000 } })), /ctx \[▎░░\] 7%\/1m/);
 });
 
@@ -195,7 +196,7 @@ test('without vcs from the host the branch comes from git, cached for a few seco
 test('unknown or missing fields never print placeholders', () => {
   const f = fixture();
   const text = strip(renderStatus({}, { env: f.env, now: NOW, width: 200 }));
-  assert.match(text, /^\[🔥LIT v[\d.]+\]$/);
+  assert.match(text, /^ 🔥LIT v[\d.]+ $/);
   const odd = strip(renderStatus({ model: 7, context_window: { used_percentage: 'x' }, quota: 'none', vcs: [], cost: 'free', agent_state: { nested: 1 } }, { env: f.env, now: NOW, width: 200 }));
   assert.doesNotMatch(odd, /undefined|NaN|null|ctx|quota|\$/);
 });
@@ -224,7 +225,7 @@ test('colour off and ASCII fallbacks', () => {
   assert.doesNotMatch(plain, ESC);
   const ascii = render(f, { vcs: { branch: 'main' }, quota: { used_percentage: 20 } }, { env: { ...f.env, LITGRAVITY_HUD_ASCII: '1' } });
   assert.match(ascii, /^[\x20-\x7e\u001b]*$/, ascii);
-  assert.match(strip(ascii), /^\[LIT v[\d.]+\] \| GF3\.8 \[medium\] \| ctx \[#--\] 42%\/1049k \| quota \[--\]20% \| \[LIT\] \. litwork 10:00/);
+  assert.match(strip(ascii), /^ LIT v[\d.]+  \| GF3\.8 \[medium\] \| ctx \[#--\] 42%\/1049k \| quota \[--\]20% \| \[LIT\] \. litwork 10:00/);
   const c256 = render(f, {}, { env: { ...f.env, COLORTERM: '', TERM: 'xterm-256color' } });
   assert.match(c256, /\u001b\[38;5;202m/, '256-colour accent');
   assert.doesNotMatch(c256, /38;2;/);
