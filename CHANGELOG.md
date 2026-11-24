@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.15 — 2026-11-24
+
+- `help`, `install` and `doctor` open with the synthwave LIT mark. Its size follows the terminal width, it has a no-colour form, and a pipe, CI log or agent tool call gets the one plain line `LIT · antigravity` instead. On truecolor the HUD mark is now a pill on LitGravity's blue chrome. 256 and 16 colours keep the old bold mark.
+- A request that ends with the activation word (`fix the parser bug lit`, `로그인 버튼 고쳐줘. 부탁해 lit`) now routes like one that starts with it, and the goal question uses the words before the word as the objective. A trailing `lit-loop`, `litwork` or `lit-hijack` takes its own route the same way, and a leading `lit-loop <task>` (also `litwork`, `lit-hijack`) now carries its task and asks the goal question too. A question such as `what does lit-loop do?` stays prose.
+- A `lit team` state lock left by a crashed holder no longer blocks the team packet for good. The lock is reclaimed when it has no owner record and is older than the stale window, when a dead contender left a half-written takeover claim, or when it is older than 10 minutes even though its pid now names another live process. A timeout names the lock path and its holder.
+
 ## 0.1.14 — 2026-11-22
 
 - Every goal question now comes with an answer guide right under it, so a first-time user knows what to type. The guide is a short quote: a `▶ Answer` heading, the goal as `/goal <cond>` (none on a start-only question), a `Type | What happens` table with one row per answer (`yes`, `edit`, `no`, or `yes` and `no`) and the line `Type the word alone.` The question line itself is unchanged, and its `(yes / …)` choices and the guide's rows come from one list, so they cannot drift apart. `goal-propose.mjs` prints the guide after a blank line (and returns it as `guide` with `--json`), and a lit-loop activation note carries it beside the loop goal question. The model renders the guide in your language; the answer words stay the English `yes`, `edit` and `no`, since only those count as answers.
