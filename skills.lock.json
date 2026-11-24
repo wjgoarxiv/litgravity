@@ -791,6 +791,7 @@
     "lib/agent-file.mjs",
     "lib/agy.mjs",
     "lib/bundle.mjs",
+    "lib/cards.mjs",
     "lib/doctor.mjs",
     "lib/extension-manager.mjs",
     "lib/guard.mjs",

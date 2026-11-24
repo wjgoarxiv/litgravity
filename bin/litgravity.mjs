@@ -12,6 +12,7 @@ import { paths } from '../lib/paths.mjs';
 import { agyVersion } from '../lib/agy.mjs';
 import { checkUpdate } from '../lib/update-check.mjs';
 import { printMark } from '../lib/mark.mjs';
+import { openCards } from '../lib/cards.mjs';
 
 const HELP = `LitGravity ${packageVersion()}: LitFamily workflows for Google's Antigravity CLI (agy)
 
@@ -104,10 +105,14 @@ async function main() {
   }
   switch (command) {
     case 'install':
-    case 'update':
-      return install({ env, flags, interactive, ask, cwd, print, banner });
-    case 'uninstall':
-      return uninstall({ env, flags, interactive, ask, cwd, print });
+    case 'update': {
+      const cards = openCards({ env, flags });
+      return install({ env, flags, interactive, ask: cards?.ask ?? ask, cwd, print, banner, cards });
+    }
+    case 'uninstall': {
+      const cards = openCards({ env, flags });
+      return uninstall({ env, flags, interactive, ask: cards?.ask ?? ask, cwd, print, cards });
+    }
     case 'doctor':
       return doctor({ env, flags, cwd, print, banner });
     case 'models':

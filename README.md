@@ -124,6 +124,8 @@ Every user-scope install also leaves one owned rule file at `~/.gemini/config/ru
 
 `install`, `doctor` and `help` open with the synthwave LIT mark, sized to the terminal width. Without 256 colours (`NO_COLOR`, `TERM=dumb`, a 16-colour terminal) the same scene is drawn without colour. In a pipe, a CI log, an agent's tool call or a terminal narrower than 24 columns it shrinks to the one plain line `LIT · antigravity`.
 
+In a terminal window of at least 40 columns and 12 rows, `install` and `uninstall` draw their plan, questions and result as cards. A question names its step (`LIT 1/2`), says in one sentence what Yes does and what No leaves alone, and marks No as the default: press `y` or `n`, or move with the arrow keys or Tab and press Enter. Esc answers nothing, and Ctrl+C stops. `NO_COLOR` keeps the cards without colour, and a locale without UTF-8 draws them in ASCII. With `--yes`, `--dry-run`, `TERM=dumb`, `LITGRAVITY_AGENT_FILE` set, a pipe or CI, the same text prints as plain lines.
+
 The installer writes in a few places outside your project, and the map shows them. If the destination is a symlink, someone else's folder, or a copy you edited, it stops with `No files written.`; otherwise it copies the plugin, then writes the rule file and a small receipt. Everything else LitGravity leaves on disk is written later by your conversations, and the installer never changes your extension copies (it only reads the skill folders to tell you, once, when `extensions check` has something to show).
 
 <p align="center">

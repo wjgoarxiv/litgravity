@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- At a terminal, `install`, `update` and `uninstall` draw the plan, the questions, each finished step and the result as cards. A question card names its step, says what Yes does and what No leaves alone, and marks the default: `y` or `n` answers at once, the arrow keys or Tab move, Enter takes the highlight, Esc answers nothing. The questions, their order, their defaults and the stored answers are unchanged, and Ctrl+C still ends with the same message and exit code 1.
+- A failed install shows what went wrong in a red card, with the remedy below it as text you can copy. Validation warnings stay in view as their own rows.
+- `NO_COLOR` keeps the cards without colour; a locale without UTF-8 draws them in ASCII. `--yes`, `--dry-run`, `TERM=dumb`, `LITGRAVITY_AGENT_FILE`, a pipe, CI and a window under 40 columns or 12 rows print exactly what they printed before.
+
 ## 0.1.17 — 2026-11-25
 
 - On a truecolor terminal the status line is dressed as a sunset. The mark runs orange to pink, the current stage violet to LitGravity's orange, the separators pink to violet to orange, and a second row under the text holds a half-sunk sun on a glittering sea, with stars in the free cells beside the words. The text itself is unchanged: same words, same order, same gauge widths, and art only in cells no text uses. The scene stands still, because agy redraws the line on events and not while it idles. YOUR TURN keeps its amber and `lit adhd` its rainbow.
