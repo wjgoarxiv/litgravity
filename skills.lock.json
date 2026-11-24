@@ -855,6 +855,7 @@
     "plugin/hud/looks.mjs",
     "plugin/hud/render.mjs",
     "plugin/hud/statusline.mjs",
+    "plugin/hud/sunset.mjs",
     "plugin/lib/host-exec.mjs",
     "plugin/plugin.json",
     "plugin/rules/AGENTS.md",

@@ -49,7 +49,7 @@ npx @litfamily/litgravity install
 
 `lit`을 치면 무엇이 도는지, 이 Mac의 실제 훅과 상태 표시줄에서 가져왔습니다. 친 프롬프트, 끼워 넣은 경로 안내, lit-loop 지도를 단 상태 표시줄 순서입니다.
 
-<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="터미널 갈무리. 프롬프트는 lit add a --shout flag that prints the greeting in capitals, with a test. 훅은 LIT 표시와 LIT IGNITED · lit-loop로 답하고, 먼저 읽을 lit-loop 스킬 파일을 알리고, 도구 기록이 대화 ledger에 남는다고 안내합니다. 아래 상태 표시줄에는 모델, 42퍼센트 컨텍스트 게이지, 시계가 달린 lit-loop 칩, PIN이 켜진 PIN부터 RECORD까지의 지도가 보입니다." /></p>
+<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="터미널 갈무리. 프롬프트는 lit add a --shout flag that prints the greeting in capitals, with a test. 훅은 LIT 표시와 LIT IGNITED · lit-loop로 답하고, 먼저 읽을 lit-loop 스킬 파일을 알리고, 도구 기록이 대화 ledger에 남는다고 안내합니다. 아래 상태 표시줄에는 모델, 42퍼센트 컨텍스트 게이지, 시계가 달린 lit-loop 칩, PIN이 켜진 PIN부터 RECORD까지의 지도가 보이고, 그 아래에 노을 바다가 있습니다." /></p>
 
 ## 빠른 시작
 
@@ -159,11 +159,11 @@ agy는 `SKILL.md`의 앞 24,000바이트만 불러오므로, 필요할 때 읽�
 
 ### 상태 표시줄
 
-프롬프트 아래 한 줄이 지금 작업이 어디쯤인지 보여 줍니다. 모델과 강도, 컨텍스트와 쿼터 게이지, 시계가 달린 지금 경로, 현재 단계가 켜진 경로 지도 순서입니다. 아래 갈무리는 이 Mac에서 실제로 렌더링한 것으로, `lit`을 치기 전과 친 뒤입니다.
+프롬프트 아래 한 줄이 지금 작업이 어디쯤인지 보여 줍니다. 모델과 강도, 컨텍스트와 쿼터 게이지, 시계가 달린 지금 경로, 현재 단계가 켜진 경로 지도 순서입니다. 폭이 60칸 이상인 트루컬러 터미널에서는 노을 옷을 입고, 바로 아랫줄에 반쯤 잠긴 해와 반짝이는 바다가 놓입니다. 아래 그림은 실제 렌더러의 출력을 그린 것으로, `lit`을 치기 전, 친 뒤, 답을 기다릴 때입니다.
 
-<p align="center"><img src="./docs/assets/litgravity/status-states.webp" width="960" alt="상태 표시줄의 터미널 갈무리. lit 전에는 모델과 42퍼센트 컨텍스트 게이지만 보이고, lit 뒤에는 시계가 달린 lit-loop 칩과 PIN이 켜진 PIN부터 RECORD까지의 지도가 덧붙습니다." /></p>
+<p align="center"><img src="./docs/assets/litgravity/status-states.webp" width="960" alt="상태 표시줄의 세 가지 모습. 모두 아랫줄에 노을 바다가 있습니다. lit 전에는 모델, 42퍼센트 컨텍스트 게이지, 브랜치가 보이고 오른쪽 빈칸에 두 줄짜리 해와 별이 있습니다. lit 뒤에는 시계가 달린 lit-loop 칩과 PIN이 켜진 PIN부터 RECORD까지의 지도가 덧붙고 해는 바다 줄에만 남습니다. 답을 기다릴 때는 줄과 바다가 호박색이 되고 YOUR TURN이 보입니다." /></p>
 
-트루컬러 터미널에서는 맨 앞의 마크가 LitGravity의 파란 크롬 위에 얹힌 작은 알약 모양이 되고, 256색과 16색에서는 굵은 마크 그대로입니다. 설치할 때 `--status-line`을 주면 켜집니다. 칸 구성, 색, 평문 모양, `lit adhd`·YOUR TURN·검토 레인·DONE 모양은 [참고 문서](./docs/reference_ko-KR.md#상태-표시줄)에 있습니다.
+노을은 글자가 쓰지 않는 칸에만 그려집니다. 낱말과 순서, 게이지 폭은 예전 그대로이고, 글자가 자리를 쓰면 해는 바다 줄로 작아집니다. agy는 일이 있을 때만 줄을 다시 그리고 쉬는 동안에는 손대지 않으므로, 노을은 멈춰 있는 그림입니다. `NO_COLOR`, 256색과 16색, ASCII 모양, 밝은 배경이라고 알리는 터미널에서는 예전의 한 줄 그대로입니다. 설치할 때 `--status-line`을 주면 켜집니다. 칸 구성, 색, 평문 모양, `lit adhd`·YOUR TURN·검토 레인·DONE 모양은 [참고 문서](./docs/reference_ko-KR.md#상태-표시줄)에 있습니다.
 
 ## 확장
 

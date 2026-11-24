@@ -55,7 +55,7 @@ npx @litfamily/litgravity install
 
 What ignition looks like, captured from the real hook and status line on this Mac: the typed prompt, the injected route note, and the status line carrying the lit-loop map.
 
-<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="Terminal capture. The prompt reads lit add a --shout flag that prints the greeting in capitals, with a test. The hook answers with the LIT mark and LIT IGNITED · lit-loop, names the lit-loop skill file to read first, and notes that tool events go to the conversation ledger. Below, the status line shows the model, the context gauge at 42 percent, the lit-loop chip with its clock, and the PIN through RECORD map with PIN lit." /></p>
+<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="Terminal capture. The prompt reads lit add a --shout flag that prints the greeting in capitals, with a test. The hook answers with the LIT mark and LIT IGNITED · lit-loop, names the lit-loop skill file to read first, and notes that tool events go to the conversation ledger. Below, the status line shows the model, the context gauge at 42 percent, the lit-loop chip with its clock, and the PIN through RECORD map with PIN lit, over a sunset sea." /></p>
 
 ## Quick start
 
@@ -165,11 +165,11 @@ agy loads only the first 24,000 bytes of a `SKILL.md`, so each of the 33 dense s
 
 ### The status line
 
-One row under the prompt shows where the work stands: the model and its effort tier, the context and quota gauges, the active route with its clock, and the map of that route with the current stage lit. The capture below is a real render from this Mac, before and after a `lit` prompt.
+One row under the prompt shows where the work stands: the model and its effort tier, the context and quota gauges, the active route with its clock, and the map of that route with the current stage lit. On a truecolor terminal at least 60 columns wide it is dressed as a sunset, and a second row under it holds a half-sunk sun on a glittering sea. The pictures below are drawn from the real renderer's output: before a `lit` prompt, after it, and when the turn waits on you.
 
-<p align="center"><img src="./docs/assets/litgravity/status-states.webp" width="960" alt="Terminal capture of the status line. Before lit it shows the model and the context gauge at 42 percent. After lit it adds the lit-loop chip with its clock and the PIN through RECORD map with PIN lit." /></p>
+<p align="center"><img src="./docs/assets/litgravity/status-states.webp" width="960" alt="The status line in three states, each with a sunset sea on the row below. Before lit it shows the model, the context gauge at 42 percent and the branch, with a two-row sun and stars in the free cells at the right. After lit it adds the lit-loop chip with its clock and the PIN through RECORD map with PIN lit, and the sun sits on the sea row alone. When the turn waits, the row and the sea turn amber and the line reads YOUR TURN." /></p>
 
-On a truecolor terminal the mark at its start is a small pill on LitGravity's blue chrome; 256 and 16 colours keep the bold mark. `--status-line` at install turns it on. Its segments, colours, plain-text form and the looks for `lit adhd`, YOUR TURN, review lanes and DONE are in the [reference](./docs/reference.md#the-status-line).
+The scene is drawn only in cells no text uses: the words, their order and the gauge widths are what they always were, and the sun shrinks to the sea row when the text needs its place. It is a still picture, because agy redraws the line on events and leaves it alone while idle. `NO_COLOR`, 256 and 16 colours, the ASCII form and a terminal that reports a light background keep the single plain row. `--status-line` at install turns it on. Its segments, colours, plain-text form and the looks for `lit adhd`, YOUR TURN, review lanes and DONE are in the [reference](./docs/reference.md#the-status-line).
 
 ## Extensions
 

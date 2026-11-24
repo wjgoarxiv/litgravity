@@ -1,5 +1,5 @@
-// Skill looks for the status line. agy draws the line as one row and repaints it when it chooses, so a look is a paint
-// for the whole row, a label segment or a route segment, never an animation: the rainbow turns at most one step per
+// Skill looks for the status line. agy repaints the line when it chooses, so a look is a paint
+// for the whole row, a label segment or a route segment, never an animation (sunset.mjs draws the scene around it): the rainbow turns at most one step per
 // 10-second bucket and everything else is static. NO_COLOR keeps every label and drops every paint.
 //   rewind     lit-adhd and its alias: every cell its own hue (render.mjs draws it)
 //   your-turn  the session waits on the user: the row in amber and a YOUR TURN label with the reason

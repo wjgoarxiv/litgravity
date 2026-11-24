@@ -103,3 +103,7 @@ export function mkdirp(p) {
   mkdirSync(p, { recursive: true });
   return p;
 }
+
+// The text row of a rendered status line: the first row without the scene that may follow the text. Art starts three
+// spaces after the last word and text never holds three spaces in a row.
+export const textRow = (out) => out.split('\n')[0].replace(/(?<=\u001b\[0m) {3,}\u001b.*$/u, '');

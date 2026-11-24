@@ -4,7 +4,7 @@ import { readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { renderStatus, visibleWidth } from '../plugin/hud/render.mjs';
 import { LOOKS, ROUTE_LOOKS, lookOf } from '../plugin/hud/looks.mjs';
-import { sandbox, workspace, turn, runHook, basePayload, modelStep, mkdirp } from './helpers.mjs';
+import { sandbox, workspace, turn, runHook, basePayload, modelStep, mkdirp, textRow } from './helpers.mjs';
 import { sessionPath } from '../plugin/hooks/lib/common.mjs';
 
 // The skill looks of the status line, each drawn from the state the real hooks wrote: the look registry, YOUR TURN in
@@ -156,7 +156,9 @@ test('looks: NO_COLOR keeps the labels with no escape, ASCII mode keeps ASCII, a
   const ascii = renderStatus({ conversation_id: ID, workspace: ws.dir }, { env: { ...env, NO_COLOR: '1', LITGRAVITY_HUD_ASCII: '1' }, now: Date.now(), width: 160 });
   assert.match(ascii, /^[\x20-\x7e]*$/);
   for (const width of [40, 60, 80, 120]) {
-    assert.ok(visibleWidth(line(ws, env, { agent_state: 'waiting' }, width)) <= width, `fits ${width}`);
+    const out = line(ws, env, { agent_state: 'waiting' }, width);
+    for (const row of out.split('\n')) assert.ok(visibleWidth(row) <= width, `fits ${width}`);
+    assert.ok(textRow(out).length > 0);
   }
 });
 

@@ -8,7 +8,7 @@ import { renderStatus, visibleWidth } from '../plugin/hud/render.mjs';
 import { livePath } from '../plugin/hooks/lib/liveness.mjs';
 import { applyStackEvent, emptyStack, writeStack } from '../plugin/hooks/lib/workflow-stack.mjs';
 import { writeLanes } from '../plugin/hooks/lib/lanes.mjs';
-import { sandbox } from './helpers.mjs';
+import { sandbox, textRow } from './helpers.mjs';
 
 const now = () => new Date('2026-10-26T12:00:00Z');
 
@@ -277,7 +277,9 @@ test('rainbow paint: at 60 to 160 columns and across 40 buckets the line measure
   for (const width of [60, 80, 100, 120, 160]) {
     for (let frame = 0; frame < 40; frame += 1) {
       const flat = renderStatus(input, { env: { ...env, NO_COLOR: '1' }, width, now: t0 + frame * 10_000 });
-      const line = renderStatus(input, { env: { ...env, COLORTERM: 'truecolor' }, width, now: t0 + frame * 10_000 });
+      const out = renderStatus(input, { env: { ...env, COLORTERM: 'truecolor' }, width, now: t0 + frame * 10_000 });
+      for (const row of out.split('\n')) assert.ok(visibleWidth(row) <= width, `row wider than ${width}`);
+      const line = textRow(out);
       // Truecolor draws the mark as a pill: its brackets become the pill's padding, same cells.
       assert.equal(line.replace(/\u001b\[[0-9;]*m/g, ''), flat.replace(/^\[([^\]]*)\]/, ' $1 '), `text changed at ${width} cols, frame ${frame}`);
       assert.equal(visibleWidth(line), visibleWidth(flat));

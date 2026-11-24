@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.17 — Unreleased
+
+- On a truecolor terminal the status line is dressed as a sunset. The mark runs orange to pink, the current stage violet to LitGravity's orange, the separators pink to violet to orange, and a second row under the text holds a half-sunk sun on a glittering sea, with stars in the free cells beside the words. The text itself is unchanged: same words, same order, same gauge widths, and art only in cells no text uses. The scene stands still, because agy redraws the line on events and not while it idles. YOUR TURN keeps its amber and `lit adhd` its rainbow.
+- In Windows Terminal and VS Code the gauges get round ends in the cells their brackets had.
+- `NO_COLOR`, 256 and 16 colours, the ASCII form and a light background named by `COLORFGBG` print exactly what they printed before. A terminal under 60 columns, or one whose width agy does not report, gets the colours but no second row. `LITGRAVITY_HUD_COLOR=256` gives the single row back on any terminal.
+
 ## 0.1.16 — 2026-11-24
 
 - A `lit team` lock folder with no owner record yet is left to the process that just made it for at least 5 seconds, whatever stale window the caller passed. Before, a caller with a stale window of 0 could move aside a lock another process had created a moment earlier, and that process then failed with `lock ownership receipt failed`. A takeover claim that is still being written gets the same grace.

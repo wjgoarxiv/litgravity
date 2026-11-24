@@ -5,7 +5,7 @@ import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { ROOT, PLUGIN, collect, sandbox, walk } from './helpers.mjs';
+import { ROOT, PLUGIN, collect, sandbox, textRow, walk } from './helpers.mjs';
 import { MONO_ROWS, PIXEL_ROWS, SHARED_COLOURS, SPEC_DIGEST } from '../lib/synthwave-data.mjs';
 import { CHROME, PLAIN_LINE, markDepth, markRows, pickSize, printMark } from '../lib/mark.mjs';
 import { install } from '../lib/install.mjs';
@@ -152,24 +152,28 @@ test('the mark never reaches model-visible or status-line surfaces: nothing unde
   }
 });
 
-test('the E badge: a chrome pill on truecolor only, same width as the bracketed mark, inside every width budget', () => {
+test('the E badge: a sunset pill on truecolor only (the chrome pill on a light ground), same width as the bracketed mark, inside every width budget', () => {
   const { home } = sandbox();
   const base = { HOME: home, XDG_STATE_HOME: join(home, 'state'), PATH: process.env.PATH };
   const input = { cwd: home, model: { display_name: 'Gemini 3.8 Flash (Medium)' }, context_window: { used_percentage: 42, context_window_size: 1048576 } };
   const pill = /^\u001b\[0m\u001b\[1;38;2;11;14;20m\u001b\[48;2;147;197;253m \u001b\[48;2;\d+;\d+;\d+m🔥/;
-  const tc = renderStatus(input, { env: { ...base, COLORTERM: 'truecolor' }, width: 120 });
-  assert.match(tc, pill);
-  assert.match(tc, /48;2;191;219;254m \u001b\[0m/, 'the pill ends on chrome stop 4');
+  const light = renderStatus(input, { env: { ...base, COLORTERM: 'truecolor', COLORFGBG: '0;15' }, width: 120 });
+  assert.match(light, pill);
+  assert.match(light, /48;2;191;219;254m \u001b\[0m/, 'the pill ends on chrome stop 4');
+  const tc = textRow(renderStatus(input, { env: { ...base, COLORTERM: 'truecolor' }, width: 120 }));
+  assert.match(tc, /^\u001b\[0m\u001b\[1;38;2;11;14;20m\u001b\[48;2;255;160;51m \u001b\[48;2;\d+;\d+;\d+m🔥/);
+  assert.match(tc, /48;2;255;51;136m \u001b\[0m/, 'the pill ends on the sunset pink');
   for (const mode of [{ COLORTERM: '', TERM: 'xterm-256color' }, { LITGRAVITY_HUD_COLOR: '16' }, { NO_COLOR: '1' }]) {
     const out = renderStatus(input, { env: { ...base, ...mode }, width: 120 });
-    assert.doesNotMatch(out, /48;2;147;197;253/);
+    assert.doesNotMatch(out, /48;2;147;197;253|48;2;255;160;51/);
     assert.match(out.replace(/\u001b\[[0-9;]*m/g, ''), /^\[🔥LIT v[\d.]+\]/);
   }
   const plainWidth = visibleWidth(renderStatus(input, { env: { ...base, NO_COLOR: '1' }, width: 120 }));
   assert.equal(visibleWidth(tc), plainWidth);
+  assert.equal(visibleWidth(light), plainWidth);
   for (let width = 10; width <= 200; width += 1) {
     const out = renderStatus(input, { env: { ...base, COLORTERM: 'truecolor' }, width });
-    assert.ok(visibleWidth(out) <= width, `${width}: ${visibleWidth(out)}`);
+    for (const row of out.split('\n')) assert.ok(visibleWidth(row) <= width, `${width}: ${visibleWidth(row)}`);
   }
   const narrow = renderStatus(input, { env: { ...base, COLORTERM: 'truecolor' }, columns: 16 });
   assert.ok(visibleWidth(narrow) <= 16, 'the tty width from statusline.mjs is a budget too');

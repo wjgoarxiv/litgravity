@@ -10,6 +10,10 @@
 // between segments, bracketed block gauges, model [effort] first, then context, then quota. Colour means something
 // only in the warning bands (context and quota at 70% and 90%), the pink `🔥 LIT` chip and the current-stage chip.
 //
+// On a truecolor terminal the line is dressed as a sunset (sunset.mjs): the mark runs orange to pink, the current stage
+// violet to the accent, the separators pink to violet to the accent, and a second row holds a half-sunk sun on the sea.
+// Every other depth, ASCII mode and a light terminal get the one row exactly as above.
+//
 // Only model and context_window were seen live on agy 1.4.3; quota, cost, vcs, agent_state, task_count and
 // conversation_title come from agy's changelog and binary, so each one is optional and a field of the wrong type is
 // skipped instead of printed.
@@ -23,6 +27,7 @@ import { readStack } from '../hooks/lib/workflow-stack.mjs';
 import { readLanes } from '../hooks/lib/lanes.mjs';
 import { listLive } from '../hooks/lib/liveness.mjs';
 import { DONE_MS, REVIEW_LANES, ROUTE_LOOKS, lookOf } from './looks.mjs';
+import { along, horizon } from './sunset.mjs';
 
 const IGNITION_MS = 90_000;
 const EFFORTS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
@@ -51,6 +56,7 @@ export const ROLES = {
   yellow: { c256: 178, c16: 33 },
   red: { c256: 167, c16: 31 },
   ink: { rgb: [11, 15, 20], c256: 233, c16: 30 },
+  track: { rgb: [42, 35, 64], c256: 236, c16: 30 },
   pink: { rgb: [255, 45, 149], c256: 198, c16: 35 },
   amber: { rgb: [255, 176, 32], c256: 214, c16: 33 },
   // One colour per review-work lane, in REVIEW_LANES order.
@@ -86,19 +92,32 @@ function sgr(role, depth, bg) {
   return `${bg ? 48 : 38};5;${r.c256}`;
 }
 
+// The sunset needs truecolor and a ground that is not known to be light: COLORFGBG is the one hint a terminal gives, and
+// its last field is 7 or 15 on a light ground. Windows Terminal and VS Code draw the two round caps themselves,
+// whatever font is set, so only there do a gauge's brackets become caps.
+const lightGround = (env) => /;(7|15)$/.test(env.COLORFGBG ?? '');
+const drawsRoundCaps = (env) => Boolean(env.WT_SESSION) || /^vscode$/i.test(env.TERM_PROGRAM ?? '');
+const CAPS = ['\ue0b6', '\ue0b4'];
+export const NEON = [[255, 45, 149], [180, 140, 255], ROLES.accent.rgb];
+export const STAGE_STOPS = [[180, 140, 255], ROLES.accent.rgb];
+
 // The mark. On truecolor it is the family pill: the brackets become padding and ` 🔥LIT v… ` sits in bold dark ink on a
-// ground that runs from LitGravity's sky chrome (#93c5fd) to its pale chrome (#bfdbfe), one step per cell, so the
-// pill is exactly as wide as the bracketed label. 256 colours keep bold magenta (201) and 16 colours bold cyan, with
-// the brackets, as before.
+// ground graded one step per cell, so the pill is exactly as wide as the bracketed label: orange to pink with the sunset,
+// LitGravity's sky chrome (#93c5fd) to its pale chrome (#bfdbfe) without it. 256 colours keep bold magenta (201) and 16
+// colours bold cyan, with the brackets, as before.
 export const PILL_STOPS = [[147, 197, 253], [191, 219, 254]];
+export const SUNSET_STOPS = [[255, 160, 51], [255, 106, 85], [255, 51, 136]];
 export const PILL_INK = [11, 14, 20];
-function brandText(label, depth) {
+function brandText(label, depth, sunset = false) {
   if (depth === 'plain') return label;
   if (depth === '256') return `\u001b[0m\u001b[1m\u001b[38;5;201m${label}\u001b[0m`;
   if (depth === '16') return `\u001b[0m\u001b[1m\u001b[36m${label}\u001b[0m`;
   const chars = [...label.replace(/^\[/, ' ').replace(/\]$/, ' ')];
   const [from, to] = PILL_STOPS;
-  const ground = (i) => from.map((v, k) => Math.round(v + (to[k] - v) * (chars.length > 1 ? i / (chars.length - 1) : 0)));
+  const ground = (i) => {
+    const at = chars.length > 1 ? i / (chars.length - 1) : 0;
+    return sunset ? along(SUNSET_STOPS, at) : from.map((v, k) => Math.round(v + (to[k] - v) * at));
+  };
   const cells = chars.map((ch, i) => `\u001b[48;2;${ground(i).join(';')}m${ch}`).join('');
   return `\u001b[0m\u001b[1;38;2;${PILL_INK.join(';')}m${cells}\u001b[0m`;
 }
@@ -480,7 +499,7 @@ function segments(input, ctx) {
     const band = bandOf(pct, 'accent');
     const size = c.size ? `/${windowSize(c.size)}` : '';
     segs.push({ id: 'ctx', prio: 3, forms: [
-      [sp('ctx '), sp('['), ...blockBar(pct, 3, band, g), sp(']'), sp(` ${pct}%${size}`, band)],
+      [sp('ctx '), ...gauge(pct, 3, band, ctx), sp(` ${pct}%${size}`, band)],
       [sp('ctx '), sp(`${pct}%${size}`, band)],
       [sp('ctx '), sp(`${pct}%`, band)],
     ] });
@@ -492,8 +511,8 @@ function segments(input, ctx) {
     const band = bandOf(used, 'green');
     const reset = quota.reset && quota.reset > 0 ? [sp(` ${g.reset} ${resetIn(quota.reset)}`)] : [];
     segs.push({ id: 'quota', prio: 6, forms: [
-      [sp('quota '), sp('['), ...blockBar(used, 2, band, g), sp(']'), sp(`${used}%`, band), ...reset],
-      [sp('quota '), sp('['), ...blockBar(used, 2, band, g), sp(']'), sp(`${used}%`, band)],
+      [sp('quota '), ...gauge(used, 2, band, ctx), sp(`${used}%`, band), ...reset],
+      [sp('quota '), ...gauge(used, 2, band, ctx), sp(`${used}%`, band)],
       [sp('quota '), sp(`${used}%`, band)],
     ] });
   }
@@ -565,6 +584,19 @@ function blockBar(pct, cells, role, g) {
   return [{ t: g.full.repeat(full) + g.partial[part], role }, { t: g.empty.repeat(cells - full - (part ? 1 : 0)), role: 'empty' }];
 }
 
+// A gauge between its brackets, or with round caps in the same cells where the terminal draws them: the caps take the
+// colour of the end they close and the unfilled cells become one smooth track.
+function gauge(pct, cells, role, { g, caps }) {
+  const [fill, rest] = blockBar(pct, cells, role, g);
+  if (!caps) return [{ t: '[', role: 'accent' }, fill, rest, { t: ']', role: 'accent' }];
+  return [
+    { t: caps[0], role: pct > 0 ? role : 'track' },
+    { ...fill, bg: 'track' },
+    { t: ' '.repeat(rest.t.length), role: 'empty', bg: 'track' },
+    { t: caps[1], role: pct >= 100 ? role : 'track' },
+  ];
+}
+
 // The route's place on its map, drawn as the family card draws it: done stops dim with a check, the current stop a
 // filled chip in the accent, the stops ahead dim with a dot; accent `━` rails into done and current stops, a grey `━`
 // leaving the current stop, grey `─` further ahead.
@@ -573,7 +605,7 @@ function mapForms(labels, current, detail, g) {
   const short = (l) => l.replace(/^[A-Za-z]+/, (w) => w.slice(0, 3));
   const stop = (label, i, cut) => {
     const text = cut ? short(label) : label;
-    if (i === current) return ascii ? { t: `[${text}]`, role: 'accent', b: true } : { t: ` ${text} `, role: 'ink', bg: 'accent', b: true };
+    if (i === current) return ascii ? { t: `[${text}]`, role: 'accent', b: true } : { t: ` ${text} `, role: 'ink', bg: 'accent', b: true, stage: true };
     return { t: `${text} ${i < current ? g.done : g.todo}`, role: 'dim' };
   };
   const track = ({ rail, cut = false, window = false }) => {
@@ -716,8 +748,8 @@ function layout(segs, pick, g) {
   const shown = ORDER.flatMap((id) => segs.filter((s) => s.id === id && pick.get(s) !== null));
   const spans = [];
   shown.forEach((s, i) => {
-    if (i === 1) spans.push({ t: ` ${g.head} `, role: 'accent' });
-    else if (i > 1) spans.push({ t: ` ${g.sep} `, role: 'accent' });
+    if (i === 1) spans.push({ t: ` ${g.head} `, role: 'accent', sep: true });
+    else if (i > 1) spans.push({ t: ` ${g.sep} `, role: 'accent', sep: true });
     spans.push(...s.forms[pick.get(s)]);
   });
   return spans;
@@ -821,14 +853,28 @@ function rainbowSpan(s, depth, state) {
 const AMBER_KEEPS = new Set(['dim', 'empty', 'rail', 'red', 'ink']);
 const amberSpan = (s) => ({ ...s, role: s.role && !AMBER_KEEPS.has(s.role) ? 'amber' : s.role, bg: s.bg ? 'amber' : s.bg });
 
-function paint(spans, depth, rainbow = null, amber = false) {
+// With the sunset, a separator takes its place on the pink, violet, accent run across the row, and the current-stage chip
+// runs violet to the accent a cell at a time. The glyphs and widths are those of the plain spans.
+function neonSpan(s, from, total) {
+  if (s.sep) return `\u001b[38;2;${along(NEON, from / total).join(';')}m${s.t}\u001b[0m`;
+  const chars = [...s.t];
+  return `\u001b[1;${sgr(s.role, 'truecolor', false)}m${chars.map((ch, i) => `\u001b[48;2;${along(STAGE_STOPS, i / Math.max(chars.length - 1, 1)).join(';')}m${ch}`).join('')}\u001b[0m`;
+}
+
+function paint(spans, depth, { rainbow = null, amber = false, sunset = false } = {}) {
   let out = '';
+  let cells = 0;
+  const neon = sunset && !rainbow && !amber;
+  const total = spanWidth(spans);
   const state = rainbow ? { cell: 0, bucket: Math.floor((rainbow.now ?? Date.now()) / RAINBOW_BUCKET_MS) } : null;
   for (const span of spans) {
-    if (span.brand !== undefined) { out += brandText(span.brand, depth); if (state) state.cell += visibleWidth(span.brand); continue; }
+    const from = cells;
+    cells += visibleWidth(spanText(span));
+    if (span.brand !== undefined) { out += brandText(span.brand, depth, sunset); if (state) state.cell += visibleWidth(span.brand); continue; }
     if (!span.t) continue;
     if (depth === 'plain') { out += span.t; continue; }
     if (state) { out += rainbowSpan(span, depth, state); continue; }
+    if (neon && (span.sep || span.stage)) { out += neonSpan(span, from, total); continue; }
     const s = amber ? amberSpan(span) : span;
     const codes = [s.b ? '1' : '', s.role ? sgr(s.role, depth, false) : '', s.bg ? sgr(s.bg, depth, true) : ''].filter(Boolean);
     out += codes.length ? `\u001b[${codes.join(';')}m${s.t}\u001b[0m` : s.t;
@@ -836,15 +882,16 @@ function paint(spans, depth, rainbow = null, amber = false) {
   return out;
 }
 
-// The terminal width of the status line process (opts.columns, from statusline.mjs) is the last word before 120.
+// The terminal width of the status line process (opts.columns, from statusline.mjs) is the last word; null when nothing
+// says. The text then gets 120 cells and the scene stays away, since a row wider than the terminal would wrap.
 function widthOf(input, env, override, columns) {
   const w = num(override) ?? num(input.width) ?? num(input.terminal_width) ?? num(obj(input.terminal)?.columns) ?? num(env.COLUMNS) ?? num(columns);
-  return w && w >= 10 ? Math.floor(w) : 120;
+  return w && w >= 10 ? Math.floor(w) : null;
 }
 
 const asciiOnly = (env) => env.LITGRAVITY_HUD_ASCII === '1' || /^dumb$/i.test(env.TERM ?? '');
 
-/** One status line, without the trailing newline. `opts.now` and `opts.width` exist for tests; `opts.columns` is the tty width. */
+/** The status line, without the trailing newline: one row, and the horizon row below it when the sunset is on. `opts.now` and `opts.width` exist for tests; `opts.columns` is the tty width. */
 export function renderStatus(input, opts = {}) {
   const env = opts.env ?? process.env;
   const data = obj(input) ?? {};
@@ -855,9 +902,17 @@ export function renderStatus(input, opts = {}) {
   const waiting = waitingOf(data, route);
   const done = route ? doneOf(route, now) : false;
   const look = lookOf({ route: route?.state.route ?? null, waiting, done });
-  const ctx = { g, env, now, route, waiting, done };
+  const sunset = depth === 'truecolor' && g !== GLYPHS.ascii && !lightGround(env);
+  const amber = look === 'your-turn';
+  const ctx = { g, env, now, route, waiting, done, caps: sunset && look !== 'rewind' && !amber && drawsRoundCaps(env) ? CAPS : null };
   const rainbow = look === 'rewind' && depth !== 'plain' ? { now } : null;
-  return paint(fit(segments(data, ctx), widthOf(data, env, opts.width, opts.columns), g), depth, rainbow, look === 'your-turn');
+  const width = widthOf(data, env, opts.width, opts.columns);
+  const spans = fit(segments(data, ctx), width ?? 120, g);
+  const line = paint(spans, depth, { rainbow, amber, sunset });
+  const turn = Math.floor(now / RAINBOW_BUCKET_MS) * RAINBOW_STEP * 2;
+  const hue = rainbow ? (x, light) => hslToRgb((x * RAINBOW_STEP + turn) % 360, 0.8, light) : null;
+  const scene = sunset && width !== null ? horizon({ width, used: spanWidth(spans), amber, hue }) : null;
+  return scene ? `${line}${scene.tail}\n${scene.row}` : line;
 }
 
 /** The line printed when anything above throws: the mark alone, never an error. */
