@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.17 — Unreleased
+## 0.1.17 — 2026-11-25
 
 - On a truecolor terminal the status line is dressed as a sunset. The mark runs orange to pink, the current stage violet to LitGravity's orange, the separators pink to violet to orange, and a second row under the text holds a half-sunk sun on a glittering sea, with stars in the free cells beside the words. The text itself is unchanged: same words, same order, same gauge widths, and art only in cells no text uses. The scene stands still, because agy redraws the line on events and not while it idles. YOUR TURN keeps its amber and `lit adhd` its rainbow.
 - In Windows Terminal and VS Code the gauges get round ends in the cells their brackets had.
