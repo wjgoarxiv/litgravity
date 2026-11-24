@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.16 — 2026-11-24
+
+- A `lit team` lock folder with no owner record yet is left to the process that just made it for at least 5 seconds, whatever stale window the caller passed. Before, a caller with a stale window of 0 could move aside a lock another process had created a moment earlier, and that process then failed with `lock ownership receipt failed`. A takeover claim that is still being written gets the same grace.
+- Both READMEs now say a request can end with `lit` (or `lit-loop`, `litwork`, `lit-hijack`) as well as start with it, and that the first reply asks a goal question built from your words when the project has a test command. They describe where the LIT mark appears and its plain one-line form, and the status line reference names the truecolor pill. The Safety section explains how a `lit team` lock left by a crashed process is reclaimed and what to do if a team command still reports `team state lock timed out`.
+
 ## 0.1.15 — 2026-11-24
 
 - `help`, `install` and `doctor` open with the synthwave LIT mark. Its size follows the terminal width, it has a no-colour form, and a pipe, CI log or agent tool call gets the one plain line `LIT · antigravity` instead. On truecolor the HUD mark is now a pill on LitGravity's blue chrome. 256 and 16 colours keep the old bold mark.
