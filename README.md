@@ -23,13 +23,14 @@ When you stop, type `lit handoff`. agy saves a note, and the next conversation f
 
 ## Two ways to use it
 
-**The easy way.** Write your request as usual and put `lit` in front of it. In agy the word has to come first:
+**The easy way.** Write your request as usual and put `lit` in front of it, or at the end (`fix the date parsing bug in src/dates.js lit`). Both read the same:
 
 ```text
 lit fix the date parsing bug in src/dates.js
 ```
 
 agy sets the goal, writes a failing test, fixes the bug, checks the result and tells you what it checked.
+When the project has a test command, the first reply ends with one goal question built from your words; `yes` arms it.
 Most tasks need nothing more.
 
 **The full workflow.** For a bigger job, go one step at a time. Each step leaves a file the next step reads,
@@ -59,7 +60,7 @@ What ignition looks like, captured from the real hook and status line on this Ma
 ## Quick start
 
 1. [Install LitGravity](#install), then open agy in a project. Type `/skills` to see the LitGravity skills and `/hooks` to see the plugin's hooks.
-2. Start a prompt with `lit`. The word after it picks the route, as the table below shows.
+2. Start a prompt with `lit`, or end it with `lit`. The word after a leading `lit` picks the route, as the table below shows.
 3. Approve a plan, then `lit start plans/<slug>.md` builds it row by row with tests.
 4. Before you stop, `lit handoff`. Next time, `lit adhd` tells you the one thing to do now.
 
@@ -78,6 +79,7 @@ it ends     "Plan saved. Run `lit start plans/todo-app.md` when you are happy wi
 | `lit <other route>` | Switches |
 | Any skill id as that word (`lit debugging`, `lit structural-search`) | Runs that skill; `/litgravity:<skill-id>` does the same as a slash command |
 | `lit new` | Starts over |
+| `<task> lit`, `<task> lit-loop`, `<task> litwork`, `<task> lit-hijack` | Works like the same word in front: the words before it are the task, and the goal question uses them. A question such as `what does lit-loop do?` stays an ordinary prompt |
 
 `npx @litfamily/litgravity list` prints every skill with the words that reach it.
 
@@ -119,6 +121,8 @@ The installer shows every destination first and validates the plugin with `agy p
 Every user-scope install also leaves one owned rule file at `~/.gemini/config/rules/litgravity.md`, because agy reads that folder at every session start. The rule stays short on purpose (the lit activation word, where plans and handoffs live, and the release freeze), so the ground rules hold before any skill loads. An interactive install asks first and a No stores the rule off, while `--yes` adds it; the [lifecycle table](#safety-and-uninstall) turns it off later or adds a project block.
 
 `doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, the global rule file, every skill and agent, the extensions with their install line, any old engine cache or stray saved copy, and the host programs the skills call.
+
+`install`, `doctor` and `help` open with the synthwave LIT mark, sized to the terminal width. Without 256 colours (`NO_COLOR`, `TERM=dumb`, a 16-colour terminal) the same scene is drawn without colour. In a pipe, a CI log, an agent's tool call or a terminal narrower than 24 columns it shrinks to the one plain line `LIT · antigravity`.
 
 The installer writes in a few places outside your project, and the map shows them. If the destination is a symlink, someone else's folder, or a copy you edited, it stops with `No files written.`; otherwise it copies the plugin, then writes the rule file and a small receipt. Everything else LitGravity leaves on disk is written later by your conversations, and the installer never changes your extension copies (it only reads the skill folders to tell you, once, when `extensions check` has something to show).
 
@@ -165,7 +169,7 @@ One row under the prompt shows where the work stands: the model and its effort t
 
 <p align="center"><img src="./docs/assets/litgravity/status-states.webp" width="960" alt="Terminal capture of the status line. Before lit it shows the model and the context gauge at 42 percent. After lit it adds the lit-loop chip with its clock and the PIN through RECORD map with PIN lit." /></p>
 
-`--status-line` at install turns it on. Its segments, colours, plain-text form and the looks for `lit adhd`, YOUR TURN, review lanes and DONE are in the [reference](./docs/reference.md#the-status-line).
+On a truecolor terminal the mark at its start is a small pill on LitGravity's blue chrome; 256 and 16 colours keep the bold mark. `--status-line` at install turns it on. Its segments, colours, plain-text form and the looks for `lit adhd`, YOUR TURN, review lanes and DONE are in the [reference](./docs/reference.md#the-status-line).
 
 ## Extensions
 
@@ -320,6 +324,7 @@ The installer writes only its own plugin folder, its data directory, its rule fi
 - A symlinked, foreign or edited destination stops the install before the first write. To keep an edited copy, the installer gives a command that moves it to `~/.local/share/litgravity/saved/<scope>-<date>`. That folder is outside agy's plugins folder on purpose: agy loads every folder it finds there, so a copy saved beside the plugin would run as a second LitGravity. `doctor` warns about any such leftover. `--dry-run` never mutates.
 - `extensions` writes only into agy's skill folder for the scope (`~/.gemini/config/skills/<id>` or `.agents/skills/<id>`), `~/.gemini/extension-backups/` and its own source clone in `~/.cache/litgravity/extensions-src`. Without `--yes` it only prints its plan. It never moves a same-name skill you keep elsewhere, never removes a folder without its receipt, and deletes only inside `~/.gemini/extension-backups/`, only with `prune-backups --yes`.
 - Releases up to 0.1.8 cached engines under `~/.local/share/litgravity/runtime/` (`$XDG_DATA_HOME/litgravity/runtime/`), and the cache can take 150 MB or more. Nothing reads or writes there now, the extensions included, and `uninstall` leaves it, so delete that folder to free the space; `doctor` names it while it is there.
+- `lit team` keeps its packet under `.litgravity/team/<id>/` and takes a short lock folder, `.lock`, for each change. A lock that a crashed process left behind is taken back on its own: once it is 30 seconds old with no owner record or with its owner's process gone, or once it is older than 10 minutes even if that pid now belongs to another program. If a team command still stops with `team state lock timed out`, the message names the lock folder and its holder (pid and age, or no owner record). Close the conversations that use that team, then delete the folder it names.
 - Set `LITGRAVITY_HOOK_TRACE=<file>` before starting agy to log one line per hook call. It is off otherwise.
 
 </details>
