@@ -25,6 +25,9 @@ const MAX_OWNER_BYTES = 4096;
 // No team update holds the lock longer than a moment, so an owner or a takeover claim older than this crashed even
 // when its recorded pid now names another live process (pids are reused, often on WSL).
 const OWNER_LOCK_MAX_HOLD_MS = 10 * 60 * 1000;
+// A folder or claim with no readable record may be one another process created a moment ago and is still writing,
+// so it is judged only once it is this old, whatever stale window the caller passed.
+const OWNERLESS_GRACE_MS = 5_000;
 const sleepSync = (milliseconds) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
 const monotonicNowMs = () => Number(process.hrtime.bigint()) / 1_000_000;
 
@@ -211,7 +214,7 @@ const takeoverWinner = (lockDir, incumbent, ownClaim, staleAfter, expectedLockDi
       // A claim its writer died while writing can never be read; once old it is cleared, or it blocks every takeover.
       const claimPath = join(lockDir, name);
       const claimStats = lstatSync(claimPath, { throwIfNoEntry: false });
-      if (!claimStats?.isFile() || claimStats.isSymbolicLink() || Date.now() - claimStats.mtimeMs < staleAfter) return null;
+      if (!claimStats?.isFile() || claimStats.isSymbolicLink() || Date.now() - claimStats.mtimeMs < Math.max(staleAfter, OWNERLESS_GRACE_MS)) return null;
       rmSync(claimPath, { force: true });
       continue;
     }
@@ -279,9 +282,9 @@ export const acquireOwnerLock = (lockDir, { timeoutMs = 500, staleMs = 30_000 } 
       const incumbent = readOwnerLock(lockDir);
       if (!incumbent && lockDirectory) {
         // A holder that died between creating the folder and writing its owner record left a lock nobody can judge;
-        // once it is older than the stale window it is moved aside and the acquisition retried.
+        // once it is older than the stale window (and the grace) it is moved aside and the acquisition retried.
         const folder = lstatSync(lockDir, { throwIfNoEntry: false });
-        if (folder && Date.now() - folder.mtimeMs >= staleAfter) {
+        if (folder && Date.now() - folder.mtimeMs >= Math.max(staleAfter, OWNERLESS_GRACE_MS)) {
           const aside = `${lockDir}.stale.ownerless.${randomUUID()}`;
           try {
             if (removeVerifiedPath(lockDir, lockDirectory, undefined, aside, (quarantine) => !readOwnerLock(quarantine))) continue;
