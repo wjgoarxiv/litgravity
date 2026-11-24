@@ -47,9 +47,11 @@ npx @litfamily/litgravity install
 
 ## 데모
 
-`lit`을 치면 무엇이 도는지, 이 Mac의 실제 훅과 상태 표시줄에서 가져왔습니다. 친 프롬프트, 끼워 넣은 경로 안내, lit-loop 지도를 단 상태 표시줄 순서입니다.
+agy에서 요청 하나가 지나가는 모습입니다. 상태줄은 LitGravity가 직접 그립니다. 경로를 말하고 루프 지도를 그리며, 에이전트가 무언가 물으면 호박색으로 바뀌고, 루프가 증거 파일을 쓸 때마다 한 칸씩 체크합니다. agy는 이벤트에서만 다시 그리므로 줄과 노을은 이벤트 사이에 멈춰 있고 위의 세션만 움직입니다.
 
-<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="터미널 갈무리. 프롬프트는 lit add a --shout flag that prints the greeting in capitals, with a test. 훅은 LIT 표시와 LIT IGNITED · lit-loop로 답하고, 먼저 읽을 lit-loop 스킬 파일을 알리고, 도구 기록이 대화 ledger에 남는다고 안내합니다. 아래 상태 표시줄에는 모델, 42퍼센트 컨텍스트 게이지, 시계가 달린 lit-loop 칩, PIN이 켜진 PIN부터 RECORD까지의 지도가 보이고, 그 아래에 노을 바다가 있습니다." /></p>
+<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition-ko.webp" width="960" alt="LitGravity를 쓰는 agy 세션의 무음 반복 영상입니다. 프롬프트 &quot;lit add a --shout flag that prints the greeting in capitals, with a test&quot;를 보내면 상태줄이 LIT IGNITED · lit-loop를 말하고 PIN에서 RECORD까지의 지도를 그립니다. 에이전트가 질문하면 줄이 호박색 YOUR TURN으로 바뀌고, 루프가 증거 파일을 쓸 때마다 한 칸씩 PIN ✓에서 REV ✓까지 체크되며 DONE 라벨이 20초 동안 뜹니다. agy는 이벤트에서만 다시 그리므로 줄과 노을은 그 사이에 멈춰 있습니다." /></p>
+
+<p align="center"><sub>상태줄은 LitGravity가 직접 만든 출력이고, 그 주변의 agy 화면은 다시 그린 것입니다. 마지막 장면은 20초 뒤입니다.</sub></p>
 
 ## 빠른 시작
 

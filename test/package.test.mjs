@@ -107,3 +107,16 @@ test('version lockstep and token scanner scripts pass on this tree', () => {
     assert.equal(r.status, 0, `${script}: ${r.stdout}${r.stderr}`);
   }
 });
+
+test('README demo loops: animated WebP files under 2.5 MiB, each page plays its own, neither ships in the package', () => {
+  const files = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).files;
+  for (const [readme, film] of [['README.md', 'docs/assets/litgravity/demo-ignition.webp'], ['README_ko-KR.md', 'docs/assets/litgravity/demo-ignition-ko.webp']]) {
+    const bytes = readFileSync(join(ROOT, film));
+    assert.equal(bytes.subarray(0, 4).toString('latin1'), 'RIFF', `${film} is a RIFF container`);
+    assert.equal(bytes.subarray(8, 12).toString('latin1'), 'WEBP', `${film} is a WebP`);
+    assert.ok(bytes.includes(Buffer.from('ANIM')), `${film} is animated`);
+    assert.ok(bytes.length <= 2_621_440, `${film} stays within 2.5 MiB (${bytes.length} bytes)`);
+    assert.ok(readFileSync(join(ROOT, readme), 'utf8').includes(`<img src="./${film}" width="960" alt="`), `${readme} plays ${film}`);
+    assert.ok(!pinned().includes(film) && !files.some((entry) => film.startsWith(`${entry}/`)), `${film} is for the GitHub page only`);
+  }
+});

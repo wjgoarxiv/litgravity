@@ -53,9 +53,11 @@ npx @litfamily/litgravity install
 
 ## Demo
 
-What ignition looks like, captured from the real hook and status line on this Mac: the typed prompt, the injected route note, and the status line carrying the lit-loop map.
+Here is one request in agy. The status line is LitGravity's own: it names the route and draws the loop map, turns amber when the agent asks you something, and ticks one more stop for each evidence file the loop writes. agy repaints it on events only, so the row and its sunset hold still between events while the session above moves.
 
-<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="Terminal capture. The prompt reads lit add a --shout flag that prints the greeting in capitals, with a test. The hook answers with the LIT mark and LIT IGNITED · lit-loop, names the lit-loop skill file to read first, and notes that tool events go to the conversation ledger. Below, the status line shows the model, the context gauge at 42 percent, the lit-loop chip with its clock, and the PIN through RECORD map with PIN lit, over a sunset sea." /></p>
+<!-- demo-gif --><p align="center"><img src="./docs/assets/litgravity/demo-ignition.webp" width="960" alt="A silent loop of an agy session with LitGravity. The prompt &quot;lit add a --shout flag that prints the greeting in capitals, with a test&quot; makes the status line say LIT IGNITED · lit-loop and draw the PIN to RECORD map. The agent asks a question and the row turns amber with YOUR TURN; then each evidence file the loop writes ticks one more stop, from PIN ✓ to REV ✓, and a DONE label shows for 20 seconds. agy repaints the line on events only, so the row and its sunset hold still between them." /></p>
+
+<p align="center"><sub>The status line is LitGravity's own output; the agy screen around it is redrawn. The last scene is 20 seconds later.</sub></p>
 
 ## Quick start
 
