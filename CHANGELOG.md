@@ -1,7 +1,8 @@
 # Changelog
 
-## 0.1.19 — unreleased
+## 0.1.19 — 2026-11-25
 
+- The README cover is redrawn with the framed status card round the whole screen.
 - On a truecolor terminal of at least 60 columns and 20 rows the status line is a framed card: the mark, the route and one state word on the title edge, the stage map in whole words with the last tool and its age, the goal's or plan's gauge with the next step, threads and lanes in shared columns, skill chips, and the model, context, quota, branch and version on the bottom edge. A half-sunk three-row sun stands in the cells no text uses. Every state has the same card, and a part with no recorded fact behind it is left out. A short window hides skills before lanes and never a lane in trouble.
 - Pills and gauges are round everywhere or square everywhere: the card, the one-row line and the installer read one answer. `LITGRAVITY_HUD_GLYPHS=round|nerd|basic` sets it; otherwise Windows Terminal, VS Code, WezTerm, Ghostty and kitty are round, SSH is square, and elsewhere an installed Nerd Font decides (font file names only, looked up once a day).
 - `NO_COLOR`, 256 and 16 colours, the ASCII form, a light background named by `COLORFGBG` and a window under 60 columns in the square form print exactly what they printed before.
