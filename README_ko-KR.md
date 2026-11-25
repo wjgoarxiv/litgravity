@@ -1,4 +1,4 @@
-<p align="center"><picture><source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/cover-motion-still.webp" /><source media="(prefers-reduced-motion: no-preference)" srcset="./docs/assets/cover-motion.webp" /><img src="./docs/assets/cover.webp" width="100%" alt="LitFamily 커버: 장갑 기계 일곱 대가 각자 칸에 서 있고, 일곱 번째 칸의 LitGravity 기계(어두운 구형 머리를 자이로 고리가 감싼 기계)가 머리와 가슴의 주황 코어를 켜고 테두리에 불이 들어옵니다. 위에는 LITFAMILY, 아래에는 KEEP THE WORK LIT." /></picture></p>
+<p align="center"><picture><source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/cover-motion-still.webp" /><source media="(prefers-reduced-motion: no-preference)" srcset="./docs/assets/cover-motion.webp" /><img src="./docs/assets/cover.webp" width="100%" alt="LitFamily 커버: 노을빛 터미널 화면입니다. 위쪽에는 짧은 agy 대화가 있고, 가운데는 픽셀 글자 LITFAMILY와 줄무늬 해가 채우며 일곱 제품 이름 줄에서 LITGRAVITY가 켜지고, 아래에는 LitGravity의 상태줄이 화면을 마무리합니다." /></picture></p>
 
 <h1 align="center">LitGravity</h1>
 <p align="center"><strong>Keep the work lit.</strong></p>
@@ -335,7 +335,7 @@ agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로,
 
 LitGravity는 LitFamily 패키지 일곱 개 중 하나이고, 각 패키지는 같은 일하는 방식을 코딩 에이전트 하나에 붙여 주며 따로 설치되고 따로 동작합니다. 쓰는 에이전트에 맞는 것 하나만 설치하면 되고, 다른 패키지는 필요 없습니다. 일곱 패키지와 각 패키지가 맡은 에이전트는 [LitFamily](https://github.com/wjgoarxiv/litfamily)에 모여 있습니다.
 
-커버의 장갑 기계 일곱 대가 이 일곱 패키지이고, 일곱 번째 칸의 궤도 기계가 LitGravity입니다. 커버의 모션은 LitFamily 모션 스킬로 만든 브랜드 연출로, 그려서 움직인 그림이라 실제 agy 세션을 녹화한 장면은 들어 있지 않습니다. 시스템에서 동작 줄이기를 켜 두었다면 정지 프레임이 대신 보입니다.
+아래 그림의 장갑 기계 일곱 대가 이 일곱 패키지이고, 일곱 번째 칸의 궤도 기계가 LitGravity입니다. 커버의 모션은 LitFamily 모션 스킬로 만든 브랜드 연출로, 그려서 움직인 그림이라 실제 agy 세션을 녹화한 장면은 들어 있지 않습니다. 시스템에서 동작 줄이기를 켜 두었다면 정지 프레임이 대신 보입니다.
 
 <p align="center"><img src="./docs/assets/litfamily-machines.png" width="100%" alt="LitFamily 기계 일곱 대가 모두 불이 켜진 채 나란히 서 있습니다. LitClaude, LitHermes, LitCodex, LitOpenCode, LitGrok, LitMuse, LitGravity. 위에는 LITFAMILY, 아래에는 KEEP THE WORK LIT." /></p>
 

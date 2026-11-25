@@ -1,4 +1,4 @@
-<p align="center"><picture><source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/cover-motion-still.webp" /><source media="(prefers-reduced-motion: no-preference)" srcset="./docs/assets/cover-motion.webp" /><img src="./docs/assets/cover.webp" width="100%" alt="LitFamily cover: seven armored machines stand in their bays, and the LitGravity machine in the seventh bay, gyroscope rings around a dark spherical head, wakes with orange cores in its head and chest and a lit frame, under LITFAMILY and KEEP THE WORK LIT." /></picture></p>
+<p align="center"><picture><source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/cover-motion-still.webp" /><source media="(prefers-reduced-motion: no-preference)" srcset="./docs/assets/cover-motion.webp" /><img src="./docs/assets/cover.webp" width="100%" alt="LitFamily cover: a terminal in a sunset look. A short agy conversation sits at the top, a pixel LITFAMILY wordmark and a striped half-sunk sun fill the middle with the row of seven product names lighting LITGRAVITY, and LitGravity's status line closes the screen at the bottom." /></picture></p>
 
 <h1 align="center">LitGravity</h1>
 <p align="center"><strong>Keep the work lit.</strong></p>
@@ -341,7 +341,7 @@ The installer writes only its own plugin folder, its data directory, its rule fi
 
 LitGravity is one of the seven LitFamily packages. Each one brings the same way of working to a single coding agent, and each installs and runs on its own: install the one for the agent you use, and it needs none of the others. [LitFamily](https://github.com/wjgoarxiv/litfamily) lists all seven and the agent each one is for.
 
-The seven armored machines on the cover are those seven packages, and LitGravity is the orbit machine in the seventh bay. The cover is brand motion made with the LitFamily motion skill: drawn and animated artwork, with no agy session recorded in it. If your system asks for reduced motion, you see a still frame instead.
+The seven armored machines in the picture below are those seven packages, and LitGravity is the orbit machine in the seventh bay. The cover is brand motion made with the LitFamily motion skill: drawn and animated artwork, with no agy session recorded in it. If your system asks for reduced motion, you see a still frame instead.
 
 <p align="center"><img src="./docs/assets/litfamily-machines.png" width="100%" alt="The seven LitFamily machines side by side, all lit: LitClaude, LitHermes, LitCodex, LitOpenCode, LitGrok, LitMuse and LitGravity, under LITFAMILY and KEEP THE WORK LIT." /></p>
 
