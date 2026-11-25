@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.18 — 2026-11-25
 
 - The README cover is a new loop: a terminal in the sunset look with a short conversation, a pixel LITFAMILY wordmark, a striped half-sunk sun and the status line, in place of the seven machines. The still for reduced motion is its first frame, and the static fallback picture is that same frame.
 - The README demo is a new silent loop of one request on the status line (the loop map, YOUR TURN, evidence files ticking stops, DONE, the sunset), replacing the old still, with a Korean copy for the Korean page; the agy screen around the status line is redrawn.
