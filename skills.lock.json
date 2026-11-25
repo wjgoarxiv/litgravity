@@ -853,6 +853,8 @@
     "plugin/hooks/pre-tool-use.mjs",
     "plugin/hooks/session-start.mjs",
     "plugin/hooks/stop.mjs",
+    "plugin/hud/card.mjs",
+    "plugin/hud/glyphs.mjs",
     "plugin/hud/looks.mjs",
     "plugin/hud/render.mjs",
     "plugin/hud/statusline.mjs",

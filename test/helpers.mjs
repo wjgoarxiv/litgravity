@@ -19,6 +19,7 @@ export function sandbox() {
     XDG_STATE_HOME: join(home, '.local', 'state'),
     XDG_CACHE_HOME: join(home, '.cache'),
     LITGRAVITY_AGY_BIN: FAKE_AGY,
+    LITGRAVITY_HUD_GLYPHS: 'basic', // no test reads this machine's fonts
     LITGRAVITY_NO_UPDATE_CHECK: '1',
     FAKE_AGY_LOG: join(home, 'agy-calls.jsonl'),
     PATH: process.env.PATH,
@@ -104,6 +105,5 @@ export function mkdirp(p) {
   return p;
 }
 
-// The text row of a rendered status line: the first row without the scene that may follow the text. Art starts three
-// spaces after the last word and text never holds three spaces in a row.
-export const textRow = (out) => out.split('\n')[0].replace(/(?<=\u001b\[0m) {3,}\u001b.*$/u, '');
+// A window too short for the card: the status line is its one row there, on truecolor too.
+export const ONE_ROW = { rows: 12 };

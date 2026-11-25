@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.19 — unreleased
+
+- On a truecolor terminal of at least 60 columns and 20 rows the status line is a framed card: the mark, the route and one state word on the title edge, the stage map in whole words with the last tool and its age, the goal's or plan's gauge with the next step, threads and lanes in shared columns, skill chips, and the model, context, quota, branch and version on the bottom edge. A half-sunk three-row sun stands in the cells no text uses. Every state has the same card, and a part with no recorded fact behind it is left out. A short window hides skills before lanes and never a lane in trouble.
+- Pills and gauges are round everywhere or square everywhere: the card, the one-row line and the installer read one answer. `LITGRAVITY_HUD_GLYPHS=round|nerd|basic` sets it; otherwise Windows Terminal, VS Code, WezTerm, Ghostty and kitty are round, SSH is square, and elsewhere an installed Nerd Font decides (font file names only, looked up once a day).
+- `NO_COLOR`, 256 and 16 colours, the ASCII form, a light background named by `COLORFGBG` and a window under 60 columns in the square form print exactly what they printed before.
+- `install` and `uninstall` at a terminal: the LIT mark stands centred over the cards, sized to the window; paths start with `~`; every value starts in the same column; answers fold to one row; the install steps tick off in one card that folds to `5 of 5 checked`; the closing card lists what was installed, how it is set and what to do next; a failure adds an `INSTALL STOPPED` card with its stage, reason and next step. Questions, their order, defaults, stored answers and the plain output (a pipe, CI, `--yes`, `--dry-run`) are unchanged.
+
 ## 0.1.18 — 2026-11-25
 
 - The README cover is a new loop: a terminal in the sunset look with a short conversation, a pixel LITFAMILY wordmark, a striped half-sunk sun and the status line, in place of the seven machines. The still for reduced motion is its first frame, and the static fallback picture is that same frame.

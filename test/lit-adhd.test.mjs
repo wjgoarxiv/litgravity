@@ -662,7 +662,7 @@ const { runHook, basePayload } = await import('./helpers.mjs');
 // normal look paints a route name as one run.
 const PER_LETTER = /\u001b\[[0-9;]*ml\u001b\[[0-9;]*mi\u001b\[[0-9;]*mt/;
 function look(ws, env) {
-  const line = renderStatus({ conversation_id: 'conv-test-0001', workspace: ws.dir }, { env: { ...env, COLORTERM: 'truecolor' }, now: Date.now(), width: 120 });
+  const line = renderStatus({ conversation_id: 'conv-test-0001', workspace: ws.dir }, { env: { ...env, COLORTERM: 'truecolor' }, now: Date.now(), width: 120, rows: 12 });
   return { line, rainbow: PER_LETTER.test(line) };
 }
 const toolCall = (ws, env, name, args) => runHook('post-tool-use', basePayload(ws, { toolCall: { name, args } }), env);

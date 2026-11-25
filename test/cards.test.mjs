@@ -10,9 +10,10 @@ import { flow, makeCards, openCards } from '../lib/cards.mjs';
 import { install } from '../lib/install.mjs';
 import { uninstall } from '../lib/uninstall.mjs';
 import { displayWidth } from '../plugin/hooks/lib/rewind/gauge.mjs';
-import { ROOT, agyCalls, collect, sandbox } from './helpers.mjs';
+import { ROOT, agyCalls, sandbox } from './helpers.mjs';
 
-const COLOUR = { TERM: 'xterm-256color', COLORTERM: 'truecolor', LANG: 'en_US.UTF-8' };
+const COLOUR = { TERM: 'xterm-256color', COLORTERM: 'truecolor', LANG: 'en_US.UTF-8', LITGRAVITY_HUD_GLYPHS: 'basic' };
+const ROUND = { ...COLOUR, LITGRAVITY_HUD_GLYPHS: 'round' };
 const QUESTION = { tag: 'LIT 1/2', title: 'Install', note: 'Copies the plugin; No writes nothing.', yes: 'copy it', no: 'not installed' };
 const [UP, LEFT, RIGHT, TAB, ENTER, ESC, CTRL_C, CTRL_D, CTRL_Z] = ['\x1b[A', '\x1b[D', '\x1b[C', '\t', '\r', '\x1b', '\x03', '\x04', '\x1a'];
 const bare = (text) => text.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, '').replaceAll('\r', '');
@@ -141,8 +142,99 @@ test('truecolor, 256, 16 and no colour; a locale without UTF-8 is drawn in ASCII
   assert.doesNotMatch(c16, /[34]8;[25];/);
   const none = await drawn({ ...COLOUR, NO_COLOR: '1' });
   assert.doesNotMatch(none, /\x1b\[[0-9;]*m/);
-  assert.match(none, /\[LIT 1\/2\][^]*║ ❯ Yes/);
+  assert.match(none, /\[LIT 1\/2\][^]*║ {2}❯ Yes/);
   assert.doesNotMatch(await drawn({ ...COLOUR, NO_COLOR: '1', LC_ALL: 'C' }), /[^\x00-\x7f]/);
+});
+
+// Both forms of everything the screens draw, as rows with their colours.
+async function everything(env, columns, rows) {
+  const d = desk({ env, columns, rows });
+  d.cards.open('litgravity v1.2.3', 'Installs into ~/.gemini/config/plugins/litgravity. Nothing is written before you say yes.');
+  d.cards.panel({ title: 'LitGravity 1.2.3 install plan', sections: [{ rows: [{ mark: 'plan', label: 'Plugin', value: '~/.gemini/config/plugins/litgravity' }] }] });
+  await type(d, [LEFT, 'y']);
+  await type(d, ['n'], { ...QUESTION, title: 'Global rule', tag: 'LIT 2/2' });
+  const work = d.cards.work('Installing LitGravity 1.2.3', [{ name: 'Copy', text: 'copy the plugin into ~/.gemini/config/plugins/litgravity' }, { name: 'Receipt', text: 'record what was written' }]);
+  work.run(() => 3);
+  work.run(() => ({ ok: true }));
+  work.fold('Install steps');
+  d.cards.panel({ title: 'LitGravity 1.2.3 is installed', sections: [{ head: 'Installed', rows: [{ label: 'Plugin', value: 'here' }, { mark: 'warn', label: 'Note', value: 'mind this' }] }, { head: 'Next', rows: [{ mark: 'plan', label: 'Start', value: 'run agy' }] }] });
+  d.cards.panel({ title: 'INSTALL STOPPED', bad: true, sections: [{ rows: [{ mark: 'bad', label: 'Reason', value: 'it broke' }] }] });
+  d.cards.say('Nothing installed.');
+  d.cards.notes('LitFamily extensions', ['Some prose.', '  git clone x']);
+  return d.out.join('');
+}
+// What is left on screen once each redraw has gone over the rows it replaced.
+function onScreen(out) {
+  const lines = [''];
+  let y = 0;
+  for (const m of out.matchAll(/\x1b\[(\d+)A|\x1b\[([0-9;?]*)([A-Za-z])|(\r)|(\n)|([^\x1b\r\n]+)/g)) {
+    if (m[1]) y -= Number(m[1]);
+    else if (m[3] === 'J') lines.length = y;
+    else if (m[4]) lines[y] = '';
+    else if (m[5]) { y += 1; lines[y] = ''; }
+    else if (m[6]) lines[y] = (lines[y] ?? '') + m[6];
+    lines[y] ??= '';
+  }
+  return lines;
+}
+
+test('the screen: one blank row between blocks and never two, values in column 24, a mark over the cards', async () => {
+  for (const [columns, rows] of [[100, 60], [80, 40], [120, 24]]) {
+    const lines = onScreen(await everything(ROUND, columns, rows)).map((l) => l.trimEnd());
+    while (lines.at(-1) === '') lines.pop();
+    const text = lines.join('\n');
+    assert.doesNotMatch(text, /\n\n\n/, text);
+    const bodies = lines.slice(lines.findIndex((l) => l.includes('Installs into')));
+    assert.equal(lines[0], '');
+    bodies.forEach((l, i) => {
+      if (l.startsWith(' ╭')) assert.equal(bodies[i - 1], '', `a card without its blank row: ${l}`);
+      if (l.startsWith(' ╰')) assert.ok(bodies[i + 1] === undefined || bodies[i + 1] === '', l);
+    });
+    for (const label of ['Install ', 'Global rule', 'Install steps', 'Plugin', 'Note', 'Start', 'Reason']) {
+      const row = bodies.find((l) => new RegExp(`^ (│ )?[✓✗!·] ${label}`).test(l));
+      assert.match([...row].slice(24).join(''), /^\S/, `${label}: ${row}`);
+      assert.equal([...row][23], ' ', row);
+    }
+    assert.match(text, /\n ✓ Install +copy it\n ✓ Global rule +not installed\n ✓ Install steps +2 of 2 checked\n\n ╭/);
+  }
+});
+
+test('round: every fill has both caps and nothing is bracketed; square, plain and ASCII: no cap, the same text in the same columns', async () => {
+  const unroll = (out) => bare(out.replace(/\x1b\[38;2;[0-9;]+m[\ue0b6\ue0b4]\x1b\[0m/g, ' '));
+  for (const columns of [40, 60, 80, 100, 120]) {
+    for (const rows of [12, 16, 24, 60]) {
+      const round = await everything(ROUND, columns, rows);
+      const square = await everything(COLOUR, columns, rows);
+      assert.equal(unroll(round), bare(square), `${columns}x${rows}`);
+      assert.doesNotMatch(bare(round), /\[(?!y\/N)|[░▒▓▯▌▐▄▀](?=.*│)/);
+      for (const line of round.split(/\r?\n/)) {
+        if (!/[│╭╰]/.test(line)) continue; // the mark's own pixels
+        const cells = [...line.matchAll(/\x1b\[([0-9;?]*)m([^\x1b]*)/g)].flatMap((m) => [...m[2]].map((ch) => ({ ch, ground: /(?:^|;)48;/.test(m[1].replace(/38;2;\d+;\d+;\d+/, '')) })));
+        cells.forEach((c, i) => {
+          if (!c.ground) return;
+          assert.ok(cells[i - 1]?.ground || cells[i - 1]?.ch === '\ue0b6', line);
+          assert.ok(cells[i + 1]?.ground || cells[i + 1]?.ch === '\ue0b4', line);
+        });
+      }
+      for (const env of [COLOUR, { ...ROUND, COLORTERM: '' }, { ...ROUND, COLORTERM: '', TERM: 'xterm' }, { ...ROUND, COLORFGBG: '0;15' }, { ...ROUND, NO_COLOR: '1' }, { ...ROUND, LC_ALL: 'C' }]) {
+        const out = await everything(env, columns, rows);
+        assert.doesNotMatch(out, /[\ue0b6\ue0b4]/);
+        for (const row of bare(out).split('\n')) if (/[│+|] *$/.test(row) && !row.includes('git')) assert.ok(displayWidth(row.trimEnd()) <= Math.min(101, columns - 1), row);
+      }
+    }
+  }
+});
+
+test('a step that fails stays on screen, marked; the steps fit at every width and drop only their texts', () => {
+  for (const columns of [40, 60, 100]) {
+    const d = desk({ columns });
+    const work = d.cards.work('Installing', [{ name: 'Package', text: 'check the packaged plugin with agy' }, { name: 'Copy', text: 'copy the plugin into a folder with a long name' }, { name: 'Receipt', text: 'record what was written' }]);
+    work.run(() => ({ ok: true }));
+    assert.throws(() => work.run(() => { throw new Error('disk full'); }), /disk full/);
+    const lines = onScreen(d.out.join(''));
+    assert.match(lines.join('\n'), /│ ✓ Package[^]*│ ✗ Copy[^]*│ · Receipt/);
+    for (const l of lines) assert.ok(displayWidth(l) < columns, l);
+  }
 });
 
 test('openCards says no wherever the plain lines must stay', () => {
@@ -178,7 +270,7 @@ test('an install asks the released questions in order, and each answer does what
   assert.match(a.asked[0].plain, /^Install LitGravity [\d.]+ at user scope\? \[y\/N\] $/);
   assert.ok(existsSync(join(yes.home, '.gemini/config/rules/litgravity.md')));
   const screen = a.d.text();
-  for (const part of [/install plan/, /approvals +none: agy loads/, /✓ Agent file +created/, /is ready/, /WRITTEN/, /Start agy in a project/, /^ {4}git clone https/m]) assert.match(screen, part);
+  for (const part of [/Installs into ~\/\.gemini\/config\/plugins\/litgravity, only after/, /install plan/, /Approvals +none: agy loads/, /✓ Install steps +5 of 5 checked/, /✓ Agent file +created ~\//, /is installed/, /Installed[^]*Settings[^]*Next/, /run agy in a project/, /^ {4}git clone https/m]) assert.match(screen, part);
 
   const again = answering(true);
   await run(yes, again);
@@ -186,10 +278,9 @@ test('an install asks the released questions in order, and each answer does what
 
   const none = sandbox();
   const no = answering(false);
-  const said = collect();
-  assert.equal(await run(none, no, { print: said.print }), 0);
+  assert.equal(await run(none, no), 0);
   assert.equal(no.asked.length, 1);
-  assert.match(said.text(), /Nothing installed\./);
+  assert.match(no.d.text(), /^ Nothing installed\.$/m);
   assert.equal(existsSync(join(none.home, '.gemini/config/plugins/litgravity')), false);
 
   const off = sandbox();
@@ -202,19 +293,18 @@ test('an install asks the released questions in order, and each answer does what
   assert.equal(later.asked.length, 1);
 });
 
-test('warnings and failures stay in full view, and a remedy prints below the panel as plain text', async () => {
+test('warnings and failures stay in full view, and a remedy prints below the card as plain text', async () => {
   const box = sandbox();
   const missing = answering();
   assert.equal(await run({ ...box, env: { ...box.env, LITGRAVITY_AGY_BIN: join(box.home, 'none'), PATH: box.home } }, missing), 1);
-  assert.match(missing.d.text(), /install stopped[^]*✗ agy was not found on PATH/);
+  assert.match(missing.d.text(), /INSTALL STOPPED[^]*· Stage +host[^]*✗ Reason +agy was not found on PATH/);
 
   mkdirSync(join(box.home, '.gemini/config/plugins/litgravity'), { recursive: true });
   writeFileSync(join(box.home, '.gemini/config/plugins/litgravity/mine.txt'), 'mine');
   const foreign = answering();
-  const said = collect();
-  assert.equal(await run(box, foreign, { print: said.print }), 1);
-  assert.match(foreign.d.text(), /✗ destination foreign/);
-  assert.match(said.text(), /mkdir -p ".*" && mv ".*"[^]*No files written\./);
+  assert.equal(await run(box, foreign), 1);
+  assert.match(foreign.d.text(), /✗ Reason +destination foreign[^]*No files written\./);
+  assert.match(foreign.d.text(), /^ [^│\n]*mkdir -p ".*" && mv ".*".*$/m, 'the command stays in one piece');
   assert.equal(foreign.asked.length, 0);
 
   const loud = sandbox();

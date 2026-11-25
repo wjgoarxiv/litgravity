@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { PLUGIN, textRow } from './helpers.mjs';
+import { PLUGIN, ONE_ROW } from './helpers.mjs';
 import { sessionPath } from '../plugin/hooks/lib/common.mjs';
 import { renderStatus, visibleWidth } from '../plugin/hud/render.mjs';
 
@@ -30,7 +30,7 @@ function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'litgravity-hud-'));
   const ws = join(root, 'ws');
   mkdirSync(ws);
-  const env = { HOME: root, XDG_STATE_HOME: join(root, 'state'), PATH: process.env.PATH, COLORTERM: 'truecolor' };
+  const env = { HOME: root, XDG_STATE_HOME: join(root, 'state'), PATH: process.env.PATH, COLORTERM: 'truecolor', LITGRAVITY_HUD_GLYPHS: 'basic' };
   return { root, ws, env };
 }
 
@@ -46,10 +46,10 @@ function write(f, rel, body) {
   writeFileSync(file, typeof body === 'string' ? body : JSON.stringify(body));
 }
 
-const render = (f, extra, opts = {}) => renderStatus(payload(f.ws, extra), { env: f.env, now: NOW, width: 200, ...opts });
+const render = (f, extra, opts = {}) => renderStatus(payload(f.ws, extra), { env: f.env, now: NOW, width: 200, ...ONE_ROW, ...opts });
 
 function runScript(input, env, extra = {}) {
-  return spawnSync(process.execPath, [SCRIPT], { input, env: { ...env, ...extra }, encoding: 'utf8', timeout: 5000 });
+  return spawnSync(process.execPath, [SCRIPT], { input, env: { ...env, ...extra }, encoding: 'utf8', timeout: 5000, detached: true }); // no controlling terminal to measure
 }
 
 // The family status-line tokens this line must keep: the mark, one accent, the separators, bracketed gauges, the bands
@@ -69,7 +69,7 @@ test('the mark is the family mark: the ` 🔥LIT v… ` pill on the sunset in tr
 
 test('one accent: every word after the mark is LitGravity orange, between neon separators', () => {
   const f = fixture();
-  const out = textRow(render(f, { vcs: { branch: 'feat/hud', modified: 3 }, cost: 0.5, conversation_title: 'HUD' }));
+  const out = render(f, { vcs: { branch: 'feat/hud', modified: 3 }, cost: 0.5, conversation_title: 'HUD' });
   const body = spansOf(out.slice(out.indexOf('\u001b[0m', BRAND_TRUE.length) + 4));
   const words = body.filter((s) => /[A-Za-z0-9%$]/.test(s.text));
   for (const s of words) assert.equal(s.codes, ACCENT, `${JSON.stringify(s.text)} is ${s.codes}`);
@@ -84,7 +84,7 @@ test('one accent: every word after the mark is LitGravity orange, between neon s
 
 test('order, separators and bracketed gauges follow the family line: model [effort] │ ctx [..] n%/size │ quota [..]n%', () => {
   const f = fixture();
-  const text = strip(textRow(render(f, { quota: [{ model: 'Gemini 3.8 Flash', remaining_fraction: 0.72, reset_in_seconds: 7500 }], vcs: { branch: 'feat/hud', modified: 3 } })));
+  const text = strip(render(f, { quota: [{ model: 'Gemini 3.8 Flash', remaining_fraction: 0.72, reset_in_seconds: 7500 }], vcs: { branch: 'feat/hud', modified: 3 } }));
   assert.match(text, /^ 🔥LIT v[\d.]+  \| GF3\.8 \[medium\] │ ctx \[█▎░\] 42%\/1049k │ quota \[▌░\]28% ↻ 2h5m │ git feat\/hud \+3 ✓$/);
   assert.match(strip(render(f, { context_window: { used_percentage: 7, context_window_size: 1000000 } })), /ctx \[▎░░\] 7%\/1m/);
 });
@@ -197,14 +197,14 @@ test('without vcs from the host the branch comes from git, cached for a few seco
   assert.match(strip(render(f)), /git hud-branch \+1 ✓/);
   git('checkout', '-q', '-b', 'other');
   assert.match(strip(render(f)), /git hud-branch/, 'cached');
-  assert.match(strip(renderStatus(payload(f.ws), { env: f.env, now: NOW + 6000, width: 200 })), /git other/, 'refreshed after the cache expires');
+  assert.match(strip(renderStatus(payload(f.ws), { env: f.env, now: NOW + 6000, width: 200, ...ONE_ROW })), /git other/, 'refreshed after the cache expires');
 });
 
 test('unknown or missing fields never print placeholders', () => {
   const f = fixture();
-  const text = strip(textRow(renderStatus({}, { env: f.env, now: NOW, width: 200 })));
+  const text = strip(renderStatus({}, { env: f.env, now: NOW, width: 200, ...ONE_ROW }));
   assert.match(text, /^ 🔥LIT v[\d.]+ $/);
-  const odd = strip(renderStatus({ model: 7, context_window: { used_percentage: 'x' }, quota: 'none', vcs: [], cost: 'free', agent_state: { nested: 1 } }, { env: f.env, now: NOW, width: 200 }));
+  const odd = strip(renderStatus({ model: 7, context_window: { used_percentage: 'x' }, quota: 'none', vcs: [], cost: 'free', agent_state: { nested: 1 } }, { env: f.env, now: NOW, width: 200, ...ONE_ROW }));
   assert.doesNotMatch(odd, /undefined|NaN|null|ctx|quota|\$/);
 });
 
@@ -215,15 +215,15 @@ test('every width fits its budget, keeps the mark, and keeps ctx down to 40 colu
   const extra = { agent_state: 'running', quota: { remaining_fraction: 0.5 }, cost: 1.2, vcs: { branch: 'main' }, conversation_title: '긴 대화 제목이 여기에 들어갑니다', task_count: 1 };
   for (const width of [30, 40, 60, 80, 100, 120, 160, 240]) {
     for (const mode of [{}, { NO_COLOR: '1' }, { LITGRAVITY_HUD_ASCII: '1' }, { LITGRAVITY_HUD_COLOR: '16' }]) {
-      const out = renderStatus(payload(f.ws, extra), { env: { ...f.env, ...mode }, now: NOW, width });
+      const out = renderStatus(payload(f.ws, extra), { env: { ...f.env, ...mode }, now: NOW, width, ...ONE_ROW });
       const rows = out.split('\n');
       for (const row of rows) assert.ok(visibleWidth(row) <= width, `${width} ${JSON.stringify(mode)}: ${visibleWidth(row)} > ${width}: ${strip(row)}`);
       assert.match(strip(out), /LIT/);
       if (width >= 40) assert.match(strip(out), /ctx/, `${width}: ${strip(out)}`);
-      assert.equal(rows.length, Object.keys(mode).length === 0 && width >= 60 ? 2 : 1, `${width} ${JSON.stringify(mode)}`);
+      assert.equal(rows.length, 1, `${width} ${JSON.stringify(mode)}`);
     }
   }
-  assert.match(strip(renderStatus(payload(f.ws, extra), { env: f.env, now: NOW, width: 240 })), / PIN  ━ RED · ─ GREEN · ─ VERIFY · ─ REVIEW · ─ RECORD ·/);
+  assert.match(strip(renderStatus(payload(f.ws, extra), { env: f.env, now: NOW, width: 240, ...ONE_ROW })), / PIN  ━ RED · ─ GREEN · ─ VERIFY · ─ REVIEW · ─ RECORD ·/);
 });
 
 test('colour off and ASCII fallbacks', () => {
@@ -247,8 +247,7 @@ test('host strings cannot inject escapes or new lines', () => {
   const f = fixture();
   const out = render(f, { vcs: { branch: 'x\u001b[2Jy' }, conversation_title: 'a\nb\u0007c' });
   assert.ok(!out.includes('\u001b[2J'));
-  assert.equal(out.split('\n').length, 2, 'the text row and the horizon, no row from the host');
-  assert.match(strip(out).split('\n')[1], /^[ .~\-▁▂▃▄▅▆▇█]+$/, 'the horizon holds no host text');
+  assert.equal(out.split('\n').length, 1, 'no row from the host');
   assert.ok(!render(f, { conversation_title: 'a\nb' }, { env: { ...f.env, NO_COLOR: '1' } }).includes('\n'));
   assert.ok(!out.includes('\u0007'));
 });

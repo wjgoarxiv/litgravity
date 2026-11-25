@@ -4,7 +4,7 @@ import { readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { renderStatus, visibleWidth } from '../plugin/hud/render.mjs';
 import { LOOKS, ROUTE_LOOKS, lookOf } from '../plugin/hud/looks.mjs';
-import { sandbox, workspace, turn, runHook, basePayload, modelStep, mkdirp, textRow } from './helpers.mjs';
+import { sandbox, workspace, turn, runHook, basePayload, modelStep, mkdirp, ONE_ROW } from './helpers.mjs';
 import { sessionPath } from '../plugin/hooks/lib/common.mjs';
 
 // The skill looks of the status line, each drawn from the state the real hooks wrote: the look registry, YOUR TURN in
@@ -14,7 +14,7 @@ const ID = 'conv-test-0001';
 const plain = (line) => line.replace(/\u001b\[[0-9;]*m/g, '');
 const AMBER = '38;2;255;176;32';
 function line(ws, env, extra = {}, width = 160) {
-  return renderStatus({ conversation_id: ID, workspace: ws.dir, ...extra }, { env: { ...env, COLORTERM: 'truecolor' }, now: Date.now(), width });
+  return renderStatus({ conversation_id: ID, workspace: ws.dir, ...extra }, { env: { ...env, COLORTERM: 'truecolor' }, now: Date.now(), width, ...ONE_ROW });
 }
 const state = (ws, env) => JSON.parse(readFileSync(sessionPath(ws.dir, ID, env), 'utf8'));
 const toolStep = (stepIndex, name, args = {}) => JSON.stringify({ step_index: stepIndex, source: 'MODEL', type: 'PLANNER_RESPONSE', status: 'DONE', content: '', tool_calls: [{ name, args }] });
@@ -158,7 +158,7 @@ test('looks: NO_COLOR keeps the labels with no escape, ASCII mode keeps ASCII, a
   for (const width of [40, 60, 80, 120]) {
     const out = line(ws, env, { agent_state: 'waiting' }, width);
     for (const row of out.split('\n')) assert.ok(visibleWidth(row) <= width, `fits ${width}`);
-    assert.ok(textRow(out).length > 0);
+    assert.ok(out.length > 0);
   }
 });
 

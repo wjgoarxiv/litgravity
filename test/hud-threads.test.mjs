@@ -8,7 +8,7 @@ import { renderStatus, visibleWidth } from '../plugin/hud/render.mjs';
 import { livePath } from '../plugin/hooks/lib/liveness.mjs';
 import { applyStackEvent, emptyStack, writeStack } from '../plugin/hooks/lib/workflow-stack.mjs';
 import { writeLanes } from '../plugin/hooks/lib/lanes.mjs';
-import { sandbox, textRow } from './helpers.mjs';
+import { sandbox, ONE_ROW } from './helpers.mjs';
 
 const now = () => new Date('2026-10-26T12:00:00Z');
 
@@ -24,7 +24,7 @@ function setupRoute(env, cwd, convId, route) {
 }
 
 function render(env, cwd, convId, width = 120) {
-  return renderStatus({ conversation_id: convId, workspace: cwd }, { env, now: now().getTime(), width });
+  return renderStatus({ conversation_id: convId, workspace: cwd }, { env, now: now().getTime(), width, ...ONE_ROW });
 }
 
 function plain(line) {
@@ -241,10 +241,10 @@ test('other sessions: the chip fits every width and NO_COLOR leaves no escape', 
   for (const [i, state] of ['alive', 'alive', 'alive', 'idle', 'idle'].entries()) live(env, cwd, `conv-${i}`, state, 1000);
   const input = { conversation_id: 'conv-self', workspace: cwd, model: { display_name: 'Gemini 3.8 Flash (Medium)' }, context_window: { used_percentage: 42, context_window_size: 1048576 } };
   for (const width of [40, 60, 80, 120, 160]) {
-    const line = renderStatus(input, { env, width, now: now().getTime() });
+    const line = renderStatus(input, { env, width, now: now().getTime(), ...ONE_ROW });
     assert.ok(visibleWidth(plain(line)) <= width, `wider than ${width}`);
   }
-  assert.match(plain(renderStatus(input, { env, width: 200, now: now().getTime() })), /\+3 running · 2 idle/);
+  assert.match(plain(renderStatus(input, { env, width: 200, now: now().getTime(), ...ONE_ROW })), /\+3 running · 2 idle/);
   const flat = renderStatus(input, { env: { ...env, NO_COLOR: '1' }, width: 200, now: now().getTime() });
   assert.ok(!flat.includes('\u001b['));
   assert.match(flat, /\+3 running · 2 idle/);
@@ -277,9 +277,7 @@ test('rainbow paint: at 60 to 160 columns and across 40 buckets the line measure
   for (const width of [60, 80, 100, 120, 160]) {
     for (let frame = 0; frame < 40; frame += 1) {
       const flat = renderStatus(input, { env: { ...env, NO_COLOR: '1' }, width, now: t0 + frame * 10_000 });
-      const out = renderStatus(input, { env: { ...env, COLORTERM: 'truecolor' }, width, now: t0 + frame * 10_000 });
-      for (const row of out.split('\n')) assert.ok(visibleWidth(row) <= width, `row wider than ${width}`);
-      const line = textRow(out);
+      const line = renderStatus(input, { env: { ...env, COLORTERM: 'truecolor' }, width, now: t0 + frame * 10_000, ...ONE_ROW });
       // Truecolor draws the mark as a pill: its brackets become the pill's padding, same cells.
       assert.equal(line.replace(/\u001b\[[0-9;]*m/g, ''), flat.replace(/^\[([^\]]*)\]/, ' $1 '), `text changed at ${width} cols, frame ${frame}`);
       assert.equal(visibleWidth(line), visibleWidth(flat));

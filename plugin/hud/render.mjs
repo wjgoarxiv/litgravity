@@ -10,9 +10,9 @@
 // between segments, bracketed block gauges, model [effort] first, then context, then quota. Colour means something
 // only in the warning bands (context and quota at 70% and 90%), the pink `🔥 LIT` chip and the current-stage chip.
 //
-// On a truecolor terminal the line is dressed as a sunset (sunset.mjs): the mark runs orange to pink, the current stage
-// violet to the accent, the separators pink to violet to the accent, and a second row holds a half-sunk sun on the sea.
-// Every other depth, ASCII mode and a light terminal get the one row exactly as above.
+// On a truecolor dark terminal with the room, the same facts are drawn as a framed card (card.mjs) with a sunset in its
+// free cells; a narrow or short one gets the row above in the card's colours, round where the terminal draws round ends
+// (glyphs.mjs). Every other depth, ASCII mode and a light terminal get the one row exactly as above.
 //
 // Only model and context_window were seen live on agy 1.4.3; quota, cost, vcs, agent_state, task_count and
 // conversation_title come from agy's changelog and binary, so each one is optional and a field of the wrong type is
@@ -27,7 +27,11 @@ import { readStack } from '../hooks/lib/workflow-stack.mjs';
 import { readLanes } from '../hooks/lib/lanes.mjs';
 import { listLive } from '../hooks/lib/liveness.mjs';
 import { DONE_MS, REVIEW_LANES, ROUTE_LOOKS, lookOf } from './looks.mjs';
-import { along, horizon } from './sunset.mjs';
+import { ACCENT, BRAND, CARD_MIN_HEIGHT, CARD_MIN_WIDTH, NEON, STAGE, drawCard, tame } from './card.mjs';
+import { CAPS, roundGlyphs } from './glyphs.mjs';
+import { along } from './sunset.mjs';
+
+export { NEON };
 
 const IGNITION_MS = 90_000;
 const EFFORTS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
@@ -92,23 +96,19 @@ function sgr(role, depth, bg) {
   return `${bg ? 48 : 38};5;${r.c256}`;
 }
 
-// The sunset needs truecolor and a ground that is not known to be light: COLORFGBG is the one hint a terminal gives, and
-// its last field is 7 or 15 on a light ground. Windows Terminal and VS Code draw the two round caps themselves,
-// whatever font is set, so only there do a gauge's brackets become caps.
-const lightGround = (env) => /;(7|15)$/.test(env.COLORFGBG ?? '');
-const drawsRoundCaps = (env) => Boolean(env.WT_SESSION) || /^vscode$/i.test(env.TERM_PROGRAM ?? '');
-const CAPS = ['\ue0b6', '\ue0b4'];
-export const NEON = [[255, 45, 149], [180, 140, 255], ROLES.accent.rgb];
-export const STAGE_STOPS = [[180, 140, 255], ROLES.accent.rgb];
+// The card and the sunset colours need truecolor and a ground that is not known to be light: COLORFGBG is the one hint a
+// terminal gives, and its last field is 7 or 15 on a light ground.
+export const lightGround = (env) => /;(7|15)$/.test(env.COLORFGBG ?? '');
+export const STAGE_STOPS = STAGE;
 
 // The mark. On truecolor it is the family pill: the brackets become padding and ` 🔥LIT v… ` sits in bold dark ink on a
 // ground graded one step per cell, so the pill is exactly as wide as the bracketed label: orange to pink with the sunset,
 // LitGravity's sky chrome (#93c5fd) to its pale chrome (#bfdbfe) without it. 256 colours keep bold magenta (201) and 16
 // colours bold cyan, with the brackets, as before.
 export const PILL_STOPS = [[147, 197, 253], [191, 219, 254]];
-export const SUNSET_STOPS = [[255, 160, 51], [255, 106, 85], [255, 51, 136]];
+export const SUNSET_STOPS = BRAND;
 export const PILL_INK = [11, 14, 20];
-function brandText(label, depth, sunset = false) {
+function brandText(label, depth, sunset = false, round = false) {
   if (depth === 'plain') return label;
   if (depth === '256') return `\u001b[0m\u001b[1m\u001b[38;5;201m${label}\u001b[0m`;
   if (depth === '16') return `\u001b[0m\u001b[1m\u001b[36m${label}\u001b[0m`;
@@ -118,8 +118,15 @@ function brandText(label, depth, sunset = false) {
     const at = chars.length > 1 ? i / (chars.length - 1) : 0;
     return sunset ? along(SUNSET_STOPS, at) : from.map((v, k) => Math.round(v + (to[k] - v) * at));
   };
+  if (round) return roundPill(chars.slice(1, -1), ground(0), ground(chars.length - 1), (i) => ground(i + 1));
   const cells = chars.map((ch, i) => `\u001b[48;2;${ground(i).join(';')}m${ch}`).join('');
   return `\u001b[0m\u001b[1;38;2;${PILL_INK.join(';')}m${cells}\u001b[0m`;
+}
+
+// A pill whose two padding cells are the round caps.
+function roundPill(chars, from, to, ground) {
+  const cells = chars.map((ch, i) => `\u001b[48;2;${ground(i).join(';')}m${ch}`).join('');
+  return `\u001b[0m\u001b[38;2;${from.join(';')}m${CAPS[0]}\u001b[0m\u001b[1;38;2;${PILL_INK.join(';')}m${cells}\u001b[0m\u001b[38;2;${to.join(';')}m${CAPS[1]}\u001b[0m`;
 }
 
 const ANSI = /\u001b\[[0-9;]*m/g;
@@ -358,7 +365,7 @@ function planOf(route) {
   try {
     const rows = planRows(readFileSync(join(route.dir, file), 'utf8'));
     if (!rows.length) return null;
-    return { done: rows.filter((r) => r.done).length, total: rows.length, next: rows.find((r) => !r.done)?.id ?? null };
+    return { done: rows.filter((r) => r.done).length, total: rows.length, next: rows.find((r) => !r.done)?.id ?? null, title: rows.find((r) => !r.done)?.title ?? '' };
   } catch {
     return null;
   }
@@ -373,7 +380,7 @@ function teamOf(route) {
       const team = JSON.parse(readFileSync(file, 'utf8'));
       if (team.status === 'archived' || !Array.isArray(team.members)) continue;
       const mtime = statSync(file).mtimeMs;
-      if (!best || mtime > best.mtime) best = { mtime, members: team.members.filter(obj).map((m) => String(m.status ?? 'pending')) };
+      if (!best || mtime > best.mtime) best = { mtime, members: team.members.filter(obj).map((m) => ({ name: tame(m.name ?? m.id ?? 'member').slice(0, 24), status: String(m.status ?? 'pending') })) };
     } catch {
       // a packet being rewritten or a stray folder: skip it
     }
@@ -461,7 +468,7 @@ function reviewLanesOf(route) {
   });
 }
 
-function lanesSegment(lanes, g) {
+function lanesSegment(lanes, { g, caps }) {
   const sp = (t, role, extra = {}) => ({ t, role, ...extra });
   const glyph = { PASS: g.done, FAIL: g.fail, BLOCKED: g.warn };
   const reported = lanes.filter((l) => l.verdict).length;
@@ -471,7 +478,7 @@ function lanesSegment(lanes, g) {
     l.verdict ? sp(l.name, `lane${i + 1}`, { b: true }) : sp(l.name, 'empty'),
     sp(` ${l.verdict ? glyph[l.verdict] : g.todo}`, l.verdict ? `lane${i + 1}` : 'empty'),
   ]);
-  const blocks = lanes.map((l, i) => (l.verdict ? sp(g.full, `lane${i + 1}`) : sp(g.empty, 'empty')));
+  const blocks = lanes.map((l, i) => (l.verdict ? sp(caps ? g.lane : g.full, `lane${i + 1}`) : sp(caps ? g.idle : g.empty, 'empty')));
   return { id: 'lanes', prio: 4, forms: [[...named, count], [...blocks, count], [count]] };
 }
 
@@ -536,7 +543,7 @@ function segments(input, ctx) {
     const threads = threadSegment(route, ctx);
     if (threads) segs.push(threads);
     const lanes = ROUTE_LOOKS[route.state.route] === 'review' ? reviewLanesOf(route) : null;
-    if (lanes) segs.push(lanesSegment(lanes, g));
+    if (lanes) segs.push(lanesSegment(lanes, ctx));
   }
 
   if (waiting) {
@@ -632,9 +639,9 @@ function flowSegment(route, ctx) {
     if (!members) return null;
     const tone = { reported: 'dim', active: 'green', pending: 'dim', blocked: 'red' };
     const glyph = { reported: g.done, active: g.lane, pending: g.idle, blocked: g.fail };
-    const dots = members.slice(0, 8).map((s) => sp(glyph[s] ?? g.idle, tone[s] ?? 'dim'));
-    const live = members.filter((s) => s === 'active').length;
-    const settled = members.filter((s) => s === 'reported').length;
+    const dots = members.slice(0, 8).map(({ status: s }) => sp(glyph[s] ?? g.idle, tone[s] ?? 'dim'));
+    const live = members.filter((m) => m.status === 'active').length;
+    const settled = members.filter((m) => m.status === 'reported').length;
     return { id: 'flow', prio: 4, forms: [[...dots, sp(` ${live} ${live === 1 ? 'lane' : 'lanes'} ${g.mid} ${settled}/${members.length} reported`, 'dim')], [...dots, sp(` ${live} ${live === 1 ? 'lane' : 'lanes'}`, 'dim')]] };
   }
   const goal = GOAL_ROUTES.has(r) ? goalOf(route) : null;
@@ -833,18 +840,26 @@ function rainbowCode(rgb, depth, ground, hue) {
 
 function rainbowSpan(s, depth, state) {
   let out = '';
-  for (const ch of s.t) {
+  const chars = [...s.t];
+  const pill = state.round && s.bg && s.bg !== 'track' && s.t.startsWith(' ') && s.t.endsWith(' ') && s.t.trim();
+  chars.forEach((raw, i) => {
     const cell = state.cell++;
-    if (ch === ' ' && !s.bg) { out += ch; continue; }
+    const cap = pill && (i === 0 ? CAPS[0] : i === chars.length - 1 ? CAPS[1] : null);
+    const ch = cap || raw;
+    if (ch === ' ' && !s.bg) { out += ch; return; }
     const hue = (cell * RAINBOW_STEP + state.bucket * RAINBOW_STEP * 2) % 360;
     const codes = [s.b ? '1' : ''];
-    if (s.bg) {
+    if (cap) {
+      codes.push(rainbowCode(hslToRgb(hue, 0.8, 0.72), depth, false, hue));
+    } else if (s.bg === 'track') {
+      codes.push(rainbowCode(hslToRgb(hue, 0.8, 0.65), depth, false, hue), sgr('track', depth, true));
+    } else if (s.bg) {
       codes.push(rainbowCode(RAINBOW_INK, depth, false, 0), rainbowCode(hslToRgb(hue, 0.8, 0.72), depth, true, hue));
     } else {
       codes.push(rainbowCode(hslToRgb(hue, 0.8, 0.65), depth, false, hue));
     }
     out += `\u001b[${codes.filter(Boolean).join(';')}m${ch}`;
-  }
+  });
   return out ? `${out}\u001b[0m` : out;
 }
 
@@ -861,19 +876,26 @@ function neonSpan(s, from, total) {
   return `\u001b[1;${sgr(s.role, 'truecolor', false)}m${chars.map((ch, i) => `\u001b[48;2;${along(STAGE_STOPS, i / Math.max(chars.length - 1, 1)).join(';')}m${ch}`).join('')}\u001b[0m`;
 }
 
-function paint(spans, depth, { rainbow = null, amber = false, sunset = false } = {}) {
+function paint(spans, depth, { rainbow = null, amber = false, sunset = false, round = false } = {}) {
   let out = '';
   let cells = 0;
   const neon = sunset && !rainbow && !amber;
   const total = spanWidth(spans);
-  const state = rainbow ? { cell: 0, bucket: Math.floor((rainbow.now ?? Date.now()) / RAINBOW_BUCKET_MS) } : null;
+  const state = rainbow ? { cell: 0, bucket: Math.floor((rainbow.now ?? Date.now()) / RAINBOW_BUCKET_MS), round } : null;
   for (const span of spans) {
     const from = cells;
     cells += visibleWidth(spanText(span));
-    if (span.brand !== undefined) { out += brandText(span.brand, depth, sunset); if (state) state.cell += visibleWidth(span.brand); continue; }
+    if (span.brand !== undefined) { out += brandText(span.brand, depth, sunset, round); if (state) state.cell += visibleWidth(span.brand); continue; }
     if (!span.t) continue;
     if (depth === 'plain') { out += span.t; continue; }
     if (state) { out += rainbowSpan(span, depth, state); continue; }
+    if (round && span.bg && span.t.startsWith(' ') && span.t.endsWith(' ') && span.t.trim()) {
+      const solid = amber ? ROLES.amber.rgb : ROLES[span.bg].rgb;
+      const at = (k) => (span.stage && neon ? along(STAGE, k) : solid);
+      const chars = [...span.t].slice(1, -1);
+      out += roundPill(chars, at(0), at(1), (i) => at(chars.length > 1 ? i / (chars.length - 1) : 0));
+      continue;
+    }
     if (neon && (span.sep || span.stage)) { out += neonSpan(span, from, total); continue; }
     const s = amber ? amberSpan(span) : span;
     const codes = [s.b ? '1' : '', s.role ? sgr(s.role, depth, false) : '', s.bg ? sgr(s.bg, depth, true) : ''].filter(Boolean);
@@ -891,7 +913,116 @@ function widthOf(input, env, override, columns) {
 
 const asciiOnly = (env) => env.LITGRAVITY_HUD_ASCII === '1' || /^dumb$/i.test(env.TERM ?? '');
 
-/** The status line, without the trailing newline: one row, and the horizon row below it when the sunset is on. `opts.now` and `opts.width` exist for tests; `opts.columns` is the tty width. */
+// --- the card's facts -------------------------------------------------------------------------------------------------
+
+// The conversation's ledger, newest first: the last tool call and the skill plan of the latest activation.
+function ledgerOf(route) {
+  try {
+    return readFileSync(join(route.dir, '.litgravity', 'ledger', `${route.id}.jsonl`), 'utf8').trim().split('\n').slice(-200)
+      .map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(obj).reverse();
+  } catch {
+    return [];
+  }
+}
+
+const TOOL_FRESH_MS = 10 * 60_000;
+function lastToolOf(ledger, now) {
+  const hit = ledger.find((e) => e.kind === 'tool' && typeof e.tool === 'string');
+  const age = hit ? now - Date.parse(hit.ts) : NaN;
+  return age >= 0 && age <= TOOL_FRESH_MS ? { name: tame(hit.tool).slice(0, 24), age: clock(age) } : null;
+}
+
+const LANES_WORD = { agents: 'lanes in parallel', team: 'team lanes', review: 'review lanes' };
+const TEAM_STATE = { active: 'running', reported: 'reported', blocked: 'blocked', pending: 'pending' };
+
+function cardModel(input, ctx) {
+  const { now, env, route, waiting, done, look, g } = ctx;
+  const state = agentStateOf(input);
+  const r = route?.state.route ?? null;
+  const ledger = route ? ledgerOf(route) : [];
+  const goal = route && GOAL_ROUTES.has(r) ? goalOf(route) : null;
+  const plan = route && r === 'start-work' ? planOf(route) : null;
+  const entry = ENTRY[r];
+  const finished = done && entry;
+  const map = finished ? { labels: MAPS[entry[0]], current: MAPS[entry[0]].length } : goal ? { labels: MAPS.loop, current: Math.min(goal.stage.current, MAPS.loop.length - 1) } : entry ? { labels: MAPS[entry[0]], current: entry[1] } : null;
+  const review = route && ROUTE_LOOKS[r] === 'review' ? reviewLanesOf(route) : null;
+  const team = route && r === 'lit-team' ? teamOf(route) : null;
+
+  // Threads: the stack, when something waits under the running discipline.
+  const frames = route ? readStack(route.dir, route.id, env).frames : [];
+  const agents = route ? readLanes(route.dir, route.id, env, now).filter((l) => l.status === 'active') : [];
+  const threadOf = (f, top) => ({
+    name: tame(f.skill), stage: top && map ? map.labels[map.current] ?? 'done' : tame(f.stage ?? ''), state: f.status === 'paused' ? 'paused' : waiting ? 'waiting' : 'running',
+    ...(top && goal ? { done: goal.pass, total: goal.total } : top && plan ? { done: plan.done, total: plan.total } : Number.isInteger(f.n) && Number.isInteger(f.total) ? { done: f.n, total: f.total } : {}),
+  });
+  const threads = frames.length > 1 || (frames.length && agents.length) ? frames.map((f, i) => threadOf(f, i === frames.length - 1)).reverse() : [];
+  const lanes = review
+    ? review.map((l) => ({ name: l.name, state: l.verdict ? { PASS: 'passed', FAIL: 'failed', BLOCKED: 'blocked' }[l.verdict] : 'pending' }))
+    : team ? team.map((m) => ({ name: m.name, state: TEAM_STATE[m.status] ?? 'pending' }))
+      : agents.map((l) => ({ name: tame(l.name), state: 'running', note: l.steps > 0 ? `${l.steps} ${l.steps === 1 ? 'step' : 'steps'}` : '' }));
+  const lanesWord = LANES_WORD[review ? 'review' : team ? 'team' : 'agents'];
+
+  let task = null;
+  if (waiting) task = { alert: '⚠ YOUR TURN', label: waiting === 'turn' || waiting === 'asked' ? '' : tame(waiting).slice(0, 40), plain: true };
+  else if (done) task = { alert: '✦ DONE ✦', tone: 'green', label: plan || goal ? '' : 'finished just now' };
+  else if (state === 'error') task = { alert: '✗ error', tone: 'red', label: 'agy reported an error', plain: true };
+  if (goal) task = { ...task, label: [task?.label, 'criterion'].filter(Boolean).join(' · '), plain: false, done: goal.pass, total: goal.total, next: tame(`${goal.open?.id ?? ''} ${goal.open?.text ?? ''}`) };
+  else if (plan) task = { ...task, label: [task?.label, 'plan'].filter(Boolean).join(' · '), plain: false, done: plan.done, total: plan.total, next: plan.next ? tame(`${plan.next}. ${plan.title}`) : '' };
+  else if (review && !task) task = { label: 'review', done: review.filter((l) => l.verdict).length, total: review.length };
+  else if (team && !task) task = { label: 'reported', done: team.filter((m) => m.status === 'reported').length, total: team.length };
+
+  const ignited = route && route.state.lastKind === 'ignite' && num(route.state.activatedAt) !== null && now - route.state.activatedAt < IGNITION_MS;
+  const since = num(route?.state.activatedAt);
+  const word = waiting ? { text: 'YOUR TURN', tone: 'amber', mark: '●' }
+    : done ? { text: 'DONE', tone: 'green', mark: '✦' }
+      : state === 'error' ? { text: 'ERROR', tone: 'red', mark: '●' }
+        : look === 'rewind' ? { text: 'REWIND', tone: 'pink', mark: '«' }
+          : map ? { text: (map.labels[map.current] ?? 'done').toUpperCase(), tone: 'accent', mark: '●' }
+            : r ? { text: 'ACTIVE', tone: 'accent', mark: '●' }
+              : state === 'live' ? { text: 'WORKING', tone: 'accent', mark: '●' } : { text: 'READY', tone: 'dim', mark: '●' };
+
+  const activated = ledger.find((e) => e.kind === 'route');
+  const notes = [];
+  const title = tame(input.conversation_title);
+  if (!route) notes.push('no lit route in this conversation yet');
+  const others = othersSegment(input, ctx);
+  if (!route && title) notes.push(title);
+
+  const edge = [];
+  const model = modelOf(input);
+  if (model) edge.push({ label: '', text: `${tame(model.short)}${model.effort ? ` ${model.effort}` : ''}`, prio: 4 });
+  const c = contextOf(input);
+  if (c) edge.push({ label: 'ctx', text: `${Math.round(c.pct)}%`, pct: Math.round(c.pct), gauge: 5, after: c.size ? windowSize(c.size) : '', prio: 0 });
+  const quota = quotaOf(input, model);
+  if (quota) {
+    const used = Math.round(100 - quota.left);
+    edge.push({ label: 'quota', text: `${used}%`, pct: used, gauge: 4, after: quota.reset > 0 ? `${g.reset} ${resetIn(quota.reset)}` : '', prio: 1 });
+  }
+  const git = gitOf(input, workspaceDirs(input).at(-1) ?? null, env, now);
+  if (git) edge.push({ label: 'git', text: `${tame(git.branch).slice(0, 28)}${git.changes > 0 ? ` +${git.changes}` : ''}${git.ahead > 0 ? ` ↑${git.ahead}` : ''}${git.behind > 0 ? ` ↓${git.behind}` : ''}`, prio: 2 });
+  if (others) edge.push({ label: '', text: others.forms[0][0].t, tone: 'dim', prio: 3 });
+  const tasks = num(input.task_count);
+  if (tasks > 0) edge.push({ label: 'bg', text: String(Math.round(tasks)), prio: 5 });
+  const cost = costOf(input);
+  if (cost !== null) edge.push({ label: '', text: `$${cost < 10 ? cost.toFixed(2) : cost.toFixed(1)}`, prio: 6 });
+  if (route && title) edge.push({ label: '', text: title.slice(0, 28), tone: 'dim', prio: 7 });
+
+  return {
+    look, route: r, word, map, task, threads, lanes, lanesWord, notes, edge,
+    crumb: r ? tame(r).slice(0, 32) : 'ready',
+    crumbTail: [...(ignited && !waiting ? [{ t: 'IGNITED', tone: 'pink' }] : []), ...(since !== null && now >= since ? [{ t: clock(now - since) }] : [])],
+    tool: lastToolOf(ledger, now),
+    skills: r ? [...new Set([r, ...(Array.isArray(activated?.plan) ? activated.plan : [])].map((x) => tame(x).slice(0, 24)))].slice(0, 3) : [],
+    version: `v${pluginVersion()}`,
+  };
+}
+
+// The body rows a window leaves room for: agy cuts a status line that does not fit from the bottom, so a short window
+// gets a shorter card, and a very short one the single line.
+const bodyRowsFor = (height) => (height === null ? 6 : Math.max(3, Math.min(9, Math.floor(height / 2) - 6)));
+
+/** The status line, without the trailing newline: a framed card on a truecolor dark terminal with room for it, else one
+ *  row. `opts.now` and `opts.width` exist for tests; `opts.columns` and `opts.rows` are the tty's size. */
 export function renderStatus(input, opts = {}) {
   const env = opts.env ?? process.env;
   const data = obj(input) ?? {};
@@ -903,16 +1034,18 @@ export function renderStatus(input, opts = {}) {
   const done = route ? doneOf(route, now) : false;
   const look = lookOf({ route: route?.state.route ?? null, waiting, done });
   const sunset = depth === 'truecolor' && g !== GLYPHS.ascii && !lightGround(env);
+  const round = sunset && roundGlyphs(env, { now });
   const amber = look === 'your-turn';
-  const ctx = { g, env, now, route, waiting, done, caps: sunset && look !== 'rewind' && !amber && drawsRoundCaps(env) ? CAPS : null };
-  const rainbow = look === 'rewind' && depth !== 'plain' ? { now } : null;
+  const ctx = { g, env, now, route, waiting, done, look, caps: round ? CAPS : null };
   const width = widthOf(data, env, opts.width, opts.columns);
-  const spans = fit(segments(data, ctx), width ?? 120, g);
-  const line = paint(spans, depth, { rainbow, amber, sunset });
-  const turn = Math.floor(now / RAINBOW_BUCKET_MS) * RAINBOW_STEP * 2;
-  const hue = rainbow ? (x, light) => hslToRgb((x * RAINBOW_STEP + turn) % 360, 0.8, light) : null;
-  const scene = sunset && width !== null ? horizon({ width, used: spanWidth(spans), amber, hue }) : null;
-  return scene ? `${line}${scene.tail}\n${scene.row}` : line;
+  const height = num(opts.rows) || null; // a pty that was never sized says 0
+  if (sunset && width !== null && width >= CARD_MIN_WIDTH && (height === null || height >= CARD_MIN_HEIGHT)) {
+    const turn = Math.floor(now / RAINBOW_BUCKET_MS) * RAINBOW_STEP * 2;
+    const hue = look === 'rewind' ? (x, light) => hslToRgb((Math.floor(x / 2) * RAINBOW_STEP + turn) % 360, 0.8, light) : null;
+    return drawCard(cardModel(data, ctx), { width, bodyRows: bodyRowsFor(height), round, hue }).join('\n');
+  }
+  const rainbow = look === 'rewind' && depth !== 'plain' ? { now } : null;
+  return paint(fit(segments(data, ctx), width ?? 120, g), depth, { rainbow, amber, sunset, round });
 }
 
 /** The line printed when anything above throws: the mark alone, never an error. */
