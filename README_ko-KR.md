@@ -1,4 +1,4 @@
-<p align="center"><picture><source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/cover-motion-still.webp" /><source media="(prefers-reduced-motion: no-preference)" srcset="./docs/assets/cover-motion.webp" /><img src="./docs/assets/cover.webp" width="100%" alt="LitFamily 커버: 노을빛 터미널 화면입니다. 위쪽에는 짧은 agy 대화가 있고, 가운데는 픽셀 글자 LITFAMILY와 줄무늬 해가 채우며 일곱 제품 이름 줄에서 LITGRAVITY가 켜지고, 아래에는 LitGravity의 상태줄이 화면을 마무리합니다." /></picture></p>
+<p align="center"><picture><source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/cover-motion-still.webp" /><source media="(prefers-reduced-motion: no-preference)" srcset="./docs/assets/cover-motion.webp" /><img src="./docs/assets/cover.webp" width="100%" alt="LitFamily 커버: 노을빛 터미널 화면입니다. LitGravity의 모서리가 둥근 상태 카드가 단계 지도, 계획 게이지, 스킬 알약, 컨텍스트와 쿼터 게이지와 함께 화면을 두르고, 가운데는 픽셀 글자 LITFAMILY와 줄무늬 해가 채우며 일곱 제품 이름 줄에서 LITGRAVITY가 켜지고, 아래에서는 agy 프롬프트에 요청이 입력됩니다." /></picture></p>
 
 <h1 align="center">LitGravity</h1>
 <p align="center"><strong>Keep the work lit.</strong></p>
