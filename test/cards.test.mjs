@@ -6,6 +6,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { setTimeout as pause } from 'node:timers/promises';
+import { AGENT_POINTER } from '../lib/agent-guide.mjs';
 import { flow, makeCards, openCards } from '../lib/cards.mjs';
 import { install } from '../lib/install.mjs';
 import { uninstall } from '../lib/uninstall.mjs';
@@ -291,6 +292,39 @@ test('an install asks the released questions in order, and each answer does what
   const later = answering(true);
   await run(off, later);
   assert.equal(later.asked.length, 1);
+});
+
+test('the first card carries the agent pointer in an empty row: no card grows and no step changes', async () => {
+  for (const columns of [40, 64, 65, 80, 120]) {
+    for (const rows of [12, 16, 24, 40]) {
+      const bareCard = desk({ columns, rows });
+      await type(bareCard, ['n']);
+      const hinted = desk({ columns, rows });
+      await type(hinted, ['n'], { ...QUESTION, hint: AGENT_POINTER });
+      const [a, b] = [bareCard.card(), hinted.card()];
+      assert.equal(b.length, a.length, `${columns}x${rows}`);
+      const changed = b.filter((row, i) => row !== a[i]);
+      assert.deepEqual(changed.map((row) => row.replace(/[│ ]+$/, '').replace(/^[│ ]+/, '')), columns >= 80 && rows >= 24 ? [AGENT_POINTER] : changed.length ? [AGENT_POINTER] : []);
+      for (const row of b) assert.ok(displayWidth(row) < columns, row);
+    }
+  }
+  const box = sandbox();
+  const a = answering(true, true);
+  await run(box, a);
+  assert.deepEqual(a.asked.map((q) => [q.tag, q.hint]), [['LIT 1/2', AGENT_POINTER], ['LIT 2/2', undefined]]);
+});
+
+test('with cards, --round shows its plan, its step and its row, and ROUND_ENDS is the last line', async () => {
+  const box = sandbox();
+  delete box.env.LITGRAVITY_HUD_GLYPHS;
+  const dir = join(box.home, 'fonts');
+  box.env.LITGRAVITY_ICON_FONT_SOURCE = join(box.home, 'none.zip');
+  const a = answering(true, true);
+  assert.equal(await run(box, a, { flags: { round: true, statusLine: true, glyphs: 'round' }, font: { platform: 'linux', folders: [dir], fetchImpl: () => assert.fail('the network') } }), 0);
+  const screen = a.d.text();
+  for (const part of [/Icon font +add SymbolsNerdFontMono-Regular\.ttf/, /Glyphs +save round/, /✓ Install steps +7 of 7 checked/, /! Icon font +not added: .*none\.zip/, /Glyphs +round \(change/]) assert.match(screen, part);
+  assert.equal(screen.trimEnd().split('\n').at(-1), ' ROUND_ENDS: shown');
+  assert.deepEqual(a.asked.map((q) => q.tag), ['LIT 1/2', 'LIT 2/2']);
 });
 
 test('warnings and failures stay in full view, and a remedy prints below the card as plain text', async () => {

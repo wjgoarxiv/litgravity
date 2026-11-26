@@ -113,12 +113,15 @@ npx @litfamily/litgravity doctor
 | `--yes` | 터미널 없는 셸(에이전트, CI)은 미리 보기만 하는데, 이때도 설치합니다 |
 | `--no-agent-file` | 전역 규칙 파일을 한 번만 건너뜁니다 |
 | `--status-line` | 백업 뒤 agy 사용자 설정에 선택형 상태 표시줄을 더합니다 |
+| `--round` | 아이콘 글꼴이 하나도 없을 때 둥근 끝에 쓸 글꼴 하나를 더합니다([자세히](./docs/reference_ko-KR.md#상태-표시줄)) |
+| `--glyphs round` | 알약과 게이지의 둥근 끝을 저장합니다(`square`, `auto`도 됩니다) |
+| `--agent` | 코딩 에이전트용 설치 안내만 출력합니다 |
 
 사용자 범위 설치는 `~/.gemini/config/rules/litgravity.md`에 LitGravity 전용 규칙 파일 하나를 남깁니다. agy가 매 세션 시작에 그 폴더를 읽기 때문입니다. 규칙은 일부러 짧게(lit 호출어, 계획과 핸드오프의 위치, 릴리스 동결) 두어서 어떤 스킬이 뜨기 전에 기본 규칙이 서도록 합니다. 대화형 설치는 먼저 묻고 No라고 답하면 규칙을 끈 채로 저장하며, `--yes`는 규칙을 더합니다. 나중에 끄거나 프로젝트 블록을 넣는 명령은 [수명 주기 표](#안전과-제거)에 있습니다.
 
 `doctor`는 설치된 사본, 검증 결과, 훅 이벤트 6개와 각 훅 스크립트의 실행 확인, 전역 규칙 파일, 스킬과 에이전트 전체, 확장과 그 설치 명령, 남아 있는 옛 엔진 캐시나 잘못 놓인 보관 사본, 스킬이 부르는 호스트 프로그램을 보여 줍니다.
 
-`install`, `doctor`, `help`는 맨 위에 신스웨이브 LIT 마크를 터미널 폭에 맞춰 그립니다. 256색이 안 되는 터미널(`NO_COLOR`, `TERM=dumb`, 16색 터미널)에서는 같은 그림을 색 없이 그립니다. 파이프, CI 로그, 에이전트의 도구 호출, 24칸보다 좁은 터미널에서는 `LIT · antigravity` 한 줄로 줄어듭니다.
+`install`, `doctor`, `help`는 맨 위에 신스웨이브 LIT 마크를 터미널 폭에 맞춰 그립니다. 256색이 안 되는 터미널(`NO_COLOR`, `TERM=dumb`, 16색 터미널)에서는 같은 그림을 색 없이 그립니다. 파이프, CI 로그, 에이전트의 도구 호출, 24칸보다 좁은 터미널에서는 `LIT · antigravity` 한 줄로 줄어들고, `install`과 `doctor`는 코딩 에이전트에게 안내 명령을 알려 주는 한 줄을 더합니다.
 
 40칸 12줄 이상인 터미널 창에서는 `install`과 `uninstall`이 LIT 마크 아래에 계획, 질문, 진행 단계, 결과를 카드로 보여 줍니다. 질문 카드는 몇 번째 질문인지(`LIT 1/2`) 알려 주고, 예라고 하면 무엇을 하고 아니요라고 하면 무엇을 그대로 두는지 한 문장으로 말하며, 기본값인 No를 표시합니다. `y`나 `n`을 누르면 바로 답이 되고, 화살표 키나 Tab으로 옮긴 뒤 Enter를 눌러도 됩니다. Esc는 아무 답도 하지 않고, Ctrl+C는 설치를 멈춥니다. 답은 한 줄로 접히고, 설치 단계는 카드 하나에서 차례로 체크되며, 마지막 카드가 설치한 것, 설정, 다음 할 일을 알려 줍니다. 버튼과 알약은 [상태 표시줄](./docs/reference_ko-KR.md#상태-표시줄)이 둥근 곳에서 똑같이 둥급니다. `NO_COLOR`를 설정하면 색 없는 카드가, UTF-8이 아닌 로캘에서는 ASCII 카드가 나옵니다. `--yes`, `--dry-run`, `TERM=dumb`, `LITGRAVITY_AGENT_FILE`을 쓰거나 파이프, CI에서 실행하면 같은 내용이 일반 텍스트로 나옵니다.
 
@@ -306,19 +309,19 @@ agy는 플러그인에 프롬프트 자체를 받는 훅을 주지 않으므로,
 | 작업 | 명령 |
 |---|---|
 | 설치 | `npx @litfamily/litgravity install` |
-| 업데이트 | `npx @litfamily/litgravity install` (검증하고 그 자리에서 교체) |
+| 업데이트 | `npx @litfamily/litgravity@latest update` (검증하고 그 자리에서 교체하며 설정은 그대로) |
 | 전역 규칙 끄기/켜기 | `npx @litfamily/litgravity config agentFile off` (또는 `on`) |
 | 프로젝트 블록 | `npx @litfamily/litgravity agent-file project --dir <경로>` (저장소의 `AGENTS.md`에 표시된 블록만 씀) |
 | 확인 | `npx @litfamily/litgravity doctor` |
 | 확장 | `npx @litfamily/litgravity extensions list` (그다음 `install`, `update`, `remove`, `check`, `prune-backups`) |
 | 제거 | `npx @litfamily/litgravity uninstall --yes` |
 
-설치기는 자기 플러그인 폴더, 데이터 디렉터리, 규칙 파일, 그리고 요청했을 때 상태 표시줄 키만 쓰며, agy 자격 증명 파일은 읽지 않습니다.
+설치기는 자기 플러그인 폴더, 데이터 디렉터리, 규칙 파일, 그리고 요청했을 때 상태 표시줄 키와 `--round`의 아이콘 글꼴 파일만 쓰며, agy 자격 증명 파일은 읽지 않습니다.
 
 <details>
 <summary>각 부분이 쓰는 곳과 남기는 것</summary>
 
-- 설치기는 자기 플러그인 폴더, 데이터 디렉터리(`$XDG_DATA_HOME/litgravity`), agy 전역 규칙 폴더의 전용 규칙 파일, 그리고 요청했을 때 agy 사용자 설정의 상태 표시줄 키만 씁니다. 설정 파일은 먼저 백업합니다. agy 자격 증명 파일은 읽지 않습니다. 설치기가 쓰지 않은 규칙 파일은 합치지 않고 첫 쓰기 전에 설치를 멈춥니다.
+- 설치기는 자기 플러그인 폴더, 데이터 디렉터리(`$XDG_DATA_HOME/litgravity`), agy 전역 규칙 폴더의 전용 규칙 파일, 그리고 요청했을 때 agy 사용자 설정의 상태 표시줄 키와 글꼴 폴더의 아이콘 글꼴 파일 두 개(`--round`)만 씁니다. 설정 파일은 먼저 백업합니다. agy 자격 증명 파일은 읽지 않습니다. 설치기가 쓰지 않은 규칙 파일은 합치지 않고 첫 쓰기 전에 설치를 멈춥니다.
 - 심볼릭 링크이거나, 남의 파일이거나, 설치 뒤 수정된 대상은 첫 쓰기 전에 설치를 멈춥니다. 수정한 사본을 남기고 싶으면 설치기가 알려 주는 명령으로 `~/.local/share/litgravity/saved/<범위>-<날짜>`에 옮깁니다. 이 폴더를 agy 플러그인 폴더 밖에 둔 데는 이유가 있습니다. agy는 플러그인 폴더에 있는 폴더를 모두 불러오므로, 플러그인 옆에 둔 사본은 두 번째 LitGravity로 돌아갑니다. `doctor`는 그런 사본이 남아 있으면 경고합니다. `--dry-run`은 아무것도 바꾸지 않습니다.
 - `extensions`는 범위에 맞는 agy 스킬 폴더(`~/.gemini/config/skills/<id>` 또는 `.agents/skills/<id>`), `~/.gemini/extension-backups/`, 자기 원본 클론 `~/.cache/litgravity/extensions-src`에만 씁니다. `--yes`가 없으면 계획만 출력합니다. 다른 곳에 둔 같은 이름의 스킬은 옮기지 않고, 영수증 없는 폴더는 제거하지 않으며, 지우는 일은 `prune-backups --yes`로 `~/.gemini/extension-backups/` 안에서만 합니다.
 - 0.1.8까지의 릴리스는 엔진 캐시를 `~/.local/share/litgravity/runtime/`(`$XDG_DATA_HOME/litgravity/runtime/`)에 두었고, 150 MB가 넘기도 합니다. 이제 확장을 포함해 그곳을 읽거나 쓰는 것은 없고 `uninstall`도 남겨 두므로, 공간이 필요하면 그 폴더를 지우세요. 폴더가 남아 있는 동안은 `doctor`가 알려 줍니다.

@@ -12,7 +12,9 @@ On a truecolor terminal it is a framed card with the same facts in more room. Th
 
 The card needs 60 columns and, when the terminal tells its height, 20 rows; from 24 rows it has one more row, so the whole sun shows. Lanes make it taller. A short window hides the skills before the lanes and never a lane that failed or is blocked. Anywhere else there is one row: a narrow or short window (in the sunset colours), `NO_COLOR`, 256 and 16 colours (`LITGRAVITY_HUD_COLOR=256` asks for them), `LITGRAVITY_HUD_ASCII=1` and a terminal whose `COLORFGBG` names a light background. The scene is a still picture, because agy redraws a status line on events and leaves it alone while it idles.
 
-Pills and gauges end round or square, the same everywhere: the status line, its card and the installer. `LITGRAVITY_HUD_GLYPHS=round` (or `nerd`) asks for round, `basic` for square. Without it, Windows Terminal, VS Code, WezTerm, Ghostty and kitty get round ends, an SSH session gets square ones, and elsewhere an installed Nerd Font decides, told by font file names and looked up once a day.
+Pills and gauges end round or square, the same everywhere: the status line, its card and the installer. `LITGRAVITY_HUD_GLYPHS=round` (or `nerd`) asks for round, `square` (or `basic`) for square. `install --glyphs round` and `update --glyphs square` save the same choice for every later session, over SSH too; a plain install keeps it and `--glyphs auto` drops it. The environment variable comes first, then the saved choice. Without either, or with `auto`, Windows Terminal, VS Code, WezTerm, Ghostty and kitty get round ends, an SSH session gets square ones, and elsewhere an installed Nerd Font decides, told by font file names and looked up once a day.
+
+`--round` on `install` or `update` adds one icon font when no icon font is here: the symbols-only Nerd Font v3.5.1 (`SymbolsNerdFontMono-Regular.ttf` and its licence) into `~/Library/Fonts`, or `${XDG_DATA_HOME:-~/.local/share}/fonts` on Linux. The archive and both files are checked by SHA-256, nothing is overwritten, and an install goes on without the font when anything fails. `LITGRAVITY_ICON_FONT_SOURCE=<zip>` reads a local copy of that archive. `uninstall` removes the files it added while they are unchanged. The last line of an install and the line above doctor's verdict say where things stand: `ROUND_ENDS: shown` (the status line is on and you saved round), `ready` (this terminal draws the ends itself), `check` (an icon font is here, and only your eyes can tell whether the terminal uses it) or `square`, with the reason and one fix. When you see boxes, set the terminal's own font to a full Nerd Font, add the symbols font as its fallback font (iTerm2 Non-ASCII Font, VS Code `terminal.integrated.fontFamily`, kitty `symbol_map`), or save `--glyphs square`. Terminal.app has no fallback setting, so it needs a full Nerd Font.
 
 Where colour is off, the same row renders in plain text:
 
@@ -28,12 +30,28 @@ Paste this into a coding agent opened in any folder:
 
 ```text
 Install LitGravity, the LitFamily plugin for Google's Antigravity CLI.
-Use only the official npm package @litfamily/litgravity. Show me your plan and wait for my yes before changing anything.
+Use only the official npm package @litfamily/litgravity; add no other source, and do not approve hooks, trust or sign-in for me.
 1. Check that Node.js 20+ and agy are on PATH (`agy --version`).
-2. Preview: npx @litfamily/litgravity install --dry-run
-3. Install: npx @litfamily/litgravity install --yes
-4. Verify: npx @litfamily/litgravity doctor and report its last line.
-5. Tell me what was written (the installer prints a "Written:" list) and anything it refused.
+2. Preview: npx --yes @litfamily/litgravity@latest install --dry-run --round --status-line
+   Show me what it would change. A preview that ends with FAIL has changed nothing.
+3. Ask me these, with the defaults:
+   - Keep every default? (yes: the install line of step 5 as it stands)
+   - Where should it work? Default: every project. For one project, run every command in that folder with --scope project and leave out --status-line.
+   - Add the short rule file to agy's rules folder? Default: yes. For no: add --no-agent-file to every install and update command below. For good, I can choose it later with: npx --yes @litfamily/litgravity@latest config agentFile off
+   - Show the status line under agy's prompt? It is the part I see, round ends show there, and it is on only with --status-line. Default: yes. If agy already shows another status line, I choose between leaving out --status-line and adding --replace-status-line (the old one is saved and uninstall puts it back).
+   - Add an icon font for round ends? --round adds SymbolsNerdFontMono-Regular.ttf and its licence file to ~/Library/Fonts on macOS or ~/.local/share/fonts on Linux ($XDG_DATA_HOME/fonts when that is set), only when no icon font is here, from the official Nerd Fonts release with its SHA-256 checked. Nothing on Windows. For no: leave out --round.
+   - I can choose round or square ends later with: npx --yes @litfamily/litgravity@latest update --yes --glyphs auto|round|square
+4. Wait for my yes.
+5. Install: npx --yes @litfamily/litgravity@latest install --yes --round --status-line
+   To update on another day: npx --yes @litfamily/litgravity@latest update --yes --round
+6. Check: npx --yes @litfamily/litgravity@latest doctor
+   Its last line must start with "LitGravity: ready", and the install must have printed a line that starts with ROUND_ENDS:. If a step fails, show me the lines and stop.
+7. Show me this and ask if both ends are round:  LIT 
+   Round: npx --yes @litfamily/litgravity@latest update --yes --glyphs round
+   Boxes: npx --yes @litfamily/litgravity@latest update --yes --glyphs square
+   For round ends there I set the terminal's own font to a full Nerd Font, or add the symbols font as its fallback font (Terminal.app has no fallback setting).
+   Over SSH or on a phone: leave it unless I see round ends. To undo: npx --yes @litfamily/litgravity@latest update --yes --glyphs auto
+8. Tell me what was written (the "Written:" list), anything the installer refused, and what only I can do: quit agy and start it again if it is open, and sign in to agy once. Nothing in agy waits for an approval.
 ```
 
 ## Install an extension by hand

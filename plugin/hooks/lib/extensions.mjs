@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import { homedir } from 'node:os';
 import { MOVED_SKILLS, EXTENSION_BACKUPS, EXTENSIONS_CLI, extensionLines } from './routes.mjs';
 
@@ -9,7 +9,7 @@ import { MOVED_SKILLS, EXTENSION_BACKUPS, EXTENSIONS_CLI, extensionLines } from 
 export const EXTENSION_SHELF = 'https://github.com/wjgoarxiv/wjgoarxiv-skills';
 
 export function litgravityData(env = process.env) {
-  return join(env.XDG_DATA_HOME || join(env.HOME || homedir(), '.local', 'share'), 'litgravity');
+  return join(isAbsolute(env.XDG_DATA_HOME ?? '') ? env.XDG_DATA_HOME : join(env.HOME || homedir(), '.local', 'share'), 'litgravity');
 }
 
 // Releases up to 0.1.8 cached their engines here. Nothing reads it now; the extensions keep their own cache.

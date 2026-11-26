@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, mkdirSync, appendFileSync, existsSync, lstatSync, realpathSync, renameSync } from 'node:fs';
-import { join, dirname, resolve, basename } from 'node:path';
+import { join, dirname, resolve, basename, isAbsolute } from 'node:path';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -190,7 +190,7 @@ export function pluginVersion() {
 
 export function cachedLatest() {
   try {
-    const dataHome = process.env.XDG_DATA_HOME || join(process.env.HOME || homedir(), '.local', 'share');
+    const dataHome = isAbsolute(process.env.XDG_DATA_HOME ?? '') ? process.env.XDG_DATA_HOME : join(process.env.HOME || homedir(), '.local', 'share');
     const cache = JSON.parse(readFileSync(join(dataHome, 'litgravity', 'update-check.json'), 'utf8'));
     return typeof cache.latest === 'string' ? cache.latest : null;
   } catch {

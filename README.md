@@ -119,12 +119,15 @@ The installer shows every destination first and validates the plugin with `agy p
 | `--yes` | Installs from a shell without a terminal (agent, CI), which otherwise only previews |
 | `--no-agent-file` | Skips the global rule file for one run |
 | `--status-line` | Adds the opt-in status line to agy's user settings, after a backup |
+| `--round` | Adds one icon font for round ends when no icon font is on this machine ([details](./docs/reference.md#the-status-line)) |
+| `--glyphs round` | Saves round ends for pills and gauges (`square` and `auto` too) |
+| `--agent` | Prints the install guide for coding agents and does nothing else |
 
 Every user-scope install also leaves one owned rule file at `~/.gemini/config/rules/litgravity.md`, because agy reads that folder at every session start. The rule stays short on purpose (the lit activation word, where plans and handoffs live, and the release freeze), so the ground rules hold before any skill loads. An interactive install asks first and a No stores the rule off, while `--yes` adds it; the [lifecycle table](#safety-and-uninstall) turns it off later or adds a project block.
 
 `doctor` lists the installed copy, the validation result, the six hook events and a smoke run of each hook script, the global rule file, every skill and agent, the extensions with their install line, any old engine cache or stray saved copy, and the host programs the skills call.
 
-`install`, `doctor` and `help` open with the synthwave LIT mark, sized to the terminal width. Without 256 colours (`NO_COLOR`, `TERM=dumb`, a 16-colour terminal) the same scene is drawn without colour. In a pipe, a CI log, an agent's tool call or a terminal narrower than 24 columns it shrinks to the one plain line `LIT · antigravity`.
+`install`, `doctor` and `help` open with the synthwave LIT mark, sized to the terminal width. Without 256 colours (`NO_COLOR`, `TERM=dumb`, a 16-colour terminal) the same scene is drawn without colour. In a pipe, a CI log, an agent's tool call or a terminal narrower than 24 columns it shrinks to the one plain line `LIT · antigravity`; there `install` and `doctor` add a line that points a coding agent at its guide.
 
 In a terminal window of at least 40 columns and 12 rows, `install` and `uninstall` draw their plan, questions, steps and result as cards under the LIT mark. A question names its step (`LIT 1/2`), says in one sentence what Yes does and what No leaves alone, and marks No as the default: press `y` or `n`, or move with the arrow keys or Tab and press Enter. Esc answers nothing, and Ctrl+C stops. Each answer folds to one row, the install steps tick off in one card, and the last card lists what was installed, how it is set and what to do next. Buttons and pills are round where the [status line](./docs/reference.md#the-status-line) is. `NO_COLOR` keeps the cards without colour, and a locale without UTF-8 draws them in ASCII. With `--yes`, `--dry-run`, `TERM=dumb`, `LITGRAVITY_AGENT_FILE` set, a pipe or CI, the same text prints as plain lines.
 
@@ -312,19 +315,19 @@ Every lifecycle command previews with `--dry-run`, and hooks fail open: if one b
 | Task | Command |
 |---|---|
 | Install | `npx @litfamily/litgravity install` |
-| Update | `npx @litfamily/litgravity install` (validates, replaces in place) |
+| Update | `npx @litfamily/litgravity@latest update` (validates, replaces in place, keeps your settings) |
 | Global rule off or back on | `npx @litfamily/litgravity config agentFile off` (or `on`) |
 | Project block | `npx @litfamily/litgravity agent-file project --dir <path>` (writes only the marked block into the repo's `AGENTS.md`) |
 | Check | `npx @litfamily/litgravity doctor` |
 | Extensions | `npx @litfamily/litgravity extensions list` (then `install`, `update`, `remove`, `check`, `prune-backups`) |
 | Remove | `npx @litfamily/litgravity uninstall --yes` |
 
-The installer writes only its own plugin folder, its data directory, its rule file and, when you ask, the status line key, and it never reads agy's credential files.
+The installer writes only its own plugin folder, its data directory, its rule file and, when you ask, the status line key and the icon font files of `--round`, and it never reads agy's credential files.
 
 <details>
 <summary>What each part may write, and what it leaves</summary>
 
-- The installer writes only its own plugin folder, its data directory (`$XDG_DATA_HOME/litgravity`), the owned rule file in agy's global rules folder, and, when you ask, the status line key in agy's user settings, after a backup. It never reads agy's credential files. A rule file it did not write stops the install before the first write instead of being merged into.
+- The installer writes only its own plugin folder, its data directory (`$XDG_DATA_HOME/litgravity`), the owned rule file in agy's global rules folder, and, when you ask, the status line key in agy's user settings, after a backup, and the two icon font files of `--round` in your font folder. It never reads agy's credential files. A rule file it did not write stops the install before the first write instead of being merged into.
 - A symlinked, foreign or edited destination stops the install before the first write. To keep an edited copy, the installer gives a command that moves it to `~/.local/share/litgravity/saved/<scope>-<date>`. That folder is outside agy's plugins folder on purpose: agy loads every folder it finds there, so a copy saved beside the plugin would run as a second LitGravity. `doctor` warns about any such leftover. `--dry-run` never mutates.
 - `extensions` writes only into agy's skill folder for the scope (`~/.gemini/config/skills/<id>` or `.agents/skills/<id>`), `~/.gemini/extension-backups/` and its own source clone in `~/.cache/litgravity/extensions-src`. Without `--yes` it only prints its plan. It never moves a same-name skill you keep elsewhere, never removes a folder without its receipt, and deletes only inside `~/.gemini/extension-backups/`, only with `prune-backups --yes`.
 - Releases up to 0.1.8 cached engines under `~/.local/share/litgravity/runtime/` (`$XDG_DATA_HOME/litgravity/runtime/`), and the cache can take 150 MB or more. Nothing reads or writes there now, the extensions included, and `uninstall` leaves it, so delete that folder to free the space; `doctor` names it while it is there.

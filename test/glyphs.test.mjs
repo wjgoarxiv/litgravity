@@ -3,7 +3,18 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { hasIconFont, roundGlyphs } from '../plugin/hud/glyphs.mjs';
+import { paths } from '../lib/paths.mjs';
+import { litgravityData } from '../plugin/hooks/lib/extensions.mjs';
+import { hasIconFont, roundGlyphs, userFontFolder } from '../plugin/hud/glyphs.mjs';
+
+test('a relative XDG_DATA_HOME counts as not set', () => {
+  for (const XDG_DATA_HOME of ['data', './data', '']) {
+    const env = { HOME: '/h', XDG_DATA_HOME };
+    assert.equal(userFontFolder(env, 'linux'), join('/h', '.local', 'share', 'fonts'));
+    assert.deepEqual([paths(env).data, litgravityData(env)], Array(2).fill(join('/h', '.local', 'share', 'litgravity')));
+  }
+  assert.equal(userFontFolder({ HOME: '/h', XDG_DATA_HOME: '/d' }, 'linux'), join('/d', 'fonts'));
+});
 
 // The one answer every surface reads: the setting, then the terminal, then SSH, then an installed icon font.
 

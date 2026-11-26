@@ -13,13 +13,18 @@ import { agyVersion } from '../lib/agy.mjs';
 import { checkUpdate } from '../lib/update-check.mjs';
 import { printMark } from '../lib/mark.mjs';
 import { openCards } from '../lib/cards.mjs';
+import { parse } from '../lib/args.mjs';
+import { AGENT_POINTER, COMMAND, agentGuide } from '../lib/agent-guide.mjs';
 
 const HELP = `LitGravity ${packageVersion()}: LitFamily workflows for Google's Antigravity CLI (agy)
 
 Usage: litgravity <command> [options]
 
+Are you an agent? Run ${COMMAND} install --agent and follow what it prints.
+
 Commands
   install      Copy the plugin into agy's plugin folder (user scope by default) and validate it
+  update       The same as install: replaces the copy in place and keeps your settings
   doctor       Check install state, agy version, hooks, skills, agents and host tools
   status       Short version of doctor plus an update check
   models       List the models and efforts your agy offers
@@ -39,6 +44,9 @@ Options
   --scope <s>      user (default): ~/.gemini/config/plugins/litgravity, or project: ./.agents/plugins/litgravity
   --status-line    install: also set the LitGravity status line in agy's user settings (opt-in, user scope only)
   --replace-status-line  install: replace a status line LitGravity did not write (saved first; uninstall puts it back)
+  --round          install, update: add one icon font for round ends when no icon font is here (nothing on Windows)
+  --glyphs <g>     install, update: save auto (default), round or square ends for pills and gauges
+  --agent          Print the install guide for coding agents and do nothing else
   --json           Machine-readable output (doctor, models, list, extensions list|check)
   --project        extensions: ./.agents/skills in this workspace instead of ~/.gemini/config/skills
   --from <path>    extensions install|update: use this wjgoarxiv-skills clone instead of LitGravity's own
@@ -46,33 +54,6 @@ Options
   --offline        Skip the npm update check
   --discard-modified  uninstall: also remove a copy edited after install
   --version        Print the version`;
-
-function parse(argv) {
-  const flags = {};
-  const rest = [];
-  for (let i = 0; i < argv.length; i += 1) {
-    const a = argv[i];
-    if (a === '--dry-run') flags.dryRun = true;
-    else if (a === '--no-agent-file') flags.noAgentFile = true;
-    else if (a === '--yes' || a === '-y') flags.yes = true;
-    else if (a === '--json') flags.json = true;
-    else if (a === '--offline') flags.offline = true;
-    else if (a === '--status-line') flags.statusLine = true;
-    else if (a === '--replace-status-line') flags.replaceStatusLine = true;
-    else if (a === '--discard-modified') flags.discardModified = true;
-    else if (a === '--scope') flags.scope = argv[++i];
-    else if (a === '--project') flags.project = true;
-    else if (a === '--all') flags.all = true;
-    else if (a === '--allow-shadow') flags.allowShadow = true;
-    else if (a === '--from') flags.from = argv[++i];
-    else if (a === '--family') flags.family = argv[++i];
-    else if (a === '--older-than') flags.olderThan = argv[++i];
-    else if (a === '--help' || a === '-h') flags.help = true;
-    else if (a === '--version' || a === '-v') flags.version = true;
-    else rest.push(a);
-  }
-  return { command: rest[0] ?? 'help', args: rest.slice(1), flags };
-}
 
 async function ask(question) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -84,37 +65,46 @@ async function ask(question) {
 }
 
 async function main() {
-  const { command, args, flags } = parse(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  if (argv.includes('--agent')) {
+    process.stdout.write(`${agentGuide()}\n`);
+    return 0;
+  }
+  const { command, args, flags, error } = parse(argv);
   const env = process.env;
   const cwd = process.cwd();
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY && !env.CI);
   const print = (line) => process.stdout.write(`${line}\n`);
-  const banner = () => printMark(print, env);
+  const banner = () => {
+    printMark(print, env);
+    if (!interactive && !flags.json) print(AGENT_POINTER);
+  };
+  const tty = Boolean(process.stdout.isTTY);
+  if (error) {
+    print(`${error}\nRun ${COMMAND} help for every option.`);
+    return 2;
+  }
   if (flags.version) {
     print(packageVersion());
     return 0;
   }
   if (flags.help || command === 'help') {
-    if (command !== 'extensions') banner();
+    if (command !== 'extensions') printMark(print, env);
     print(command === 'extensions' ? EXTENSION_HELP : HELP);
     return 0;
-  }
-  if (flags.scope && !['user', 'project'].includes(flags.scope)) {
-    print('--scope takes user or project');
-    return 2;
   }
   switch (command) {
     case 'install':
     case 'update': {
       const cards = openCards({ env, flags });
-      return install({ env, flags, interactive, ask: cards?.ask ?? ask, cwd, print, banner, cards });
+      return install({ env, flags, interactive, ask: cards?.ask ?? ask, cwd, print, banner, cards, tty });
     }
     case 'uninstall': {
       const cards = openCards({ env, flags });
       return uninstall({ env, flags, interactive, ask: cards?.ask ?? ask, cwd, print, cards });
     }
     case 'doctor':
-      return doctor({ env, flags, cwd, print, banner });
+      return doctor({ env, flags, cwd, print, banner, tty });
     case 'models':
       return models({ env, flags, print });
     case 'list':

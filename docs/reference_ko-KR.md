@@ -12,7 +12,9 @@
 
 카드는 폭이 60칸 이상이고, 터미널이 높이를 알려 줄 때는 20줄 이상이어야 나옵니다. 24줄부터는 한 줄이 더 생겨 해가 온전히 보입니다. 레인이 있으면 카드가 더 커집니다. 창이 낮으면 레인보다 스킬을 먼저 숨기고, 실패했거나 막힌 레인은 숨기지 않습니다. 그 밖에는 한 줄입니다. 좁거나 낮은 창(노을 색은 그대로), `NO_COLOR`, 256색과 16색(`LITGRAVITY_HUD_COLOR=256`으로 고를 수 있음), `LITGRAVITY_HUD_ASCII=1`, `COLORFGBG`가 밝은 배경이라고 알리는 터미널이 그렇습니다. 노을은 멈춰 있는 그림입니다. agy는 일이 있을 때만 상태 표시줄을 다시 그리고 쉬는 동안에는 손대지 않기 때문입니다.
 
-알약과 게이지의 끝은 상태 표시줄, 카드, 설치기 어디서나 똑같이 둥글거나 똑같이 네모입니다. `LITGRAVITY_HUD_GLYPHS=round`(또는 `nerd`)는 둥근 끝을, `basic`은 네모난 끝을 고릅니다. 정하지 않으면 Windows Terminal, VS Code, WezTerm, Ghostty, kitty에서는 둥글고, SSH로 접속한 창에서는 네모이며, 그 밖에는 Nerd Font가 깔려 있는지로 정합니다. 글꼴은 파일 이름만 하루에 한 번 봅니다.
+알약과 게이지의 끝은 상태 표시줄, 카드, 설치기 어디서나 똑같이 둥글거나 똑같이 네모입니다. `LITGRAVITY_HUD_GLYPHS=round`(또는 `nerd`)는 둥근 끝을, `square`(또는 `basic`)는 네모난 끝을 고릅니다. `install --glyphs round`나 `update --glyphs square`는 같은 선택을 저장해 다음 세션부터, SSH에서도 그대로 씁니다. 그냥 다시 설치해도 선택은 남고, `--glyphs auto`가 선택을 지웁니다. 환경 변수가 먼저이고 저장한 선택이 그다음입니다. 둘 다 없거나 `auto`이면 Windows Terminal, VS Code, WezTerm, Ghostty, kitty에서는 둥글고, SSH로 접속한 창에서는 네모이며, 그 밖에는 Nerd Font가 깔려 있는지로 정합니다. 글꼴은 파일 이름만 하루에 한 번 봅니다.
+
+`install`이나 `update`에 `--round`를 주면 아이콘 글꼴이 하나도 없을 때 글꼴 하나를 더합니다. 기호만 담은 Nerd Font v3.5.1(`SymbolsNerdFontMono-Regular.ttf`와 라이선스 파일)을 `~/Library/Fonts`에, Linux에서는 `${XDG_DATA_HOME:-~/.local/share}/fonts`에 넣습니다. 압축 파일과 두 파일의 SHA-256을 확인하고, 있던 파일은 덮어쓰지 않으며, 무엇이든 실패하면 글꼴 없이 설치를 마칩니다. `LITGRAVITY_ICON_FONT_SOURCE=<zip>`을 주면 그 압축 파일의 로컬 사본을 읽습니다. `uninstall`은 자기가 더한 파일이 그대로일 때만 지웁니다. 설치의 마지막 줄과 doctor 판정 바로 윗줄이 지금 상태를 알려 줍니다. `ROUND_ENDS: shown`은 상태 표시줄이 켜져 있고 둥근 끝을 저장했다는 뜻, `ready`는 이 터미널이 둥근 끝을 직접 그린다는 뜻, `check`는 아이콘 글꼴이 있지만 터미널이 그 글꼴을 쓰는지는 눈으로 봐야 안다는 뜻이고, `square`에는 이유와 고치는 방법 하나가 붙습니다. 상자가 보이면 터미널 글꼴을 온전한 Nerd Font로 바꾸거나, 기호 글꼴을 대체 글꼴로 더하거나(iTerm2 Non-ASCII Font, VS Code `terminal.integrated.fontFamily`, kitty `symbol_map`), `--glyphs square`를 저장하세요. Terminal.app에는 대체 글꼴 설정이 없어 온전한 Nerd Font가 필요합니다.
 
 색이 꺼진 곳에서는 같은 줄이 다음처럼 평문으로 나옵니다.
 
@@ -28,12 +30,28 @@
 
 ```text
 Google Antigravity CLI용 LitFamily 플러그인인 LitGravity를 설치해 줘.
-공식 npm 패키지 @litfamily/litgravity만 써. 무엇이든 바꾸기 전에 계획을 보여 주고 내 승인을 기다려.
+공식 npm 패키지 @litfamily/litgravity만 쓰고 다른 출처는 더하지 마. 훅 승인, 신뢰, 로그인은 나 대신 하지 마.
 1. Node.js 20 이상과 agy가 PATH에 있는지 확인해 (`agy --version`).
-2. 미리 보기: npx @litfamily/litgravity install --dry-run
-3. 설치: npx @litfamily/litgravity install --yes
-4. 확인: npx @litfamily/litgravity doctor 를 실행하고 마지막 줄을 알려 줘.
-5. 무엇이 쓰였는지("Written:" 목록)와 설치기가 거부한 것이 있으면 알려 줘.
+2. 미리 보기: npx --yes @litfamily/litgravity@latest install --dry-run --round --status-line
+   무엇이 바뀌는지 보여 줘. FAIL로 끝난 미리 보기는 아무것도 바꾸지 않은 거야.
+3. 아래를 기본값과 함께 나에게 물어봐.
+   - 모두 기본값으로 할까? (그렇다면 5번 설치 줄 그대로)
+   - 어디에서 쓸까? 기본값은 모든 프로젝트. 한 프로젝트에서만 쓰려면 그 폴더에서 모든 명령에 --scope project를 붙이고 --status-line은 빼.
+   - agy 규칙 폴더에 짧은 규칙 파일을 더할까? 기본값은 예. 아니면 아래의 모든 install, update 명령에 --no-agent-file을 붙여. 아예 끄는 것은 나중에 내가 고를 수 있어: npx --yes @litfamily/litgravity@latest config agentFile off
+   - agy 프롬프트 아래에 상태 표시줄을 보일까? 내가 보는 부분이고 둥근 끝도 여기에 나오며, --status-line을 줄 때만 켜져. 기본값은 예. agy에 이미 다른 상태 표시줄이 있으면 --status-line을 뺄지 --replace-status-line을 더할지 내가 골라(옛것은 저장되고 uninstall이 되돌려 놔).
+   - 둥근 끝에 쓸 아이콘 글꼴을 더할까? --round는 아이콘 글꼴이 하나도 없을 때만 SymbolsNerdFontMono-Regular.ttf와 라이선스 파일을 macOS는 ~/Library/Fonts, Linux는 ~/.local/share/fonts($XDG_DATA_HOME이 있으면 $XDG_DATA_HOME/fonts)에 넣어. 공식 Nerd Fonts 릴리스에서 받아 SHA-256을 확인해. Windows에서는 아무것도 넣지 않아. 아니면 --round를 빼.
+   - 둥근 끝과 네모난 끝은 나중에 고를 수 있어: npx --yes @litfamily/litgravity@latest update --yes --glyphs auto|round|square
+4. 내 승인을 기다려.
+5. 설치: npx --yes @litfamily/litgravity@latest install --yes --round --status-line
+   나중에 업데이트할 때: npx --yes @litfamily/litgravity@latest update --yes --round
+6. 확인: npx --yes @litfamily/litgravity@latest doctor
+   마지막 줄이 "LitGravity: ready"로 시작해야 하고, 설치 출력에 ROUND_ENDS:로 시작하는 줄이 있어야 해. 실패한 단계가 있으면 그 줄을 보여 주고 멈춰.
+7. 이것을 보여 주고 양쪽 끝이 둥근지 물어봐:  LIT 
+   둥글면: npx --yes @litfamily/litgravity@latest update --yes --glyphs round
+   상자로 보이면: npx --yes @litfamily/litgravity@latest update --yes --glyphs square
+   거기서도 둥근 끝을 보려면 내가 터미널 글꼴을 온전한 Nerd Font로 바꾸거나 기호 글꼴을 대체 글꼴로 더해야 해(Terminal.app에는 대체 글꼴 설정이 없어).
+   SSH나 휴대폰이면 둥글게 보일 때만 바꾸고 그대로 둬. 되돌리기: npx --yes @litfamily/litgravity@latest update --yes --glyphs auto
+8. 무엇이 쓰였는지("Written:" 목록), 설치기가 거부한 것, 그리고 나만 할 수 있는 일을 알려 줘: agy가 열려 있으면 끄고 다시 시작하기, agy에 한 번 로그인하기. agy에서 승인을 기다리는 것은 없어.
 ```
 
 ## 확장을 손으로 설치하기

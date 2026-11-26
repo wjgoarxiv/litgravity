@@ -126,8 +126,8 @@ test('help, install and doctor carry the mark; --json, --version and library cal
   assert.ok(help.stdout.startsWith('LIT · antigravity\nLitGravity '), help.stdout.slice(0, 200));
   assert.doesNotMatch(help.stdout, /[█▀▄░]|\u001b/, 'a piped help prints no art');
   const doc = spawnSync(process.execPath, [BIN, 'doctor'], { env: { ...env, COLUMNS: '80', COLORTERM: 'truecolor', LITGRAVITY_SKIP_HOST_TOOLS: '1' }, encoding: 'utf8' });
-  assert.ok(doc.stdout.startsWith('LIT · antigravity\nLitGravity '), doc.stdout.slice(0, 200));
-  assert.doesNotMatch(doc.stdout.split('\n').slice(0, 2).join('\n'), /[█▀▄░]|\u001b/, 'doctor run by an agent prints no art');
+  assert.ok(doc.stdout.startsWith('LIT · antigravity\nAgent? See npx --yes @litfamily/litgravity@latest install --agent.\nLitGravity '), doc.stdout.slice(0, 200));
+  assert.doesNotMatch(doc.stdout.split('\n').slice(0, 3).join('\n'), /[█▀▄░]|\u001b/, 'doctor run by an agent prints no art');
   const version = spawnSync(process.execPath, [BIN, '--version'], { env, encoding: 'utf8' });
   assert.match(version.stdout, /^\d+\.\d+\.\d+\n$/);
   const cwd = mkdtempSync(join(tmpdir(), 'litgravity-mark-'));

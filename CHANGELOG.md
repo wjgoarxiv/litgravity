@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- `install --agent` (or `--agent` anywhere) prints an install guide for coding agents and writes nothing. Output with no person at the terminal points to it, and so does the first install card.
+- `--round` on `install` and `update` adds one icon font for round ends when no icon font is on this machine: the symbols-only Nerd Font, checked by SHA-256. `uninstall` removes the files it added while they are unchanged. On Windows it adds nothing.
+- `--glyphs auto|round|square` saves the choice for pills and gauges. The status line reads it in every later session, over SSH too.
+- `install` and `doctor` print one `ROUND_ENDS:` line: `shown`, `ready`, `check` or `square`, with the reason and one fix.
+- `update` is listed in the help; it is the same as `install`.
+- An unknown option now ends with exit 2 before anything is written.
+- The install prompts in both references ask about the status line and the font, and end with a reminder to restart agy.
+
 ## 0.1.19 — 2026-11-25
 
 - The README cover is redrawn with the framed status card round the whole screen.
