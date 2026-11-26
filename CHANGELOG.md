@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.20 — 2026-11-26
 
 - `install --agent` (or `--agent` anywhere) prints an install guide for coding agents and writes nothing. Output with no person at the terminal points to it, and so does the first install card.
 - `--round` on `install` and `update` adds one icon font for round ends when no icon font is on this machine: the symbols-only Nerd Font, checked by SHA-256. `uninstall` removes the files it added while they are unchanged. On Windows it adds nothing.
