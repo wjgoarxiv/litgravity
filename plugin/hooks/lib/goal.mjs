@@ -1,5 +1,7 @@
 // The plan's finish line as one checkable condition. lit-plan writes a `## Done when` block with one `check:` command;
-// this module compiles it into `Every row in plans/<f>.md is ticked and \`<cmd>\` exits 0 [lit:<id>]`, lints it,
+// a plan that also carries `goal: native` gets it compiled into `Every row in plans/<f>.md is ticked and \`<cmd>\`
+// exits 0 [lit:<id>], or the latest reply starts with WAITING-ON-USER:, or after 30 turns` (a plan without that line is
+// asked only to start; the start-work driver closes it on the same check), lints it,
 // proves it is false today (the falsifier dry run) and keeps the three small records under `.litgravity/goal/`:
 //
 //   consent.json  goal-propose asked the user, with the condition, its hash and the plan       (asked)
@@ -21,13 +23,15 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, renameSync, unlinkSync,
 import { answerChoices, answerGuide } from './goal-guide.mjs';
 import { join } from 'node:path';
 import { planRows } from './continuation.mjs';
+import { charterHash, goalNative } from './autopilot.mjs';
 import { redact } from './redact.mjs';
 import { GOAL_NEVER, LOOP_GOAL_ROUTES } from './routes.mjs';
 
 export const GOAL_MAX_CHARS = 500;
 export const CONSENT_TTL_MS = 30 * 60 * 1000;
 export const FALSIFY_TIMEOUT_MS = 120_000;
-// The Stop hook has 10 s in hooks.json; the advisory check gets most of it and reports a slow check as unfinished.
+// The Stop hook has 30 s in hooks.json and shares them with the start-work Done-when check (20 s, autopilot.mjs); the
+// advisory check keeps its 7 s and reports a slow check as unfinished.
 export const STOP_CHECK_TIMEOUT_MS = 7_000;
 export const OWNER_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 // A loop goal has no plan whose disappearance could retire it, and nothing at turn end can judge its objective, so the
@@ -72,10 +76,14 @@ export const parseDoneWhen = (planText) => {
   return { ok: false, reason: 'the `## Done when` block names no `check:` command' };
 };
 
+// A plan goal always ends itself, so it cannot loop on a decision only the user can make.
+export const GOAL_TURNS = 30;
+export const GOAL_SELF_END = `, or the latest reply starts with WAITING-ON-USER:, or after ${GOAL_TURNS} turns`;
+
 /** The condition text, or why it cannot be built. */
 export const compileCondition = ({ plan, check }) => {
   const id = goalId(plan, check);
-  const condition = `Every row in ${plan} is ticked and \`${check}\` exits 0 [lit:${id}]`;
+  const condition = `Every row in ${plan} is ticked and \`${check}\` exits 0 [lit:${id}]${GOAL_SELF_END}`;
   if (condition.length > GOAL_MAX_CHARS) return { ok: false, reason: `the condition is over ${GOAL_MAX_CHARS} characters; point the check at one script` };
   return { ok: true, condition, id };
 };
@@ -230,7 +238,7 @@ export const answerConsent = (workspace, prompt, conversationId, now = Date.now(
     setStatus(workspace, 'declined', STATUS.declined(), now);
     return { line: STATUS.declined(), start: null };
   }
-  const started = startWork(consent.plan);
+  const started = startWork(consent.plan, { charterHash: typeof consent.charterHash === 'string' ? consent.charterHash : null });
   if (!started?.ok) {
     const line = STATUS.startRefused(started?.reason ?? 'the start path refused');
     setStatus(workspace, 'start-refused', line, now);
@@ -321,11 +329,15 @@ export const proposeGoal = ({ workspace, plan, run = spawnSync, now = Date.now()
   if (typeof plan !== 'string' || !/^plans\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.md$/u.test(plan) || plan.includes('..')) return { ok: false, line: STATUS.skipped('the plan path must be plans/<name>.md') };
   let planText;
   try { planText = readFileSync(join(workspace, plan), 'utf8'); } catch { return { ok: false, line: STATUS.skipped(`${plan} cannot be read`) }; }
+  // The plan's charter and scope lines as they stood when the question was asked; the start compares them again.
+  const charter = charterHash(planText);
   // A plan that cannot carry a goal can still be approved and started: the question drops the goal half and names why.
   const startOnly = (reason) => {
-    writeGoalRecord(workspace, 'consent', { condition: null, hash: conditionHash(`start ${plan}`), plan, reason, route: 'lit-plan', askedAt: new Date(now).toISOString() });
+    writeGoalRecord(workspace, 'consent', { condition: null, hash: conditionHash(`start ${plan}`), plan, reason, route: 'lit-plan', askedAt: new Date(now).toISOString(), charterHash: charter });
     return { ok: false, startOnly: true, reason, line: STATUS.askStart(reason), guide: answerGuide('start') };
   };
+  // agy's own goal is opt-in: without `goal: native` the start-work driver alone carries the run to its check.
+  if (!goalNative(planText)) return startOnly('the plan has no `goal: native` line, so the run closes on its own `## Done when` check');
   const done = parseDoneWhen(planText);
   if (!done.ok) return startOnly(done.reason);
   const built = compileCondition({ plan, check: done.check });
@@ -334,7 +346,7 @@ export const proposeGoal = ({ workspace, plan, run = spawnSync, now = Date.now()
   if (!lint.ok) return startOnly(lint.reasons.join('; '));
   const dry = falsify({ cwd: workspace, plan, planText, check: done.check, timeoutMs, run });
   if (!dry.ok) return startOnly(dry.reason);
-  writeGoalRecord(workspace, 'consent', { condition: built.condition, hash: conditionHash(built.condition), plan, check: done.check, id: built.id, route: 'lit-plan', askedAt: new Date(now).toISOString(), falsifier: { open: dry.open, exit: dry.exit } });
+  writeGoalRecord(workspace, 'consent', { condition: built.condition, hash: conditionHash(built.condition), plan, check: done.check, id: built.id, route: 'lit-plan', askedAt: new Date(now).toISOString(), falsifier: { open: dry.open, exit: dry.exit }, charterHash: charter });
   return { ok: true, condition: built.condition, line: STATUS.ask(built.condition), guide: answerGuide('plan', built.condition) };
 };
 

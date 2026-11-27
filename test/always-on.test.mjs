@@ -251,6 +251,8 @@ test('a run end is recorded as waiting, nothing or sent', () => {
   const c = workedPlan(env);
   writeFileSync(join(c.dir, 'plans', 'plan.md'), PLAN.replaceAll('- [ ]', '- [x]'));
   writeFileSync(c.transcript, `${readFileSync(c.transcript, 'utf8')}${modelStep(1, 'All four rows are done.')}\n`);
+  assert.equal(stop(c, env).json.decision, 'continue', 'the first turn end hands the model the completion line to repeat');
+  assert.deepEqual(shownLines(c).filter((l) => l.kind === 'run-end'), []);
   stop(c, env);
   assert.deepEqual(shownLines(c).filter((l) => l.kind === 'run-end').map((l) => l.outcome), ['sent']);
 });

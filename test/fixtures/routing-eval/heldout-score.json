@@ -1,0 +1,69 @@
+{
+  "sha256": "39b8c14df635578206fd36c2e2f9e746156d4fcfc0f7daf8fa5d07531f4e8055",
+  "rules": {
+    "lit-scientific-visualization": {
+      "shipped": true,
+      "positives": 8,
+      "nearMisses": 5,
+      "recall": 1,
+      "nearMissFP": 0,
+      "pass": true
+    },
+    "lit-pptx": {
+      "shipped": true,
+      "positives": 8,
+      "nearMisses": 5,
+      "recall": 0.875,
+      "nearMissFP": 0,
+      "pass": true
+    },
+    "lit-docx": {
+      "shipped": true,
+      "positives": 7,
+      "nearMisses": 4,
+      "recall": 0.857,
+      "nearMissFP": 0,
+      "pass": true
+    },
+    "debugging": {
+      "shipped": true,
+      "positives": 9,
+      "nearMisses": 5,
+      "recall": 1,
+      "nearMissFP": 0,
+      "pass": true
+    },
+    "lit-typographic-motion": {
+      "shipped": true,
+      "positives": 7,
+      "nearMisses": 5,
+      "recall": 1,
+      "nearMissFP": 0,
+      "pass": true
+    },
+    "lit-diagram-drawer": {
+      "shipped": false,
+      "positives": 7,
+      "nearMisses": 5,
+      "recall": 1,
+      "nearMissFP": 0.2,
+      "pass": false
+    },
+    "deep-interview": {
+      "shipped": false,
+      "positives": 7,
+      "nearMisses": 5,
+      "recall": 0.714,
+      "nearMissFP": 0,
+      "pass": false
+    },
+    "lit-brainstorm": {
+      "shipped": false,
+      "positives": 7,
+      "nearMisses": 5,
+      "recall": 1,
+      "nearMissFP": 0.2,
+      "pass": false
+    }
+  }
+}

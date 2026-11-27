@@ -293,7 +293,27 @@ Every vessel bleeds a sample line into the ledger, and the handoff note leaves o
 | start-work | an approved plan has open rows |
 | litgoal, lit-loop | a goal record has an open criterion |
 
-A turn is held at most three times in a row without progress. Say `pause`, or write `BLOCKED at row N:`, `PAUSED at row N:` or `CANCELLED:` in the ledger, to release a hold. The capture below is the real hold from a planning turn that wrote nothing.
+A planning or goal turn is held at most three times in a row without progress. Say `pause`, or write `BLOCKED at row N:`, `PAUSED at row N:` or `CANCELLED:` in the ledger, to release a hold. The capture below is the real hold from a planning turn that wrote nothing.
+
+### A start-work run that finishes while you are away
+
+Once you approve a plan, start-work is meant to reach its end without you. At each turn end the Stop hook looks at the plan and gives the model one push toward the next open row. When every row is ticked and the plan's `## Done when` check (`check: \`npm test\``, for example) passes, the run closes itself with one line. If nothing changes for two pushes, you get one inbox and then quiet until something moves.
+
+The model does not stop to ask in the middle. A row that needs you gets a `BLOCKED:` line, and a row nobody can finish gets `IMPOSSIBLE:`. A step outside the run's grants, like a push, a publish or a write outside the project, should be parked instead of run. That part is up to the model: agy gives a hook no way to stop a shell command before it runs, so LitGravity tells the model to park and cannot force it. What the hooks do control is what happens to a parked step afterwards. The inbox shows each one whole, and you answer by typing one of these:
+
+| Type | What happens |
+|---|---|
+| `lit approve` | runs the parked local steps the last inbox showed: new files and folders, `git add` of named files |
+| `lit approve x` | typed exactly and alone; runs the `[X]` steps the last inbox showed, each through `/bin/sh` with a time limit |
+| `lit deny` | drops every parked step and refuses the same ones for the rest of the run |
+| `lit skip-row [N]` | ticks the blocked rows (or row N) as skipped |
+| `lit pause`, `lit resume` | silence the run, then wake it again |
+
+agy shows the inbox only to the model, so you read it as the model relays it. `lit approve x` then runs those steps outside agy's own approval prompts. Before you type it, run `npx @litfamily/litgravity inbox` (after the next release) in the project folder: it prints the hooks' own list of what each answer would run, with no model in between.
+
+A plan line `Run charter: commit on <branch> in <repo>` lets the run commit on that branch once you say `yes`. agy's own `/goal` is offered only to a plan with a `goal: native` line, and that goal ends itself when the run waits on you or after 30 turns. The [reference](./docs/reference.md#autopilot-and-parking) has the tiers, the limits and what agy cannot do here.
+
+A prompt without `lit` may get a short hint as well. For a request like "plot this csv", the hook names the skill that may fit and lets the model decide; otherwise it adds one compact line listing the main skills. A hint ships only after it scored recall at least 0.85 with at most 0.10 false hits on near misses, on a held-out half of the test prompts.
 
 <p align="center"><img src="./docs/assets/litgravity/handoff-hold.webp" width="960" alt="Terminal capture. After the prompt lit plan a tiny todo app with no plan file written, the Stop hook answers decision continue with the lit-plan gate reason asking for the plan file. A second block shows a ledger line recording a read_file tool call." /></p>
 

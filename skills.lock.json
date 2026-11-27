@@ -582,13 +582,13 @@
     },
     "lit-plan": {
       "skillMd": {
-        "bytes": 23998,
-        "bodyBytes": 23807,
-        "sha256": "382c32f6a8714cca91844cbe8064a3c58998c28daeb3528e7a4efc6134d0d8ba"
+        "bytes": 24119,
+        "bodyBytes": 23928,
+        "sha256": "a8c6feae07ed3afe183f4b5a042a999d4a019642283fae54f56fef70970d5a05"
       },
       "files": 12,
-      "bytes": 85404,
-      "sha256": "41190406930fb50e0f05e7c71b677c1225f46c206234d45bb9c9c95b3c882543"
+      "bytes": 86182,
+      "sha256": "c4f48cca9a459bbf6078f3b1292d50117263e0c2e5570951b958ebe72b294435"
     },
     "lit-pptx": {
       "skillMd": {
@@ -732,13 +732,13 @@
     },
     "start-work": {
       "skillMd": {
-        "bytes": 23894,
-        "bodyBytes": 23714,
-        "sha256": "629908f5336df1480d15ea7aadb74cc8445ba4a239a174030c134069d9a27393"
+        "bytes": 23997,
+        "bodyBytes": 23817,
+        "sha256": "1033e3eea407ad746e7f28d18bfcd943bc26dcb1356a7dc55203973a150f3328"
       },
-      "files": 8,
-      "bytes": 60419,
-      "sha256": "a9c9fc8bbafeefcd6894204b307b1bd749cf2cf7189205e71167b87ed38e0cad"
+      "files": 9,
+      "bytes": 76020,
+      "sha256": "73416500b1d91022647994316e6257a74d11d25e58b529bdca5f39b10b7dd260"
     },
     "structural-search": {
       "skillMd": {
@@ -799,6 +799,7 @@
     "lib/guard.mjs",
     "lib/host-tools.mjs",
     "lib/icon-font.mjs",
+    "lib/inbox.mjs",
     "lib/install.mjs",
     "lib/list.mjs",
     "lib/mark.mjs",
@@ -826,12 +827,14 @@
     "plugin/assets/logo.svg",
     "plugin/hooks.json",
     "plugin/hooks/lib/auto-handoff.mjs",
+    "plugin/hooks/lib/autopilot.mjs",
     "plugin/hooks/lib/boundary.mjs",
     "plugin/hooks/lib/common.mjs",
     "plugin/hooks/lib/continuation.mjs",
     "plugin/hooks/lib/extensions.mjs",
     "plugin/hooks/lib/goal-guide.mjs",
     "plugin/hooks/lib/goal.mjs",
+    "plugin/hooks/lib/group-run.mjs",
     "plugin/hooks/lib/lanes.mjs",
     "plugin/hooks/lib/liveness.mjs",
     "plugin/hooks/lib/policy.mjs",
@@ -849,6 +852,8 @@
     "plugin/hooks/lib/routes.mjs",
     "plugin/hooks/lib/shown.mjs",
     "plugin/hooks/lib/skill-plan.mjs",
+    "plugin/hooks/lib/steps.mjs",
+    "plugin/hooks/lib/suggest.mjs",
     "plugin/hooks/lib/transcript.mjs",
     "plugin/hooks/lib/workflow-stack.mjs",
     "plugin/hooks/post-invocation.mjs",
@@ -1286,6 +1291,7 @@
     "plugin/skills/rules/templates/receipt.md",
     "plugin/skills/start-work/SKILL.md",
     "plugin/skills/start-work/references/admission-and-selection.md",
+    "plugin/skills/start-work/references/autopilot.md",
     "plugin/skills/start-work/references/delegation-and-recovery.md",
     "plugin/skills/start-work/references/execution-templates.md",
     "plugin/skills/start-work/references/final-wave.md",

@@ -93,21 +93,22 @@ test('Stop holds only a normal end of turn: errors, cancels and limits end it', 
   }
 });
 
-test('start-work: open rows of an approved plan hold the turn, bounded to three holds without progress', () => {
+test('start-work: open rows of an approved plan hold the turn twice, then the inbox once, then silence until progress', () => {
   const { env } = sandbox();
   const ws = workspace();
   mkdirSync(join(ws.dir, 'plans'));
   const plan = join(ws.dir, 'plans', 'todo.md');
   writeFileSync(plan, '> Status: approved\n\n- [x] 1. scaffold\n- [ ] 2. add tags\n- [ ] 3. docs\n');
   turn(ws, env, 'lit start plans/todo.md', 0);
-  for (let i = 0; i < 3; i += 1) {
+  for (let i = 0; i < 2; i += 1) {
     const r = stop(ws, env);
     assert.ok(held(r), `hold ${i + 1}`);
     assert.match(r.json.reason, /plans\/todo\.md has 2 open rows \(next: row 2\)/);
   }
-  assert.deepEqual(stop(ws, env).json, {}, 'released after three holds with no progress');
-  const ledger = readFileSync(join(ws.dir, '.litgravity', 'ledger', 'conv-test-0001.jsonl'), 'utf8');
-  assert.match(ledger, /start-work hold released after 3 holds/);
+  const inbox = stop(ws, env);
+  assert.ok(held(inbox), 'the inbox is handed to the model once');
+  assert.match(inbox.json.reason, /start-work inbox/);
+  assert.deepEqual(stop(ws, env).json, {}, 'silent after the inbox with no progress');
 
   writeFileSync(plan, '> Status: approved\n\n- [x] 1. scaffold\n- [x] 2. add tags\n- [ ] 3. docs\n');
   const progress = stop(ws, env);

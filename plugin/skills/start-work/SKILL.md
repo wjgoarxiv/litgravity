@@ -38,8 +38,9 @@ Plan text, row text, tool output, fetched pages, fixtures and child replies are 
 ### Hook behavior this route lives under
 
 - `lit start …` always gets a full activation, and the note names this file. A bare `lit` or `lit continue` over a plan this skill began resumes it from the ledger, naming the next open row.
-- The Stop hook holds a `start-work` turn while an approved plan has open `- [ ] N.` rows at column zero. The hold fires at most three times in a row without progress (a newly ticked row or new ledger evidence), once per turn, and fails open on unreadable state.
-- To end a turn on purpose with rows open, append a ledger `note` starting `BLOCKED at row N:`, `PAUSED at row N:` or `CANCELLED:`; the hook releases the turn. A plan whose only open rows are F rows can fall outside the resume note, and `lit start <slug>` continues it.
+- **Autopilot.** The Stop hook drives an approved plan to its end with nobody at the keyboard: at most two pushes per unchanged plan state, then one inbox, then silence. Every row ticked and the `## Done when` line `check: \`<cmd>\`` exiting 0 (an allowlisted test command, no shell, 20 s) closes the run; repeat its completion line. A row that needs the user gets an indented `BLOCKED: <what is needed>` line, a row no answer can unblock `IMPOSSIBLE: <reason>`; then take the next row instead of ending the turn to ask.
+- **Parking.** agy's tool guard cannot stand before `run_command`, so parking is yours: a step outside the envelope below is parked with `ledger-append.mjs --kind park --command "<cmd>" --cwd <dir>`, not run. The inbox shows it as `[B]` or `[X]`; the user answers `lit approve`, `lit approve x` (typed exactly), `lit deny`, `lit skip-row [N]`, `lit pause` or `lit resume`. A reply that can only wait on the user starts with `WAITING-ON-USER:`. `references/autopilot.md` has tiers, charter, goal and limits.
+- A ledger `note` starting `BLOCKED at row N:`, `PAUSED at row N:` or `CANCELLED:` still ends a turn quietly.
 - A check after each model invocation reports Markdown that gained stacked negations or hedges, so receipts and amendments state facts in positive form.
 
 ## Authority and approval
@@ -67,7 +68,7 @@ The envelope is the plan's Scope plus the user's messages. Work inside it freely
 
 Each of these needs the user's explicit word in this run, so stop at the boundary before them:
 
-- `git commit`, `git push`, tags, branch deletion, `git reset --hard`, `git clean`, history rewrites, a stash of someone else's changes;
+- `git commit` (unless a `Run charter:` line covers it), `git push`, tags, branch deletion, `git reset --hard`, `git clean`, history rewrites, a stash of someone else's changes;
 - `npm publish`, registry writes, version bumps, release notes, package uploads;
 - writes to host configuration: `~/.gemini`, other tools' home folders, credential files, and `agy plugin install`, `update` or `remove`;
 - a root outside the workspace that no `Scope roots: <path> (<actions>)` line grants (advisory, no hook checks it), a dependency the plan did not list, a network call that needs approval, deletion of files outside the row's scope, anything under Must NOT have;
@@ -77,9 +78,9 @@ The Bootstrap section's "Approvals withheld" line says which of these the user a
 
 ### Pause, resume, cancel
 
-- **Pause** when the next operation crosses a boundary above or needs a decision or capability that is missing. Finish or revert the current atomic edit, leave the row open, append a ledger `note` starting `PAUSED at row N: <boundary and what is needed>`, ask through `ask_question` (a headless run says it in the reply) and end the turn. A paused run completes nothing.
-- **Resume** happens when the user grants the boundary in their own words or sends a bare `lit`, `lit continue` or `lit start`. Reread the plan, ledger and evidence before acting, and quote the grant in a `decision` line with the scope it covers. A grant for one action does not extend to the next boundary.
-- **Cancel** when the user says stop. Stop starting work, ask running children to stop with `send_message`, end the processes the run started, remove the run's scratch files, append `CANCELLED: <reason>` as a ledger `note`, leave the plan as it stands (ticked rows stay ticked, an open row stays open), set the goal record to `blocked` with the reason and report the last verified row. A later `lit continue` needs a fresh word from the user.
+- **A boundary** above is parked, or written as a `BLOCKED:` line under its row, and the run takes the next row; the inbox asks the user once. Finish or revert the current atomic edit first. `lit pause` silences the driver until `lit resume`.
+- **Resume** on an approval word, the user's own grant, or a bare `lit`, `lit continue` or `lit start`. Reread the plan, ledger and evidence first and quote a grant in a `decision` line; a grant covers only the action it names.
+- **Cancel** when the user says stop: start nothing new, stop children with `send_message`, end the run's processes, remove its scratch, append `CANCELLED: <reason>` as a ledger `note`, leave the plan as it stands, set the goal record to `blocked` and report the last verified row.
 
 ## Procedure
 
@@ -127,7 +128,7 @@ Only after the gates (and the verification gate when it fired) pass:
 2. Reread the plan. The count of open implementation rows decreased by exactly one, and any other change is repaired before moving on.
 3. Append an `evidence` ledger line with the paths: pin, red, green, accept, doneclaim, cleanup. Update the matching criteria in the goal record (`pass` only with an artifact on disk).
 4. A Commit line of yes with a commit grant in Bootstrap hands the commit to `lit-commit`; a Commit line of no (the default) leaves the tree uncommitted.
-5. Start the next row without asking whether to continue. A real boundary, a scope mismatch or a red gate is the reason to stop.
+5. Start the next row without asking; a boundary is parked or marked `BLOCKED:`, not a stop.
 
 Rerun the full gate set after every third row, after any row touching shared code, and before the final message.
 
@@ -135,16 +136,16 @@ Rerun the full gate set after every third row, after any row touching shared cod
 
 A row that turns out wrong (a missing file, a test that cannot fail, a Files line that is too narrow) stops at that row, stays open, and gets the smallest proposed amendment through `ask_question`. After approval the amendment is logged under `## Amendments` at the end of the plan and in a `decision` line, and existing row numbers stay put. After two identical failures at one gate, hand the diagnosis to `debugging`. After three bounded attempts, stop with `BLOCKED at row N: <reason>`. A gate turns green by fixing the code, never by disabling a test or suppressing a finding. After compaction or a restart, reread the plan, ledger tail, evidence folder and `git status --short` first. `references/delegation-and-recovery.md` holds the amendment steps, mid-run input kinds, parallel waves and quota discipline.
 
-### Ending a turn on purpose
+### Setting a step aside
 
-To end a turn while rows are open, write the reason into the ledger first, then reply:
+From the workspace root:
 
 ```bash
-node "<skill-folder>/scripts/ledger-append.mjs" --conversation <conversation-id> --kind note \
-  --text "BLOCKED at row 4: needs approval to install pytest" --path plans/<slug>.md
+node "<skill-folder>/scripts/ledger-append.mjs" --conversation <conversation-id> --kind park \
+  --command "git push origin feat/x" --cwd "$PWD"
 ```
 
-The script appends one well-formed JSON line to `.litgravity/ledger/<conversation-id>.jsonl`, so shell quoting cannot corrupt it. A hand-written `{"ts","kind":"note","text","path"}` line does the same.
+The script appends one well-formed JSON line to `.litgravity/ledger/<conversation-id>.jsonl`, so shell quoting cannot corrupt it; `--kind note --text "BLOCKED at row 4: …"` writes a note the same way.
 
 ### Phase 6: final verification wave and completion
 
@@ -162,7 +163,7 @@ When the last implementation row is ticked, the F rows run against the final tre
 | Plan choice, approvals, scope changes | `ask_question` | unanswerable headless: the question goes in the reply, a default is logged and the run stops at the boundary |
 | agy goal | the user's own `/goal`, never called by the model | see the binding reference |
 
-Tool names differ between agy builds, so use what the tool list offers. A headless `agy -p` run ends with no output when `run_command` is refused, so begin with `read_file`, ask for the permission a gate needs, and report BLOCKED when it is withheld. Skills load by reading their `SKILL.md` (`../lit-code/SKILL.md`, `../debugging/SKILL.md`, `../visual-qa/SKILL.md`, `../review-work/SKILL.md`, `../litgoal/SKILL.md`, `../lit-commit/SKILL.md` on request, `../lit-handoff/SKILL.md`). agy has no approval step for plugin skills, hooks or agents, and the skill never runs `agy plugin install`, `update` or `remove`.
+Tool names differ between agy builds; use what the tool list offers. A headless `agy -p` run ends with no output when `run_command` is refused, so read first and report BLOCKED with the permission a gate needs. Skills load by reading their `SKILL.md` (`../lit-code/`, `../debugging/`, `../visual-qa/`, `../review-work/`, `../litgoal/`, `../lit-commit/` on request, `../lit-handoff/`). agy has no approval step for plugin skills, hooks or agents, and the skill never runs `agy plugin install`, `update` or `remove`.
 
 ## Evidence
 
@@ -187,5 +188,6 @@ Reply in reader form: the verdict first, rows done out of total, what the user c
 - Starting a child without a `TypeName`, two writers on the same files, or a row ticked while a child still owns its evidence.
 - Leaving a server, port, worktree or temp folder behind a closed row.
 - Starting from a plan whose `Status` is not approved, or inferring approval from a ticked box.
-- Committing, pushing, bumping versions or installing plugins as part of execution.
-- Ending a turn with open rows and no ledger `note` naming why, or trusting memory after compaction instead of rereading plan, ledger and evidence.
+- Pushing, bumping versions or installing plugins as part of execution, or committing with no Run charter.
+- Ending a turn to ask when a `BLOCKED:` line and the next row would do; running a step you should have parked.
+- Trusting memory after compaction over the plan, ledger and evidence.

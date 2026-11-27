@@ -5,7 +5,9 @@ import { run, inject, readSession, writeSession, appendLedger, workspaceOf, safe
 import { detectRoute, LOOP_GOAL_ROUTES } from './lib/routes.mjs';
 import { decide, resumablePlan, activation, continueNote, resumeNote } from './lib/reentry.mjs';
 import { lastUserRequest } from './lib/transcript.mjs';
-import { PAUSE_WORD, planRows } from './lib/continuation.mjs';
+import { PAUSE_WORD, planRows, currentRun } from './lib/continuation.mjs';
+import { answer, codeSpan as codeSpanPath, endUnreadableRun, ingestParks, parseAnswer, parseCharter, parseRows, readPlanText, readRun, runUnreadable, writeRun } from './lib/autopilot.mjs';
+import { suggestionNote } from './lib/suggest.mjs';
 import { saveSnapshot } from './lib/boundary.mjs';
 import { applyStackEvent, readStack, writeStack } from './lib/workflow-stack.mjs';
 import { isGoPrompt, takeNextStep } from './lib/rewind/next-step.mjs';
@@ -97,19 +99,63 @@ function stillHolds(step, workspace, conversationId) {
 // The `yes` to lit-plan's approval question starts the plan here, by the same writes `go` and `lit start` make: route
 // start-work, a fresh boundary snapshot, a start-work frame on this conversation's stack. A missing plan, a plan with
 // no open row, or a start-work run this conversation already holds refuses the start, and then no goal is armed.
-function startPlanRun(payload, workspace, turnId, plan) {
+function startPlanRun(payload, workspace, turnId, plan, { charterHash = null } = {}) {
   if (typeof plan !== 'string' || !/^plans\/[^/\\]+\.md$/u.test(plan)) return { ok: false, reason: 'the plan path is not plans/<name>.md' };
   let rows;
   try { rows = planRows(readFileSync(join(workspace, plan), 'utf8')); } catch { return { ok: false, reason: `${plan} was not found` }; }
   if (!rows.some((r) => !r.done)) return { ok: false, reason: `${plan} has no open row` };
   const stack = readStack(workspace, payload.conversationId);
   if (stack.frames.some((f) => f.skill === 'start-work' && f.status === 'active')) return { ok: false, reason: 'a start-work run is already active in this conversation' };
-  writeSession(payload, { route: 'start-work', turnId, activatedAt: Date.now(), stopHeldFor: null, pauseRequested: false, lastKind: 'ignite' });
+  // The `yes` is the approval: the driver runs this plan even without a Status line, and its charter counts only as asked.
+  writeSession(payload, { route: 'start-work', turnId, activatedAt: Date.now(), stopHeldFor: null, pauseRequested: false, lastKind: 'ignite', planPath: plan, planApproved: plan, ...(charterHash ? { charterHash } : {}) });
   saveSnapshot(payload);
   const { stack: next } = applyStackEvent(stack, { type: 'start', skill: 'start-work', ref: { plan } });
   writeStack(workspace, payload.conversationId, next);
   appendLedger(payload, { kind: 'route', route: 'start-work', how: 'consent', plan });
   return { ok: true };
+}
+
+// The answer to a start-work run's approval word, as a promise of the injected step, or null to route the prompt as
+// usual: not an approval word, or `lit resume` / `lit approve` / `lit deny` with no run to answer (`lit resume` then
+// continues the route, and the older typed-approval note covers the other two). A repeated call for the same turn
+// repeats its answer.
+const UNREADABLE = 'LitGravity: this conversation\'s start-work run state could not be read (damaged, the wrong shape or too large), so nothing ran and nothing is approved. The file is left as it is, and the run stays quiet. Tell the user this in one line.';
+const FAILED = 'LitGravity: the start-work hooks failed while answering, so nothing more runs from this answer and it approves nothing else; any step it already ran is in the ledger and cannot run again from this inbox. Tell the user this in one line.';
+
+// Fails closed: an unreadable run state or any error while answering runs nothing more and approves nothing, and the
+// approval word never falls through to its older typed-approval meaning.
+function answerRun(payload, request) {
+  const parsed = parseAnswer(request.raw ?? request.text);
+  if (!parsed) return null;
+  if (runUnreadable(payload)) return Promise.resolve(inject(UNREADABLE));
+  try {
+    const out = answerReadable(payload, request, parsed);
+    return out ? out.catch(() => inject(FAILED)) : out;
+  } catch {
+    return Promise.resolve(inject(FAILED));
+  }
+}
+
+function answerReadable(payload, request, parsed) {
+  const previous = readSession(payload);
+  const run = readRun(payload) ?? (previous && !previous.corrupt ? currentRun(payload, previous) : null);
+  if (!run || run.completed) {
+    if (['resume', 'approve', 'deny'].includes(parsed.word)) return null;
+    return Promise.resolve(inject('LitGravity: no start-work run in this conversation is waiting for that answer, so nothing ran. Say so to the user in one line.'));
+  }
+  const turnId = request.stepIndex;
+  if (turnId !== null && run.answeredTurn === turnId) return run.lastAnswer ? Promise.resolve(inject(run.lastAnswer)) : null;
+  const workspace = workspaceOf(payload);
+  const before = parseRows(readPlanText(join(workspace, run.plan)) ?? '');
+  ingestParks(payload, run, before.find((r) => !r.done && !r.blocked && !r.impossible)?.id ?? null);
+  return answer(payload, run, parsed, before).then((note) => {
+    run.answeredTurn = turnId;
+    run.lastAnswer = note;
+    writeRun(payload, run);
+    appendLedger(payload, { kind: 'answer', word: parsed.word, plan: run.plan });
+    writeSession(payload, { ...(previous && !previous.corrupt ? previous : {}), route: 'start-work', turnId, activatedAt: previous?.activatedAt ?? Date.now(), pauseRequested: parsed.word === 'pause', lastKind: 'continue', planPath: run.plan });
+    return inject(note);
+  });
 }
 
 function staleGoText(step) {
@@ -137,6 +183,11 @@ run((payload) => {
   const waited = readSession(payload);
   if (waited?.waiting && !waited.corrupt && !waited.fromJournal) writeSession(payload, { ...waited, waiting: null });
 
+  // A start-work run's approval words. This is the only event that sees the typed prompt, so only the owner's own
+  // prompt answers its run; the same words in a tool result, a reply or a Stop payload never reach this path.
+  const runAnswer = answerRun(payload, request);
+  if (runAnswer) return runAnswer;
+
   // `go` / `ㄱㄱ` / `진행`: consume the next-step record the collector wrote within 30 minutes.
   if (isGoPrompt(request.text)) {
     const step = takeNextStep(root, safeId(payload.conversationId));
@@ -153,7 +204,7 @@ run((payload) => {
           writeStack(workspace, payload.conversationId, next);
         }
         if (step.kind === 'start-plan') {
-          writeSession(payload, { route: 'start-work', turnId, activatedAt: Date.now(), stopHeldFor: null, pauseRequested: false, lastKind: 'ignite' });
+          writeSession(payload, { route: 'start-work', turnId, activatedAt: Date.now(), stopHeldFor: null, pauseRequested: false, lastKind: 'ignite', ...(step.target?.plan ? { planPath: step.target.plan } : {}) });
           saveSnapshot(payload);
           const stack = readStack(workspace, payload.conversationId);
           const { stack: next } = applyStackEvent(stack, { type: 'start', skill: 'start-work', ...(step.target?.plan ? { ref: { plan: step.target.plan } } : {}) });
@@ -171,7 +222,7 @@ run((payload) => {
   // The approval question lit-plan asked: an exact `yes` to a live consent record starts the plan and arms its goal;
   // `edit` asks again; `no` does nothing. Any other prompt is not an answer and falls through.
   const answered = answerConsent(workspace, request.text, safeId(payload.conversationId), Date.now(), {
-    startWork: (plan) => startPlanRun(payload, workspace, turnId, plan),
+    startWork: (plan, asked) => startPlanRun(payload, workspace, turnId, plan, asked),
     turnId,
   });
   if (answered) {
@@ -183,9 +234,19 @@ run((payload) => {
     const start = activation({ route: 'start-work', keyword: 'start', bare: false, resume: false, restart: false, direct: false, empty: false }, payload.conversationId, 'ignite');
     return inject(`${start}\nThe user approved ${answered.start} with \`yes\`: this is the typed approval for start-work, and the plan to execute is ${answered.start}.\n${note}`);
   }
-  // `lit cancel` clears a goal LitGravity owns; a goal set by hand in agy is out of reach and stays.
+  // `lit cancel` clears a goal LitGravity owns; a goal set by hand in agy is out of reach and stays. It also ends a
+  // start-work run whose state cannot be read, keeping the bad file beside it.
   if (/^lit\s+cancel\s*$/u.test(request.text.trim())) {
+    const kept = endUnreadableRun(payload);
+    if (kept) {
+      const previous = readSession(payload);
+      writeSession(payload, { ...(previous && !previous.corrupt ? previous : {}), route: null, planPath: null, turnId });
+      const stack = readStack(workspace, payload.conversationId);
+      if (stack.frames.at(-1)?.skill === 'start-work') writeStack(workspace, payload.conversationId, applyStackEvent(stack, { type: 'move', done: true }).stack);
+      appendLedger(payload, { kind: 'decision', decision: 'run-cancel', kept });
+    }
     const cleared = cancelOwnedGoal(workspace);
+    if (kept) return inject(`LitGravity start-work: the run whose state could not be read has ended; nothing ran. The damaged file is kept as ${codeSpanPath(kept)}. Tell the user this in one line, then stop the work.${cleared ? `\n${cleared}` : ''}`);
     if (cleared) {
       appendLedger(payload, { kind: 'decision', decision: 'goal-cancel' });
       return inject(`LitGravity goal: tell the user this line once, verbatim, then stop the work:\n${cleared}`);
@@ -219,7 +280,9 @@ run((payload) => {
       writeSession(payload, { ...previous, route: null, turnId, pauseRequested, lastKind: null });
       appendLedger(payload, { kind: 'route', route: null, how: 'clear' });
     }
-    return {};
+    // No `lit`: the suggestion tier offers the skills a gated rule found, plus "none", or one compact catalog line.
+    const note = suggestionNote(request.text);
+    return note ? inject(note) : {};
   }
 
   // A repeated call for the same user turn repeats the same answer and changes nothing.
@@ -235,10 +298,12 @@ run((payload) => {
   const plan = !hit.restart && (hit.bare || hit.resume) ? resumablePlan(workspace) : null;
   const decision = decide(hit, previous, plan);
   const now = Date.now();
+  // The plan a start-work prompt names (or the one a resume picked) is the run's plan, even with every row ticked.
+  const planPath = decision.route === 'start-work' && decision.kind !== 'continue' ? (namedPlan(decision, hit, workspace) ?? decision.plan?.file ?? null) : null;
   if (decision.kind === 'continue') {
     writeSession(payload, { ...previous, turnId, pauseRequested, lastKind: 'continue' });
   } else {
-    writeSession(payload, { route: decision.route, turnId, activatedAt: now, stopHeldFor: null, pauseRequested, lastKind: decision.kind });
+    writeSession(payload, { route: decision.route, turnId, activatedAt: now, stopHeldFor: null, pauseRequested, lastKind: decision.kind, ...(planPath ? { planPath } : {}) });
   }
   saveSnapshot(payload);
 
@@ -259,5 +324,12 @@ run((payload) => {
     ...(skillPlan ? { plan: skillPlanIds(skillPlan) } : {}),
     ...(goalExtra.loopGoal ? { goalAsked: goalExtra.loopGoal.condition } : {}),
   });
-  return inject(textFor(decision, hit, payload, skillPlan, goalExtra));
+  return inject(`${textFor(decision, hit, payload, skillPlan, goalExtra)}${charterLine(workspace, planPath)}`);
 });
+
+// A typed start approves the plan as it stands, charter included; the model quotes the charter so the user sees it.
+function charterLine(workspace, planPath) {
+  if (!planPath) return '';
+  const charter = parseCharter(readPlanText(join(workspace, planPath)) ?? '');
+  return charter ? `\nRun charter in force for this run: commit on ${charter.branch} in ${charter.repo} (named files only; never push, tag, publish or reset). Quote this line to the user in your first reply.` : '';
+}

@@ -6,6 +6,12 @@ import { sandbox, workspace, runHook, basePayload, turn, injected, PLUGIN, ROOT 
 
 const FULL = /LIT IGNITED/;
 const CONT = /LIT CONTINUES/;
+// A prompt without `lit` starts no route; it gets only the suggestion tier's catalog line.
+const catalogOnly = (r) => {
+  assert.equal(r.status, 0);
+  assert.match(injected(r), /^LitGravity skills \(read one only if it fits/);
+  assert.doesNotMatch(injected(r), /LIT IGNITED|LIT CONTINUES/);
+};
 
 function fresh() {
   const { env } = sandbox();
@@ -37,7 +43,7 @@ test('only invocation 0 is routed: later model calls of the same turn add nothin
 
 test('a prompt without the keyword changes nothing and a missing transcript is no error', () => {
   const { env, ws } = fresh();
-  assert.deepEqual(turn(ws, env, 'What does this function do?', 0).json, {});
+  catalogOnly(turn(ws, env, 'What does this function do?', 0));
   const gone = runHook('pre-invocation', { ...basePayload(ws, { invocationNum: 0 }), transcriptPath: join(ws.dir, 'nope.jsonl') }, env);
   assert.deepEqual(gone.json, {});
   assert.equal(gone.status, 0);
@@ -139,7 +145,7 @@ test('a plan nobody started with start-work is not resumed by a bare lit', () =>
 test('a prompt without the keyword ends the route, so the next lit starts a full activation', () => {
   const { env, ws } = fresh();
   turn(ws, env, 'lit plan x', 0);
-  assert.deepEqual(turn(ws, env, 'thanks', 10).json, {});
+  catalogOnly(turn(ws, env, 'thanks', 10));
   assert.match(injected(turn(ws, env, 'lit plan again', 20)), FULL);
 });
 
@@ -171,7 +177,7 @@ test('the router reads a transcript file in the shape agy writes (static fixture
     conversationId: 'conv-fixture-2', invocationNum: 0, workspacePaths: [ws.dir],
     transcriptPath: join(ROOT, 'test', 'fixtures', 'transcripts', 'two-turns-second-is-plain.jsonl'),
   }, env);
-  assert.deepEqual(b.json, {}, 'the newest USER_INPUT decides, not the first');
+  catalogOnly(b);
 });
 
 test('every hook script answers with one JSON object and exit 0 on garbage input', () => {

@@ -16,7 +16,7 @@ function hasRecentLitSessions(workspace, env) {
   try {
     const now = Date.now();
     for (const name of readdirSync(dir)) {
-      if (!name.endsWith('.json') || name.includes('.stack') || name.includes('.snapshot') || name.includes('.lanes') || name.includes('.live')) continue;
+      if (!name.endsWith('.json') || name.includes('.stack') || name.includes('.snapshot') || name.includes('.lanes') || name.includes('.live') || name.includes('.run')) continue;
       const full = join(dir, name);
       try {
         if (now - statSync(full).mtimeMs < RECENT_SESSION_MS) return true;

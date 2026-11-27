@@ -6,6 +6,7 @@ import { uninstall } from '../lib/uninstall.mjs';
 import { doctor } from '../lib/doctor.mjs';
 import { models } from '../lib/models.mjs';
 import { list } from '../lib/list.mjs';
+import { inbox } from '../lib/inbox.mjs';
 import { extensions, EXTENSION_HELP } from '../lib/extension-manager.mjs';
 import { packageVersion, destState } from '../lib/bundle.mjs';
 import { paths } from '../lib/paths.mjs';
@@ -29,6 +30,7 @@ Commands
   status       Short version of doctor plus an update check
   models       List the models and efforts your agy offers
   list         Every skill with the words that reach it and its purpose, and where a moved skill went (--json for tools)
+  inbox        Show, from the hooks' own state, what each start-work run here has parked and what an approval would run
   extensions   extensions list|check|install|update|remove|prune-backups: manage the LitFamily extensions in agy's
                skill folders (check first, move an old copy aside, copy, write a receipt); a dry run until --yes.
                litgravity extensions help explains each verb
@@ -109,6 +111,8 @@ async function main() {
       return models({ env, flags, print });
     case 'list':
       return list({ flags, print });
+    case 'inbox':
+      return inbox({ env, cwd, flags, print });
     case 'extensions':
       return extensions({ env, args, flags, cwd, print });
     case 'config':

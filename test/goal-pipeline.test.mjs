@@ -11,7 +11,7 @@ import {
 import { GOAL_NEVER, SKILL_IDS } from '../plugin/hooks/lib/routes.mjs';
 import { READ_ONLY_DISCIPLINES, readStack } from '../plugin/hooks/lib/workflow-stack.mjs';
 
-const PLAN = (rows, check = 'node --test test/a.test.mjs') => `# Plan\n\n## Todos\n${rows}\n\n## Done when\n- check: \`${check}\`\n`;
+const PLAN = (rows, check = 'node --test test/a.test.mjs') => `# Plan\n\ngoal: native\n\n## Todos\n${rows}\n\n## Done when\n- check: \`${check}\`\n`;
 const exit = (status) => () => ({ status, signal: null, error: null });
 
 function project(planText) {
@@ -26,7 +26,7 @@ test('the compiler builds the fixed condition from the Done when block, and name
   assert.equal(parseDoneWhen('# Plan\n').ok, false);
   assert.match(parseDoneWhen('## Done when\nsoon\n').reason, /names no `check:`/);
   const built = compileCondition({ plan: 'plans/p.md', check: 'npm test' });
-  assert.match(built.condition, /^Every row in plans\/p\.md is ticked and `npm test` exits 0 \[lit:[0-9a-f]{8}\]$/);
+  assert.match(built.condition, /^Every row in plans\/p\.md is ticked and `npm test` exits 0 \[lit:[0-9a-f]{8}\], or the latest reply starts with WAITING-ON-USER:, or after 30 turns$/);
   assert.equal(compileCondition({ plan: 'plans/p.md', check: 'npm test' }).condition, built.condition, 'deterministic');
   assert.equal(compileCondition({ plan: 'plans/p.md', check: `node ${'x'.repeat(GOAL_MAX_CHARS)}.mjs` }).ok, false);
 });
@@ -141,7 +141,7 @@ test('PreInvocation: `yes` starts start-work on the plan through the hook and ar
   const noText = injected(turn(other, env, 'no', 0));
   assert.match(noText, /Nothing started and no goal set: you answered no\./);
   assert.doesNotMatch(noText, /LIT IGNITED · start-work/);
-  assert.deepEqual(turn(workspace(), env, 'yes', 0).json, {}, 'a yes with no question is an ordinary prompt');
+  assert.match(injected(turn(workspace(), env, 'yes', 0)), /^LitGravity skills \(read one only if it fits/, 'a yes with no question is an ordinary prompt: only the catalog line');
 });
 
 test('turn end: the advisory check clears only a met goal LitGravity owns and holds the turn once to say so', () => {

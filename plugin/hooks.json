@@ -11,7 +11,7 @@
       {
         "type": "command",
         "command": "node ./hooks/pre-invocation.mjs",
-        "timeout": 10
+        "timeout": 30
       }
     ],
     "PostInvocation": [
@@ -25,7 +25,7 @@
       {
         "type": "command",
         "command": "node ./hooks/stop.mjs",
-        "timeout": 10
+        "timeout": 30
       }
     ],
     "PreToolUse": [

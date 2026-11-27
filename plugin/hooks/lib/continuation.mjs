@@ -1,6 +1,8 @@
 import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { appendLedger, safeId, workspaceOf, writeSession } from './common.mjs';
+import { drive, newRun, readRun, runUnreadable, writeRun } from './autopilot.mjs';
+import { lastModelReply } from './transcript.mjs';
 
 const MAX_HOLDS = 3;
 const PLAN_ROW = /^- \[( |x|X)\] (\d+|F\d+)\. ?(.*)$/;
@@ -86,23 +88,41 @@ function bounded(payload, state, prefix, fingerprint, label) {
   return { ...state, [`${prefix}Fingerprint`]: fingerprint, [`${prefix}Holds`]: holds + 1, [`${prefix}Released`]: false };
 }
 
-function startWorkHold(payload, state, prompt) {
-  if (state.route !== 'start-work' || paused(state, prompt) || releasedByLedger(payload)) return null;
+export const approvedPlan = (text) => {
+  const status = /^[>\s*_-]*Status\**:\**\s*(.+)$/im.exec(String(text ?? ''));
+  return Boolean(status && /^approved\b/i.test(status[1].replace(/^[*_\s]+/, '')));
+};
+
+// The run this conversation drives: the plan its start named (state.planPath), else the plan it last touched, under
+// the start-work route. A plan started through lit-plan's `yes` counts as approved. A finished run whose plan gained
+// open rows again starts over.
+export function currentRun(payload, state) {
+  if (state?.route !== 'start-work') return null;
+  // An unreadable run file is never replaced by a fresh run: the driver stays quiet and the file stays for the user.
+  if (runUnreadable(payload)) return null;
   const cwd = workspaceOf(payload);
-  const file = activePlan(payload, cwd);
-  if (!file) return null;
+  const named = typeof state.planPath === 'string' && /^plans\/[A-Za-z0-9._-]+\.md$/.test(state.planPath) && existsSync(join(cwd, state.planPath)) ? state.planPath : null;
+  const file = named ?? activePlan(payload, cwd);
+  if (!file) return readRun(payload);
   const text = readText(join(cwd, file));
-  if (!text) return null;
-  const status = /^[>\s*_-]*Status\**:\**\s*(.+)$/im.exec(text);
-  if (!status || !/^approved\b/i.test(status[1].replace(/^[*_\s]+/, ''))) return null;
-  const rows = planRows(text);
-  const open = rows.filter((r) => !r.done);
-  if (!open.length) return null;
-  const next = bounded(payload, state, 'cont', `${file}:${rows.length - open.length}/${rows.length}`, 'start-work');
-  if (!next) return null;
-  writeSession(payload, next);
-  const word = open.length === 1 ? 'row' : 'rows';
-  return `LitGravity start-work: ${file} has ${open.length} open ${word} (next: row ${open[0].id}). Continue with row ${open[0].id}, or write a ledger note starting BLOCKED at row ${open[0].id}: / PAUSED at row ${open[0].id}: / CANCELLED: and end the turn.`;
+  if (!text || !(approvedPlan(text) || state.planApproved === file)) return null;
+  const run = readRun(payload);
+  if (run && run.plan === file && !(run.completed && planRows(text).some((r) => !r.done))) return run;
+  // `lit deny` refuses a step for the conversation's runs, so a new run keeps the refusals.
+  const fresh = newRun(payload, file, text, state.charterHash);
+  if (run?.denied?.length) fresh.denied = [...run.denied];
+  return fresh;
+}
+
+// The turn-end driver of autopilot.mjs. A ledger note starting BLOCKED at row N:, PAUSED at row N: or CANCELLED:
+// still ends a turn quietly, as it did before the driver.
+function startWorkHold(payload, state, prompt, turn) {
+  if (state.route !== 'start-work' || paused(state, prompt) || releasedByLedger(payload)) return null;
+  const run = currentRun(payload, state);
+  if (!run) return null;
+  const out = drive(payload, run, { turn, lastReply: lastModelReply(payload.transcriptPath) });
+  writeRun(payload, run);
+  return out ? out.text : null;
 }
 
 function goalDir(cwd) {
@@ -150,7 +170,7 @@ function goalHold(payload, state, prompt, turn) {
 // Returns the reason text of the hold, or null when the turn may end.
 export function continuationHold(payload, state, prompt, turn) {
   try {
-    return startWorkHold(payload, state, prompt) ?? goalHold(payload, state, prompt, turn);
+    return startWorkHold(payload, state, prompt, turn) ?? goalHold(payload, state, prompt, turn);
   } catch {
     return null;
   }

@@ -30,9 +30,15 @@ that script a row. A script the plan creates may be missing today; that counts a
 
 `node <skill-root>/scripts/goal-propose.mjs plans/<slug>.md`, run once from the workspace root after the self-check:
 
-1. **Compile.** `Every row in plans/<slug>.md is ticked and \`<cmd>\` exits 0 [lit:<id>]`, where `<id>` is eight hex
-   characters over the plan path and the command. Over 500 characters: skipped, with the reason "point the check at one
-   script".
+0. **Opt in.** A goal is offered only when the plan carries a `goal: native` line outside code fences. Without it the
+   question is start-only (`No goal for this plan: the plan has no \`goal: native\` line, …`) and start-work's own Stop
+   driver closes the run on the `## Done when` check (`../start-work/references/autopilot.md`). Either way the question
+   records a hash of the plan's `Run charter:` and `Scope roots:` lines; an edit to them before the `yes` voids the
+   charter for that run.
+1. **Compile.** `Every row in plans/<slug>.md is ticked and \`<cmd>\` exits 0 [lit:<id>], or the latest reply starts
+   with WAITING-ON-USER:, or after 30 turns`, where `<id>` is eight hex characters over the plan path and the command;
+   the two tails make the goal end itself when the run waits on the user or runs long. Over 500 characters: skipped,
+   with the reason "point the check at one script".
 2. **Lint.** Judgment words cannot be checked and are refused (works, looks good, properly, as expected, 잘 동작,
    괜찮, 제대로 and the like). A success that is only an outward action (push, publish, tag, release, merge) is refused.
    A command outside the table above is refused.

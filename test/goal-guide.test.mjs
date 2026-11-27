@@ -59,7 +59,7 @@ test('Given a plan goal, the guide is a Markdown quote: heading, the goal, the t
 });
 
 test('Given each propose path, the result carries the guide for its own question and a skip carries none', () => {
-  const ok = proposeGoal({ workspace: project({ plan: '# P\n\n- [ ] 1. x\n\n## Done when\n- check: `npm test`\n' }).dir, plan: 'plans/p.md', run: exit(1) });
+  const ok = proposeGoal({ workspace: project({ plan: '# P\n\ngoal: native\n\n- [ ] 1. x\n\n## Done when\n- check: `npm test`\n' }).dir, plan: 'plans/p.md', run: exit(1) });
   assert.equal(ok.guide, answerGuide('plan', ok.condition));
   const start = proposeGoal({ workspace: project({ plan: '# P\n\n- [ ] 1. x\n' }).dir, plan: 'plans/p.md', run: exit(1) });
   assert.equal(start.guide, answerGuide('start'));
@@ -69,7 +69,7 @@ test('Given each propose path, the result carries the guide for its own question
 });
 
 test('Given a plan, goal-propose prints the unchanged question line, a blank line, then the guide', () => {
-  const ws = project({ plan: '# P\n\n- [ ] 1. x\n\n## Done when\n- check: `npm test`\n', pkg: true });
+  const ws = project({ plan: '# P\n\ngoal: native\n\n- [ ] 1. x\n\n## Done when\n- check: `npm test`\n', pkg: true });
   const { NODE_TEST_CONTEXT, ...env } = process.env;
   const cli = spawnSync(process.execPath, [SCRIPT, 'plans/p.md'], { cwd: ws.dir, encoding: 'utf8', env });
   assert.equal(cli.status, 0);

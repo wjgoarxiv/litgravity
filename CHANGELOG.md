@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- start-work finishes on its own. The Stop hook pushes an approved plan toward its next row at most twice per unchanged state, then shows one inbox, then stays quiet. Every row ticked and the `## Done when` check green (allowlisted, no shell, 20 s) closes the run with one line. A child lane that is still running keeps the run open, and a lane quiet for 30 minutes is named.
+- Rows that need the user carry `BLOCKED:`, rows nobody can finish carry `IMPOSSIBLE:`, and a reply that can only wait starts with `WAITING-ON-USER:`.
+- Steps outside the run's grants are parked through `ledger-append.mjs --kind park` and sorted into local `[B]` and outward `[X]` steps; steps it cannot read are held, and secrets are refused. The inbox lists them whole, and the typed answers are `lit approve`, `lit approve x`, `lit deny`, `lit skip-row [N]`, `lit pause` and `lit resume` (Korean forms too). Replays re-check each step and run inside 25 s.
+- `Run charter: commit on <branch> in <repo>` lets a run commit on that branch. The charter is bound to lit-plan's approval question, and an edit before the `yes` voids it.
+- lit-plan offers agy's `/goal` only for a plan with a `goal: native` line, and the condition now ends itself: `…, or the latest reply starts with WAITING-ON-USER:, or after 30 turns`.
+- A prompt without `lit` gets a skill hint for a few request kinds (figures, decks, Word documents, debugging, motion), or one compact catalog line. Each hint passed recall ≥ 0.85 and near-miss false hits ≤ 0.10 on a sealed held-out half; `node scripts/routing-eval.mjs` scores them.
+- `litgravity inbox` prints, straight from the hooks' run state, what each start-work run in the folder has parked and what `lit approve` or `lit approve x` would run; it changes nothing.
+- PreInvocation and Stop now have 30 s hook timeouts; the Done-when check gets only what is left of Stop's budget.
+
 ## 0.1.20 — 2026-11-26
 
 - `install --agent` (or `--agent` anywhere) prints an install guide for coding agents and writes nothing. Output with no person at the terminal points to it, and so does the first install card.
