@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.21 — 2026-11-27
 
 - start-work finishes on its own. The Stop hook pushes an approved plan toward its next row at most twice per unchanged state, then shows one inbox, then stays quiet. Every row ticked and the `## Done when` check green (allowlisted, no shell, 20 s) closes the run with one line. A child lane that is still running keeps the run open, and a lane quiet for 30 minutes is named.
 - Rows that need the user carry `BLOCKED:`, rows nobody can finish carry `IMPOSSIBLE:`, and a reply that can only wait starts with `WAITING-ON-USER:`.

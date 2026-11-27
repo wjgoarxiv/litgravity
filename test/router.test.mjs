@@ -193,7 +193,7 @@ test('SessionStart injects a persistent system message with the version and ever
   const { env, ws } = fresh();
   const r = runHook('session-start', basePayload(ws), env);
   const msg = r.json.injectSteps[0].systemMessage.systemMessage;
-  assert.match(msg, /LitGravity 0\.1\.20 is active/);
+  assert.match(msg, /LitGravity 0\.1\.21 is active/);
   assert.match(msg, /- lit-plan: /);
   assert.match(msg, /- lit-brainstorm: /);
   assert.ok(Buffer.byteLength(msg) < 12 * 1024);
