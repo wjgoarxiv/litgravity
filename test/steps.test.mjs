@@ -200,7 +200,11 @@ test('readers that run code or print env: less/more +cmd, jq env, rg --hostname-
 
 test('cross-port: a write whose target contains the run state folder is refused; ~/ operands are home paths', () => {
   const state = join(P.ws, '..', 'state');
-  for (const cmd of [`rm -rf ${join(P.ws, '..')}`, 'mv .. /tmp/elsewhere', `cp -r src ${join(P.ws, '..')}`, `rm -r ${state}`, `rm -rf ${state.toUpperCase()}`]) assert.equal(tier(cmd), 'refused', cmd);
+  for (const cmd of [`rm -rf ${join(P.ws, '..')}`, 'mv .. /tmp/elsewhere', `cp -r src ${join(P.ws, '..')}`, `rm -r ${state}`]) assert.equal(tier(cmd), 'refused', cmd);
+  // Case folding follows the file system the guard runs on (steps.mjs CASE_FOLD): the upper-cased folder is the same folder on macOS and Windows, and a different, absent one on Linux.
+  const folded = tier(`rm -rf ${state.toUpperCase()}`);
+  if (process.platform === 'darwin' || process.platform === 'win32') assert.equal(folded, 'refused', 'upper-cased state folder');
+  else assert.notEqual(folded, 'refused', 'a case-sensitive file system keeps the upper-cased path distinct');
   assert.notEqual(tier('ls ..'), 'refused', 'reading the parent stays allowed');
   for (const cmd of ['cat ~/.ssh/config', 'touch ~/.zshrc', 'cp ok.mjs ~/.gemini/x', 'rm -rf ~/.gemini']) assert.equal(tier(cmd), 'refused', cmd);
   const underHome = { stateDir: join(P.home, '.local', 'state', 'litgravity', 'sessions') };
